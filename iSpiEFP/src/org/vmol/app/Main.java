@@ -56,6 +56,7 @@ public class Main extends Application {
 	public static JmolPanel jmolPanel;
 	public static JmolPanel auxiliaryJmolPanel;
 
+	//hello
 	public static void main(String[] args) {
 		launch(args);
 	}
