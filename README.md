@@ -24,6 +24,8 @@ Commiting and Pushing(Git Plug-in must be installed, likely to be installed by d
 Right-Click Project Folder -> Select Team -> commit OR push
 
 And Finally:
+
 -for directions on how to actually use this thing see "iSpiEFP usage"
+
 -for a list of known bugs see "Known Issues" 
 
