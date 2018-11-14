@@ -12,15 +12,19 @@ Technologies/Software used for building the application:
 Refer to this javafx and SceneBuilder tutorial - http://code.makery.ch/library/javafx-8-tutorial
 
 Instructions:
+
 Running the project from Eclipse – Import the ‘Vmol’ project using Git to eclipse’s workspace and run the Main.java file located at iSpiEFP_Dev_Scripts/iSpiEFP/src/org/vmol/app/Main.java (click on Main.java, hit the green arrow in eclipse). This will launch the application.
+
 Exporting the Project as jar file – From eclipse, click File -> Export -> Runnable Jar file. For the launch configuration, you need to run the Main.java for the first time and mention it in the configuration. 
 All editable code for the source file is located in iSpiEFP_Dev_Scripts/iSpiEFP/src/org/vmol/app/
 
 Git Instructions with Eclipse IDE, Mars .2 Release (4.5.2)
 For cloning this repository: 
+
 https://github.com/collab-uniba/socialcde4eclipse/wiki/How-to-import-a-GitHub-project-into-Eclipse
 
 Commiting and Pushing(Git Plug-in must be installed, likely to be installed by default):
+
 Right-Click Project Folder -> Select Team -> commit OR push
 
 And Finally:
