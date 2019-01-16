@@ -140,9 +140,12 @@ public class DatabaseController {
         jmolViewer.runScript("set picking atom");
         jmolViewer.runScript("selectionHalos on");
         String selecting = "select ({";
+        
+        //ERROR HERE 
 		for (int i = 0; i < groups.get(0).size(); i++) {
 			selecting += groups.get(0).get(i) + " ";
 		}
+		
 		selecting += "})";
 		jmolViewer.runScript(selecting);
 		jmolWindow.repaint();
@@ -291,7 +294,10 @@ public class DatabaseController {
 			
 			pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
 			
-			String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
+			//legacy server name
+			//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
+			//new server name
+			String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
 			int port = 8080;
 			
 			for (int x = 0; x < groups.size(); x ++) {
@@ -319,6 +325,8 @@ public class DatabaseController {
 		        OutputStream outToServer = client.getOutputStream();
 		        //DataOutputStream out = new DataOutputStream(outToServer);
 		        
+		        System.out.println(query);
+		        
 		        
 		        outToServer.write(query.getBytes("UTF-8"));
 		       
@@ -337,6 +345,7 @@ public class DatabaseController {
 		        }
 		        //System.out.println(reply);
 		        String reply = sb.toString();
+		        System.out.println("Database Response:" + reply);
 		        if (reply.contains("none")) {
 		        	continue;
 		        }

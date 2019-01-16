@@ -466,7 +466,9 @@ public class QChemInputController implements Initializable{
 		String qChemText = qChemInputTextArea.getText();
 				
 			if (auto_sub!= null && auto_sub.getValue().equals("On")) {
-				String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
+				String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
+
+				//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
 				int port = 8080;
 				try {
 					Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
@@ -585,6 +587,7 @@ public class QChemInputController implements Initializable{
 			conn.connect();
 			String username = "xu675";
 			String password = "He00719614";
+		
 			boolean isAuthenticated = conn.authenticateWithPassword(username, password);
 			if (!isAuthenticated)
 				throw new IOException("Authentication failed.");

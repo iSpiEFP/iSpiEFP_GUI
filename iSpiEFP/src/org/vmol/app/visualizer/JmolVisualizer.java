@@ -6,11 +6,14 @@ import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -26,6 +29,8 @@ import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.vmol.app.Main;
 import org.vmol.app.Main.JmolPanel;
+import org.vmol.app.database.DatabaseController;
+import org.vmol.app.util.PDBParser;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -34,15 +39,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 
 public class JmolVisualizer {
@@ -237,6 +249,50 @@ public class JmolVisualizer {
         		
         		//load items into list view
         		loadAuxiliaryList();
+        		
+    	    			
+            			final CountDownLatch latch = new CountDownLatch(1);
+            			Platform.runLater(new Runnable(){
+        					@Override
+        					public void run() {
+        						Alert alert = new Alert(AlertType.INFORMATION);
+								alert.setTitle("Database Results");
+								alert.setHeaderText(null);
+								alert.setContentText("Parameters not found in local directory, will search remote database now..");
+								alert.showAndWait();
+								latch.countDown();
+        					}
+        					});
+            			try {
+							latch.await();
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} 
+            			final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/database/database.fxml"));
+                		DatabaseController controller;
+        				controller = new DatabaseController(groups,jmolViewer,jmolWindow);
+        				loader.setController(controller);
+        				Platform.runLater(new Runnable(){
+        					@Override
+        					public void run() {
+        						BorderPane bp;
+        						try {
+        							bp = loader.load();
+        							Scene scene = new Scene(bp,659.0,500.0);
+        		    	        	Stage stage = new Stage();
+        		    	        	stage.initModality(Modality.WINDOW_MODAL);
+        		    	        	stage.setTitle("Databse Results");
+        		    	        	stage.setScene(scene);
+        		    	        	stage.show();
+        						} catch (IOException e) {
+        							// TODO Auto-generated catch block
+        							e.printStackTrace();
+        						}
+        						
+        					}
+        					});
+            	
             }
        	});
 	} //end of visualize function 
