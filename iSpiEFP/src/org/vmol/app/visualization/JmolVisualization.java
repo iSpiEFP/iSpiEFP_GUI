@@ -258,6 +258,7 @@ public class JmolVisualization {
             					}
             				}
             				groups.add(curr_group);
+            				System.out.println("GROUPS:" + groups);
             			}
     	    		
     	    			try {

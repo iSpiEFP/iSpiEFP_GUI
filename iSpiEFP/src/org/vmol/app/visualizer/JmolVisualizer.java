@@ -30,6 +30,7 @@ import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.vmol.app.Main;
 import org.vmol.app.Main.JmolPanel;
 import org.vmol.app.database.DatabaseController;
+import org.vmol.app.database.DatabaseController2;
 import org.vmol.app.util.PDBParser;
 
 import javafx.application.Platform;
@@ -248,52 +249,16 @@ public class JmolVisualizer {
         	    //jmolPanel.setPreferredSize(new Dimension(940, 595));
         		
         		//load items into list view
-        		loadAuxiliaryList();
+        		ListView<String> aux_list = loadAuxiliaryList();
         		
-    	    			/*
-            			final CountDownLatch latch = new CountDownLatch(1);
-            			Platform.runLater(new Runnable(){
-        					@Override
-        					public void run() {
-        						Alert alert = new Alert(AlertType.INFORMATION);
-								alert.setTitle("Database Results");
-								alert.setHeaderText(null);
-								alert.setContentText("Parameters not found in local directory, will search remote database now..");
-								alert.showAndWait();
-								latch.countDown();
-        					}
-        					});
-            			try {
-							latch.await();
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} 
-            			final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/database/database.fxml"));
-                		DatabaseController controller;
-        				controller = new DatabaseController(groups,jmolViewer,jmolWindow);
-        				loader.setController(controller);
-        				Platform.runLater(new Runnable(){
-        					@Override
-        					public void run() {
-        						BorderPane bp;
-        						try {
-        							bp = loader.load();
-        							Scene scene = new Scene(bp,659.0,500.0);
-        		    	        	Stage stage = new Stage();
-        		    	        	stage.initModality(Modality.WINDOW_MODAL);
-        		    	        	stage.setTitle("Databse Results");
-        		    	        	stage.setScene(scene);
-        		    	        	stage.show();
-        						} catch (IOException e) {
-        							// TODO Auto-generated catch block
-        							e.printStackTrace();
-        						}
-        						
-        					}
-        					});
-        					*/
-            	
+        		DatabaseController2 DBcontroller;
+				DBcontroller = new DatabaseController2(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_list);
+				try {
+					DBcontroller.run();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}		            	
             }
        	});
 	} //end of visualize function 
@@ -352,7 +317,7 @@ public class JmolVisualizer {
 	
 	
 	
-	public void loadAuxiliaryList() {
+	public ListView<String> loadAuxiliaryList() {
 		//get list
 		SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
 		//splitpane.getItems().add(swingNode);
@@ -370,11 +335,14 @@ public class JmolVisualizer {
 		ListView<String> listView = (ListView) vertlist.get(1);
 		
 		//load up list
-		ObservableList<String> data = FXCollections.observableArrayList();
+		//ObservableList<String> data = FXCollections.observableArrayList();
 
 	    //ListView<String> listView = new ListView<String>(data);
 	    listView.setPrefSize(200, 250);
+	    
+	    return listView;
 
+	    /*
 	    data.addAll("lysine_0.xyz","lysine_1.xyz","lysine_2.xyz");
 
 	    listView.setItems(data);
@@ -388,6 +356,7 @@ public class JmolVisualizer {
 	            Main.auxiliaryJmolPanel.viewer.openFile("file:"+newValue);
 	        }
 	    });
+	    return null;*/
 	}
 	
 	//find deleted bonds, called every deletion of a bound in paint under jmolPanel in Main
