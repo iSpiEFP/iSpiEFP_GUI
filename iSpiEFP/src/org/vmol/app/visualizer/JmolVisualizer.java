@@ -250,7 +250,7 @@ public class JmolVisualizer {
         		//load items into list view
         		loadAuxiliaryList();
         		
-    	    			
+    	    			/*
             			final CountDownLatch latch = new CountDownLatch(1);
             			Platform.runLater(new Runnable(){
         					@Override
@@ -292,6 +292,7 @@ public class JmolVisualizer {
         						
         					}
         					});
+        					*/
             	
             }
        	});

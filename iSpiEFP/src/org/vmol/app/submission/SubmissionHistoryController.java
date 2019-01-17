@@ -180,8 +180,10 @@ public class SubmissionHistoryController {
 		String hostname = "halstead.rcac.purdue.edu";
 		Connection conn = new Connection(hostname);
 		conn.connect();
-		String username = "xu675";
-		String password = "He00719614";
+		//String username = "xu675";
+		//String password = "He00719614";
+		String username = "apolcyn";
+	    String password = "P15mac&new";
 		boolean isAuthenticated = conn.authenticateWithPassword(username, password);
 		if (!isAuthenticated)
 			throw new IOException("Authentication failed.");

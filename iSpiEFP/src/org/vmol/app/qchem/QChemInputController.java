@@ -461,7 +461,7 @@ public class QChemInputController implements Initializable{
 	}
 	
 	
-	public void handleSubmit() throws IOException, UnrecognizedAtomException {
+	public void handleSubmit100() throws IOException, UnrecognizedAtomException {
 		
 		String qChemText = qChemInputTextArea.getText();
 				
@@ -469,11 +469,13 @@ public class QChemInputController implements Initializable{
 				String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
 
 				//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
+				System.out.println("running submit");
 				int port = 8080;
 				try {
 					Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
-					String[] records = userPrefs.get((String) jobids.get(0), null).split("\\r?\\n");
 					
+					String[] records = userPrefs.get((String) jobids.get(0), null).split("\\r?\\n");
+					System.out.println("Records:" + records);
 			        Socket client = new Socket(serverName, port);
 			        OutputStream outToServer = client.getOutputStream();
 			        //DataOutputStream out = new DataOutputStream(outToServer);
@@ -572,7 +574,7 @@ public class QChemInputController implements Initializable{
 		
 	}
 	// Method to handle the submit action to selected server
-	public void handleSubmit2() throws IOException, InterruptedException {
+	public void handleSubmit() throws IOException, InterruptedException {
 		ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
 		if (selectedServer.getServerType().equalsIgnoreCase("local"))
 			submitJobToLocalServer(selectedServer);
@@ -585,14 +587,18 @@ public class QChemInputController implements Initializable{
 			String hostname = "halstead.rcac.purdue.edu";
 			Connection conn = new Connection(hostname);
 			conn.connect();
-			String username = "xu675";
+			/*String username = "xu675";
 			String password = "He00719614";
+		*/
+			String username = "apolcyn";
+			String password = "P15mac&new";
 		
 			boolean isAuthenticated = conn.authenticateWithPassword(username, password);
 			if (!isAuthenticated)
 				throw new IOException("Authentication failed.");
 			
 			SCPClient scp = conn.createSCPClient();
+			//System.out.println("current dir:"+System.getProperty("user.dir"));
 			SCPOutputStream scpos = scp.put("md_1.in",new File("./md_test/md_1.in").length(),"./vmol","0666");
 			FileInputStream in = new FileInputStream(new File("./md_test/md_1.in"));
 			IOUtils.copy(in, scpos);
@@ -615,7 +621,10 @@ public class QChemInputController implements Initializable{
 			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
 			Date date = new Date();
 			String currentTime = dateFormat.format(date).toString();
-			String pbs_script = "cd vmol;\nmodule load intel;\n/group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output_" + currentTime;
+			//String pbs_script = "cd vmol;\nmodule load intel;\n/group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output_" + currentTime;
+			///String pbs_script = "cd vmol;\nmodule load intel;\n./efpmd md_1.in > output_" + currentTime;
+			String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
+
 			scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"./vmol","0666");
 			InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
 			IOUtils.copy(istream, scpos);
