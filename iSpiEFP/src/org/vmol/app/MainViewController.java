@@ -67,7 +67,8 @@ public class MainViewController {
 			boolean isXyzorPDB = fileName.contains("xyz") || fileName.contains("pdb");
 			if (isXyzorPDB) {
 				// TODO: validate an xyz file if it is in correct format
-				Dialog dialog = new Dialog<>();
+				/*
+			    Dialog dialog = new Dialog<>();
 				dialog.setTitle("Parameter Choices");
 				dialog.setHeaderText("Please pick the parameters for your system:");
 				ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
@@ -90,11 +91,11 @@ public class MainViewController {
 				interested_parameters[0] = pol.isSelected();
 				interested_parameters[1] = disp.isSelected();
 				interested_parameters[2] = exr.isSelected();
-				
+				*/
 				
 				//dialog.getDialogPane().getButtonTypes().addAll(buttons)
-				setJmolVisualization(new JmolVisualization(currStage, false));
-				getJmolVisualization().show(file);	
+				//setJmolVisualization(new JmolVisualization(currStage, false));
+				//getJmolVisualization().show(file);	
 				
 				//file is valid, sending to visualizer
 				JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer());

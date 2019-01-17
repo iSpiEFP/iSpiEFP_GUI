@@ -1,22 +1,41 @@
 package org.vmol.app.database;
 
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.JFrame;
 
 import org.jmol.viewer.Viewer;
+import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
+import org.vmol.app.qchem.QChemInputController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
 
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class DatabaseController2 {
 	
@@ -41,7 +60,60 @@ public class DatabaseController2 {
 		//process response
 		//if there is no response return a sad face :( (need gamess then)
 		//if there is response, package the response, put it in directory, and load it up in the auxiliary panel
-		processDBresponse(dbResponse);
+		ArrayList<ArrayList<String>> response = processDBresponse(dbResponse);
+		ArrayList<String> filenames = new ArrayList<String>();
+		if(response.size() > 0){
+		    int count = 0;
+	        String path = System.getProperty("user.dir") + "\\dbController";
+
+		    for (ArrayList<String> fileContent : response){ 
+		        //write file to tmp dir
+		        createTempXYZFile(fileContent, ++count);
+		        //String filename = path + "\\"+ Integer.toString(count) +".xyz";
+	            String filename = Integer.toString(count) +".xyz";
+
+		        filenames.add(filename);
+		    }
+		    createDir();
+		    loadAuxiliaryList(filenames);
+		    
+		    
+		    //load qchem input window
+		    //jmolViewer.runScript("selectionHalos off");
+            //jmolWindow.repaint();
+            //((Stage)choices.getScene().getWindow()).close();
+            final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
+            String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
+            QChemInputController controller;
+            controller = new QChemInputController(coords,null);
+            loader.setController(controller);
+            Platform.runLater(new Runnable(){
+                @Override
+                public void run() {
+                    TabPane bp;
+                    try {
+                        
+                        bp = loader.load();
+                        Scene scene = new Scene(bp,600.0,480.0);
+                        Stage stage = new Stage();
+                        stage.initModality(Modality.WINDOW_MODAL);
+                        stage.setTitle("Libefp Input");
+                        stage.setScene(scene);
+                        stage.show();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    
+                }
+            });
+		} else {
+		    Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Gamess");
+            alert.setHeaderText(null);
+            alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+            Optional<ButtonType> result = alert.showAndWait();
+		}
 	}
 	
 	//query remote database from AWS server, and return response
@@ -118,21 +190,112 @@ public class DatabaseController2 {
 	}
 	
 	//INPUT: Raw response from Database
-	private void processDBresponse(String res) {
+	private ArrayList<ArrayList<String>> processDBresponse(String res) {
 	    String reply = res;
 	    reply = reply.substring(1);
         
         String[] current_xyzs = reply.split("\\$NEXT\\$");
-        System.out.println("Current Files:" + current_xyzs.length + current_xyzs[0]);
-        
+        System.out.println("Current Files:" + current_xyzs.length + current_xyzs[0]);        
+        ArrayList<ArrayList<String>> files = new ArrayList<ArrayList<String>>();
+
         if(current_xyzs.length <= 1){
             //no response
         } else {
-            //parse response and dump in folders
+            //parse response and dump in folders for each file line
             for(int i = 1; i < current_xyzs.length; i++) {
-                //dump string into tmp file
+                ArrayList<String> file = parseDBResponse(current_xyzs[i]);
+                files.add(file);
             }
         }
+        return files;
+	}
+	
+	private ArrayList<String> parseDBResponse(String rawFile) {
+        ArrayList<String> result = new ArrayList<String>();
+        String[] lines = rawFile.split("n', ");
+        System.out.println(lines.length);
+        for(String line : lines){
+            System.out.println(line);
+            String[] pieces = line.split("\\s+");
+            String name = (pieces[0]);
+            String x_coord = (pieces[1]);
+            String y_coord = (pieces[2]);
+            String z_coord = (pieces[3]);
+            
+            //fix name; dirty current fix
+            //char atom_name = name.charAt(3);
+            //name = Character.toString(atom_name);
+            name = name.substring(1);
+            line = name + "      " + x_coord + "   " + y_coord + "   " + z_coord + "\n";
+            result.add(line);
+        }
+        System.out.println("Result String:" + result);
+        return result;
+    }
+	
+	private void createDir() {
+	    String workingPath = System.getProperty("user.dir");
+	    new File(workingPath + "/dbController").mkdirs();
+	}
+	
+	private void removeDir() {
+	    //TODO
+	}
+	
+	private void createTempXYZFile(ArrayList<String> fileContent, int file_number) {
+	    String path = System.getProperty("user.dir") + "\\dbController";
+	    //unroll content
+	    int line_count = fileContent.size();
+	    String content = Integer.toString(line_count) + "\n\n";
+	    for(String line: fileContent) {
+	        content += line;
+	    }
+	    
+	    BufferedWriter bufferedWriter = null;
+        try {
+            File myFile = new File(path + "\\" + Integer.toString(file_number) + ".xyz");
+            // check if file exist, otherwise create the file before writing
+            if (!myFile.exists()) {
+                myFile.createNewFile();
+            }
+            Writer writer = new FileWriter(myFile);
+            bufferedWriter = new BufferedWriter(writer);
+            bufferedWriter.write(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally{
+            try{
+                if(bufferedWriter != null) bufferedWriter.close();
+            } catch(Exception ex){
+                 
+            }
+        }
+	}
+	
+	private void loadAuxiliaryList(ArrayList<String> filenames) {
+	    ObservableList<String> data = FXCollections.observableArrayList();
+
+        ListView<String> listView = this.auxiliary_list;
+
+        String[] names = new String[filenames.size()];
+        names = filenames.toArray(names);
+        //data.addAll("lysine_0.xyz","lysine_1.xyz","lysine_2.xyz");
+        data.addAll(names);
+        
+        listView.setItems(data);
+        
+        //set listener to items
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                // Your action here
+                System.out.println("Selected item: " + newValue);
+                String path = System.getProperty("user.dir") + "\\dbController";
+                path = path + "\\";
+
+                auxiliaryJmolViewer.openFile("file:"+path+newValue);
+            }
+        });
 	}
     	
 }
