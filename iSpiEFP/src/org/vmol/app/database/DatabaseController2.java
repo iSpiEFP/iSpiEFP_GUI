@@ -61,7 +61,7 @@ public class DatabaseController2 {
 		ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
 		int groups = jmolViewer.ms.at.length;
 		//query database
-		String dbResponse = queryDatabase(groups);
+		ArrayList<String> dbResponse = queryDatabase(groups);
 		
 		//process response
 		//if there is no response return a sad face :( (need gamess then)
@@ -123,8 +123,8 @@ public class DatabaseController2 {
 	
 	//query remote database from AWS server, and return response
 	@SuppressWarnings("unchecked")
-    private String queryDatabase(int groups21) throws IOException {
-        String response = null;
+    private ArrayList<String> queryDatabase(int groups21) throws IOException {
+        ArrayList<String> response = new ArrayList<String>();
 	    
 	    ArrayList<Atom> pdb;
 		
@@ -201,7 +201,7 @@ public class DatabaseController2 {
     	        //System.out.println(reply);
     	        String reply = sb.toString();
     	        System.out.println("Database Response:" + reply);
-    	        response = reply;
+    	        response.add(reply);
     	        
     	        client.close();
     	    } catch (IOException e) {
@@ -212,21 +212,24 @@ public class DatabaseController2 {
 	}
 	
 	//INPUT: Raw response from Database
-	private ArrayList<ArrayList<String>> processDBresponse(String res) {
-	    String reply = res;
-	    reply = reply.substring(1);
-        
-        String[] current_xyzs = reply.split("\\$NEXT\\$");
-        System.out.println("Current Files:" + current_xyzs.length + current_xyzs[0]);        
+	private ArrayList<ArrayList<String>> processDBresponse(ArrayList<String> response) {
         ArrayList<ArrayList<String>> files = new ArrayList<ArrayList<String>>();
 
-        if(current_xyzs.length <= 1){
-            //no response
-        } else {
-            //parse response and dump in folders for each file line
-            for(int i = 1; i < current_xyzs.length; i++) {
-                ArrayList<String> file = parseDBResponse(current_xyzs[i]);
-                files.add(file);
+        for(String res : response){
+    	    String reply = res;
+    	    reply = reply.substring(1);
+            
+            String[] current_xyzs = reply.split("\\$NEXT\\$");
+            System.out.println("Current Files:" + current_xyzs.length + current_xyzs[0]);        
+    
+            if(current_xyzs.length <= 1){
+                //no response
+            } else {
+                //parse response and dump in folders for each file line
+                for(int i = 1; i < current_xyzs.length; i++) {
+                    ArrayList<String> file = parseDBResponse(current_xyzs[i]);
+                    files.add(file);
+                }
             }
         }
         return files;
