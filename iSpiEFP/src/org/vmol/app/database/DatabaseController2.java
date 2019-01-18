@@ -57,108 +57,46 @@ public class DatabaseController2 {
 	}
 	
 	public void run() throws IOException {
-		System.out.println("Initializing DB controller!!!!");
-		ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
-		int groups = jmolViewer.ms.at.length;
 		//query database
-		ArrayList<String> dbResponse = queryDatabase(groups);
-		
-		//process response
-		//if there is no response return a sad face :( (need gamess then)
-		//if there is response, package the response, put it in directory, and load it up in the auxiliary panel
+		ArrayList<String> dbResponse = queryDatabase(this.fragment_list);
+		//parse response
 		ArrayList<ArrayList<String>> response = processDBresponse(dbResponse);
 		ArrayList<String> filenames = new ArrayList<String>();
 		if(response.size() > 0){
-		    int count = 0;
 	        String path = System.getProperty("user.dir") + "\\dbController";
-
+	        //read files into array of strings
 		    for (ArrayList<String> fileContent : response){ 
 		        //write file to tmp dir
 		        createTempXYZFile(fileContent, fileHistory.size()+1);
-		        //String filename = path + "\\"+ Integer.toString(count) +".xyz";
 	            String filename = Integer.toString(fileHistory.size()) +".xyz";
-
 		        filenames.add(filename);
 		    }
-		    createDir();
-		    loadAuxiliaryList(filenames);
-		    
-		    //load qchem input window
-		    //jmolViewer.runScript("selectionHalos off");
-            //jmolWindow.repaint();
-            //((Stage)choices.getScene().getWindow()).close();
-            final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
-            String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
-            QChemInputController controller;
-            controller = new QChemInputController(coords,null);
-            loader.setController(controller);
-            Platform.runLater(new Runnable(){
-                @Override
-                public void run() {
-                    TabPane bp;
-                    try {
-                        
-                        bp = loader.load();
-                        Scene scene = new Scene(bp,600.0,480.0);
-                        Stage stage = new Stage();
-                        stage.initModality(Modality.WINDOW_MODAL);
-                        stage.setTitle("Libefp Input");
-                        stage.setScene(scene);
-                        stage.show();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    
-                }
-            });
+		    createDir();//to hold files from DB
+		    loadAuxiliaryList(filenames); //load files from DB into viewer list
+		    sendQChemForm(); //send and arm qchem input form
+            
 		} else {
-		    Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Gamess");
-            alert.setHeaderText(null);
-            alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
-            Optional<ButtonType> result = alert.showAndWait();
+		    //refer to gamess
+		    sendGamessForm();
 		}
 	}
 	
 	//query remote database from AWS server, and return response
 	@SuppressWarnings("unchecked")
-    private ArrayList<String> queryDatabase(int groups21) throws IOException {
+    private ArrayList<String> queryDatabase(List<ArrayList<Integer>> fragment_list) throws IOException {
         ArrayList<String> response = new ArrayList<String>();
-	    
 	    ArrayList<Atom> pdb;
-		
 		pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
 		
-		//legacy server name
-		//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
-		//new server name
 		String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
 		int port = 8080;
 	
-		//ArrayList<ArrayList> groups = this.fragment_list;
-		ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
-		
-		for (ArrayList<Integer> frag : this.fragment_list) {
-            if(frag.size() > 0){
-                ArrayList curr_group = new ArrayList();
-                //System.out.println("Dumping frag contents");
-                for(int piece : frag){
-                    //System.out.println(piece);
-                    curr_group.add(piece);
-                }
-                Collections.sort(curr_group);
-                groups.add(curr_group);
-                //data.add("Fragment " + fragmentCounter++);
-            }
-        }
+		@SuppressWarnings("rawtypes")
+        ArrayList<ArrayList> groups = getGroups(this.fragment_list);
 		
 		System.out.println("Atoms count: " + groups);
 		
 		for (int x = 0; x < groups.size(); x ++) {
-            ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
-            ArrayList<ArrayList> molecules = new ArrayList<ArrayList>();
-            int index = 1;
             try {
                 String query = "Query";
                 for (int j = 0; j < groups.get(x).size(); j ++) {
@@ -181,8 +119,6 @@ public class DatabaseController2 {
     	        //DataOutputStream out = new DataOutputStream(outToServer);
     	        
     	        System.out.println(query);
-    	        
-    	        
     	        outToServer.write(query.getBytes("UTF-8"));
     	       
     	        InputStream inFromServer = client.getInputStream();
@@ -198,7 +134,7 @@ public class DatabaseController2 {
     	        	if (start == true)
     	        		sb.append(c);
     	        }
-    	        //System.out.println(reply);
+    	        
     	        String reply = sb.toString();
     	        System.out.println("Database Response:" + reply);
     	        response.add(reply);
@@ -316,6 +252,27 @@ public class DatabaseController2 {
         }
 	}
 	
+	//converts Addison's frag list to Hanjings Groups
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+    private ArrayList<ArrayList> getGroups(List<ArrayList<Integer>> fragment_list) {
+	    ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
+        
+        for (ArrayList<Integer> frag : fragment_list) {
+            if(frag.size() > 0){
+                ArrayList curr_group = new ArrayList();
+                //System.out.println("Dumping frag contents");
+                for(int piece : frag){
+                    //System.out.println(piece);
+                    curr_group.add(piece);
+                }
+                Collections.sort(curr_group);
+                groups.add(curr_group);
+                //data.add("Fragment " + fragmentCounter++);
+            }
+        }
+	    return groups;
+	}
+	
 	private void loadAuxiliaryList(ArrayList<String> filenames) {
 	    ObservableList<String> data = FXCollections.observableArrayList();
 
@@ -343,5 +300,40 @@ public class DatabaseController2 {
             }
         });
 	}
-    	
+	
+	private void sendQChemForm() {
+	    final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
+        String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
+        QChemInputController controller;
+        controller = new QChemInputController(coords,null);
+        loader.setController(controller);
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                TabPane bp;
+                try {
+                    
+                    bp = loader.load();
+                    Scene scene = new Scene(bp,600.0,480.0);
+                    Stage stage = new Stage();
+                    stage.initModality(Modality.WINDOW_MODAL);
+                    stage.setTitle("Libefp Input");
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
+            }
+        });
+	}
+	
+	private void sendGamessForm() {
+	    Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Gamess");
+        alert.setHeaderText(null);
+        alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+        Optional<ButtonType> result = alert.showAndWait();
+	}
 }
