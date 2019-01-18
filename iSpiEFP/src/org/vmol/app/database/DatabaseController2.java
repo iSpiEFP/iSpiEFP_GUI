@@ -44,30 +44,25 @@ public class DatabaseController2 {
 	private Viewer auxiliaryJmolViewer;
 	private ListView<String> auxiliary_list;
 	private List<ArrayList<Integer>> fragment_list;
-	private ArrayList<String> fileHistory;
 
 	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, ListView<String> auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
 		this.auxiliaryJmolViewer = auxiliaryJmolViewer;
 		this.auxiliary_list = auxiliary_list;
 		this.fragment_list = fragment_list;
-		fileHistory = new ArrayList<String>();
-		fileHistory.clear();
-		//int atom_num = jmolViewer.ms.at.length;
 	}
 	
 	public void run() throws IOException {
-	    //convert fragment list(Addison's) to be compatible with Hanjings code(groups)
 	    @SuppressWarnings("rawtypes")
         ArrayList<ArrayList> groups = getGroups(this.fragment_list);
 	    
 		//query database
 		ArrayList<String> dbResponse = queryDatabase(groups);
-		
+	
 		String workingDirectory = System.getProperty("user.dir");
-		
 		DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
-        ArrayList<ArrayList<String []>> group_files = databaseFileManager.processDBresponse(dbResponse);
+        
+		ArrayList<ArrayList<String []>> group_files = databaseFileManager.processDBresponse(dbResponse);
         ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(group_files);
         
         if(group_filenames.size() > 0){
@@ -85,7 +80,7 @@ public class DatabaseController2 {
                     }
                 } else {
                     //this particular fragment did not have any matches from the database
-                    sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+"in the Database, do you want to calculate them by Gamess?");
+                    sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
                 }
                 groupNumber++;
             }
@@ -96,35 +91,11 @@ public class DatabaseController2 {
             //There is zero matched fragments
             //refer to gamess
             sendGamessForm("There are 0 matches for any of the fragments in the Database, do you want to calculate them by Gamess?");
-            
         }
-        
-		//parse response
-		
-        /*ArrayList<ArrayList<String>> response = processDBresponse(dbResponse);
-		ArrayList<String> filenames = new ArrayList<String>();
-		if(response.size() > 0){
-	        String path = System.getProperty("user.dir") + "\\dbController";
-	        //read files into array of strings
-		    for (ArrayList<String> fileContent : response){ 
-		        //write file to tmp dir
-		        createTempXYZFile(fileContent, fileHistory.size()+1);
-	            String filename = Integer.toString(fileHistory.size()) +".xyz";
-		        filenames.add(filename);
-		    }
-		    createDir();//to hold files from DB
-		    loadAuxiliaryList(filenames); //load files from DB into viewer list
-		    sendQChemForm(); //send and arm qchem input form
-            
-		} else {
-		    //refer to gamess
-		    sendGamessForm();
-		}
-		*/
 	}
 	
 	//query remote database from AWS server, and return response
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     private ArrayList<String> queryDatabase(ArrayList<ArrayList> groups) throws IOException {
         ArrayList<String> response = new ArrayList<String>();
 	    ArrayList<Atom> pdb;
@@ -186,127 +157,18 @@ public class DatabaseController2 {
 		return response;
 	}
 	
-	//INPUT: Raw response from Database
-	private ArrayList<ArrayList<String>> processDBresponse(ArrayList<String> response) {
-        ArrayList<ArrayList<String>> files = new ArrayList<ArrayList<String>>();
-
-        for(String res : response){
-    	    String reply = res;
-    	    reply = reply.substring(1);
-            
-            String[] current_xyzs = reply.split("\\$NEXT\\$");
-            System.out.println("Current Files:" + current_xyzs.length + current_xyzs[0]);        
-    
-            if(current_xyzs.length <= 1){
-                //no response
-            } else {
-                //parse response and dump in folders for each file line
-                for(int i = 1; i < current_xyzs.length; i++) {
-                    ArrayList<String> file = parseDBResponse(current_xyzs[i]);
-                    files.add(file);
-                }
-            }
-        }
-        return files;
-	}
-	
-	private ArrayList<String> parseDBResponse(String rawFile) {
-        ArrayList<String> result = new ArrayList<String>();
-        String[] lines = rawFile.split("n', ");
-        System.out.println(lines.length);
-        for(String line : lines){
-            System.out.println(line);
-            String[] pieces = line.split("\\s+");
-            String name = (pieces[0]);
-            String x_coord = (pieces[1]);
-            String y_coord = (pieces[2]);
-            String z_coord = (pieces[3]);
-            
-            //fix name; dirty current fix
-            //char atom_name = name.charAt(3);
-            //name = Character.toString(atom_name);
-            
-            name = name.substring(1);
-            System.out.println("name:"+name);
-            if(name.charAt(0) == 'B'){
-                System.out.println("bond encountered");
-            } else {
-                //parse name
-                name = name.substring(1);
-                for(int u = 0; u < name.length(); u++){
-                    char ch = name.charAt(u);
-                    if(ch >= 'A' && ch <= 'Z'){
-                        name = Character.toString(ch);
-                        break;
-                    }
-                }
-                line = name + "      " + x_coord + "   " + y_coord + "   " + z_coord + "\n";
-                result.add(line);
-            }
-        }
-        System.out.println("Result String:" + result);
-        return result;
-    }
-	
-	private void createDir() {
-	    String workingPath = System.getProperty("user.dir");
-	    new File(workingPath + "/dbController").mkdirs();
-	}
-	
-	private void removeDir() {
-	    //TODO
-	}
-	
-	private void createTempXYZFile(ArrayList<String> fileContent, int file_number) {
-	    String path = System.getProperty("user.dir") + "\\dbController";
-	    //unroll content
-	    int line_count = fileContent.size();
-	    String content = Integer.toString(line_count) + "\n\n";
-	    for(String line: fileContent) {
-	        content += line;
-	    }
-	    
-	    BufferedWriter bufferedWriter = null;
-        try {
-            //file_number = fileHistory.size() + 1;
-            String filename = path + "\\" + Integer.toString(file_number) + ".xyz";
-            fileHistory.add(filename);
-            File myFile = new File(filename);
-        
-            // check if file exist, otherwise create the file before writing
-            if (!myFile.exists()) {
-                myFile.createNewFile();
-            }
-            Writer writer = new FileWriter(myFile);
-            bufferedWriter = new BufferedWriter(writer);
-            bufferedWriter.write(content);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally{
-            try{
-                if(bufferedWriter != null) bufferedWriter.close();
-            } catch(Exception ex){
-                 
-            }
-        }
-	}
-	
 	//converts Addison's frag list to Hanjings Groups
 	@SuppressWarnings({ "rawtypes", "unchecked" })
     private ArrayList<ArrayList> getGroups(List<ArrayList<Integer>> fragment_list) {
 	    ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
-        
         for (ArrayList<Integer> frag : fragment_list) {
             if(frag.size() > 0){
                 ArrayList curr_group = new ArrayList();
-                //System.out.println("Dumping frag contents");
                 for(int piece : frag){
-                    //System.out.println(piece);
                     curr_group.add(piece);
                 }
                 Collections.sort(curr_group);
                 groups.add(curr_group);
-                //data.add("Fragment " + fragmentCounter++);
             }
         }
 	    return groups;
@@ -314,14 +176,10 @@ public class DatabaseController2 {
 	
 	private void loadAuxiliaryList(ArrayList<String> filenames) {
 	    ObservableList<String> data = FXCollections.observableArrayList();
-
         ListView<String> listView = this.auxiliary_list;
-
         String[] names = new String[filenames.size()];
         names = filenames.toArray(names);
-        //data.addAll("lysine_0.xyz","lysine_1.xyz","lysine_2.xyz");
         data.addAll(names);
-        
         listView.setItems(data);
         
         //set listener to items
