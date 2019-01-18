@@ -190,8 +190,7 @@ public class DatabaseController2 {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 // Your action here
                 System.out.println("Selected item: " + newValue);
-                String path = System.getProperty("user.dir") + "\\dbController";
-                path = path + "\\";
+                String path = System.getProperty("user.dir") + "\\dbController\\xyz_files\\";
 
                 auxiliaryJmolViewer.openFile("file:"+path+newValue);
             }
