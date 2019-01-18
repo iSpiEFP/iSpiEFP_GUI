@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,11 +43,16 @@ public class DatabaseController2 {
 	private Viewer jmolViewer;
 	private Viewer auxiliaryJmolViewer;
 	private ListView<String> auxiliary_list;
+	private List<ArrayList<Integer>> fragment_list;
+	private ArrayList<String> fileHistory;
 
-	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, ListView<String> auxiliary_list) {
+	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, ListView<String> auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
 		this.auxiliaryJmolViewer = auxiliaryJmolViewer;
 		this.auxiliary_list = auxiliary_list;
+		this.fragment_list = fragment_list;
+		fileHistory = new ArrayList<String>();
+		fileHistory.clear();
 		//int atom_num = jmolViewer.ms.at.length;
 	}
 	
@@ -68,15 +74,14 @@ public class DatabaseController2 {
 
 		    for (ArrayList<String> fileContent : response){ 
 		        //write file to tmp dir
-		        createTempXYZFile(fileContent, ++count);
+		        createTempXYZFile(fileContent, fileHistory.size()+1);
 		        //String filename = path + "\\"+ Integer.toString(count) +".xyz";
-	            String filename = Integer.toString(count) +".xyz";
+	            String filename = Integer.toString(fileHistory.size()) +".xyz";
 
 		        filenames.add(filename);
 		    }
 		    createDir();
 		    loadAuxiliaryList(filenames);
-		    
 		    
 		    //load qchem input window
 		    //jmolViewer.runScript("selectionHalos off");
@@ -117,7 +122,8 @@ public class DatabaseController2 {
 	}
 	
 	//query remote database from AWS server, and return response
-	private String queryDatabase(int groups) throws IOException {
+	@SuppressWarnings("unchecked")
+    private String queryDatabase(int groups21) throws IOException {
         String response = null;
 	    
 	    ArrayList<Atom> pdb;
@@ -130,29 +136,45 @@ public class DatabaseController2 {
 		String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
 		int port = 8080;
 	
+		//ArrayList<ArrayList> groups = this.fragment_list;
+		ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
+		
+		for (ArrayList<Integer> frag : this.fragment_list) {
+            if(frag.size() > 0){
+                ArrayList curr_group = new ArrayList();
+                //System.out.println("Dumping frag contents");
+                for(int piece : frag){
+                    //System.out.println(piece);
+                    curr_group.add(piece);
+                }
+                Collections.sort(curr_group);
+                groups.add(curr_group);
+                //data.add("Fragment " + fragmentCounter++);
+            }
+        }
 		
 		System.out.println("Atoms count: " + groups);
-	
-		for (int x = 0; x < 1; x ++) {
-    		ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
-    		ArrayList<ArrayList> molecules = new ArrayList<ArrayList>();
-    		int index = 1;
-    		try {
-    			String query = "Query";
-    			for (int j = 0; j < groups; j ++) {
-    				Atom current_atom = (Atom) pdb.get((Integer) j);
-    				if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
-    					String symbol = current_atom.type;
-    					String sign = symbol.substring(symbol.length() - 1);
-    					String digits = symbol.replaceAll("\\D+", "");
-    					String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
-    					query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-    					
-    				} else {
-    					query += "$END$" + current_atom.type + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-    				}
-    			}
-    			query+="$ENDALL$";
+		
+		for (int x = 0; x < groups.size(); x ++) {
+            ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
+            ArrayList<ArrayList> molecules = new ArrayList<ArrayList>();
+            int index = 1;
+            try {
+                String query = "Query";
+                for (int j = 0; j < groups.get(x).size(); j ++) {
+                    Atom current_atom = (Atom) pdb.get((Integer) groups.get(x).get(j));
+                    if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
+                        String symbol = current_atom.type;
+                        String sign = symbol.substring(symbol.length() - 1);
+                        String digits = symbol.replaceAll("\\D+", "");
+                        String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
+                        query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
+                        
+                    } else {
+                        query += "$END$" + current_atom.type + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
+                    }
+                }
+                query+="$ENDALL$";
     				
     	        Socket client = new Socket(serverName, port);
     	        OutputStream outToServer = client.getOutputStream();
@@ -225,9 +247,24 @@ public class DatabaseController2 {
             //fix name; dirty current fix
             //char atom_name = name.charAt(3);
             //name = Character.toString(atom_name);
+            
             name = name.substring(1);
-            line = name + "      " + x_coord + "   " + y_coord + "   " + z_coord + "\n";
-            result.add(line);
+            System.out.println("name:"+name);
+            if(name.charAt(0) == 'B'){
+                System.out.println("bond encountered");
+            } else {
+                //parse name
+                name = name.substring(1);
+                for(int u = 0; u < name.length(); u++){
+                    char ch = name.charAt(u);
+                    if(ch >= 'A' && ch <= 'Z'){
+                        name = Character.toString(ch);
+                        break;
+                    }
+                }
+                line = name + "      " + x_coord + "   " + y_coord + "   " + z_coord + "\n";
+                result.add(line);
+            }
         }
         System.out.println("Result String:" + result);
         return result;
@@ -253,7 +290,11 @@ public class DatabaseController2 {
 	    
 	    BufferedWriter bufferedWriter = null;
         try {
-            File myFile = new File(path + "\\" + Integer.toString(file_number) + ".xyz");
+            //file_number = fileHistory.size() + 1;
+            String filename = path + "\\" + Integer.toString(file_number) + ".xyz";
+            fileHistory.add(filename);
+            File myFile = new File(filename);
+        
             // check if file exist, otherwise create the file before writing
             if (!myFile.exists()) {
                 myFile.createNewFile();
@@ -285,6 +326,8 @@ public class DatabaseController2 {
         listView.setItems(data);
         
         //set listener to items
+        auxiliaryJmolViewer.runScript("set autobond on");
+        
         listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {

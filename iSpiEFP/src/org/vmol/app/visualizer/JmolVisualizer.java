@@ -252,7 +252,7 @@ public class JmolVisualizer {
         		ListView<String> aux_list = loadAuxiliaryList();
         		
         		DatabaseController2 DBcontroller;
-				DBcontroller = new DatabaseController2(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_list);
+				DBcontroller = new DatabaseController2(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_list, fragment_list);
 				try {
 					DBcontroller.run();
 				} catch (IOException e) {

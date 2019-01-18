@@ -311,6 +311,7 @@ public class QChemInputController implements Initializable{
 			auto_sub.setValue("On");
 		} else {
 			auto_sub.setDisable(true);
+			
 		}
 		
 		
@@ -465,7 +466,7 @@ public class QChemInputController implements Initializable{
 		
 		String qChemText = qChemInputTextArea.getText();
 				
-			if (auto_sub!= null && auto_sub.getValue().equals("On")) {
+			if (!auto_sub.isDisabled() && auto_sub.getValue().equals("On")) {
 				String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
 
 				//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
@@ -661,9 +662,52 @@ public class QChemInputController implements Initializable{
 			
 			userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
 			
-			
-			
-			
+			String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
+
+            //String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
+            
+            int port = 8080;
+            try {
+                //Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
+                
+                //String[] records = userPrefs.get((String) jobids.get(0), null).split("\\r?\\n");
+                //System.out.println("Records:" + records);
+                Socket client = new Socket(serverName, port);
+                OutputStream outToServer = client.getOutputStream();
+                //DataOutputStream out = new DataOutputStream(outToServer);
+                StringBuilder sb = new StringBuilder();
+                hostname = "halstead.rcac.purdue.edu";
+                username = "apolcyn";
+                password = "P15mac&new";
+                sb.append("Submit" + "$END$");
+                sb.append(hostname + "$END$");
+                sb.append(username + "$END$");
+                sb.append(password + "$END$");
+                
+                /*
+                for (int i = 0; i < jobids.size(); i ++) {
+                    sb.append((String) jobids.get(i) + "$END$");
+                }*/
+                
+                sb.append(jobID + "$END$");
+                sb.append(MainViewController.getLastOpenedFileName() + "$ENDALL$");
+                
+                outToServer.write(sb.toString().getBytes("UTF-8"));
+               
+                /*InputStream inFromServer = client.getInputStream();
+                DataInputStream in = new DataInputStream(inFromServer);
+                String reply = "";
+                int i;
+                char c;
+                while (( i = in.read())!= -1) {
+                    c = (char)i;
+                    reply += c;
+                }*/
+                //System.out.println(reply);
+                client.close();
+            } catch (IOException e) {
+               e.printStackTrace();
+            }
 //			SCPInputStream scpin = scp.get("vmol/output.efpout");
 //			FileOutputStream out = new FileOutputStream(new File("output.efpout"));
 //			IOUtils.copy(scpin, out);
