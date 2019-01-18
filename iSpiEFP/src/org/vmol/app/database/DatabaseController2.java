@@ -57,10 +57,51 @@ public class DatabaseController2 {
 	}
 	
 	public void run() throws IOException {
+	    //convert fragment list(Addison's) to be compatible with Hanjings code(groups)
+	    @SuppressWarnings("rawtypes")
+        ArrayList<ArrayList> groups = getGroups(this.fragment_list);
+	    
 		//query database
-		ArrayList<String> dbResponse = queryDatabase(this.fragment_list);
+		ArrayList<String> dbResponse = queryDatabase(groups);
+		
+		String workingDirectory = System.getProperty("user.dir");
+		
+		DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
+        ArrayList<ArrayList<String []>> group_files = databaseFileManager.processDBresponse(dbResponse);
+        ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(group_files);
+        
+        if(group_filenames.size() > 0){
+            //read files into array of strings
+            ArrayList<String> filenames = new ArrayList<String>();
+            int groupNumber = 1;
+            
+            for (ArrayList<String []> group : group_filenames){ 
+                if(group.size() > 0) {
+                    for(String [] pair_name : group) {
+                        String xyz_filename = pair_name[0];
+                        String efp_filename = pair_name[1];
+                        
+                        filenames.add(xyz_filename);
+                    }
+                } else {
+                    //this particular fragment did not have any matches from the database
+                    sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+"in the Database, do you want to calculate them by Gamess?");
+                }
+                groupNumber++;
+            }
+            loadAuxiliaryList(filenames); //load files from DB into viewer list
+            sendQChemForm(); //send and arm qchem input form
+            
+        } else {
+            //There is zero matched fragments
+            //refer to gamess
+            sendGamessForm("There are 0 matches for any of the fragments in the Database, do you want to calculate them by Gamess?");
+            
+        }
+        
 		//parse response
-		ArrayList<ArrayList<String>> response = processDBresponse(dbResponse);
+		
+        /*ArrayList<ArrayList<String>> response = processDBresponse(dbResponse);
 		ArrayList<String> filenames = new ArrayList<String>();
 		if(response.size() > 0){
 	        String path = System.getProperty("user.dir") + "\\dbController";
@@ -79,11 +120,12 @@ public class DatabaseController2 {
 		    //refer to gamess
 		    sendGamessForm();
 		}
+		*/
 	}
 	
 	//query remote database from AWS server, and return response
 	@SuppressWarnings("unchecked")
-    private ArrayList<String> queryDatabase(List<ArrayList<Integer>> fragment_list) throws IOException {
+    private ArrayList<String> queryDatabase(ArrayList<ArrayList> groups) throws IOException {
         ArrayList<String> response = new ArrayList<String>();
 	    ArrayList<Atom> pdb;
 		pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
@@ -91,9 +133,6 @@ public class DatabaseController2 {
 		String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
 		int port = 8080;
 	
-		@SuppressWarnings("rawtypes")
-        ArrayList<ArrayList> groups = getGroups(this.fragment_list);
-		
 		System.out.println("Atoms count: " + groups);
 		
 		for (int x = 0; x < groups.size(); x ++) {
@@ -329,11 +368,11 @@ public class DatabaseController2 {
         });
 	}
 	
-	private void sendGamessForm() {
+	private void sendGamessForm(String msg) {
 	    Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Gamess");
         alert.setHeaderText(null);
-        alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+        alert.setContentText(msg);
         Optional<ButtonType> result = alert.showAndWait();
 	}
 }
