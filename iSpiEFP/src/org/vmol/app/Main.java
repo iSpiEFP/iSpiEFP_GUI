@@ -120,6 +120,10 @@ public class Main extends Application {
  		ToggleButton button_fragment = (ToggleButton) buttonList.get(1);
  		ToggleButton button_play_pause = (ToggleButton) buttonList.get(3);
  		Button button_show_console = (Button) buttonList.get(4);
+ 		Button button_submit = (Button) buttonList.get(5);
+        Button button_libefp = (Button) buttonList.get(6);
+        button_submit.setDisable(true);
+        button_libefp.setDisable(true);
  		
  		//set graphics
  		button_halo_on.setText("");	

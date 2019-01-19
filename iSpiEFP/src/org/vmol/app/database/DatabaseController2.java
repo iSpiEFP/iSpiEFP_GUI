@@ -26,6 +26,7 @@ import org.vmol.app.database.DatabaseController.JmolPanel;
 import org.vmol.app.qchem.QChemInputController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
+import org.vmol.app.visualizer.JmolVisualizer;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -40,6 +41,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
@@ -106,6 +108,11 @@ public class DatabaseController2 {
             }
             runAuxiliaryList(group_filenames);
             System.out.println("qchem form DISABLED!!!");
+            
+            Button button_libefp = getLibefpSubmitButton();
+            
+            
+
             //sendQChemForm(); //send and arm qchem input form
             
         } else {
@@ -113,6 +120,13 @@ public class DatabaseController2 {
             //refer to gamess
             sendGamessForm("There are 0 matches for any of the fragments in the Database, do you want to calculate them by Gamess?");
         }
+	}
+	
+	private Button getLibefpSubmitButton() {
+        ObservableList<Node> buttonList = new JmolVisualizer().getButtonList();
+	    Button button_libefp = (Button) buttonList.get(6);
+        button_libefp.setDisable(false);
+	    return button_libefp;
 	}
 	
 	//query remote database from AWS server, and return response
@@ -295,6 +309,7 @@ public class DatabaseController2 {
                 drs.add(new DatabaseRecord("Not found",  "0", true , 0));
             }
             items.add(drs);
+            
         }
         //LOAD AUXILIARY LIST STRUCTURES
         List<ObservableList<DatabaseRecord>> data = new ArrayList<ObservableList<DatabaseRecord>>();

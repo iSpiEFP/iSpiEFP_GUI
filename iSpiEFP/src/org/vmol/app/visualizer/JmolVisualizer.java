@@ -74,6 +74,10 @@ public class JmolVisualizer {
 		this.jmolPanel = jmolPanel;
 		this.jmolViewer = jmolPanel.viewer;
 	}
+	
+	public JmolVisualizer() {
+	   //nothing 
+	}
 
 	//check if file is valid, then execute file
 	public void show(File file) {
@@ -101,6 +105,8 @@ public class JmolVisualizer {
      	ToggleButton button_play_pause = (ToggleButton) buttonList.get(3);
      	Button button_show_console = (Button) buttonList.get(4);
      	Button button_submit = (Button) buttonList.get(5);
+        Button button_libefp = (Button) buttonList.get(6);
+        button_submit.setDisable(false);
      		
      	//init icons
      	Image play = new Image("file:icons8-play-filled-30.png");
