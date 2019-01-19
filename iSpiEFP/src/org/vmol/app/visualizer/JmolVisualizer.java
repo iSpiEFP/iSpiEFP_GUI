@@ -47,6 +47,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
@@ -249,10 +250,11 @@ public class JmolVisualizer {
         	    //jmolPanel.setPreferredSize(new Dimension(940, 595));
         		
         		//load items into list view
-        		ListView<String> aux_list = loadAuxiliaryList();
+        		//ListView<String> aux_list = loadAuxiliaryList2();
+        		TableView aux_table = loadAuxiliaryList();
         		
         		DatabaseController2 DBcontroller;
-				DBcontroller = new DatabaseController2(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_list, fragment_list);
+				DBcontroller = new DatabaseController2(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_table, fragment_list);
 				try {
 					DBcontroller.run();
 				} catch (IOException e) {
@@ -315,9 +317,51 @@ public class JmolVisualizer {
 		
 	}
 	
+	public TableView loadAuxiliaryList() {
+        //get list
+        SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
+        //splitpane.getItems().add(swingNode);
+        //get items 1 and 2 from main split pane
+        ObservableList<Node> list = splitpane.getItems();
+        
+        //get item 2 from main split pane
+        SplitPane nodepane = (SplitPane) list.get(1);
+        //add swingnode to left split pane
+        ObservableList<Node> sublist = nodepane.getItems();
+        
+        
+        SplitPane vertSplit = (SplitPane) sublist.get(1);
+        ObservableList<Node> vertlist = vertSplit.getItems();
+        
+        //ListView<String> listView = (ListView) vertlist.get(1);
+        
+        TableView table = (TableView) vertlist.get(1);
+        //load up list
+        //ObservableList<String> data = FXCollections.observableArrayList();
+
+        //ListView<String> listView = new ListView<String>(data);
+        //listView.setPrefSize(200, 250);
+        
+        return table;
+
+        /*
+        data.addAll("lysine_0.xyz","lysine_1.xyz","lysine_2.xyz");
+
+        listView.setItems(data);
+        
+        //set listener to items
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                // Your action here
+                System.out.println("Selected item: " + newValue);
+                Main.auxiliaryJmolPanel.viewer.openFile("file:"+newValue);
+            }
+        });
+        return null;*/
+    }
 	
-	
-	public ListView<String> loadAuxiliaryList() {
+	public ListView<String> loadAuxiliaryList2() {
 		//get list
 		SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
 		//splitpane.getItems().add(swingNode);

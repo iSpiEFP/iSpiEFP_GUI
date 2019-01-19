@@ -24,6 +24,8 @@ import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
 
 import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -34,18 +36,24 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 public class DatabaseController2 {
 	
 	private Viewer jmolViewer;
 	private Viewer auxiliaryJmolViewer;
-	private ListView<String> auxiliary_list;
+	//private ListView<String> auxiliary_list;
+	private TableView auxiliary_list;
 	private List<ArrayList<Integer>> fragment_list;
 
-	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, ListView<String> auxiliary_list, List<ArrayList<Integer>> fragment_list) {
+	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
 		this.auxiliaryJmolViewer = auxiliaryJmolViewer;
 		this.auxiliary_list = auxiliary_list;
@@ -176,11 +184,68 @@ public class DatabaseController2 {
 	
 	private void loadAuxiliaryList(ArrayList<String> filenames) {
 	    ObservableList<String> data = FXCollections.observableArrayList();
-        ListView<String> listView = this.auxiliary_list;
-        String[] names = new String[filenames.size()];
+        //ListView<String> listView = this.auxiliary_list;
+        TableView table = this.auxiliary_list;
+        TableColumn column1 = (TableColumn) table.getColumns().get(0);
+        column1.setText("Choice");
+        TableColumn column2 = (TableColumn) table.getColumns().get(1);
+        column2.setText("RMSD");
+        TableColumn column3 = (TableColumn) table.getColumns().get(2);
+        column3.setText("Select");
+        
+        TableColumn<DatabaseRecord,String> index = column1;
+        index.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("choice"));
+        //table.getColumns().add(index);
+        index.setPrefWidth(100.0);
+        
+        TableColumn<DatabaseRecord,String> rmsd = column2;
+        rmsd.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("rmsd"));
+        //choices.getColumns().add(rmsd);
+        rmsd.setPrefWidth(100.0);
+        
+        TableColumn<DatabaseRecord,Boolean> check = column3;
+        check.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Boolean>("check"));
+        check.setCellFactory(column -> new CheckBoxTableCell());
+        check.setEditable(true);
+        check.setPrefWidth(100);
+        
+        ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
+        drs.add(new DatabaseRecord("Not found",  "0", false , -1));
+        drs.add(new DatabaseRecord("Nooaincoian",  "0", false , -1));
+        drs.add(new DatabaseRecord("Noapm cncd",  "0", false , -1));
+        drs.add(new DatabaseRecord("Not focce",  "69", false , -1));
+        drs.add(new DatabaseRecord("Not fouc",  "0", false , -1));
+
+        ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
+        items.add(drs);
+
+        List<ObservableList<DatabaseRecord>> data2 = new ArrayList<ObservableList<DatabaseRecord>>();
+        System.out.println("items has " + items.size());
+        for (int i = 0; i < items.size(); i ++) {
+            data2.add(FXCollections.observableArrayList(new Callback<DatabaseRecord, Observable[]>() {
+                @Override
+                public Observable[] call(DatabaseRecord param) {
+                    return new Observable[] {
+                            param.checkProperty()};
+                    
+                }
+            }));
+            data2.get(i).addAll(items.get(i));
+            
+        }
+        table.setItems(data2.get(0));
+        //choices.getColumns().add(check);
+        //choices.setItems(data.get(0));
+        
+        //column3.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().getIsDefault()));
+        //column3.setCellFactory(tc -> new CheckBoxTableCell<>());
+        
+        
+	    String[] names = new String[filenames.size()];
         names = filenames.toArray(names);
         data.addAll(names);
-        listView.setItems(data);
+        
+        /*listView.setItems(data);
         
         //set listener to items
         auxiliaryJmolViewer.runScript("set autobond on");
@@ -194,7 +259,7 @@ public class DatabaseController2 {
 
                 auxiliaryJmolViewer.openFile("file:"+path+newValue);
             }
-        });
+        });*/
 	}
 	
 	private void sendQChemForm() {
