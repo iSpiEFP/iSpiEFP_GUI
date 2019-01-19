@@ -385,8 +385,9 @@ public class DatabaseController2 {
                         if(!record.getChoice().equalsIgnoreCase("NOT FOUND")) {
                             //parse filename
                             String file_name = record.getChoice().toString();
-                            final_selections.add(file_name);
+                            
                             String [] filename = file_name.split("\\.");
+                            final_selections.add(filename[0] + ".efp");
                             if(group_number == 0) {
                                 sb.append("fragment " + filename[0] + "\n");
                             } else {
