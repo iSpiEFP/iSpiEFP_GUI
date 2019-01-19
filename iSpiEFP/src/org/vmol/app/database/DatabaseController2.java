@@ -69,6 +69,7 @@ public class DatabaseController2 {
 	
 	private int prev_selection_index = 0;
     private List<ObservableList<DatabaseRecord>> userData;
+    private ArrayList<String> final_selections;
 	
 	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
@@ -345,7 +346,7 @@ public class DatabaseController2 {
 	    final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
         //String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
         QChemInputController controller;
-        controller = new QChemInputController(coords,null);
+        controller = new QChemInputController(coords,null,this.final_selections);
         loader.setController(controller);
         Platform.runLater(new Runnable(){
             @Override
@@ -372,6 +373,7 @@ public class DatabaseController2 {
 	@SuppressWarnings("unchecked")
     private String generateQchemInput(List<ObservableList<DatabaseRecord>> data,   @SuppressWarnings("rawtypes") ArrayList<ArrayList> groups) {
 	    StringBuilder sb = new StringBuilder();
+	    this.final_selections = new ArrayList<String>();
 	    ArrayList<Atom> pdb = null;
         try {
             pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
@@ -382,8 +384,9 @@ public class DatabaseController2 {
                     if(record.getCheck() == true) {
                         if(!record.getChoice().equalsIgnoreCase("NOT FOUND")) {
                             //parse filename
-                            String [] filename = record.getChoice().toString().split("\\.");
-                            
+                            String file_name = record.getChoice().toString();
+                            final_selections.add(file_name);
+                            String [] filename = file_name.split("\\.");
                             if(group_number == 0) {
                                 sb.append("fragment " + filename[0] + "\n");
                             } else {

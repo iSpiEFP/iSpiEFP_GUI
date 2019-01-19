@@ -174,7 +174,11 @@ public class QChemInputController implements Initializable{
     
     ArrayList jobids;
     
+    private ArrayList<String> efpFilenames;
     
+    private String workingDirectoryPath;
+    private String QChemInputsDirectory;
+    private String efpFileDirectoryPath;
     
     List<ServerDetails> serverDetailsList;
     
@@ -188,10 +192,25 @@ public class QChemInputController implements Initializable{
     	this.jobids = jobids;
     }
     
+    //current constructor
+    public QChemInputController(String coord, ArrayList jobids, ArrayList<String> efpFilenames) {
+        this.coordinates = coord;
+        this.jobids = jobids;
+        this.efpFilenames = efpFilenames;
+        this.workingDirectoryPath = System.getProperty("user.dir");
+        this.efpFileDirectoryPath = workingDirectoryPath + "/dbController/efp_files/";  //storage for db incoming efp files
+        initWorkingDir();
+    }
+    
+    private void initWorkingDir() {
+        this.QChemInputsDirectory = this.workingDirectoryPath + "/QchemInputs";         //needed for db file storage
+        new File(this.QChemInputsDirectory).mkdirs();
+    }
+    
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		// Adding listener to title
-		
+	    
 		
 		title.setText("Title");
 		
@@ -581,6 +600,13 @@ public class QChemInputController implements Initializable{
 			submitJobToLocalServer(selectedServer);
 		else {
 			
+		    createInputFile("md_in", this.QChemInputsDirectory);
+		    
+		    System.out.println("sending these efp files:");
+		    for(String filename : this.efpFilenames) {
+		        System.out.println(filename);
+		    }
+		    
 //			toXYZ("md_1.out");
 //			Stage currStage = (Stage) root.getScene().getWindow();
 //			new JmolVisualization(currStage).show(new File("output.xyz"));
@@ -748,7 +774,7 @@ public class QChemInputController implements Initializable{
 	    String outputFileName = path += "/vmolAppJob_" + title.getText() + "_output";
 
 	    // First create the input File at that location with the content in qchemInputTextArea
-	    boolean inputFileCreated = createInputFile(inputFileName);
+	    boolean inputFileCreated = createInputFile(inputFileName, null);
 	    if (!inputFileCreated) return; // Can probably return some error here
 	    List<String> command = new ArrayList<String>();
 	    command.add(executablePath);
@@ -778,10 +804,10 @@ public class QChemInputController implements Initializable{
 	}
 
 	// Creates an input file at this location 
-	private boolean createInputFile(String inputFileName) {
+	private boolean createInputFile(String inputFileName, String path) {
 		BufferedWriter output = null;
         try {
-            File file = new File(inputFileName);
+            File file = new File(path + "\\" + inputFileName);
             output = new BufferedWriter(new FileWriter(file));
             output.write(qChemInputTextArea.getText());
             output.close();
