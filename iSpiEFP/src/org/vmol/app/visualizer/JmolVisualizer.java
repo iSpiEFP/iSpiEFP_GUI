@@ -68,8 +68,7 @@ public class JmolVisualizer {
 	private static JmolPanel jmolPanel;
 	private static Viewer jmolViewer;
 	private static LinkedList<Integer> adj[];
-	private static List<ArrayList<Integer>> fragment_list;
-	
+	private static List<ArrayList<Integer>> fragment_list;	
 	
 	public JmolVisualizer(JmolPanel jmolPanel){
 		this.jmolPanel = jmolPanel;
@@ -250,8 +249,12 @@ public class JmolVisualizer {
         		jmolPanel.setSize((new Dimension(600,595)));
         		jmolPanel.repaint();
         		
-        		Main.showJmolViewer(false, "file:test.pdb");
-        	    //jmolPanel.setPreferredSize(new Dimension(940, 595));
+        		//Main.showJmolViewer(false, "file:test.pdb");
+        	    
+        		//Runs auxiliary JmolViewer
+                Main.showJmolViewer(false, null);
+
+        		//jmolPanel.setPreferredSize(new Dimension(940, 595));
         		
         		//load items into list view
         		//ListView<String> aux_list = loadAuxiliaryList2();
@@ -374,6 +377,8 @@ public class JmolVisualizer {
  
         
         pane.getChildren().addAll(table);
+        
+        table.setEditable(true);
         //load up list
         //ObservableList<String> data = FXCollections.observableArrayList();
 

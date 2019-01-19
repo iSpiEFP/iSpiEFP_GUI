@@ -94,8 +94,8 @@ public class MainViewController {
 				*/
 				
 				//dialog.getDialogPane().getButtonTypes().addAll(buttons)
-				setJmolVisualization(new JmolVisualization(currStage, false));
-				getJmolVisualization().show(file);	
+				//setJmolVisualization(new JmolVisualization(currStage, false));
+				//getJmolVisualization().show(file);	
 				
 				//file is valid, sending to visualizer
 				JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer());

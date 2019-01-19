@@ -31,16 +31,19 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanPropertyBase;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -101,7 +104,8 @@ public class DatabaseController2 {
                 }
                 groupNumber++;
             }
-            loadAuxiliaryList(filenames); //load files from DB into viewer list
+            //loadAuxiliaryList(filenames); //load files from DB into viewer list
+            runAuxiliaryList(group_filenames);
             System.out.println("qchem form DISABLED!!!");
             //sendQChemForm(); //send and arm qchem input form
             
@@ -192,6 +196,139 @@ public class DatabaseController2 {
 	    return groups;
 	}
 	
+	private void runAuxiliaryList(ArrayList<ArrayList<String []>> group_filenames) {
+	    List<ObservableList<DatabaseRecord>> data = loadAuxListData(group_filenames);
+	    
+        ListView<String> listView = getFragmentListButtons();
+                
+        //set listener to items
+        //TRIGGER LIST LOAD WITH FRAGMENT CLICK
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                String[] arrOfStr = newValue.split(" "); 
+                System.out.println("split0: " + arrOfStr[0] + " split1: " + arrOfStr[1]);
+                int index = Integer.parseInt(arrOfStr[1]) - 1;
+                System.out.println("Selected itemITEM IN DB CONTROLLER: " + index);
+                
+                runTable(data, index);
+            }
+        });
+	}
+	
+	@SuppressWarnings("unchecked")
+    private void runTable(List<ObservableList<DatabaseRecord>> data, int index) {
+	    //LOAD AUXILIARY LIST
+        @SuppressWarnings("rawtypes")
+        TableView table = this.auxiliary_list;
+	    table.setItems(data.get(index));
+	    allowOnlyOneCheck(data, index);
+	    
+	    //LOAD AUX JMOL VIEWER ON CLICK
+        table.setRowFactory(tv -> {
+            TableRow<DatabaseRecord> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 1 && (!row.isEmpty())) {
+                    // SubmissionRecord rowData = row.getItem();
+                    try {
+                        //System.out.println("clicking:" + row.getItem().getRmsd() + row.getItem().getChoice() + row.getItem().getCheck());
+                        loadAuxJmolViewer(row.getItem().getChoice().toString());
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            });
+            return row;
+        });
+	}
+	
+	private void loadAuxJmolViewer(String filename) {
+	    if(!filename.equalsIgnoreCase("NOT FOUND")){
+	        String path = System.getProperty("user.dir") + "\\dbController\\xyz_files\\";
+            auxiliaryJmolViewer.openFile("file:"+path+filename);
+	    }
+	}
+	
+	private void allowOnlyOneCheck(List<ObservableList<DatabaseRecord>> data, int index) {
+	    this.prev_selection_index = 0;
+	    ObservableList<DatabaseRecord> data_subset = data.get(index);
+        for (int i = 0 ; i < data_subset.size();i++) {
+            DatabaseRecord d = data_subset.get(i);
+            //prev_selection_index = i;
+            d.checkProperty().addListener( (o, oldV, newV) -> {
+                
+                //int curr = Integer.parseInt(d.getChoice())-1;
+                if(newV) {
+                    //System.out.println("aaaaaaaaaaa:"+prev_selection_index);
+                    int curr = d.getFragId();
+                    if (prev_selection_index != curr) {
+                        data_subset.get(prev_selection_index).checkProperty().set(false);
+                    }
+                    this.prev_selection_index = curr;
+                }
+           });
+       }
+	}
+	
+	//returns button list on main page with fragment lists
+	private ListView<String> getFragmentListButtons() {
+	    SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
+        ObservableList<Node> list = splitpane.getItems();
+        ListView<String> listView = (ListView) list.get(0);
+        return listView;
+	}
+	
+	private List<ObservableList<DatabaseRecord>> loadAuxListData(ArrayList<ArrayList<String []>> group_filenames) {
+        ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
+        //ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
+        //drs.add(new DatabaseRecord("Not found",  "0", false , 0));
+        //drs.add(new DatabaseRecord("Nooaincoian",  "0", false , 1));
+        //drs.add(new DatabaseRecord("Noapm cncd",  "0", false , 2));
+        //drs.add(new DatabaseRecord("Not focce",  "69", false , 3));
+        //drs.add(new DatabaseRecord("Not fouc",  "0", false , 4));
+        
+        for (ArrayList<String []> group : group_filenames){ 
+            ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
+            if(group.size() > 0) {
+                int index = 0;
+                for(String [] pair_name : group) {
+                    String xyz_filename = pair_name[0];
+                    //String efp_filename = pair_name[1];
+                    //filenames.add(xyz_filename);
+                    if(index == 0) {
+                        drs.add(new DatabaseRecord(xyz_filename,  "0", true , index++));
+                       // drs.add(new DatabaseRecord(xyz_filename,  "0", false , index++));
+                       // drs.add(new DatabaseRecord(xyz_filename,  "0", false , index++));
+                    } else {
+                        drs.add(new DatabaseRecord(xyz_filename,  "0", false , index++));
+                    }
+                }
+            } else {
+                //this particular fragment did not have any matches from the database
+                drs.add(new DatabaseRecord("Not found",  "0", true , 0));
+            }
+            items.add(drs);
+        }
+      //LOAD AUXILIARY LIST
+        List<ObservableList<DatabaseRecord>> data = new ArrayList<ObservableList<DatabaseRecord>>();
+        //System.out.println("items has " + items.size());
+        for (int i = 0; i < items.size(); i ++) {
+            data.add(FXCollections.observableArrayList(new Callback<DatabaseRecord, Observable[]>() {
+                @Override
+                public Observable[] call(DatabaseRecord param) {
+                    return new Observable[] {
+                            param.checkProperty()};
+                    
+                }
+            }));
+            data.get(i).addAll(items.get(i));
+            
+        }
+        
+        return data;
+	}
+	
 	private void loadAuxiliaryList(ArrayList<String> filenames) {
 	    ObservableList<String> data = FXCollections.observableArrayList();
         //ListView<String> listView = this.auxiliary_list;
@@ -234,6 +371,7 @@ public class DatabaseController2 {
         ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
         items.add(drs);
 
+        //LOAD AUXILIARY LIST
         List<ObservableList<DatabaseRecord>> data2 = new ArrayList<ObservableList<DatabaseRecord>>();
         System.out.println("items has " + items.size());
         for (int i = 0; i < items.size(); i ++) {
@@ -251,6 +389,7 @@ public class DatabaseController2 {
         table.setItems(data2.get(0));
         table.setEditable(true);
         
+        //LOAD AUX JMOL VIEWER ON CLICK
         table.setRowFactory(tv -> {
             TableRow<DatabaseRecord> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -270,6 +409,7 @@ public class DatabaseController2 {
         
        //int prev_selection_index = 0;
         
+        //SIMPLY RUN IN BACKGROUND TO NOT LET ANY CHECKS USE MULTIPLE
         int maxSel = 2;
         ObservableList<DatabaseRecord> data_subset = data2.get(0);
         for (int i = 0 ; i < drs.size();i++) {
@@ -347,6 +487,47 @@ public class DatabaseController2 {
 	    String[] names = new String[filenames.size()];
         names = filenames.toArray(names);
         data.addAll(names);
+        
+        
+      //get list
+        SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
+        //splitpane.getItems().add(swingNode);
+        //get items 1 and 2 from main split pane
+        ObservableList<Node> list = splitpane.getItems();
+        ListView<String> listView = (ListView) list.get(0);
+                
+        //load up fragment list
+        //ArrayList<Integer>
+    
+        /*
+        ObservableList<String> data = FXCollections.observableArrayList();
+    
+        int fragmentCounter = 1;
+        for (ArrayList<Integer> frag : fragment_list) {
+            if(frag.size() > 0){
+                System.out.println("Dumping frag contents");
+                for(int piece : frag){
+                    System.out.println(piece);
+                }
+                data.add("Fragment " + fragmentCounter++);
+            }
+        }
+        listView.setItems(data);*/
+                
+        //set listener to items
+        //TRIGGER LIST LOAD WITH FRAGMENT CLICK
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                // Your action here
+                String[] arrOfStr = newValue.split(" "); 
+                System.out.println("split0: " + arrOfStr[0] + " split1: " + arrOfStr[1]);
+                int index = Integer.parseInt(arrOfStr[1]);
+                System.out.println("Selected itemITEM IN DB CONTROLLER: " + index);
+                int i = 1;
+                
+            }
+        }); 
         
         /*listView.setItems(data);
         

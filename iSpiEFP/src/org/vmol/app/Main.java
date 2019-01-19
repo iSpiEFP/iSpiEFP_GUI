@@ -171,37 +171,37 @@ public class Main extends Application {
     private static void createAndSetSwingContent(final SwingNode swingNode, String fileName, boolean mainPanel) {
     	//init jmolPanel
     	if(mainPanel){
-    	jmolPanel = new JmolPanel();
-    	
-    	Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-        	    
-        	    jmolPanel.setPreferredSize(new Dimension(940, 595));
-        	    //jmolPanel.setPreferredSize(new Dimension(100, 100));
-
-        	    // main panel -- Jmol panel on top
-
-        	    JPanel panel = new JPanel();
-        	    panel.setLayout(new BorderLayout());
-        	    panel.add("North", jmolPanel);
-        	    
-        	    
-        	    getMainLayout().setVisible(true);
-        	    //frame.setVisible(true);
-        	    String strError = null;
-        	    if (fileName != null && !fileName.isEmpty())
-        	    	strError = jmolPanel.viewer.openFile(fileName);
-        	    //jmolPanel.viewer.openStringInline(strXyzHOH);
-//        	    jmolPanel.viewer.openFileAsync("benzene.xyz");
-        	    if (strError != null)
-        	      Logger.error(strError);
-
-        	    panel.setFocusable(true);
-                swingNode.setContent(panel);  
-                
-            }
-        });
+        	jmolPanel = new JmolPanel();
+        	
+        	Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+            	    
+            	    jmolPanel.setPreferredSize(new Dimension(940, 595));
+            	    //jmolPanel.setPreferredSize(new Dimension(100, 100));
+    
+            	    // main panel -- Jmol panel on top
+    
+            	    JPanel panel = new JPanel();
+            	    panel.setLayout(new BorderLayout());
+            	    panel.add("North", jmolPanel);
+            	    
+            	    
+            	    getMainLayout().setVisible(true);
+            	    //frame.setVisible(true);
+            	    String strError = null;
+            	    if (fileName != null && !fileName.isEmpty())
+            	    	strError = jmolPanel.viewer.openFile(fileName);
+            	    //jmolPanel.viewer.openStringInline(strXyzHOH);
+    //        	    jmolPanel.viewer.openFileAsync("benzene.xyz");
+            	    if (strError != null)
+            	      Logger.error(strError);
+    
+            	    panel.setFocusable(true);
+                    swingNode.setContent(panel);  
+                    
+                }
+            });
     	} else {
     		auxiliaryJmolPanel = new JmolPanel();
         	
