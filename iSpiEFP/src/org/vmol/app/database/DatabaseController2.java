@@ -1,5 +1,7 @@
 package org.vmol.app.database;
 
+import java.awt.Checkbox;
+import java.awt.Container;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
@@ -15,16 +17,19 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.swing.JFrame;
+import javax.swing.JSplitPane;
 
 import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
+import org.vmol.app.database.DatabaseController.JmolPanel;
 import org.vmol.app.qchem.QChemInputController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.beans.property.BooleanPropertyBase;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,9 +39,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -52,6 +59,8 @@ public class DatabaseController2 {
 	//private ListView<String> auxiliary_list;
 	private TableView auxiliary_list;
 	private List<ArrayList<Integer>> fragment_list;
+	
+	private int prev_selection_index = 0;
 
 	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
@@ -93,7 +102,8 @@ public class DatabaseController2 {
                 groupNumber++;
             }
             loadAuxiliaryList(filenames); //load files from DB into viewer list
-            sendQChemForm(); //send and arm qchem input form
+            System.out.println("qchem form DISABLED!!!");
+            //sendQChemForm(); //send and arm qchem input form
             
         } else {
             //There is zero matched fragments
@@ -186,6 +196,11 @@ public class DatabaseController2 {
 	    ObservableList<String> data = FXCollections.observableArrayList();
         //ListView<String> listView = this.auxiliary_list;
         TableView table = this.auxiliary_list;
+        //table.setPrefSize(0, 0);
+        //table.setMaxSize(0, 0);
+        
+        //table.setVisible(false);
+        /*
         TableColumn column1 = (TableColumn) table.getColumns().get(0);
         column1.setText("Choice");
         TableColumn column2 = (TableColumn) table.getColumns().get(1);
@@ -207,14 +222,14 @@ public class DatabaseController2 {
         check.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Boolean>("check"));
         check.setCellFactory(column -> new CheckBoxTableCell());
         check.setEditable(true);
-        check.setPrefWidth(100);
+        check.setPrefWidth(100);*/
         
         ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
-        drs.add(new DatabaseRecord("Not found",  "0", false , -1));
-        drs.add(new DatabaseRecord("Nooaincoian",  "0", false , -1));
-        drs.add(new DatabaseRecord("Noapm cncd",  "0", false , -1));
-        drs.add(new DatabaseRecord("Not focce",  "69", false , -1));
-        drs.add(new DatabaseRecord("Not fouc",  "0", false , -1));
+        drs.add(new DatabaseRecord("Not found",  "0", false , 0));
+        drs.add(new DatabaseRecord("Nooaincoian",  "0", false , 1));
+        drs.add(new DatabaseRecord("Noapm cncd",  "0", false , 2));
+        drs.add(new DatabaseRecord("Not focce",  "69", false , 3));
+        drs.add(new DatabaseRecord("Not fouc",  "0", false , 4));
 
         ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
         items.add(drs);
@@ -234,6 +249,94 @@ public class DatabaseController2 {
             
         }
         table.setItems(data2.get(0));
+        table.setEditable(true);
+        
+        table.setRowFactory(tv -> {
+            TableRow<DatabaseRecord> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 1 && (!row.isEmpty())) {
+                    // SubmissionRecord rowData = row.getItem();
+                    
+                    try {
+                        System.out.println("clicking:" + row.getItem().getRmsd() + row.getItem().getChoice() + row.getItem().getCheck());
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            });
+            return row;
+        });
+        
+       //int prev_selection_index = 0;
+        
+        int maxSel = 2;
+        ObservableList<DatabaseRecord> data_subset = data2.get(0);
+        for (int i = 0 ; i < drs.size();i++) {
+            DatabaseRecord d = data_subset.get(i);
+            prev_selection_index = i;
+            d.checkProperty().addListener( (o, oldV, newV) -> {
+                
+                //int curr = Integer.parseInt(d.getChoice())-1;
+                if(newV) {
+                System.out.println("aaaaaaaaaaa:"+prev_selection_index);
+                int curr = d.getFragId();
+                
+                if (prev_selection_index != curr) {
+                    data_subset.get(prev_selection_index).checkProperty().set(false);
+                }
+                this.prev_selection_index = curr;
+                }
+                /*(final_selections.get(curr_group_index).clear();
+                if (isNowCompleted == true) {
+                    final_selections.get(curr_group_index).add(curr);
+                    
+                }*/
+                
+                //System.out.println("group" + curr_group_index + " selecting " + curr + "  " + isNowCompleted);
+            });
+        }
+        /*
+        CheckBox[] myCheckboxes = new CheckBox[drs.size()];
+        for(int i = 0; i < drs.size(); i++) {
+            myCheckboxes[i] = drs.get(i).checkProperty();
+        }
+        
+        int maxSel = 3;
+        
+        for (int i = 0 ; i < myCheckboxes.length;i++) {
+            ((CheckBox) myCheckboxes[i]).selectedProperty().addListener( (o, oldV, newV) -> {
+                if(newV) {
+                    int sel = 0;
+                    for(CheckBox cb : myCheckboxes)
+                        if(cb.isSelected())
+                            sel++;
+
+                    ((BooleanPropertyBase) o).set(sel <= maxSel);
+                }
+            });
+        }*/
+        /*
+        ObservableList<DatabaseRecord> data_subset = data2.get(index);
+        for (int j = 0; j < data_subset.size(); j ++) {
+            String item = Integer.toString(j);
+            DatabaseRecord d = data_subset.get(j);
+            d.checkProperty().addListener((obs, wasCompleted, isNowCompleted) -> {
+                
+                int curr = Integer.parseInt(d.getChoice())-1;
+                if (prev_selection_index != curr) {
+                    data_subset.get(prev_selection_index).checkProperty().set(false);
+                }
+                prev_selection_index = curr;
+                final_selections.get(curr_group_index).clear();
+                if (isNowCompleted == true) {
+                    final_selections.get(curr_group_index).add(curr);
+                }
+                System.out.println("group" + curr_group_index + " selecting " + curr);
+                //data.get(prev_selection_index).checkProperty().set(true);
+            });
+        }*/
+
         //choices.getColumns().add(check);
         //choices.setItems(data.get(0));
         

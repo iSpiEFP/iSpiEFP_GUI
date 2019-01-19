@@ -31,6 +31,7 @@ import org.vmol.app.Main;
 import org.vmol.app.Main.JmolPanel;
 import org.vmol.app.database.DatabaseController;
 import org.vmol.app.database.DatabaseController2;
+import org.vmol.app.database.DatabaseRecord;
 import org.vmol.app.util.PDBParser;
 
 import javafx.application.Platform;
@@ -47,9 +48,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -334,8 +338,42 @@ public class JmolVisualizer {
         ObservableList<Node> vertlist = vertSplit.getItems();
         
         //ListView<String> listView = (ListView) vertlist.get(1);
+        Pane pane = (Pane) vertlist.get(1);
         
-        TableView table = (TableView) vertlist.get(1);
+        //TableView table = (TableView) vertlist.get(1);
+        TableView table = new TableView();
+        TableColumn column1 = new TableColumn("Choice");
+        TableColumn column2 = new TableColumn("RMSD");
+        TableColumn column3 = new TableColumn("Select");
+        
+        /*
+        TableColumn column1 = (TableColumn) table.getColumns().get(0);
+        column1.setText("Choice");
+        TableColumn column2 = (TableColumn) table.getColumns().get(1);
+        column2.setText("RMSD");
+        TableColumn column3 = (TableColumn) table.getColumns().get(2);
+        column3.setText("Select");*/
+        
+        TableColumn<DatabaseRecord,String> index = column1;
+        index.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("choice"));
+        //table.getColumns().add(index);
+        index.setPrefWidth(200.0);
+        
+        TableColumn<DatabaseRecord,String> rmsd = column2;
+        rmsd.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("rmsd"));
+        //choices.getColumns().add(rmsd);
+        rmsd.setPrefWidth(100);
+        
+        TableColumn<DatabaseRecord,Boolean> check = column3;
+        check.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Boolean>("check"));
+        check.setCellFactory(column -> new CheckBoxTableCell());
+        check.setEditable(true);
+        check.setPrefWidth(75);
+        
+        table.getColumns().addAll(column1,column2,column3);
+ 
+        
+        pane.getChildren().addAll(table);
         //load up list
         //ObservableList<String> data = FXCollections.observableArrayList();
 
