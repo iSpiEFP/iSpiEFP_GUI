@@ -37,6 +37,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -66,7 +68,8 @@ public class DatabaseController2 {
 	private List<ArrayList<Integer>> fragment_list;
 	
 	private int prev_selection_index = 0;
-
+    private List<ObservableList<DatabaseRecord>> userData;
+	
 	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
 		this.auxiliaryJmolViewer = auxiliaryJmolViewer;
@@ -107,14 +110,17 @@ public class DatabaseController2 {
                 groupNumber++;
             }
             runAuxiliaryList(group_filenames);
-            System.out.println("qchem form DISABLED!!!");
-            
+          
             Button button_libefp = getLibefpSubmitButton();
-            
-            
+            button_libefp.setOnAction(new EventHandler <ActionEvent>()
+            {
+                public void handle(ActionEvent event)
+                {
+                    //handle action
+                    sendQChemForm(); //send and arm qchem input form
 
-            //sendQChemForm(); //send and arm qchem input form
-            
+                }
+            });            
         } else {
             //There is zero matched fragments
             //refer to gamess
@@ -211,6 +217,7 @@ public class DatabaseController2 {
 	
 	private void runAuxiliaryList(ArrayList<ArrayList<String []>> group_filenames) {
 	    List<ObservableList<DatabaseRecord>> data = loadAuxListData(group_filenames);
+	    this.userData = data;
 	    
         ListView<String> listView = getFragmentListButtons();
                 
@@ -328,8 +335,15 @@ public class DatabaseController2 {
 	}
 	
 	private void sendQChemForm() {
+	    List<ObservableList<DatabaseRecord>> data = this.userData;
+	    //List<ArrayList<Integer>> groups = this.fragment_list;
+	    @SuppressWarnings("rawtypes")
+        ArrayList<ArrayList> groups = getGroups(this.fragment_list);
+        
+	    String coords = generateQchemInput(data, groups);
+	    
 	    final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
-        String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
+        //String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
         QChemInputController controller;
         controller = new QChemInputController(coords,null);
         loader.setController(controller);
@@ -353,6 +367,46 @@ public class DatabaseController2 {
                 
             }
         });
+	}
+	
+	@SuppressWarnings("unchecked")
+    private String generateQchemInput(List<ObservableList<DatabaseRecord>> data,   @SuppressWarnings("rawtypes") ArrayList<ArrayList> groups) {
+	    StringBuilder sb = new StringBuilder();
+	    ArrayList<Atom> pdb = null;
+        try {
+            pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
+            
+            int group_number = 0;
+            for(ObservableList<DatabaseRecord> list : data) {
+                for(DatabaseRecord record : list) {
+                    if(record.getCheck() == true) {
+                        if(!record.getChoice().equalsIgnoreCase("NOT FOUND")) {
+                            //parse filename
+                            String [] filename = record.getChoice().toString().split("\\.");
+                            
+                            if(group_number == 0) {
+                                sb.append("fragment " + filename[0] + "\n");
+                            } else {
+                                sb.append("\nfragment " + filename[0] + "\n");
+                            }
+                            //apend equivalent group coordinates
+                            ArrayList<Integer> fragment = groups.get(group_number);
+                            for(int atom_num : fragment) {
+                                Atom current_atom = (Atom) pdb.get(atom_num);
+                                sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z+"\n");
+                            }
+                            
+                        }
+                        break;
+                    }
+                }
+                group_number++;
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	    return sb.toString();
 	}
 	
 	private void sendGamessForm(String msg) {
