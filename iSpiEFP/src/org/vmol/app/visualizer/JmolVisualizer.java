@@ -249,23 +249,16 @@ public class JmolVisualizer {
         		jmolPanel.setSize((new Dimension(600,595)));
         		jmolPanel.repaint();
         		
-        		//Main.showJmolViewer(false, "file:test.pdb");
-        	    
         		//Runs auxiliary JmolViewer
                 Main.showJmolViewer(false, null);
 
-        		//jmolPanel.setPreferredSize(new Dimension(940, 595));
-        		
-        		//load items into list view
-        		//ListView<String> aux_list = loadAuxiliaryList2();
+                //load table list
         		TableView aux_table = loadAuxiliaryList();
-        		
         		DatabaseController2 DBcontroller;
 				DBcontroller = new DatabaseController2(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_table, fragment_list);
 				try {
 					DBcontroller.run();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}		            	
             }
@@ -327,44 +320,32 @@ public class JmolVisualizer {
 	public TableView loadAuxiliaryList() {
         //get list
         SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
-        //splitpane.getItems().add(swingNode);
+
         //get items 1 and 2 from main split pane
         ObservableList<Node> list = splitpane.getItems();
         
         //get item 2 from main split pane
         SplitPane nodepane = (SplitPane) list.get(1);
+        
         //add swingnode to left split pane
         ObservableList<Node> sublist = nodepane.getItems();
-        
-        
         SplitPane vertSplit = (SplitPane) sublist.get(1);
         ObservableList<Node> vertlist = vertSplit.getItems();
         
-        //ListView<String> listView = (ListView) vertlist.get(1);
         Pane pane = (Pane) vertlist.get(1);
         
-        //TableView table = (TableView) vertlist.get(1);
+        //Add table to pane
         TableView table = new TableView();
         TableColumn column1 = new TableColumn("Choice");
         TableColumn column2 = new TableColumn("RMSD");
         TableColumn column3 = new TableColumn("Select");
         
-        /*
-        TableColumn column1 = (TableColumn) table.getColumns().get(0);
-        column1.setText("Choice");
-        TableColumn column2 = (TableColumn) table.getColumns().get(1);
-        column2.setText("RMSD");
-        TableColumn column3 = (TableColumn) table.getColumns().get(2);
-        column3.setText("Select");*/
-        
         TableColumn<DatabaseRecord,String> index = column1;
         index.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("choice"));
-        //table.getColumns().add(index);
         index.setPrefWidth(200.0);
         
         TableColumn<DatabaseRecord,String> rmsd = column2;
         rmsd.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("rmsd"));
-        //choices.getColumns().add(rmsd);
         rmsd.setPrefWidth(100);
         
         TableColumn<DatabaseRecord,Boolean> check = column3;
@@ -374,77 +355,11 @@ public class JmolVisualizer {
         check.setPrefWidth(75);
         
         table.getColumns().addAll(column1,column2,column3);
- 
-        
         pane.getChildren().addAll(table);
-        
         table.setEditable(true);
-        //load up list
-        //ObservableList<String> data = FXCollections.observableArrayList();
 
-        //ListView<String> listView = new ListView<String>(data);
-        //listView.setPrefSize(200, 250);
-        
         return table;
-
-        /*
-        data.addAll("lysine_0.xyz","lysine_1.xyz","lysine_2.xyz");
-
-        listView.setItems(data);
-        
-        //set listener to items
-        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                // Your action here
-                System.out.println("Selected item: " + newValue);
-                Main.auxiliaryJmolPanel.viewer.openFile("file:"+newValue);
-            }
-        });
-        return null;*/
     }
-	
-	public ListView<String> loadAuxiliaryList2() {
-		//get list
-		SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
-		//splitpane.getItems().add(swingNode);
-		//get items 1 and 2 from main split pane
-		ObservableList<Node> list = splitpane.getItems();
-		
-		//get item 2 from main split pane
-		SplitPane nodepane = (SplitPane) list.get(1);
-		//add swingnode to left split pane
-		ObservableList<Node> sublist = nodepane.getItems();
-		
-		
-		SplitPane vertSplit = (SplitPane) sublist.get(1);
-		ObservableList<Node> vertlist = vertSplit.getItems();
-		ListView<String> listView = (ListView) vertlist.get(1);
-		
-		//load up list
-		//ObservableList<String> data = FXCollections.observableArrayList();
-
-	    //ListView<String> listView = new ListView<String>(data);
-	    listView.setPrefSize(200, 250);
-	    
-	    return listView;
-
-	    /*
-	    data.addAll("lysine_0.xyz","lysine_1.xyz","lysine_2.xyz");
-
-	    listView.setItems(data);
-	    
-	    //set listener to items
-	    listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-        	@Override
-	        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-	            // Your action here
-	            System.out.println("Selected item: " + newValue);
-	            Main.auxiliaryJmolPanel.viewer.openFile("file:"+newValue);
-	        }
-	    });
-	    return null;*/
-	}
 	
 	//find deleted bonds, called every deletion of a bound in paint under jmolPanel in Main
 	public static ArrayList find_deleted_bonds(JmolPanel jmolPanel) {

@@ -7,20 +7,20 @@ public class DatabaseRecord {
 	private SimpleStringProperty choice;
 	private SimpleStringProperty rmsd;
 	private SimpleBooleanProperty check;
-	private int frag_id;
+	private int index;
 	
 	public DatabaseRecord(String choice, String rmsd, boolean check) {
 		this.choice = new SimpleStringProperty(choice);
 		this.rmsd = new SimpleStringProperty(rmsd);
 		this.check = new SimpleBooleanProperty(check);
-		this.frag_id = 0;
+		this.index = 0;
 	}
 	
-	public DatabaseRecord(String choice, String rmsd, boolean check, int frag_id) {
+	public DatabaseRecord(String choice, String rmsd, boolean check, int index) {
 		this.choice = new SimpleStringProperty(choice);
 		this.rmsd = new SimpleStringProperty(rmsd);
 		this.check = new SimpleBooleanProperty(check);
-		this.frag_id = frag_id;
+		this.index = index;
 	}
 	
 	public String getChoice() {
@@ -35,8 +35,8 @@ public class DatabaseRecord {
 		return check.get();
 	}
 
-	public int getFragId() {
-		return frag_id;
+	public int getIndex() {
+		return index;
 	}
 	
 	public SimpleBooleanProperty checkProperty() {

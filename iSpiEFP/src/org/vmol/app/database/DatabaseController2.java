@@ -59,8 +59,8 @@ public class DatabaseController2 {
 	
 	private Viewer jmolViewer;
 	private Viewer auxiliaryJmolViewer;
-	//private ListView<String> auxiliary_list;
-	private TableView auxiliary_list;
+	@SuppressWarnings("rawtypes")
+    private TableView auxiliary_list;
 	private List<ArrayList<Integer>> fragment_list;
 	
 	private int prev_selection_index = 0;
@@ -104,7 +104,6 @@ public class DatabaseController2 {
                 }
                 groupNumber++;
             }
-            //loadAuxiliaryList(filenames); //load files from DB into viewer list
             runAuxiliaryList(group_filenames);
             System.out.println("qchem form DISABLED!!!");
             //sendQChemForm(); //send and arm qchem input form
@@ -255,13 +254,9 @@ public class DatabaseController2 {
 	    ObservableList<DatabaseRecord> data_subset = data.get(index);
         for (int i = 0 ; i < data_subset.size();i++) {
             DatabaseRecord d = data_subset.get(i);
-            //prev_selection_index = i;
             d.checkProperty().addListener( (o, oldV, newV) -> {
-                
-                //int curr = Integer.parseInt(d.getChoice())-1;
                 if(newV) {
-                    //System.out.println("aaaaaaaaaaa:"+prev_selection_index);
-                    int curr = d.getFragId();
+                    int curr = d.getIndex();
                     if (prev_selection_index != curr) {
                         data_subset.get(prev_selection_index).checkProperty().set(false);
                     }
@@ -272,36 +267,27 @@ public class DatabaseController2 {
 	}
 	
 	//returns button list on main page with fragment lists
-	private ListView<String> getFragmentListButtons() {
+	@SuppressWarnings("unchecked")
+    private ListView<String> getFragmentListButtons() {
 	    SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
         ObservableList<Node> list = splitpane.getItems();
+        @SuppressWarnings("rawtypes")
         ListView<String> listView = (ListView) list.get(0);
         return listView;
 	}
 	
 	private List<ObservableList<DatabaseRecord>> loadAuxListData(ArrayList<ArrayList<String []>> group_filenames) {
         ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
-        //ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
-        //drs.add(new DatabaseRecord("Not found",  "0", false , 0));
-        //drs.add(new DatabaseRecord("Nooaincoian",  "0", false , 1));
-        //drs.add(new DatabaseRecord("Noapm cncd",  "0", false , 2));
-        //drs.add(new DatabaseRecord("Not focce",  "69", false , 3));
-        //drs.add(new DatabaseRecord("Not fouc",  "0", false , 4));
-        
         for (ArrayList<String []> group : group_filenames){ 
             ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
             if(group.size() > 0) {
                 int index = 0;
                 for(String [] pair_name : group) {
                     String xyz_filename = pair_name[0];
-                    //String efp_filename = pair_name[1];
-                    //filenames.add(xyz_filename);
                     if(index == 0) {
-                        drs.add(new DatabaseRecord(xyz_filename,  "0", true , index++));
-                       // drs.add(new DatabaseRecord(xyz_filename,  "0", false , index++));
-                       // drs.add(new DatabaseRecord(xyz_filename,  "0", false , index++));
+                        drs.add(new DatabaseRecord(xyz_filename,  "6.022 E23", true , index++));
                     } else {
-                        drs.add(new DatabaseRecord(xyz_filename,  "0", false , index++));
+                        drs.add(new DatabaseRecord(xyz_filename,  "6.022 E23", false , index++));
                     }
                 }
             } else {
@@ -310,9 +296,8 @@ public class DatabaseController2 {
             }
             items.add(drs);
         }
-      //LOAD AUXILIARY LIST
+        //LOAD AUXILIARY LIST STRUCTURES
         List<ObservableList<DatabaseRecord>> data = new ArrayList<ObservableList<DatabaseRecord>>();
-        //System.out.println("items has " + items.size());
         for (int i = 0; i < items.size(); i ++) {
             data.add(FXCollections.observableArrayList(new Callback<DatabaseRecord, Observable[]>() {
                 @Override
@@ -323,227 +308,8 @@ public class DatabaseController2 {
                 }
             }));
             data.get(i).addAll(items.get(i));
-            
         }
-        
         return data;
-	}
-	
-	private void loadAuxiliaryList(ArrayList<String> filenames) {
-	    ObservableList<String> data = FXCollections.observableArrayList();
-        //ListView<String> listView = this.auxiliary_list;
-        TableView table = this.auxiliary_list;
-        //table.setPrefSize(0, 0);
-        //table.setMaxSize(0, 0);
-        
-        //table.setVisible(false);
-        /*
-        TableColumn column1 = (TableColumn) table.getColumns().get(0);
-        column1.setText("Choice");
-        TableColumn column2 = (TableColumn) table.getColumns().get(1);
-        column2.setText("RMSD");
-        TableColumn column3 = (TableColumn) table.getColumns().get(2);
-        column3.setText("Select");
-        
-        TableColumn<DatabaseRecord,String> index = column1;
-        index.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("choice"));
-        //table.getColumns().add(index);
-        index.setPrefWidth(100.0);
-        
-        TableColumn<DatabaseRecord,String> rmsd = column2;
-        rmsd.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("rmsd"));
-        //choices.getColumns().add(rmsd);
-        rmsd.setPrefWidth(100.0);
-        
-        TableColumn<DatabaseRecord,Boolean> check = column3;
-        check.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Boolean>("check"));
-        check.setCellFactory(column -> new CheckBoxTableCell());
-        check.setEditable(true);
-        check.setPrefWidth(100);*/
-        
-        ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
-        drs.add(new DatabaseRecord("Not found",  "0", false , 0));
-        drs.add(new DatabaseRecord("Nooaincoian",  "0", false , 1));
-        drs.add(new DatabaseRecord("Noapm cncd",  "0", false , 2));
-        drs.add(new DatabaseRecord("Not focce",  "69", false , 3));
-        drs.add(new DatabaseRecord("Not fouc",  "0", false , 4));
-
-        ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
-        items.add(drs);
-
-        //LOAD AUXILIARY LIST
-        List<ObservableList<DatabaseRecord>> data2 = new ArrayList<ObservableList<DatabaseRecord>>();
-        System.out.println("items has " + items.size());
-        for (int i = 0; i < items.size(); i ++) {
-            data2.add(FXCollections.observableArrayList(new Callback<DatabaseRecord, Observable[]>() {
-                @Override
-                public Observable[] call(DatabaseRecord param) {
-                    return new Observable[] {
-                            param.checkProperty()};
-                    
-                }
-            }));
-            data2.get(i).addAll(items.get(i));
-            
-        }
-        table.setItems(data2.get(0));
-        table.setEditable(true);
-        
-        //LOAD AUX JMOL VIEWER ON CLICK
-        table.setRowFactory(tv -> {
-            TableRow<DatabaseRecord> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 1 && (!row.isEmpty())) {
-                    // SubmissionRecord rowData = row.getItem();
-                    
-                    try {
-                        System.out.println("clicking:" + row.getItem().getRmsd() + row.getItem().getChoice() + row.getItem().getCheck());
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            });
-            return row;
-        });
-        
-       //int prev_selection_index = 0;
-        
-        //SIMPLY RUN IN BACKGROUND TO NOT LET ANY CHECKS USE MULTIPLE
-        int maxSel = 2;
-        ObservableList<DatabaseRecord> data_subset = data2.get(0);
-        for (int i = 0 ; i < drs.size();i++) {
-            DatabaseRecord d = data_subset.get(i);
-            prev_selection_index = i;
-            d.checkProperty().addListener( (o, oldV, newV) -> {
-                
-                //int curr = Integer.parseInt(d.getChoice())-1;
-                if(newV) {
-                System.out.println("aaaaaaaaaaa:"+prev_selection_index);
-                int curr = d.getFragId();
-                
-                if (prev_selection_index != curr) {
-                    data_subset.get(prev_selection_index).checkProperty().set(false);
-                }
-                this.prev_selection_index = curr;
-                }
-                /*(final_selections.get(curr_group_index).clear();
-                if (isNowCompleted == true) {
-                    final_selections.get(curr_group_index).add(curr);
-                    
-                }*/
-                
-                //System.out.println("group" + curr_group_index + " selecting " + curr + "  " + isNowCompleted);
-            });
-        }
-        /*
-        CheckBox[] myCheckboxes = new CheckBox[drs.size()];
-        for(int i = 0; i < drs.size(); i++) {
-            myCheckboxes[i] = drs.get(i).checkProperty();
-        }
-        
-        int maxSel = 3;
-        
-        for (int i = 0 ; i < myCheckboxes.length;i++) {
-            ((CheckBox) myCheckboxes[i]).selectedProperty().addListener( (o, oldV, newV) -> {
-                if(newV) {
-                    int sel = 0;
-                    for(CheckBox cb : myCheckboxes)
-                        if(cb.isSelected())
-                            sel++;
-
-                    ((BooleanPropertyBase) o).set(sel <= maxSel);
-                }
-            });
-        }*/
-        /*
-        ObservableList<DatabaseRecord> data_subset = data2.get(index);
-        for (int j = 0; j < data_subset.size(); j ++) {
-            String item = Integer.toString(j);
-            DatabaseRecord d = data_subset.get(j);
-            d.checkProperty().addListener((obs, wasCompleted, isNowCompleted) -> {
-                
-                int curr = Integer.parseInt(d.getChoice())-1;
-                if (prev_selection_index != curr) {
-                    data_subset.get(prev_selection_index).checkProperty().set(false);
-                }
-                prev_selection_index = curr;
-                final_selections.get(curr_group_index).clear();
-                if (isNowCompleted == true) {
-                    final_selections.get(curr_group_index).add(curr);
-                }
-                System.out.println("group" + curr_group_index + " selecting " + curr);
-                //data.get(prev_selection_index).checkProperty().set(true);
-            });
-        }*/
-
-        //choices.getColumns().add(check);
-        //choices.setItems(data.get(0));
-        
-        //column3.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().getIsDefault()));
-        //column3.setCellFactory(tc -> new CheckBoxTableCell<>());
-        
-        
-	    String[] names = new String[filenames.size()];
-        names = filenames.toArray(names);
-        data.addAll(names);
-        
-        
-      //get list
-        SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
-        //splitpane.getItems().add(swingNode);
-        //get items 1 and 2 from main split pane
-        ObservableList<Node> list = splitpane.getItems();
-        ListView<String> listView = (ListView) list.get(0);
-                
-        //load up fragment list
-        //ArrayList<Integer>
-    
-        /*
-        ObservableList<String> data = FXCollections.observableArrayList();
-    
-        int fragmentCounter = 1;
-        for (ArrayList<Integer> frag : fragment_list) {
-            if(frag.size() > 0){
-                System.out.println("Dumping frag contents");
-                for(int piece : frag){
-                    System.out.println(piece);
-                }
-                data.add("Fragment " + fragmentCounter++);
-            }
-        }
-        listView.setItems(data);*/
-                
-        //set listener to items
-        //TRIGGER LIST LOAD WITH FRAGMENT CLICK
-        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                // Your action here
-                String[] arrOfStr = newValue.split(" "); 
-                System.out.println("split0: " + arrOfStr[0] + " split1: " + arrOfStr[1]);
-                int index = Integer.parseInt(arrOfStr[1]);
-                System.out.println("Selected itemITEM IN DB CONTROLLER: " + index);
-                int i = 1;
-                
-            }
-        }); 
-        
-        /*listView.setItems(data);
-        
-        //set listener to items
-        auxiliaryJmolViewer.runScript("set autobond on");
-        
-        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                // Your action here
-                System.out.println("Selected item: " + newValue);
-                String path = System.getProperty("user.dir") + "\\dbController\\xyz_files\\";
-
-                auxiliaryJmolViewer.openFile("file:"+path+newValue);
-            }
-        });*/
 	}
 	
 	private void sendQChemForm() {
