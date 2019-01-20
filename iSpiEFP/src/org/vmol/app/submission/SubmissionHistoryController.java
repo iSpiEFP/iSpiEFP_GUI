@@ -45,6 +45,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -126,6 +127,12 @@ public class SubmissionHistoryController {
 								Stage currStage = (Stage) root.getScene().getWindow();
 								String homeDir = System.getProperty("user.home");
 								new JmolVisualization(currStage, true).show(new File(homeDir + "/Desktop/benzene_na_water_box/generate_traj/final.xyz"));
+							} 
+							System.out.println(row.getItem().getName());
+							SubmissionRecord record = row.getItem();
+							if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
+							    System.out.println("opening record");
+							    getRemoteVmolOutput(record.getTime());
 							}
 							//Stage currStage = (Stage) root.getScene().getWindow();
 							//new JmolVisualization(currStage, false).show(new File("output_" + date_extension + ".xyz"));
@@ -215,7 +222,73 @@ public class SubmissionHistoryController {
 
 	}
 	
-	private void loadData(ArrayList<String[]> jobHistory, ObservableList<SubmissionRecord> data) {
+	private String getRemoteVmolOutput(String job_date) throws IOException {
+	    String hostname = "halstead.rcac.purdue.edu";
+        Connection conn = new Connection(hostname);
+        conn.connect();
+      
+        String username = "apolcyn";
+        String password = "P15mac&new";
+        
+        boolean isAuthenticated = conn.authenticateWithPassword(username, password);
+        if (!isAuthenticated)
+            throw new IOException("Authentication failed.");
+        
+        SCPClient scp = conn.createSCPClient();
+        //System.out.println("current dir:"+System.getProperty("user.dir"));
+        
+        SCPInputStream scpos = scp.get("./vmol/output_"+job_date);
+        
+        InputStream stdout = new StreamGobbler(scpos);
+        BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+        //ArrayList<String> output = new ArrayList<String>();
+        StringBuilder sb = new StringBuilder();
+        while (true) {
+            String line = br.readLine();
+            if (line == null)
+                break;
+            System.out.println("gobbler");
+            System.out.println(line);
+            sb.append(line+"\n");
+            //output.add(line);
+            //System.out.println(line);
+        }
+//           FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
+       // FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
+       
+       // IOUtils.copy(in, scpos);
+       // in.close();
+        scpos.close();
+        conn.close();
+        //br.close(); //OVIEN STRANGE RESULTS HERE 
+        /*
+        boolean isAuthenticated = conn.authenticateWithPassword(username, password);
+        if (!isAuthenticated)
+            throw new IOException("Authentication failed.");
+        
+        Session sess = conn.openSession();
+        String outputName = "output_"+job_date;
+        
+        sess.execCommand("cd vmol; ls | grep -w "+outputName);
+        InputStream stdout = new StreamGobbler(sess.getStdout());
+        BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+        ArrayList<String> output = new ArrayList<String>();
+        while (true) {
+            String line = br.readLine();
+            if (line == null)
+                break;
+            System.out.println("gobbler");
+            System.out.println(line);
+            output.add(line);
+            //System.out.println(line);
+        }
+        br.close();
+        sess.close();
+        
+*/      return sb.toString();  
+    }
+
+    private void loadData(ArrayList<String[]> jobHistory, ObservableList<SubmissionRecord> data) {
 	   
 	    for (String [] line : jobHistory) {
             String job_id = line[0];
@@ -375,7 +448,7 @@ public class SubmissionHistoryController {
 		}
 	}
 
-	public void visualize() throws IOException, ParseException, UnrecognizedAtomException {
+	public void visualize342() throws IOException, ParseException, UnrecognizedAtomException {
 		String hostname = "halstead.rcac.purdue.edu";
 		Connection conn = new Connection(hostname);
 		conn.connect();
@@ -467,4 +540,53 @@ public class SubmissionHistoryController {
 			return;
 		}
 	}
+	
+	public void visualize() throws IOException, ParseException, UnrecognizedAtomException {
+    
+        SubmissionRecord record = tableView.getSelectionModel().getSelectedItem();
+        
+        if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
+            System.out.println("opening record");
+            String output = getRemoteVmolOutput(record.getTime());
+            
+            Stage newStage = new Stage();
+            /*VBox comp = new VBox();
+            TextField nameField = new TextField("Name");
+            TextField phoneNumber = new TextField("Phone Number");
+            phoneNumber.setText(output);
+            comp.getChildren().add(nameField);
+            comp.getChildren().add(phoneNumber);
+
+            Scene stageScene = new Scene(comp, 500, 500);*/
+           // newStage.setScene(stageScene);
+           // newStage.show();
+            
+            newStage.setTitle("TextArea Experiment 1");
+
+            TextArea textArea = new TextArea();
+            textArea.setText(output);
+
+            VBox vbox = new VBox(textArea);
+
+            Scene scene = new Scene(vbox, 600, 600);
+            newStage.setScene(scene);
+            newStage.show();
+        }
+        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        Date dateValue = sdf.parse(sr.getTime());
+        sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+        String date_extension = sdf.format(dateValue);
+
+        SCPClient scp = conn.createSCPClient();
+        SCPInputStream scpin = scp.get("vmol/output_" + date_extension);
+        FileOutputStream out = new FileOutputStream(new File("output_" + date_extension));
+        IOUtils.copy(scpin, out);
+        out.close();
+        scpin.close();
+        conn.close();
+
+        toXYZ("output_" + date_extension, date_extension);
+        Stage currStage = (Stage) root.getScene().getWindow();
+        new JmolVisualization(currStage, false).show(new File("output_" + date_extension + ".xyz"));*/
+    }
 }
