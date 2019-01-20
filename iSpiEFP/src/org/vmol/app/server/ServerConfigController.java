@@ -64,6 +64,10 @@ public class ServerConfigController implements Initializable{
 	
 	private static Preferences userPrefs = Preferences.userNodeForPackage(ServerConfigController.class);
 	
+	public ServerConfigController() {
+	    
+	}
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		cid.setCellValueFactory(new Callback<CellDataFeatures<ServerDetails, String>, ObservableValue<String>>() {

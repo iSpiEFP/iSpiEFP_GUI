@@ -34,6 +34,7 @@ import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
 import org.vmol.app.submission.SubmissionHistoryController;
+import org.vmol.app.util.Atom;
 import org.vmol.app.util.UnrecognizedAtomException;
 import org.vmol.app.visualization.JmolVisualization;
 
@@ -481,11 +482,11 @@ public class QChemInputController implements Initializable{
 	}
 	
 	
-	public void handleSubmit100() throws IOException, UnrecognizedAtomException {
+	public void handleSubmit897534() throws IOException, UnrecognizedAtomException {
 		
 		String qChemText = qChemInputTextArea.getText();
 				
-			if (!auto_sub.isDisabled() && auto_sub.getValue().equals("On")) {
+			//if (auto_sub != null && auto_sub.getValue().equals("On")) {
 				String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
 
 				//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
@@ -543,7 +544,7 @@ public class QChemInputController implements Initializable{
 			        e.printStackTrace();
 			     }
 				
-			}
+			//}
 			
 			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 			Date date = new Date();
@@ -572,7 +573,6 @@ public class QChemInputController implements Initializable{
 			Dialog<Pair<String, String>> dialog = new Dialog<>();
 			dialog.setTitle("Login Dialog");
 			dialog.setHeaderText("Please type your username and password for the selected host");
-
 			// Set the icon (must be included in the project).
 			//dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
 
@@ -911,6 +911,7 @@ public class QChemInputController implements Initializable{
             br.close();
             sess.close();
             
+            String time = currentTime; //equivalent but in different formats
             dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             currentTime = dateFormat.format(date).toString();
             
@@ -920,6 +921,22 @@ public class QChemInputController implements Initializable{
                
             conn.close();
             
+            
+            String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
+            int port = 8080;
+            
+            //send over job data to database
+            String query = "Submit2";
+            query += "$END$";
+            query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+            query+= "$ENDALL$";
+            
+            Socket client = new Socket(serverName, port);
+            OutputStream outToServer = client.getOutputStream();
+            //DataOutputStream out = new DataOutputStream(outToServer);
+            
+            System.out.println(query);
+            outToServer.write(query.getBytes("UTF-8"));
         }
         // Handle SSH case later
     }
