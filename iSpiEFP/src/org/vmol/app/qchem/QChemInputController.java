@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
+import org.vmol.app.server.JobManager;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
 import org.vmol.app.submission.SubmissionHistoryController;
@@ -937,6 +938,11 @@ public class QChemInputController implements Initializable{
             
             System.out.println(query);
             outToServer.write(query.getBytes("UTF-8"));
+            
+            JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
+            //jobManager.checkStatus(username, password, hostname, time);
+            //jobManager.watchJobStatus(username, password, hostname, time);
+            jobManager.watchJobStatus();
         }
         // Handle SSH case later
     }
