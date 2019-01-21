@@ -940,8 +940,6 @@ public class QChemInputController implements Initializable{
             outToServer.write(query.getBytes("UTF-8"));
             
             JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
-            //jobManager.checkStatus(username, password, hostname, time);
-            //jobManager.watchJobStatus(username, password, hostname, time);
             jobManager.watchJobStatus();
         }
         // Handle SSH case later
