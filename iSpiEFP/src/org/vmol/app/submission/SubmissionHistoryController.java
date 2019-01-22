@@ -25,6 +25,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.apache.commons.io.IOUtils;
+import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
 import org.vmol.app.util.UnrecognizedAtomException;
@@ -78,15 +79,7 @@ public class SubmissionHistoryController {
             e1.printStackTrace();
         }
 
-        /*
-        Connection conn = new Connection();
-        conn.connect();
-        boolean isAuthenticated = conn.authenticateWithPassword(records[3], records[4]);
-        if (!isAuthenticated) {
-            throw new IOException("Authentication failed");
-        }
-        conn.close();*/
-        
+       
         
 		// userPrefs.clear();
 		if (firstStart == true) {
@@ -98,6 +91,7 @@ public class SubmissionHistoryController {
 						// SubmissionRecord rowData = row.getItem();
 						try {
 							//visualize();
+						    /*
 							if (row.getItem().getName().equals("lysine")) {
 								Stage currStage = new Stage();
 								TextArea text = new TextArea();
@@ -127,7 +121,7 @@ public class SubmissionHistoryController {
 								Stage currStage = (Stage) root.getScene().getWindow();
 								String homeDir = System.getProperty("user.home");
 								new JmolVisualization(currStage, true).show(new File(homeDir + "/Desktop/benzene_na_water_box/generate_traj/final.xyz"));
-							} 
+							} */
 							System.out.println(row.getItem().getName());
 							SubmissionRecord record = row.getItem();
 							if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
@@ -203,23 +197,24 @@ public class SubmissionHistoryController {
 			SubmissionRecord r = new SubmissionRecord(keys[i], "Queuing", userPrefs.get(keys[i], null));
 			data.add(r);
 		} */
-		String username = "apolcyn";
-		String hostname = "halstead.rcac.purdue.edu";
-		String type = "LIBEFP";
+        String hostname = "halstead.rcac.purdue.edu091";
+		LoginForm loginForm = new LoginForm(hostname);
+		boolean authorized = loginForm.authenticate();
+		if(authorized) {
+		    String username = "apolcyn";
+		    String type = "LIBEFP";
 		
-		ArrayList<String []> jobHistory = queryDatabaseforJobHistory(username, hostname, type);
-		//conn.close();
+		    ArrayList<String []> jobHistory = queryDatabaseforJobHistory(username, hostname, type);
+		    //conn.close();
 		
-		
-		
-		jobHistory = checkJobStatus(jobHistory);
-		for (String [] line : jobHistory) {
-		    for(String str: line) {
-		        System.out.println(str);
+		    jobHistory = checkJobStatus(jobHistory);
+		    for (String [] line : jobHistory) {
+		        for(String str: line) {
+		            System.out.println(str);
+		        }
 		    }
+		    loadData(jobHistory, data);
 		}
-		loadData(jobHistory, data);
-
 	}
 	
 	private String getRemoteVmolOutput(String job_date) throws IOException {
