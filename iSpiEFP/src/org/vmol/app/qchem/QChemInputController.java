@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
+import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.server.JobManager;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
@@ -49,10 +50,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
@@ -65,13 +68,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Pair;
 
 import org.controlsfx.control.CheckComboBox;
@@ -824,123 +830,127 @@ public class QChemInputController implements Initializable{
         if (selectedServer.getServerType().equalsIgnoreCase("local"))
             submitJobToLocalServer(selectedServer);
         else {
-            
-            createInputFile("md_1.in", this.QChemInputsDirectory);
-            Thread.sleep(100);
-            System.out.println("sending these efp files:");
-            for(String filename : this.efpFilenames) {
-                System.out.println(filename);
-            }
-            
-            
             String hostname = "halstead.rcac.purdue.edu";
-            Connection conn = new Connection(hostname);
-            conn.connect();
-          
-            String username = "apolcyn";
-            String password = "P15mac&new";
-        
-            boolean isAuthenticated = conn.authenticateWithPassword(username, password);
-            if (!isAuthenticated)
-                throw new IOException("Authentication failed.");
+            LoginForm loginForm = new LoginForm(hostname);
+            boolean authorized = loginForm.authenticate();
+            if(authorized) {
+                createInputFile("md_1.in", this.QChemInputsDirectory);
+                Thread.sleep(100);
+                System.out.println("sending these efp files:");
+                for(String filename : this.efpFilenames) {
+                    System.out.println(filename);
+                }
+                
+                Connection conn = new Connection(hostname);
+                conn.connect();
+              
+                String username = loginForm.getUsername();
+                String password = loginForm.getPassword();
             
-            SCPClient scp = conn.createSCPClient();
-            //System.out.println("current dir:"+System.getProperty("user.dir"));
-            
-            SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./vmol","0666");
- //           FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
-            FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
-           
-            IOUtils.copy(in, scpos);
-            in.close();
-            scpos.close();
-            System.out.println("sent config file");
-
-            
-            Session sess = conn.openSession();
-            sess.execCommand("cd vmol; mkdir fraglib");
-            sess.close();
-            
-            for(String filename : this.efpFilenames) {
-                System.out.println(filename);
-                scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
-                in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
+                boolean isAuthenticated = conn.authenticateWithPassword(username, password);
+                if (!isAuthenticated)
+                    throw new IOException("Authentication failed.");
+                
+                SCPClient scp = conn.createSCPClient();
+                //System.out.println("current dir:"+System.getProperty("user.dir"));
+                
+                SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./vmol","0666");
+     //           FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
+                FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
+               
                 IOUtils.copy(in, scpos);
                 in.close();
                 scpos.close();
-            }
-            
-           /*
-            scpos = scp.put("nh3.efp",new File("./md_test/fraglib/nh3.efp").length(),"./vmol/fraglib","0666");
-            in = new FileInputStream(new File("./md_test/fraglib/nh3.efp"));
-            IOUtils.copy(in, scpos);
-            in.close();
-            scpos.close();*/
-            
-            DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
-            Date date = new Date();
-            String currentTime = dateFormat.format(date).toString();
-            String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
+                System.out.println("sent config file");
 
-            scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"./vmol","0666");
-            InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
-            IOUtils.copy(istream, scpos);
-            istream.close();
-            scpos.close();
-            
-            
-            sess = conn.openSession();
-            //sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
-            //sess.waitUntilDataAvailable(0);
-            
-            sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
-            InputStream stdout = new StreamGobbler(sess.getStdout());
-            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-            String jobID = "";
-            while (true) {
-                String line = br.readLine();
-                if (line == null)
-                    break;
-                System.out.println(line);
-                String[] tokens = line.split("\\.");
-                if (tokens[0].matches("\\d+")) {
-                    jobID = tokens[0];
+                
+                Session sess = conn.openSession();
+                sess.execCommand("cd vmol; mkdir fraglib");
+                sess.close();
+                
+                for(String filename : this.efpFilenames) {
+                    System.out.println(filename);
+                    scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
+                    in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
+                    IOUtils.copy(in, scpos);
+                    in.close();
+                    scpos.close();
                 }
-                //System.out.println(line);
+                
+               /*
+                scpos = scp.put("nh3.efp",new File("./md_test/fraglib/nh3.efp").length(),"./vmol/fraglib","0666");
+                in = new FileInputStream(new File("./md_test/fraglib/nh3.efp"));
+                IOUtils.copy(in, scpos);
+                in.close();
+                scpos.close();*/
+                
+                DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+                Date date = new Date();
+                String currentTime = dateFormat.format(date).toString();
+                String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
+
+                scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"./vmol","0666");
+                InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
+                IOUtils.copy(istream, scpos);
+                istream.close();
+                scpos.close();
+                
+                
+                sess = conn.openSession();
+                //sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
+                //sess.waitUntilDataAvailable(0);
+                
+                sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
+                InputStream stdout = new StreamGobbler(sess.getStdout());
+                BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+                String jobID = "";
+                while (true) {
+                    String line = br.readLine();
+                    if (line == null)
+                        break;
+                    System.out.println(line);
+                    String[] tokens = line.split("\\.");
+                    if (tokens[0].matches("\\d+")) {
+                        jobID = tokens[0];
+                    }
+                    //System.out.println(line);
+                }
+                System.out.println(jobID);
+                br.close();
+                sess.close();
+                
+                String time = currentTime; //equivalent but in different formats
+                dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                currentTime = dateFormat.format(date).toString();
+                
+                
+                userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
+                
+                   
+                conn.close();
+                
+                
+                String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
+                int port = 8080;
+                
+                //send over job data to database
+                String query = "Submit2";
+                query += "$END$";
+                query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+                query+= "$ENDALL$";
+                
+                Socket client = new Socket(serverName, port);
+                OutputStream outToServer = client.getOutputStream();
+                //DataOutputStream out = new DataOutputStream(outToServer);
+                
+                System.out.println(query);
+                outToServer.write(query.getBytes("UTF-8"));
+                
+                JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
+                jobManager.watchJobStatus();
             }
-            System.out.println(jobID);
-            br.close();
-            sess.close();
-            
-            String time = currentTime; //equivalent but in different formats
-            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-            currentTime = dateFormat.format(date).toString();
             
             
-            userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
-            
-               
-            conn.close();
-            
-            
-            String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
-            int port = 8080;
-            
-            //send over job data to database
-            String query = "Submit2";
-            query += "$END$";
-            query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
-            query+= "$ENDALL$";
-            
-            Socket client = new Socket(serverName, port);
-            OutputStream outToServer = client.getOutputStream();
-            //DataOutputStream out = new DataOutputStream(outToServer);
-            
-            System.out.println(query);
-            outToServer.write(query.getBytes("UTF-8"));
-            
-            JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
-            jobManager.watchJobStatus();
         }
         // Handle SSH case later
     }

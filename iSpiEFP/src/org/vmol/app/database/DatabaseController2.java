@@ -143,8 +143,8 @@ public class DatabaseController2 {
 	    ArrayList<Atom> pdb;
 		pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
 		
-		String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
-		int port = 8080;
+		String serverName = Main.iSpiEFP_SERVER;
+		int port = Main.iSpiEFP_PORT;
 	
 		System.out.println("Atoms count: " + groups);
 		
