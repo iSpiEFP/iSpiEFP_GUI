@@ -172,7 +172,7 @@ public class MainViewController {
         LoginForm loginForm = new LoginForm(hostname);
         boolean authorized = loginForm.authenticate();
         if(authorized) {
-            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword());
+            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), hostname);
             FXMLLoader loader = new FXMLLoader(
                 getClass().getResource(
                         "submission/submissionHistory.fxml"
