@@ -2,8 +2,11 @@ package org.vmol.app;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.vmol.app.fileparser.FileParserController;
+import org.vmol.app.loginPack.LoginForm;
+import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.UnrecognizedAtomException;
 import org.vmol.app.visualization.JmolVisualization;
 import org.vmol.app.visualizer.JmolVisualizer;
@@ -31,6 +34,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MainViewController {
 	
@@ -164,12 +168,28 @@ public class MainViewController {
 	
 	@FXML
 	public void openSubmissionHistoryWindow() throws IOException {
-		Parent submissionHistory = FXMLLoader.load(getClass().getResource("submission/submissionHistory.fxml"));
-		Stage stage = new Stage();
-		stage.initModality(Modality.WINDOW_MODAL);
-		stage.setTitle("Submission History");
-		stage.setScene(new Scene(submissionHistory));
-		stage.show();
+	    String hostname = "halstead.rcac.purdue.edu";
+        LoginForm loginForm = new LoginForm(hostname);
+        boolean authorized = loginForm.authenticate();
+        if(authorized) {
+            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword());
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(
+                        "submission/submissionHistory.fxml"
+                )
+            );
+            loader.setController(controller);
+
+            Stage stage = new Stage(StageStyle.DECORATED);
+            stage.setScene(
+              new Scene(
+                  (Pane) loader.load()
+              )
+            );
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Submission History");
+            stage.show();
+        }
 	}
 	
 	@FXML

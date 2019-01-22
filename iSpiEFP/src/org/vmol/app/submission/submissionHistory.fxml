@@ -7,8 +7,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <BorderPane fx:id="root" prefHeight="500.0" prefWidth="659.0"
-	xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="org.vmol.app.submission.SubmissionHistoryController">
+	xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
 	<top>
 		<VBox BorderPane.alignment="CENTER">
 			<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0"

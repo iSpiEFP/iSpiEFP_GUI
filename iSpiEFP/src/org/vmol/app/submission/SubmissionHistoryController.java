@@ -60,12 +60,19 @@ public class SubmissionHistoryController {
 	private static Preferences userPrefs = Preferences.userNodeForPackage(SubmissionHistoryController.class);
 	private boolean firstStart = true;
 
+	private String username;
+	private String password;
 	
+	public SubmissionHistoryController(String username, String password) {
+	    this.username = username;
+	    this.password = password;
+	}
 	
 	@FXML
 	public void initialize()
 			throws IOException, SAXException, SQLException, ParseException, URISyntaxException, BackingStoreException {
 	    
+	    System.out.println("initializing");
 	    ServerConfigController serverConfig = new ServerConfigController();
         try {
             List<ServerDetails> savedList = serverConfig.getServerDetailsList();
@@ -78,9 +85,10 @@ public class SubmissionHistoryController {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-
-       
         
+        System.out.println("Username:"+this.username);
+        System.out.println("password:"+this.password);
+        /*
 		// userPrefs.clear();
 		if (firstStart == true) {
 			firstStart = false;
@@ -90,38 +98,7 @@ public class SubmissionHistoryController {
 					if (event.getClickCount() == 2 && (!row.isEmpty())) {
 						// SubmissionRecord rowData = row.getItem();
 						try {
-							//visualize();
-						    /*
-							if (row.getItem().getName().equals("lysine")) {
-								Stage currStage = new Stage();
-								TextArea text = new TextArea();
-								text.setMinWidth(400);
-								text.setMinHeight(600);
-								
-								String homeDir = System.getProperty("user.home");
-								File rmsd_file = new File(homeDir + "/Desktop/lysine_demo/lysine_simulation_job/test.inp.out" );
-								FileReader fr = new FileReader(rmsd_file);
-								BufferedReader bufferedReader = new BufferedReader(fr);
-								String line;
-								String str = "";
-								while ((line= bufferedReader.readLine())!=null) {
-									str += line + "\n";
-								}
-								text.setText(str);
-								VBox vbox = new VBox();
-								vbox.getChildren().addAll(text);
-								Scene scene = new Scene(vbox);
-								currStage.setScene(scene);
-								currStage.setMinWidth(400);
-								currStage.setMinHeight(600);
-								currStage.show();
-								
-								
-							} else if (row.getItem().getName().equals("benzene_na_h2o")) {
-								Stage currStage = (Stage) root.getScene().getWindow();
-								String homeDir = System.getProperty("user.home");
-								new JmolVisualization(currStage, true).show(new File(homeDir + "/Desktop/benzene_na_water_box/generate_traj/final.xyz"));
-							} */
+						
 							System.out.println(row.getItem().getName());
 							SubmissionRecord record = row.getItem();
 							if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
@@ -138,7 +115,7 @@ public class SubmissionHistoryController {
 				});
 				return row;
 			});
-		}
+		}*/
 
 		ObservableList<SubmissionRecord> data = tableView.getItems();
 //		String hostname = "halstead.rcac.purdue.edu";
@@ -197,10 +174,10 @@ public class SubmissionHistoryController {
 			SubmissionRecord r = new SubmissionRecord(keys[i], "Queuing", userPrefs.get(keys[i], null));
 			data.add(r);
 		} */
-        String hostname = "halstead.rcac.purdue.edu091";
-		LoginForm loginForm = new LoginForm(hostname);
-		boolean authorized = loginForm.authenticate();
-		if(authorized) {
+        String hostname = "halstead.rcac.purdue.edu";
+	//	LoginForm loginForm = new LoginForm(hostname);
+	//	boolean authorized = loginForm.authenticate();
+//		if(authorized) {
 		    String username = "apolcyn";
 		    String type = "LIBEFP";
 		
@@ -214,7 +191,7 @@ public class SubmissionHistoryController {
 		        }
 		    }
 		    loadData(jobHistory, data);
-		}
+	//	}
 	}
 	
 	private String getRemoteVmolOutput(String job_date) throws IOException {
