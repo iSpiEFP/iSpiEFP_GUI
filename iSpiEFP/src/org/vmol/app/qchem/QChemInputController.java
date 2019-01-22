@@ -46,6 +46,8 @@ import ch.ethz.ssh2.SCPOutputStream;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -189,6 +191,7 @@ public class QChemInputController implements Initializable{
     private String efpFileDirectoryPath;
     
     List<ServerDetails> serverDetailsList;
+    private String hostname;
     
     public QChemInputController(String coord) {
     	this.coordinates = coord;
@@ -389,10 +392,22 @@ public class QChemInputController implements Initializable{
 		}
 		List<String> serverNames = new ArrayList<>();
 		for (ServerDetails server : serverDetailsList) {
-			serverNames.add(server.getServerName());
+			serverNames.add(server.getAddress());
 		}
 		serversList.setItems(FXCollections.observableList(serverNames));
-		if (serverNames.size() > 0) serversList.setValue(serverNames.get(0));
+		if (serverNames.size() > 0) {
+		    serversList.setValue(serverNames.get(0));
+		    setHostname(serverNames.get(0));
+		}
+		serversList.setEditable(true);        
+        serversList.valueProperty().addListener(new ChangeListener<String>() {
+            @Override 
+            public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {                
+                String address = t1; 
+                System.out.println("Selected:"+address);
+                setHostname(address);
+            }    
+        });
 	}
 
 	private String getQChemInputText() throws FileNotFoundException {
@@ -830,7 +845,7 @@ public class QChemInputController implements Initializable{
         if (selectedServer.getServerType().equalsIgnoreCase("local"))
             submitJobToLocalServer(selectedServer);
         else {
-            String hostname = "halstead.rcac.purdue.edu";
+            String hostname = this.hostname;
             LoginForm loginForm = new LoginForm(hostname);
             boolean authorized = loginForm.authenticate();
             if(authorized) {
@@ -930,8 +945,10 @@ public class QChemInputController implements Initializable{
                 conn.close();
                 
                 
-                String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
-                int port = 8080;
+                //String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
+                String serverName = Main.iSpiEFP_SERVER;
+                int port = Main.iSpiEFP_PORT;
+                //int port = 8080;
                 
                 //send over job data to database
                 String query = "Submit2";
@@ -953,6 +970,14 @@ public class QChemInputController implements Initializable{
             
         }
         // Handle SSH case later
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 	
 	

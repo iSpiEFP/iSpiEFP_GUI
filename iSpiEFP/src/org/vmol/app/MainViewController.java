@@ -168,11 +168,10 @@ public class MainViewController {
 	
 	@FXML
 	public void openSubmissionHistoryWindow() throws IOException {
-	    String hostname = "halstead.rcac.purdue.edu";
-        LoginForm loginForm = new LoginForm(hostname);
+        LoginForm loginForm = new LoginForm();
         boolean authorized = loginForm.authenticate();
         if(authorized) {
-            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), hostname);
+            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
             FXMLLoader loader = new FXMLLoader(
                 getClass().getResource(
                         "submission/submissionHistory.fxml"

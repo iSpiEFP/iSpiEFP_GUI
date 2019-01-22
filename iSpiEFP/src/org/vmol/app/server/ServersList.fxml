@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane fx:id="root" prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vmol.app.server.ServerConfigController">
+<BorderPane fx:id="root" prefHeight="359.0" prefWidth="388.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vmol.app.server.ServerConfigController">
    <bottom>
       <HBox prefHeight="40.0" prefWidth="1479.0" BorderPane.alignment="CENTER">
          <children>
