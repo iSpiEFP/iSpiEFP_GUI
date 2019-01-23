@@ -858,15 +858,16 @@ public class QChemInputController implements Initializable{
                     System.out.println(filename);
                 }
                 
-                Connection conn = new Connection(hostname);
-                conn.connect();
+                Connection conn = loginForm.getConnection(authorized);
+                //Connection conn = new Connection(hostname);
+                //conn.connect();
               
                 String username = loginForm.getUsername();
                 String password = loginForm.getPassword();
             
-                boolean isAuthenticated = conn.authenticateWithPassword(username, password);
-                if (!isAuthenticated)
-                    throw new IOException("Authentication failed.");
+                //boolean isAuthenticated = conn.authenticateWithPassword(username, password);
+                //if (!isAuthenticated)
+                //    throw new IOException("Authentication failed.");
                 
                 SCPClient scp = conn.createSCPClient();
                 //System.out.println("current dir:"+System.getProperty("user.dir"));

@@ -34,6 +34,7 @@ public class LoginForm {
     private String hostname;
     private String formType;
     private String bundleType;
+    private Connection connection;
     
     private boolean cancel;
     
@@ -97,6 +98,18 @@ public class LoginForm {
         return this.cancel;
     }
     
+    private void setValidConnection(Connection conn) {
+        this.connection = conn;
+    }
+    
+    public Connection getConnection(boolean valid) {
+        if(valid){
+            return this.connection;
+        } else {
+            return null;
+        }
+    }
+    
     public boolean authenticate() {
         String response = new String();
         do {
@@ -144,17 +157,20 @@ public class LoginForm {
                     String username = getUsername();
                     String password = getPassword();
                     boolean isAuthenticated = conn.authenticateWithPassword(username, password);
-                    conn.close();
-                    
+                                      
                     if (!isAuthenticated) {
+                        conn.close();
                         return INVALID;
                     } else {
+                        setValidConnection(conn);
                         return VALID;
                     } 
                 } catch (IOException e) {
+                    conn.close();
                     return INVALID;
                 }
             } catch (IOException e) {
+                conn.close();
                 return FAILED_TO_CONNECT;
             }
         }
