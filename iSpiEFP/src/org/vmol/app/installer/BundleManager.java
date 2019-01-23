@@ -41,7 +41,7 @@ public class BundleManager {
         RemoteBundleManager remoteBundleManager = new RemoteBundleManager(this.username, this.password, this.hostname, this.bundleType);
         boolean userIsMissingPackage = remoteBundleManager.checkIfPackageIsReady();
         //////////////////////
-        userIsMissingPackage = true; //tricked it for testing
+        //userIsMissingPackage = true; //tricked it for testing
         //////////////////////
         if(userIsMissingPackage) {
             System.out.println("User is missing bundle:"+bundleType);

@@ -871,10 +871,15 @@ public class QChemInputController implements Initializable{
                 SCPClient scp = conn.createSCPClient();
                 //System.out.println("current dir:"+System.getProperty("user.dir"));
                 
-                SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./vmol","0666");
+                //SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./vmol","0666");
      //           FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
+                //FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
+              
+                
+                SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./iSpiClient/Libefp","0666");
                 FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
-               
+
+                
                 IOUtils.copy(in, scpos);
                 in.close();
                 scpos.close();
@@ -882,13 +887,14 @@ public class QChemInputController implements Initializable{
 
                 
                 Session sess = conn.openSession();
-                sess.execCommand("cd vmol; mkdir fraglib");
+                sess.execCommand("cd vmol; mkdir fraglib; source ~/.bashrc;");
                 sess.close();
                 
                 for(String filename : this.efpFilenames) {
                     System.out.println(filename);
                     filename = filename.toLowerCase();
-                    scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
+                    //scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
+                    scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./iSpiClient/Libefp/fraglib","0666");
                     in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
                     IOUtils.copy(in, scpos);
                     in.close();
@@ -905,8 +911,20 @@ public class QChemInputController implements Initializable{
                 DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
                 Date date = new Date();
                 String currentTime = dateFormat.format(date).toString();
-                String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
+                
+                /*
+                .append("mkdir iSpiClient;")
+                .append("cd iSpiClient;")
+                .append("mkdir Gamess;")
+                .append("mkdir Libefp;")
+                .append("cd Gamess; cd ..;")
+                .append("cd Libefp; mkdir fraglib; cd ..;")
+                .toString();
+                */
+                //String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
+                String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp;\nmodule load intel;\nefpmd md_1.in > output_" + currentTime;
 
+                
                 scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"./vmol","0666");
                 InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
                 IOUtils.copy(istream, scpos);
@@ -918,9 +936,10 @@ public class QChemInputController implements Initializable{
                 //sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
                 //sess.waitUntilDataAvailable(0);
                 
-                String readyUser = "source ~/.bashrc;";
+                //String readyUser = "source ~/.bashrc;";
 
-                sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
+                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
+                //sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
                 InputStream stdout = new StreamGobbler(sess.getStdout());
                 BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
                 String jobID = "";

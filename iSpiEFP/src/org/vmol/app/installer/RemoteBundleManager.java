@@ -223,7 +223,7 @@ public class RemoteBundleManager {
             
             String testPackage = "";
             if(bundleType.equals(LIBEFP)) {
-                testPackage = "efpmd;";
+                testPackage = "module load intel;efpmd;";
             } else if(bundleType.equals(GAMESS)) {
                 
             }
