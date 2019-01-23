@@ -168,7 +168,7 @@ public class MainViewController {
 	
 	@FXML
 	public void openSubmissionHistoryWindow() throws IOException {
-        LoginForm loginForm = new LoginForm();
+        LoginForm loginForm = new LoginForm("LIBEFP");
         boolean authorized = loginForm.authenticate();
         if(authorized) {
             SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());

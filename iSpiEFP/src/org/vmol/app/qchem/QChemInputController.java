@@ -848,7 +848,7 @@ public class QChemInputController implements Initializable{
             submitJobToLocalServer(selectedServer);
         else {
             String hostname = this.hostname;
-            LoginForm loginForm = new LoginForm(hostname);
+            LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
             boolean authorized = loginForm.authenticate();
             if(authorized) {
                 createInputFile("md_1.in", this.QChemInputsDirectory);
