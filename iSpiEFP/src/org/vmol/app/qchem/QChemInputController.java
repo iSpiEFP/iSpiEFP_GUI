@@ -65,6 +65,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -223,9 +224,8 @@ public class QChemInputController implements Initializable{
     
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		// Adding listener to title
-	    
-		
+		// Adding listener to title	    
+       
 		title.setText("Title");
 		
 		
@@ -852,6 +852,8 @@ public class QChemInputController implements Initializable{
             LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
             boolean authorized = loginForm.authenticate();
             if(authorized) {
+                
+                
                 createInputFile("md_1.in", this.QChemInputsDirectory);
                 Thread.sleep(100);
                 System.out.println("sending these efp files:");
@@ -996,6 +998,21 @@ public class QChemInputController implements Initializable{
                 
                 JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
                 jobManager.watchJobStatus();
+                
+               // QChemInputController controller = new QChemInputController(null);
+               // Node parent = this.root.getParent();
+                
+                //System.out.println(parent.getClass());
+              //  controller.getClass()
+                //Stage stage = (Stage) .getScene().getWindow();
+                
+               // stage.close();
+                
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Libefp Submission");
+                alert.setHeaderText(null);
+                alert.setContentText("Job submitted to cluster successfully.");
+                alert.showAndWait();
             }
             
             

@@ -53,5 +53,15 @@ public class BundleManager {
             return true;
         }
     }
+    
+    public boolean uninstallLocal() {
+        //TODO remove iSpiPackages from local machine
+        return false;
+    }
+    
+    public boolean uninstallRemote(String hostname) {
+        //TODO  remove iSpiPackages from remote host
+        return false;
+    }
    
 }

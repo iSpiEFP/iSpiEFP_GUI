@@ -51,6 +51,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -365,7 +366,8 @@ public class DatabaseController2 {
                     stage.initModality(Modality.WINDOW_MODAL);
                     stage.setTitle("Libefp Input");
                     stage.setScene(scene);
-                    stage.show();
+                    stage.show(); 
+                                      
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
