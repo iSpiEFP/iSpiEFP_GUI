@@ -64,10 +64,12 @@ public class SubmissionHistoryController {
 	private String password;
 	private String hostname;
 	
+	
 	public SubmissionHistoryController(String username, String password, String hostname) {
 	    this.username = username;
 	    this.password = password;
 	    this.hostname = hostname;
+	  
 	}
 	
 	@FXML

@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.vmol.app.Main;
 
@@ -31,6 +32,7 @@ public class JobManager implements Runnable {
     private String date;
     private String status;
     private String type;
+    private Connection conn;
 
     public JobManager(String username, String password, String hostname, String jobID, String title, String date, String status, String type) {
         this.username = username;
@@ -47,6 +49,14 @@ public class JobManager implements Runnable {
         this.username = username;
         this.password = password;
         this.hostname = hostname;
+    }
+    
+    public JobManager(Connection conn) {
+        this.conn = conn;
+    }
+    
+    public JobManager() {
+        
     }
     
     /*
@@ -75,6 +85,17 @@ public class JobManager implements Runnable {
         conn.close();
         return jobIsDone;  
     }
+    
+    public String generateJobID() {
+        UUID jobID = UUID.randomUUID(); 
+        /*
+         * Should maybe check whether this ID exists already or not in the DATABASE
+         * However the chance it does is REALLY REALLY REALLY low, also considering the 
+         * query has a time stamp as well, this is virtually unneccessary
+         */
+        return jobID.toString();
+    }
+  
     
     /*
      * Start a thread that watches a specific job and send a notification when the jobs completes
@@ -222,7 +243,7 @@ public class JobManager implements Runnable {
            
             if(status.equals("QUEUE")) {
                // boolean done = askRemoteServerJobStatus(job_id, date);
-                boolean done = checkStatus(this.date);
+                boolean done = checkStatus(date);
                 //boolean done = askR
                 if(done) {
                     System.out.println("Job:"+job_id + " done. updating database");

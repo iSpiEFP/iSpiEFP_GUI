@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -935,6 +936,7 @@ public class QChemInputController implements Initializable{
                 scpos.close();
                 
                 
+                
                 sess = conn.openSession();
                 //sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
                 //sess.waitUntilDataAvailable(0);
@@ -960,19 +962,21 @@ public class QChemInputController implements Initializable{
                 System.out.println(jobID);
                 br.close();
                 sess.close();
+                conn.close();
+                
                 
                 String time = currentTime; //equivalent but in different formats
                 dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                 currentTime = dateFormat.format(date).toString();
                 
+                jobID = (new JobManager()).generateJobID().toString();
+                //String jobID = jobManager.generateJobID();
+                //String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
+               
                 
                 userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
+
                 
-                   
-                conn.close();
-                
-                
-                //String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
                 String serverName = Main.iSpiEFP_SERVER;
                 int port = Main.iSpiEFP_PORT;
                 //int port = 8080;
