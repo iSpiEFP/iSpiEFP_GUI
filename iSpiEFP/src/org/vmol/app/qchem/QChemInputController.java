@@ -918,6 +918,8 @@ public class QChemInputController implements Initializable{
                 //sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
                 //sess.waitUntilDataAvailable(0);
                 
+                String readyUser = "source ~/.bashrc;";
+
                 sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
                 InputStream stdout = new StreamGobbler(sess.getStdout());
                 BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
