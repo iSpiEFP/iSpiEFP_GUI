@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 
+import org.vmol.app.installer.LocalBundleManager;
+
 /*
 DatabaseFileManager Class processes database response from server,
 and parses, and writes content into two seperate directories.
@@ -26,13 +28,13 @@ public class DatabaseFileManager {
     }
     
     private void initWorkingDir() {
-        this.mainDBDirectory = this.workingDirectoryPath + "/dbController";         //needed for db file storage
-        this.xyzDirectory = this.workingDirectoryPath + "/dbController/xyz_files";  //storage for db incoming xyz files
-        this.efpDirectory = this.workingDirectoryPath + "/dbController/efp_files";  //storage for db incoming efp files
+        this.mainDBDirectory = LocalBundleManager.LIBEFP;         //needed for db file storage
+        this.xyzDirectory = LocalBundleManager.LIBEFP_COORDINATES;  //storage for db incoming xyz files
+        this.efpDirectory = LocalBundleManager.LIBEFP_PARAMETERS;  //storage for db incoming efp files
         
-        createDir(mainDBDirectory);
-        createDir(xyzDirectory);
-        createDir(efpDirectory);
+        //createDir(mainDBDirectory);
+        //createDir(xyzDirectory);
+        //createDir(efpDirectory);
     }
     
     private void createDir(String path) {

@@ -16,6 +16,7 @@ import org.jmol.java.BS;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
+import org.vmol.app.installer.BundleManager;
 import org.vmol.app.visualization.JmolVisualization;
 import org.vmol.app.visualizer.JmolVisualizer;
 
@@ -102,6 +103,9 @@ public class Main extends Application {
 		//add icon
 		getPrimaryStage().getIcons().add(new Image(url));
 		
+		//Manage Working Directory
+		BundleManager bundleManager = new BundleManager("LOCAL");
+		bundleManager.manageLocal();
 		
 		getPrimaryStage().show();
 	}

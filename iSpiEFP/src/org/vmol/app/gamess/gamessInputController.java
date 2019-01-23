@@ -594,6 +594,7 @@ public class gamessInputController implements Initializable{
 						scpos.close();
 						//new File(MainViewController.getLastOpenedFileName() + "_" + i).delete();
 						
+						//    /depot/lslipche/apps/gamess/gamess_2018R1/rungms
 						String pbs_script = "cd ispiefp;\n/group/lslipche/apps/gamess/gamess_2014R1/rungms_pradeep " + MainViewController.getLastOpenedFileName() + "_" + i + ".inp" + " 555 1 > " + MainViewController.getLastOpenedFileName() + "_" + i + ".log";
 						scpos = scp.put("pbs_" + MainViewController.getLastOpenedFileName() + "_" + i, pbs_script.length(), "./ispiefp",  "0666");
 						istream = IOUtils.toInputStream(pbs_script, "UTF-8");

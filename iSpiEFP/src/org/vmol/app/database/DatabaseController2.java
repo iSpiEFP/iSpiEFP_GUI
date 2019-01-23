@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,9 @@ import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
 import org.vmol.app.database.DatabaseController.JmolPanel;
+import org.vmol.app.gamess.gamessInputController;
+import org.vmol.app.installer.LocalBundleManager;
+import org.vmol.app.localDataBase.localDataBaseController;
 import org.vmol.app.qchem.QChemInputController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
@@ -55,6 +59,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -266,8 +271,8 @@ public class DatabaseController2 {
 	
 	private void loadAuxJmolViewer(String filename) {
 	    if(!filename.equalsIgnoreCase("NOT FOUND")){
-	        String path = System.getProperty("user.dir") + "\\dbController\\xyz_files\\";
-            auxiliaryJmolViewer.openFile("file:"+path+filename);
+	        String path = LocalBundleManager.LIBEFP_COORDINATES;
+            auxiliaryJmolViewer.openFile("file:"+path+"\\"+filename);
 	    }
 	}
 	
@@ -419,5 +424,71 @@ public class DatabaseController2 {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         Optional<ButtonType> result = alert.showAndWait();
-	}
+        
+        /*
+        final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/gamess/gamessInput.fxml"));
+        gamessInputController gamess_controller;
+        gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), null, null);
+        gamess_loader.setController(gamess_controller);
+        ArrayList<ArrayList> fragments = gamess_controller.get_fragments_with_h();
+        
+        HashMap<String, Integer> protons = new HashMap<>();
+        protons.put("H", 1);
+        protons.put("C", 6);
+        protons.put("N", 7);
+        protons.put("O", 8);
+        protons.put("S", 16);
+        protons.put("CL", 17);
+        protons.put("H000", 1);
+        ArrayList total_charges = new ArrayList(); */
+//      for (int i = 0; i < fragments.size(); i ++) {
+//          int total_charge = 0;
+//          for (int j = 0 ; j < fragments.get(i).size(); j++) {
+//              Atom current_atom = (Atom)  fragments.get(i).get(j);
+//              if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
+//                  String symbol = current_atom.type;
+//                  String sign = symbol.substring(symbol.length() - 1);
+//                  String digits = symbol.replaceAll("\\D+", "");
+//                  String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
+//                  if (sign.equals("-")) {
+//                      total_charge = total_charge + protons.get(real_symbol);
+//                  } else {
+//                      total_charge = total_charge + protons.get(real_symbol);
+//                  }
+//              } else {
+//                  total_charge += protons.get(current_atom.type);
+//              }
+//              total_charges.add(total_charge);
+//          }
+//          
+//      }
+//      Dialog dialog = new Dialog<>();
+//      dialog.setTitle("Charge Choices");
+//      dialog.setHeaderText("Please input the charge for your fragments:");
+//      ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
+//      dialog.getDialogPane().getButtonTypes().addAll(ok);
+//      BorderPane bp = new BorderPane();
+        
+        /*
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                BorderPane bp;
+                try {
+                    bp = gamess_loader.load();
+                    Scene scene = new Scene(bp,659.0,500.0);
+                    Stage stage = new Stage();
+                    stage.initModality(Modality.WINDOW_MODAL);
+                    stage.setTitle("Gamess Input");
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
+            }
+            });
+    */    
+	} 
 }

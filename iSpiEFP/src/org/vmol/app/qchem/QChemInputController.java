@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
+import org.vmol.app.installer.LocalBundleManager;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.server.JobManager;
 import org.vmol.app.server.ServerConfigController;
@@ -208,9 +209,10 @@ public class QChemInputController implements Initializable{
         this.coordinates = coord;
         this.jobids = jobids;
         this.efpFilenames = efpFilenames;
-        this.workingDirectoryPath = System.getProperty("user.dir");
-        this.efpFileDirectoryPath = workingDirectoryPath + "/dbController/efp_files/";  //storage for db incoming efp files
-        initWorkingDir();
+        this.workingDirectoryPath = LocalBundleManager.workingDirectory;
+        this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + "/";  //storage for db incoming efp files
+        this.QChemInputsDirectory = LocalBundleManager.LIBEFP_INPUTS;         //needed for db file storage
+       // initWorkingDir();
     }
     
     private void initWorkingDir() {
@@ -426,7 +428,7 @@ public class QChemInputController implements Initializable{
 		sb.append("pol_damp " + pol_damp.getValue() + "\n");
 		sb.append("disp_damp " + disp_damp.getValue() + "\n");
 		sb.append("pol_driver " + pol_solver.getValue() + "\n" );
-		sb.append("fraglib_path ./fraglib\n");
+		sb.append("fraglib_path ./fraglib/\n");
 		
 		if (run_type.getValue().equals("md")) {
 			sb.append("ensemble " + ensemble.getValue() + "\n");
@@ -885,6 +887,7 @@ public class QChemInputController implements Initializable{
                 
                 for(String filename : this.efpFilenames) {
                     System.out.println(filename);
+                    filename = filename.toLowerCase();
                     scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
                     in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
                     IOUtils.copy(in, scpos);
