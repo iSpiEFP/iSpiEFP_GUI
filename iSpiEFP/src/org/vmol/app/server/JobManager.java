@@ -64,7 +64,7 @@ public class JobManager implements Runnable {
         SCPClient scp = conn.createSCPClient();        
         SCPInputStream scpos = null;
         try {
-            scpos = scp.get("./vmol/output_"+job_date);
+            scpos = scp.get("iSpiClient/Libefp/output/output_"+job_date);
             scpos.close();
             jobIsDone = true;
         } catch (IOException e) {
@@ -247,7 +247,7 @@ public class JobManager implements Runnable {
             throw new IOException("Authentication failed.");
         
         SCPClient scp = conn.createSCPClient();
-        SCPInputStream scpos = scp.get("./vmol/output_"+job_date);
+        SCPInputStream scpos = scp.get("iSpiClient/Libefp/output/output_"+job_date);
         
         InputStream stdout = new StreamGobbler(scpos);
         BufferedReader br = new BufferedReader(new InputStreamReader(stdout));

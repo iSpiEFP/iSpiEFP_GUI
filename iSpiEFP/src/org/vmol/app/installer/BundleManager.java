@@ -31,6 +31,7 @@ public class BundleManager {
     public void manageLocal() {
         LocalBundleManager localManager = new LocalBundleManager();
         ArrayList<String> missingFiles = localManager.checkIfWorkingDirectoryIsReady();
+        
         if(!missingFiles.isEmpty()) {
             localManager.installMissingFiles(missingFiles, this.bundleType);
         }

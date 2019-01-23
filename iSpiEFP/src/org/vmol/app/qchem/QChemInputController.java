@@ -428,7 +428,7 @@ public class QChemInputController implements Initializable{
 		sb.append("pol_damp " + pol_damp.getValue() + "\n");
 		sb.append("disp_damp " + disp_damp.getValue() + "\n");
 		sb.append("pol_driver " + pol_solver.getValue() + "\n" );
-		sb.append("fraglib_path ./fraglib/\n");
+		sb.append("fraglib_path ../fraglib/\n");
 		
 		if (run_type.getValue().equals("md")) {
 			sb.append("ensemble " + ensemble.getValue() + "\n");
@@ -876,7 +876,7 @@ public class QChemInputController implements Initializable{
                 //FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
               
                 
-                SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./iSpiClient/Libefp","0666");
+                SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./iSpiClient/Libefp/input","0666");
                 FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
 
                 
@@ -921,11 +921,13 @@ public class QChemInputController implements Initializable{
                 .append("cd Libefp; mkdir fraglib; cd ..;")
                 .toString();
                 */
+                //../inputs/md_1.in > ../outputs/outFile
                 //String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
-                String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp;\nmodule load intel;\nefpmd md_1.in > output_" + currentTime;
+                //source ~/.bashrc
+                String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp/src;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
 
                 
-                scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"./vmol","0666");
+                scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"iSpiClient/Libefp/output","0666");
                 InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
                 IOUtils.copy(istream, scpos);
                 istream.close();
@@ -938,7 +940,7 @@ public class QChemInputController implements Initializable{
                 
                 //String readyUser = "source ~/.bashrc;";
 
-                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
+                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
                 //sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
                 InputStream stdout = new StreamGobbler(sess.getStdout());
                 BufferedReader br = new BufferedReader(new InputStreamReader(stdout));

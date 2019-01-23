@@ -356,8 +356,8 @@ public class RemoteBundleManager {
                 .append("cd iSpiClient;")
                 .append("mkdir Gamess;")
                 .append("mkdir Libefp;")
-                .append("cd Gamess; cd ..;")
-                .append("cd Libefp; mkdir fraglib; cd ..;")
+                .append("cd Gamess; mkdir input; mkdir src; mkdir output; cd ..;")
+                .append("cd Libefp; mkdir fraglib; mkdir input; mkdir src; mkdir output; cd ..;")
                 .toString();
         return buildDirectoriesScript;
     }
