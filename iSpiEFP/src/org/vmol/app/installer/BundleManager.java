@@ -44,6 +44,11 @@ public class BundleManager {
         //////////////////////
         //userIsMissingPackage = true; //tricked it for testing
         //////////////////////
+        if(this.bundleType.equals(GAMESS)){
+            System.out.println("Missing GAMESS Package");
+            return true;
+        }
+        
         if(userIsMissingPackage) {
             System.out.println("User is missing bundle:"+bundleType);
             boolean finishedInstalling = remoteBundleManager.installMissingPackage(bundleType);

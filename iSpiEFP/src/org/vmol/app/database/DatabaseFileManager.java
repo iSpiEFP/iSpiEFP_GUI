@@ -47,7 +47,7 @@ public class DatabaseFileManager {
 
         for(String res : response){
             String reply = res;
-            reply = reply.substring(1);
+            //reply = reply.substring(1);
             
             String[] content = reply.split("\\$NEXT\\$");    
             ArrayList<String []> fragment_files = new ArrayList<String []>();

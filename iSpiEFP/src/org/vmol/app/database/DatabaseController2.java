@@ -11,8 +11,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -101,6 +104,7 @@ public class DatabaseController2 {
             //read files into array of strings
             ArrayList<String> filenames = new ArrayList<String>();
             int groupNumber = 1;
+            ArrayList<Integer> to_be_submitted = new ArrayList<Integer>();
             
             for (ArrayList<String []> group : group_filenames){ 
                 if(group.size() > 0) {
@@ -112,9 +116,16 @@ public class DatabaseController2 {
                     }
                 } else {
                     //this particular fragment did not have any matches from the database
-                    sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
+                    boolean yes = sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
+                    if(yes) {
+                        to_be_submitted.add(groupNumber-1);
+                    }
                 }
                 groupNumber++;
+            }
+            
+            if(to_be_submitted.size() > 0){
+                sendRealGamessForm(groups, to_be_submitted);
             }
             runAuxiliaryList(group_filenames);
           
@@ -131,7 +142,15 @@ public class DatabaseController2 {
         } else {
             //There is zero matched fragments
             //refer to gamess
-            sendGamessForm("There are 0 matches for any of the fragments in the Database, do you want to calculate them by Gamess?");
+            //sendGamessForm("There are 0 matches for any of the fragments in the Database, do you want to calculate them by Gamess?");
+            
+            //build index of gorups to be submitted since there are zero matches it is simply the size of groups
+            ArrayList<Integer> to_be_submitted = new ArrayList<Integer>();
+            for(int i = 0; i < groups.size(); i++) {
+                to_be_submitted.add(i);
+            }
+            
+            sendRealGamessForm(groups, to_be_submitted);
         }
 	}
 	
@@ -193,7 +212,7 @@ public class DatabaseController2 {
     	        		sb.append(c);
     	        }
     	        
-    	        String reply = sb.toString();
+    	        String reply = sb.toString().substring(1);
     	        System.out.println("Database Response:" + reply);
     	        response.add(reply);
     	        
@@ -420,77 +439,85 @@ public class DatabaseController2 {
 	    return sb.toString();
 	}
 	
-	private void sendGamessForm(String msg) {
+	private boolean sendGamessForm(String msg) {
 	    Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Gamess");
         alert.setHeaderText(null);
         alert.setContentText(msg);
         Optional<ButtonType> result = alert.showAndWait();
-        
-        /*
-        final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/gamess/gamessInput.fxml"));
-        gamessInputController gamess_controller;
-        gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), null, null);
-        gamess_loader.setController(gamess_controller);
-        ArrayList<ArrayList> fragments = gamess_controller.get_fragments_with_h();
-        
-        HashMap<String, Integer> protons = new HashMap<>();
-        protons.put("H", 1);
-        protons.put("C", 6);
-        protons.put("N", 7);
-        protons.put("O", 8);
-        protons.put("S", 16);
-        protons.put("CL", 17);
-        protons.put("H000", 1);
-        ArrayList total_charges = new ArrayList(); */
-//      for (int i = 0; i < fragments.size(); i ++) {
-//          int total_charge = 0;
-//          for (int j = 0 ; j < fragments.get(i).size(); j++) {
-//              Atom current_atom = (Atom)  fragments.get(i).get(j);
-//              if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
-//                  String symbol = current_atom.type;
-//                  String sign = symbol.substring(symbol.length() - 1);
-//                  String digits = symbol.replaceAll("\\D+", "");
-//                  String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
-//                  if (sign.equals("-")) {
-//                      total_charge = total_charge + protons.get(real_symbol);
-//                  } else {
-//                      total_charge = total_charge + protons.get(real_symbol);
-//                  }
-//              } else {
-//                  total_charge += protons.get(current_atom.type);
-//              }
-//              total_charges.add(total_charge);
-//          }
-//          
-//      }
-//      Dialog dialog = new Dialog<>();
-//      dialog.setTitle("Charge Choices");
-//      dialog.setHeaderText("Please input the charge for your fragments:");
-//      ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
-//      dialog.getDialogPane().getButtonTypes().addAll(ok);
-//      BorderPane bp = new BorderPane();
-        
-        /*
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                BorderPane bp;
-                try {
-                    bp = gamess_loader.load();
-                    Scene scene = new Scene(bp,659.0,500.0);
-                    Stage stage = new Stage();
-                    stage.initModality(Modality.WINDOW_MODAL);
-                    stage.setTitle("Gamess Input");
-                    stage.setScene(scene);
-                    stage.show();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                
-            }
-            });
-    */    
+        if (result.get() == ButtonType.OK) {
+            return true;
+        }
+        return false;
 	} 
+	
+	private void sendRealGamessForm(ArrayList<ArrayList> groups, ArrayList to_be_submitted) throws IOException {
+    	Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Gamess");
+        alert.setHeaderText(null);
+        alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+        Optional<ButtonType> result = alert.showAndWait();
+        
+        if (result.get() == ButtonType.OK) {
+            ArrayList<Atom> atom_list = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+            Date date = new Date();
+      
+            //jmolViewer.runScript("selectionHalos off");
+            //jmolWindow.repaint();
+            //((Stage)choices.getScene().getWindow()).close();
+            
+            //String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < to_be_submitted.size(); i ++) {
+                sb.append("fragment frag_" + i + "\n");
+                for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j ++) {
+                    if (j >= 3) {
+                        break;
+                    }
+                    sb.append(atom_list.get((int) groups.get((Integer) to_be_submitted.get(i)).get(j)).x + "  " + atom_list.get((int) groups.get(i).get(j)).y + "  " + atom_list.get((int) groups.get(i).get(j)).z + "\n");
+                }
+                sb.append("\n");
+            }
+            
+            final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/gamess/gamessInput.fxml"));
+            gamessInputController gamess_controller;
+            gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), groups, to_be_submitted);
+            gamess_loader.setController(gamess_controller);
+            ArrayList<ArrayList> fragments = gamess_controller.get_fragments_with_h();
+            
+            HashMap<String, Integer> protons = new HashMap<>();
+            protons.put("H", 1);
+            protons.put("C", 6);
+            protons.put("N", 7);
+            protons.put("O", 8);
+            protons.put("S", 16);
+            protons.put("CL", 17);
+            protons.put("H000", 1);
+    
+            System.out.println("hit the stage");
+            
+            Platform.runLater(new Runnable(){
+                @Override
+                public void run() {
+                    BorderPane bp;
+                    try {
+                        bp = gamess_loader.load();
+                        Scene scene = new Scene(bp,659.0,500.0);
+                        Stage stage = new Stage();
+                        stage.initModality(Modality.WINDOW_MODAL);
+                        stage.setTitle("Gamess Input");
+                        stage.setScene(scene);
+                        stage.show();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    
+                }
+                });
+            
+        
+        }
+	}
 }

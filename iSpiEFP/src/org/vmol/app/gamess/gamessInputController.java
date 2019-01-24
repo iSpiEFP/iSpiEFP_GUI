@@ -30,6 +30,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.vmol.app.MainViewController;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
+import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.qchem.QChemInputController;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
@@ -351,7 +352,7 @@ public class gamessInputController implements Initializable{
 		}
 		List<String> serverNames = new ArrayList<>();
 		for (ServerDetails server : serverDetailsList) {
-			serverNames.add(server.getServerName());
+			serverNames.add(server.getAddress());
 		}
 		serversList.setItems(FXCollections.observableList(serverNames));
 		if (serverNames.size() > 0) serversList.setValue(serverNames.get(0));
@@ -518,177 +519,202 @@ public class gamessInputController implements Initializable{
 		if (selectedServer.getServerType().equalsIgnoreCase("local"))
 			submitJobToLocalServer(selectedServer);
 		else {
-			Dialog<Pair<String, String>> dialog = new Dialog<>();
-			dialog.setTitle("Login Dialog");
-			dialog.setHeaderText("Please type your username and password for the selected host");
+		    
+		    String hostname = selectedServer.getAddress();
+            LoginForm loginForm = new LoginForm(hostname, "GAMESS");
+            boolean authorized = loginForm.authenticate();
+            if(authorized) {
+                    
+                    
+                    
+                Connection conn = loginForm.getConnection(authorized);
+    		    
+    		    /*
+    			Dialog<Pair<String, String>> dialog = new Dialog<>();
+    			dialog.setTitle("Login Dialog");
+    			dialog.setHeaderText("Please type your username and password for the selected host");
+    
+    			// Set the icon (must be included in the project).
+    			//dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
+    
+    			// Set the button types.
+    			ButtonType loginButtonType = new ButtonType("Login", ButtonData.OK_DONE);
+    			dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+    
+    			// Create the username and password labels and fields.
+    			GridPane grid = new GridPane();
+    			grid.setHgap(10);
+    			grid.setVgap(10);
+    			grid.setPadding(new Insets(20, 150, 10, 10));
+    
+    			TextField username = new TextField();
+    			username.setPromptText("Username");
+    			PasswordField password = new PasswordField();
+    			password.setPromptText("Password");
+    
+    			grid.add(new Label("Username:"), 0, 0);
+    			grid.add(username, 1, 0);
+    			grid.add(new Label("Password:"), 0, 1);
+    			grid.add(password, 1, 1);
+    
+    			// Enable/Disable login button depending on whether a username was entered.
+    			Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+    			loginButton.setDisable(true);
+    
+    			// Do some validation (using the Java 8 lambda syntax).
+    			username.textProperty().addListener((observable, oldValue, newValue) -> {
+    			    loginButton.setDisable(newValue.trim().isEmpty());
+    			});
+    
+    			dialog.getDialogPane().setContent(grid);
+    			
+    			// Request focus on the username field by default.
+    			Platform.runLater(() -> username.requestFocus());
+    			dialog.setResultConverter(dialogButton -> {
+    			    if (dialogButton == loginButtonType) {
+    			    
+    			        return new Pair<>(username.getText(), password.getText());
+    			    } 
+    			    return null;
+    			});
+    			
+    			Optional<Pair<String, String>> result = dialog.showAndWait();
+    		*/
+                
+                
+    			//result.ifPresent(usernamePassword -> {
+    			//	String uname = usernamePassword.getKey();
+    			//	String pwd = usernamePassword.getValue();
+    			//	String hostname = selectedServer.getAddress();
+    			//	Connection conn = new Connection(hostname);
+    		//		ArrayList jobids = new ArrayList();
+    	//			try {
+    		//			conn.connect();
+    			//		boolean isAuthenticated = conn.authenticateWithPassword(uname, pwd);
+    				//	if (!isAuthenticated) {
+    					//	throw new IOException("Authentication failed");
+    			//		}
+                        ArrayList jobids = new ArrayList();
 
-			// Set the icon (must be included in the project).
-			//dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
-
-			// Set the button types.
-			ButtonType loginButtonType = new ButtonType("Login", ButtonData.OK_DONE);
-			dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
-
-			// Create the username and password labels and fields.
-			GridPane grid = new GridPane();
-			grid.setHgap(10);
-			grid.setVgap(10);
-			grid.setPadding(new Insets(20, 150, 10, 10));
-
-			TextField username = new TextField();
-			username.setPromptText("Username");
-			PasswordField password = new PasswordField();
-			password.setPromptText("Password");
-
-			grid.add(new Label("Username:"), 0, 0);
-			grid.add(username, 1, 0);
-			grid.add(new Label("Password:"), 0, 1);
-			grid.add(password, 1, 1);
-
-			// Enable/Disable login button depending on whether a username was entered.
-			Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-			loginButton.setDisable(true);
-
-			// Do some validation (using the Java 8 lambda syntax).
-			username.textProperty().addListener((observable, oldValue, newValue) -> {
-			    loginButton.setDisable(newValue.trim().isEmpty());
-			});
-
-			dialog.getDialogPane().setContent(grid);
-			
-			// Request focus on the username field by default.
-			Platform.runLater(() -> username.requestFocus());
-			dialog.setResultConverter(dialogButton -> {
-			    if (dialogButton == loginButtonType) {
-			    
-			        return new Pair<>(username.getText(), password.getText());
-			    } 
-			    return null;
-			});
-			
-			Optional<Pair<String, String>> result = dialog.showAndWait();
-		
-			result.ifPresent(usernamePassword -> {
-				String uname = usernamePassword.getKey();
-				String pwd = usernamePassword.getValue();
-				String hostname = selectedServer.getAddress();
-				Connection conn = new Connection(hostname);
-				ArrayList jobids = new ArrayList();
-				try {
-					conn.connect();
-					boolean isAuthenticated = conn.authenticateWithPassword(uname, pwd);
-					if (!isAuthenticated) {
-						throw new IOException("Authentication failed");
-					}
-					
-					for (int i = 0; i < inputs.size(); i ++) {
-//						PrintWriter out = new PrintWriter(MainViewController.getLastOpenedFileName() + "_" + i);
-//						out.print(inputs.get(i));
-//						out.close();
-						SCPClient scp = conn.createSCPClient();
-						
-						SCPOutputStream scpos = scp.put(MainViewController.getLastOpenedFileName() + "_" + i + ".inp",((String)inputs.get(i)).length(),"./ispiefp","0666" );
-						InputStream istream = IOUtils.toInputStream((String) inputs.get(i), "UTF-8");
-						IOUtils.copy(istream, scpos);
-						istream.close();
-						scpos.close();
-						//new File(MainViewController.getLastOpenedFileName() + "_" + i).delete();
-						
-						//    /depot/lslipche/apps/gamess/gamess_2018R1/rungms
-						String pbs_script = "cd ispiefp;\n/group/lslipche/apps/gamess/gamess_2014R1/rungms_pradeep " + MainViewController.getLastOpenedFileName() + "_" + i + ".inp" + " 555 1 > " + MainViewController.getLastOpenedFileName() + "_" + i + ".log";
-						scpos = scp.put("pbs_" + MainViewController.getLastOpenedFileName() + "_" + i, pbs_script.length(), "./ispiefp",  "0666");
-						istream = IOUtils.toInputStream(pbs_script, "UTF-8");
-						IOUtils.copy(istream, scpos);
-						istream.close();
-						scpos.close();
-						
-						Session sess = conn.openSession();
-						sess.execCommand("source /etc/profile; cd ispiefp; qsub -l walltime=4:00:00 -l nodes=1:ppn=1 -q standby pbs_" + MainViewController.getLastOpenedFileName() + "_" + i);
-						InputStream stdout = new StreamGobbler(sess.getStdout());
-						BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-						String jobID = "";
-						while (true) {
-							String line = br.readLine();
-							if (line == null)
-								break;
-							//System.out.println(line);
-							String[] tokens = line.split("\\.");
-							if (tokens[0].matches("\\d+")) {
-								jobID = tokens[0];
-							}
-							//System.out.println(line);
-						}
-						jobids.add(jobID);
-						Date date = new Date();
-						Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
-						String str = date.toString() + "\n" + MainViewController.getLastOpenedFileName() + "_" + i + "\n" + hostname + "\n" + uname + "\n" + pwd + "\n";
-						System.out.println(str);
-						userPrefs.put(jobID, str);
-					}
-					
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				
-				
-				
-				conn.close();
-				
-				
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < final_lists.size(); i ++) {
-					sb.append("fragment " + MainViewController.getLastOpenedFileName() + "_" + i + "\n");
-					for (int j = 0; j < 3; j ++) {
-						try {
-							Atom a = (Atom) final_lists.get(i).get(j);
-							sb.append(Double.toString(a.x));
-							sb.append("  ");
-							sb.append(Double.toString(a.y));
-							sb.append("  ");
-							sb.append(Double.toString(a.z));
-							sb.append("\n");
-						} catch (ArrayIndexOutOfBoundsException e) {
-							break;
-						}
-					}
-					sb.append("\n");
-				}
-				
-				QChemInputController controller;
-				final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
-				controller = new QChemInputController(sb.toString(), jobids);
-				loader.setController(controller);
-				Platform.runLater(new Runnable(){
-					@Override
-					public void run() {
-						TabPane bp;
-						try {
-							
-							bp = loader.load();
-							Scene scene = new Scene(bp,600.0,480.0);
-		    	        	Stage stage = new Stage();
-		    	        	stage.initModality(Modality.WINDOW_MODAL);
-		    	        	stage.setTitle("Libefp Input");
-		    	        	stage.setScene(scene);
-		    	        	stage.show();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					}
-					});
-			});
-			
-			
-			
-			
-
-			// Convert the result to a username-password-pair when the login button is clicked.
-			
-
+    					for (int i = 0; i < inputs.size(); i ++) {
+    //						PrintWriter out = new PrintWriter(MainViewController.getLastOpenedFileName() + "_" + i);
+    //						out.print(inputs.get(i));
+    //						out.close();
+    						SCPClient scp = conn.createSCPClient();
+    						
+    						//LEGACYSCPOutputStream scpos = scp.put(MainViewController.getLastOpenedFileName() + "_" + i + ".inp",((String)inputs.get(i)).length(),"./ispiefp","0666" );
+    	                    SCPOutputStream scpos = scp.put(MainViewController.getLastOpenedFileName() + "_" + i + ".inp",((String)inputs.get(i)).length(),"./iSpiClient/Gamess/input","0666" );
+    						InputStream istream = IOUtils.toInputStream((String) inputs.get(i), "UTF-8");
+    						IOUtils.copy(istream, scpos);
+    						istream.close();
+    						scpos.close();
+    						//new File(MainViewController.getLastOpenedFileName() + "_" + i).delete();
+    						
+    						//    /depot/lslipche/apps/gamess/gamess_2018R1/rungms
+    						//LEGACYString pbs_script = "cd ispiefp;\n/group/lslipche/apps/gamess/gamess_2014R1/rungms_pradeep " + MainViewController.getLastOpenedFileName() + "_" + i + ".inp" + " 555 1 > " + MainViewController.getLastOpenedFileName() + "_" + i + ".log";
+    		             //   String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp/src;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
+    
+    						String pbs_script = "cd iSpiClient/Gamess/src;\n/depot/lslipche/apps/gamess/gamess_2018R1/rungms " +"../input/"+ MainViewController.getLastOpenedFileName() + "_" + i + ".inp" + " 555 1 > " +"../output/"+ MainViewController.getLastOpenedFileName() + "_" + i + ".log";
+    
+    						//LEGACYscpos = scp.put("pbs_" + MainViewController.getLastOpenedFileName() + "_" + i, pbs_script.length(), "./ispiefp",  "0666");
+    	                    scpos = scp.put("pbs_" + MainViewController.getLastOpenedFileName() + "_" + i, pbs_script.length(), "./iSpiClient/Gamess/output",  "0666");
+    
+    						istream = IOUtils.toInputStream(pbs_script, "UTF-8");
+    						IOUtils.copy(istream, scpos);
+    						istream.close();
+    						scpos.close();
+    						
+    						Session sess = conn.openSession();
+    						//LEGACYsess.execCommand("source /etc/profile; cd ispiefp; qsub -l walltime=4:00:00 -l nodes=1:ppn=1 -q standby pbs_" + MainViewController.getLastOpenedFileName() + "_" + i);
+    	                    sess.execCommand("source /etc/profile; cd iSpiClient/Gamess/output; qsub -l walltime=4:00:00 -l nodes=1:ppn=1 -q standby pbs_" + MainViewController.getLastOpenedFileName() + "_" + i);
+    
+    						InputStream stdout = new StreamGobbler(sess.getStdout());
+    						BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+    						String jobID = "";
+    						while (true) {
+    							String line = br.readLine();
+    							if (line == null)
+    								break;
+    							//System.out.println(line);
+    							String[] tokens = line.split("\\.");
+    							if (tokens[0].matches("\\d+")) {
+    								jobID = tokens[0];
+    							}
+    							//System.out.println(line);
+    						}
+    						jobids.add(jobID);
+    						Date date = new Date();
+    						Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
+    						String str = date.toString() + "\n" + MainViewController.getLastOpenedFileName() + "_" + i + "\n" + hostname + "\n";// + uname + "\n" + pwd + "\n";
+    						System.out.println(str);
+    						System.out.println(jobID);
+    						userPrefs.put(jobID, str);
+    					}
+    					
+    		//./		} catch (Exception e1) {
+    					// TODO Auto-generated catch block
+    			//		e1.printStackTrace();
+    			//	}
+    				
+    				
+    				
+    				
+    				conn.close();
+    				
+    				
+    				StringBuilder sb = new StringBuilder();
+    				for (int i = 0; i < final_lists.size(); i ++) {
+    					sb.append("fragment " + MainViewController.getLastOpenedFileName() + "_" + i + "\n");
+    					for (int j = 0; j < 3; j ++) {
+    						try {
+    							Atom a = (Atom) final_lists.get(i).get(j);
+    							sb.append(Double.toString(a.x));
+    							sb.append("  ");
+    							sb.append(Double.toString(a.y));
+    							sb.append("  ");
+    							sb.append(Double.toString(a.z));
+    							sb.append("\n");
+    						} catch (ArrayIndexOutOfBoundsException e) {
+    							break;
+    						}
+    					}
+    					sb.append("\n");
+    				}
+    				
+    				QChemInputController controller;
+    				final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
+    				controller = new QChemInputController(sb.toString(), jobids);
+    				loader.setController(controller);
+    				Platform.runLater(new Runnable(){
+    					@Override
+    					public void run() {
+    						TabPane bp;
+    						try {
+    							
+    							bp = loader.load();
+    							Scene scene = new Scene(bp,600.0,480.0);
+    		    	        	Stage stage = new Stage();
+    		    	        	stage.initModality(Modality.WINDOW_MODAL);
+    		    	        	stage.setTitle("Libefp Input");
+    		    	        	stage.setScene(scene);
+    		    	        	stage.show();
+    						} catch (IOException e) {
+    							// TODO Auto-generated catch block
+    							e.printStackTrace();
+    						}
+    						
+    					}
+    					});
+    		//	});
+    			
+    			
+    			
+    			
+    
+    			// Convert the result to a username-password-pair when the login button is clicked.
+    			
+    			
+		    }
 			
 			
 		}

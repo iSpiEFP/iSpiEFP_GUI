@@ -86,7 +86,7 @@ public class LocalBundleManager {
                 }
             } else {
                 System.out.println("Creating file: "+filename);
-                new File(this.workingDirectory+filename).mkdirs();
+                new File(workingDirectory+filename).mkdirs();
             }
         }
     }

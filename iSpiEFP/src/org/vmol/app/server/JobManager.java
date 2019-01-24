@@ -260,10 +260,10 @@ public class JobManager implements Runnable {
      * get output file from a lib efp job
      */
     public String getRemoteVmolOutput(String job_date) throws IOException {
-        Connection conn = new Connection(hostname);
+        Connection conn = new Connection(this.hostname);
         conn.connect();
         
-        boolean isAuthenticated = conn.authenticateWithPassword(username, password);
+        boolean isAuthenticated = conn.authenticateWithPassword(this.username, this.password);
         if (!isAuthenticated)
             throw new IOException("Authentication failed.");
         
