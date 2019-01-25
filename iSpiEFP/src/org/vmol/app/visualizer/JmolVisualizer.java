@@ -70,6 +70,7 @@ public class JmolVisualizer {
 	private static LinkedList<Integer> adj[];
 	private static List<ArrayList<Integer>> fragment_list;	
 	
+	
 	public JmolVisualizer(JmolPanel jmolPanel){
 		this.jmolPanel = jmolPanel;
 		this.jmolViewer = jmolPanel.viewer;
@@ -257,7 +258,8 @@ public class JmolVisualizer {
         		
         		//Runs auxiliary JmolViewer
                 Main.showJmolViewer(false, null);
-
+                
+               
                 //load table list
         		TableView aux_table = loadAuxiliaryList();
         		DatabaseController2 DBcontroller;
@@ -427,6 +429,7 @@ public class JmolVisualizer {
 		    }
 		}
 		listView.setItems(data);
+		
 			    
 		//set listener to items
 		listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {

@@ -34,6 +34,7 @@ import org.vmol.app.qchem.QChemInputController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
 import org.vmol.app.visualizer.JmolVisualizer;
+import org.vmol.app.visualizer.ViewerHelper;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -75,10 +76,15 @@ public class DatabaseController2 {
 	@SuppressWarnings("rawtypes")
     private TableView auxiliary_list;
 	private List<ArrayList<Integer>> fragment_list;
+	private ArrayList<ArrayList> groups;
 	
 	private int prev_selection_index = 0;
     private List<ObservableList<DatabaseRecord>> userData;
     private ArrayList<String> final_selections;
+    
+    private int viewerIndex; //index of selected fragment in main viewer
+    
+    private ListView listView;
 	
 	public DatabaseController2(Viewer jmolViewer, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
@@ -90,6 +96,7 @@ public class DatabaseController2 {
 	public void run() throws IOException {
 	    @SuppressWarnings("rawtypes")
         ArrayList<ArrayList> groups = getGroups(this.fragment_list);
+	    this.groups = groups;
 	    
 		//query database
 		ArrayList<String> dbResponse = queryDatabase(groups);
@@ -246,10 +253,19 @@ public class DatabaseController2 {
 	    this.userData = data;
 	    
         ListView<String> listView = getFragmentListButtons();
-                
+        listView.getSelectionModel().selectFirst();
+
+        this.listView = listView;
+        String path = data.get(0).get(this.prev_selection_index).getChoice().toString();
+        if(path.equalsIgnoreCase("not found")) {
+            
+        } else {
+            loadAuxJmolViewer(path, 0);
+        }
         //set listener to items
         //TRIGGER LIST LOAD WITH FRAGMENT CLICK
         listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 String[] arrOfStr = newValue.split(" "); 
@@ -269,16 +285,27 @@ public class DatabaseController2 {
         TableView table = this.auxiliary_list;
 	    table.setItems(data.get(index));
 	    allowOnlyOneCheck(data, index);
-	    
+        this.viewerIndex = index;
+        
+        //Initialize first jmol viewer
+        String path = data.get(index).get(this.prev_selection_index).getChoice().toString();
+        if(path.equalsIgnoreCase("not found")) {
+            
+        } else {
+            loadAuxJmolViewer(path, index);
+        }
 	    //LOAD AUX JMOL VIEWER ON CLICK
         table.setRowFactory(tv -> {
             TableRow<DatabaseRecord> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
+                
+                
                 if (event.getClickCount() == 1 && (!row.isEmpty())) {
                     // SubmissionRecord rowData = row.getItem();
                     try {
                         //System.out.println("clicking:" + row.getItem().getRmsd() + row.getItem().getChoice() + row.getItem().getCheck());
-                        loadAuxJmolViewer(row.getItem().getChoice().toString());
+                        loadAuxJmolViewer(row.getItem().getChoice().toString(), index);
+                       
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -289,10 +316,16 @@ public class DatabaseController2 {
         });
 	}
 	
-	private void loadAuxJmolViewer(String filename) {
+	private void loadAuxJmolViewer(String filename, int index) {
 	    if(!filename.equalsIgnoreCase("NOT FOUND")){
 	        String path = LocalBundleManager.LIBEFP_COORDINATES;
-            auxiliaryJmolViewer.openFile("file:"+path+"\\"+filename);
+            auxiliaryJmolViewer.setAutoBond(true);
+	        auxiliaryJmolViewer.openFile("file:"+path+"\\"+filename);
+            @SuppressWarnings("unchecked")
+            ViewerHelper viewerHelper = new ViewerHelper(jmolViewer, auxiliaryJmolViewer, this.groups.get(this.viewerIndex));
+            viewerHelper.ConnectXYZBonds();
+            auxiliaryJmolViewer.setAutoBond(true);
+            //auxiliaryJmolViewer.
 	    }
 	}
 	
