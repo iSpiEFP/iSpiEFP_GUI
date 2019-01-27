@@ -38,6 +38,7 @@ public class RemoteBundleManager {
     private String password;
     private String hostname;
     private String bundleType;
+    private Connection conn;
     
     //private ArrayList<String>
     private final String NEW_USER = "NEW_USER";
@@ -45,13 +46,14 @@ public class RemoteBundleManager {
     private final String LIBEFP = "LIBEFP";
     private final String GAMESS = "GAMESS";
     
-    private static final String BASH_EFPMD_NOT_FOUND = "bash: efpmd: command not found";
+    private static final String BASH_EFPMD_NOT_FOUND = "bash: iSpiClient/Libefp/src/efpmd: No such file or directory";
     
-    public RemoteBundleManager(String username, String password, String hostname, String bundleType) {
+    public RemoteBundleManager(String username, String password, String hostname, String bundleType, Connection conn) {
         this.username = username;
         this.password = password;
         this.hostname = hostname;
         this.bundleType = bundleType;
+        this.conn = conn;
     }
     
     private RemoteBundleManager() {
@@ -59,7 +61,7 @@ public class RemoteBundleManager {
     }
 
     public boolean checkIfPackageIsReady() {
-        try {
+        /*try {
             String packageType = queryUserHistory();
             if(packageType.equals(USER_READY)) {
                 //user has all packages installed and is ready to go
@@ -80,7 +82,22 @@ public class RemoteBundleManager {
             e.printStackTrace();
         }
         
-        return false;
+        return false;*/
+        String errorStatement = null;
+        try {
+            errorStatement = testPackage(this.bundleType);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false; //bad connection
+        }
+        if(errorStatement.equals(BASH_EFPMD_NOT_FOUND)) {
+            System.out.println("user missing EFP PAckage!");
+            return false;
+        } else {
+            System.out.println("user ready!");
+            return true;
+        }
     }
     
     private String queryUserHistory() throws IOException {
@@ -160,7 +177,6 @@ public class RemoteBundleManager {
             }
         } else if (result.get() == setPath) {
             System.out.println("Setting the path");
-            // ... user chose "Two"
             return setCustomPath(bundleType);
         } else {
             // ... user chose CANCEL or closed the dialog
@@ -181,7 +197,7 @@ public class RemoteBundleManager {
     
     private boolean setCustomPath(String bundleType) {
         System.out.println("Setting a custom path for "+bundleType);
-        TextInputDialog dialog = new TextInputDialog("/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src");
+        TextInputDialog dialog = new TextInputDialog("/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd");
         dialog.setTitle("Set Path");
         dialog.setContentText("Please enter the path of your executable:");
         
@@ -227,64 +243,37 @@ public class RemoteBundleManager {
             } else if(bundleType.equals(GAMESS)) {
                 
             }
-            String script = defaultBundleScript + exportPath + testPackage;
-            //need to exportPath and place in bash
             
+            //String script = defaultBundleScript + exportPath + testPackage;
+            String script = defaultBundleScript + "cp "+path+" iSpiClient/Libefp/src/;";
+            //+ testPackage;
             
-            //String script = defaultBundleScript + exportPath;
-           // export PATH="$PATH:/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src"
-            
+           
             sess.execCommand(script);
-            //sess.close();
-            
-            /*
-            InputStream stdout = new StreamGobbler(sess.getStdout());
-            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-            String jobID = "";
-            
-            System.out.println("Reading bundle manager output:");
-            
-            String line = br.readLine();
-            while (line != null) {
-                System.out.println(line);
-                line = br.readLine();
-                
-                
-            }
-            br.close();
             sess.close();
-            conn.close();
-            System.out.println("Done reading it");
-            */
-           // ErrorStream stderr = new StreamGobbler(sess.getStderr());
-            InputStream stderr = new StreamGobbler(sess.getStderr());
-            BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
-            String jobID = "";
-            
-            System.out.println("Reading bundle manager output:");
-            
-            String lastLine = new String();
-            String line = br.readLine();
-            while (line != null) {
-                System.out.println(line);
-                lastLine = line;
-                line = br.readLine();
-                
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
             
-            br.close();
-            sess.close();
-            conn.close();
+            String errorStatement = testPackage(this.bundleType);
+            System.out.println("printing error stream");
+            System.out.println(errorStatement);
+            
+            String lastLine = errorStatement;
+            
             System.out.println("Done reading it");
             
-            System.out.println("last line:"+lastLine);
+            //System.out.println("last line:"+lastLine);
             
             if(lastLine.equals(BASH_EFPMD_NOT_FOUND)) {
                 System.out.println("Path was incorrect!!!");
                 Alert alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Bundle Install Wizard");
                 alert.setHeaderText(null);
-                alert.setContentText("Your path:"+path+" was incorrect!\nPlease retry with another path pointing to the\ndirectory of efpmd");
+                alert.setContentText("Your path:"+path+" was incorrect!\nPlease retry with another path pointing to efpmd");
                 Image image = new Image("file:wizard.png");
                 ImageView imageView = new ImageView(image);
                 alert.setGraphic(imageView);
@@ -349,6 +338,37 @@ public class RemoteBundleManager {
         return false;
     }
     
+    //test to see if package runs like expected 
+    //read error output to see if any unexpected stuff happens
+    private String testPackage(String packageType) throws IOException {
+        StringBuilder errorString = new StringBuilder();
+        Connection conn = this.conn;
+ 
+        Session sess = conn.openSession();
+        String script = "iSpiClient/Libefp/src/efpmd";
+        sess.execCommand(script);
+        
+        InputStream stderr = new StreamGobbler(sess.getStderr());
+        BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
+        String jobID = "";
+        
+        System.out.println("Reading bundle manager output:");
+        
+        String lastLine = new String();
+        String line = br.readLine();
+        while (line != null) {
+            //System.out.println(line);
+            errorString.append(line);
+            lastLine = line;
+            line = br.readLine();      
+        }
+        
+        br.close();
+        sess.close();
+        //conn.close();
+        return errorString.toString(); 
+    }
+    
     private String getBuildDefaultRemoteDirectoryScript() {
         String buildDirectoriesScript = new StringBuilder()
                 .append("cd;")
@@ -357,7 +377,7 @@ public class RemoteBundleManager {
                 .append("mkdir Gamess;")
                 .append("mkdir Libefp;")
                 .append("cd Gamess; mkdir input; mkdir src; mkdir output; cd ..;")
-                .append("cd Libefp; mkdir fraglib; mkdir input; mkdir src; mkdir output; cd ..;")
+                .append("cd Libefp; mkdir fraglib; mkdir input; mkdir src; mkdir output; cd ~;")
                 .toString();
         return buildDirectoriesScript;
     }

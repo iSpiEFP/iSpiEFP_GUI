@@ -2,6 +2,8 @@ package org.vmol.app.installer;
 
 import java.util.ArrayList;
 
+import ch.ethz.ssh2.Connection;
+
 public class BundleManager {
     
     private String username;
@@ -9,6 +11,7 @@ public class BundleManager {
     private String hostname;
     private String bundleType;
     private String workingDirectory;
+    private Connection conn;
     
     private final String LOCAL = "LOCAL";
     private final String GAMESS = "GAMESS";
@@ -21,11 +24,12 @@ public class BundleManager {
     }
     
     //constructor for remote files
-    public BundleManager(String username, String password, String hostname, String bundleType) {
+    public BundleManager(String username, String password, String hostname, String bundleType, Connection conn) {
         this.username = username;
         this.password = password;
         this.hostname = hostname;
         this.bundleType = bundleType;
+        this.conn = conn;
     }
     
     public void manageLocal() {
@@ -39,8 +43,8 @@ public class BundleManager {
     
     public boolean manageRemote() {
         System.out.println("needs:"+this.bundleType);
-        RemoteBundleManager remoteBundleManager = new RemoteBundleManager(this.username, this.password, this.hostname, this.bundleType);
-        boolean userIsMissingPackage = remoteBundleManager.checkIfPackageIsReady();
+        RemoteBundleManager remoteBundleManager = new RemoteBundleManager(this.username, this.password, this.hostname, this.bundleType, this.conn);
+        boolean packageReady = remoteBundleManager.checkIfPackageIsReady();
         //////////////////////
         //userIsMissingPackage = true; //tricked it for testing
         //////////////////////
@@ -49,7 +53,7 @@ public class BundleManager {
             return true;
         }
         
-        if(userIsMissingPackage) {
+        if(!packageReady) {
             System.out.println("User is missing bundle:"+bundleType);
             boolean finishedInstalling = remoteBundleManager.installMissingPackage(bundleType);
             return finishedInstalling;

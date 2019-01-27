@@ -118,7 +118,7 @@ public class LoginForm {
         
         switch (response) {
             case VALID:  
-                BundleManager bundleManager = new BundleManager(this.username, this.password, this.hostname, this.bundleType);
+                BundleManager bundleManager = new BundleManager(this.username, this.password, this.hostname, this.bundleType, this.connection);
                 boolean installed = bundleManager.manageRemote();
                 return installed;
             case FAILED_TO_CONNECT:  

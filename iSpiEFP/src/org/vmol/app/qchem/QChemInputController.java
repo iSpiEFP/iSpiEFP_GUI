@@ -430,6 +430,8 @@ public class QChemInputController implements Initializable{
 		sb.append("disp_damp " + disp_damp.getValue() + "\n");
 		sb.append("pol_driver " + pol_solver.getValue() + "\n" );
 		sb.append("fraglib_path ../fraglib/\n");
+	    sb.append("userlib_path iSpiClient/Libefp/fraglib\n");
+
 		
 		if (run_type.getValue().equals("md")) {
 			sb.append("ensemble " + ensemble.getValue() + "\n");
@@ -891,7 +893,7 @@ public class QChemInputController implements Initializable{
 
                 
                 Session sess = conn.openSession();
-                sess.execCommand("cd vmol; mkdir fraglib; source ~/.bashrc;");
+                //sess.execCommand("cd vmol; mkdir fraglib; source ~/.bashrc;");
                 sess.close();
                 
                 for(String filename : this.efpFilenames) {
@@ -928,16 +930,15 @@ public class QChemInputController implements Initializable{
                 //../inputs/md_1.in > ../outputs/outFile
                 //String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
                 //source ~/.bashrc
-                String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp/src;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
-
+                //String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp/src;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
+                //String pbs_script = "\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
+                String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + currentTime;
                 
                 scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"iSpiClient/Libefp/output","0666");
                 InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
                 IOUtils.copy(istream, scpos);
                 istream.close();
                 scpos.close();
-                
-                
                 
                 sess = conn.openSession();
                 //sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
@@ -964,6 +965,7 @@ public class QChemInputController implements Initializable{
                 System.out.println(jobID);
                 br.close();
                 sess.close();
+                
                 conn.close();
                 
                 
