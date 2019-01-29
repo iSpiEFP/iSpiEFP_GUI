@@ -454,9 +454,14 @@ public class DatabaseController2 {
                             }
                             //apend equivalent group coordinates
                             ArrayList<Integer> fragment = groups.get(group_number);
+                            int i = 0;
                             for(int atom_num : fragment) {
+                                if(i == 3) {
+                                    break;
+                                }
                                 Atom current_atom = (Atom) pdb.get(atom_num);
                                 sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z+"\n");
+                                i++;
                             }
                             
                         }
