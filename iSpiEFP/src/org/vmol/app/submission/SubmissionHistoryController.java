@@ -40,14 +40,21 @@ import ch.ethz.ssh2.SCPOutputStream;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -235,20 +242,9 @@ public class SubmissionHistoryController {
             JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
             String output = jobManager.getRemoteVmolOutput(record.getTime()); 
             
-            Stage newStage = new Stage();
-          
-            
-            newStage.setTitle("TextArea Experiment 1");
-
-            TextArea textArea = new TextArea();
-            textArea.setText(output);
-
-            VBox vbox = new VBox(textArea);
-
-            Scene scene = new Scene(vbox, 600, 600);
-            newStage.setScene(scene);
-            newStage.show();
-        }
-        
+            OutputController outputController = new OutputController();
+            outputController.initialize(output);
+        } 
     }
+	
 }

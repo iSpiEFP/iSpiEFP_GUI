@@ -84,7 +84,7 @@ public class JmolVisualizer {
 	public void show(File file) {
 		//check if file is valid
 		String strError = null;
-		if(file != null){
+		if(file != null){ 
 			if ((strError = jmolViewer.openFile(file.getAbsolutePath())) != null) {	
 				Logger.error("Error while loading XYZ file. " + strError);
 			} else {
