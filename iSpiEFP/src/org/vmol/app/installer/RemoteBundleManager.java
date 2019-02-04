@@ -91,6 +91,8 @@ public class RemoteBundleManager {
             e.printStackTrace();
             return false; //bad connection
         }
+        System.out.println("statement from test package");
+        System.out.println(errorStatement);
         if(errorStatement.equals(BASH_EFPMD_NOT_FOUND)) {
             System.out.println("user missing EFP PAckage!");
             return false;
