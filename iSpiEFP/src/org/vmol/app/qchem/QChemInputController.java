@@ -217,11 +217,6 @@ public class QChemInputController implements Initializable{
        // initWorkingDir();
     }
     
-    private void initWorkingDir() {
-        this.QChemInputsDirectory = this.workingDirectoryPath + "/QchemInputs";         //needed for db file storage
-        new File(this.QChemInputsDirectory).mkdirs();
-    }
-    
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		// Adding listener to title	    
@@ -507,289 +502,6 @@ public class QChemInputController implements Initializable{
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public void handleSubmit897534() throws IOException, UnrecognizedAtomException {
-		
-		String qChemText = qChemInputTextArea.getText();
-				
-			//if (auto_sub != null && auto_sub.getValue().equals("On")) {
-				String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
-
-				//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
-				System.out.println("running submit");
-				int port = 8080;
-				try {
-					Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
-					
-					String[] records = userPrefs.get((String) jobids.get(0), null).split("\\r?\\n");
-					System.out.println("Records:" + records);
-			        Socket client = new Socket(serverName, port);
-			        OutputStream outToServer = client.getOutputStream();
-			        //DataOutputStream out = new DataOutputStream(outToServer);
-			        StringBuilder sb = new StringBuilder();
-			        sb.append("Submit" + "$END$");
-			        sb.append(records[2] + "$END$");
-			        sb.append(records[3] + "$END$");
-			        sb.append(records[4] + "$END$");
-			        for (int i = 0; i < jobids.size(); i ++) {
-			        	sb.append((String) jobids.get(i) + "$END$");
-			        }
-			        sb.append(MainViewController.getLastOpenedFileName() + "$ENDALL$");
-			        
-			        outToServer.write(sb.toString().getBytes("UTF-8"));
-			       
-			        InputStream inFromServer = client.getInputStream();
-			        DataInputStream in = new DataInputStream(inFromServer);
-			        String reply = "";
-			        int i;
-			        char c;
-			        while (( i = in.read())!= -1) {
-			        	c = (char)i;
-			        	reply += c;
-			        }
-			        //System.out.println(reply);
-			        
-			        Connection conn = new Connection(records[2]);
-			        conn.connect();
-			        boolean isAuthenticated = conn.authenticateWithPassword(records[3], records[4]);
-			        if (!isAuthenticated) {
-						throw new IOException("Authentication failed");
-					}
-			        SCPClient scp = conn.createSCPClient();
-			        SCPOutputStream scpos = scp.put( "libefp_job.in",qChemText.length(),"./ispiefp","0666" );
-			        InputStream istream = IOUtils.toInputStream(qChemText, "UTF-8");
-			        IOUtils.copy(istream, scpos);
-			        istream.close();
-			        scpos.close();
-			        conn.close();
-			        
-			        
-			        //System.out.println("Server says " + in.readUTF());
-			        client.close();
-			     } catch (IOException e) {
-			        e.printStackTrace();
-			     }
-				
-			//}
-			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-			Date date = new Date();
-			userPrefs_libefp.put(title.getText(), date.toString());
-//			Stage currStage = (Stage) root.getScene().getWindow();
-//			JmolVisualization jv = new JmolVisualization(currStage, true);
-//			MainViewController.getJmolVisualization().close();
-//			MainViewController.setJmolVisualization(jv);
-//			jv.show(new File(MainViewController.getLastOpenedFile()));
-//			ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-//			String hostname = selectedServer.getAddress();
-//			String username = selectedServer.getUserName();
-//			String password = "";
-//			TextInputDialog dialog = new TextInputDialog("Password?");
-//			dialog.setTitle("Password?");
-//			dialog.setHeaderText(null);
-//			dialog.setContentText("Please enter your password: ");
-//			
-//			Optional<String> result = dialog.showAndWait();
-//			if (result.isPresent()) {
-//				password = result.get();
-//			}
-//			Connection conn = new Connection(hostname);
-//			conn.connect();
-			// Create the custom dialog.
-			Dialog<Pair<String, String>> dialog = new Dialog<>();
-			dialog.setTitle("Login Dialog");
-			dialog.setHeaderText("Please type your username and password for the selected host");
-			// Set the icon (must be included in the project).
-			//dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
-
-			// Set the button types.
-			
-			    	
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Libefp Submission");
-			alert.setHeaderText(null);
-			alert.setContentText("Job submitted to cluster successfully.");
-			alert.showAndWait();
-			        
-			
-			
-			
-			
-			
-		
-		
-	}
-	// Method to handle the submit action to selected server
-	public void handleSubmit070() throws IOException, InterruptedException {
-		ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-		if (selectedServer.getServerType().equalsIgnoreCase("local"))
-			submitJobToLocalServer(selectedServer);
-		else {
-			
-		    createInputFile("md_in", this.QChemInputsDirectory);
-		    
-		    System.out.println("sending these efp files:");
-		    for(String filename : this.efpFilenames) {
-		        System.out.println(filename);
-		    }
-		    
-//			toXYZ("md_1.out");
-//			Stage currStage = (Stage) root.getScene().getWindow();
-//			new JmolVisualization(currStage).show(new File("output.xyz"));
-			
-			String hostname = "halstead.rcac.purdue.edu";
-			Connection conn = new Connection(hostname);
-			conn.connect();
-			/*String username = "xu675";
-			String password = "He00719614";
-		*/
-			String username = "apolcyn";
-			String password = "P15mac&new";
-		
-			boolean isAuthenticated = conn.authenticateWithPassword(username, password);
-			if (!isAuthenticated)
-				throw new IOException("Authentication failed.");
-			
-			SCPClient scp = conn.createSCPClient();
-			//System.out.println("current dir:"+System.getProperty("user.dir"));
-			SCPOutputStream scpos = scp.put("md_1.in",new File("./md_test/md_1.in").length(),"./vmol","0666");
-			FileInputStream in = new FileInputStream(new File("./md_test/md_1.in"));
-			IOUtils.copy(in, scpos);
-			in.close();
-			scpos.close();
-			Session sess = conn.openSession();
-			sess.execCommand("cd vmol; mkdir fraglib");
-			sess.close();
-			scpos = scp.put("h2o.efp",new File("./md_test/fraglib/h2o.efp").length(),"./vmol/fraglib","0666");
-			in = new FileInputStream(new File("./md_test/fraglib/h2o.efp"));
-			IOUtils.copy(in, scpos);
-			in.close();
-			scpos.close();
-			scpos = scp.put("nh3.efp",new File("./md_test/fraglib/nh3.efp").length(),"./vmol/fraglib","0666");
-			in = new FileInputStream(new File("./md_test/fraglib/nh3.efp"));
-			IOUtils.copy(in, scpos);
-			in.close();
-			scpos.close();
-			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
-			Date date = new Date();
-			String currentTime = dateFormat.format(date).toString();
-			//String pbs_script = "cd vmol;\nmodule load intel;\n/group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output_" + currentTime;
-			///String pbs_script = "cd vmol;\nmodule load intel;\n./efpmd md_1.in > output_" + currentTime;
-			String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
-
-			scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"./vmol","0666");
-			InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
-			IOUtils.copy(istream, scpos);
-			istream.close();
-			scpos.close();
-			
-			
-			sess = conn.openSession();
-			//sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
-			//sess.waitUntilDataAvailable(0);
-			
-			sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
-			InputStream stdout = new StreamGobbler(sess.getStdout());
-			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-			String jobID = "";
-			while (true) {
-				String line = br.readLine();
-				if (line == null)
-					break;
-				System.out.println(line);
-				String[] tokens = line.split("\\.");
-				if (tokens[0].matches("\\d+")) {
-					jobID = tokens[0];
-				}
-				//System.out.println(line);
-			}
-			System.out.println(jobID);
-			br.close();
-			sess.close();
-			
-			dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-			currentTime = dateFormat.format(date).toString();
-			
-			
-			userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
-			
-			String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
-
-            //String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
-            
-            int port = 8080;
-            try {
-                //Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
-                
-                //String[] records = userPrefs.get((String) jobids.get(0), null).split("\\r?\\n");
-                //System.out.println("Records:" + records);
-                Socket client = new Socket(serverName, port);
-                OutputStream outToServer = client.getOutputStream();
-                //DataOutputStream out = new DataOutputStream(outToServer);
-                StringBuilder sb = new StringBuilder();
-                hostname = "halstead.rcac.purdue.edu";
-                username = "apolcyn";
-                password = "P15mac&new";
-                sb.append("Submit" + "$END$");
-                sb.append(hostname + "$END$");
-                sb.append(username + "$END$");
-                sb.append(password + "$END$");
-                
-                /*
-                for (int i = 0; i < jobids.size(); i ++) {
-                    sb.append((String) jobids.get(i) + "$END$");
-                }*/
-                
-                sb.append(jobID + "$END$");
-                sb.append(MainViewController.getLastOpenedFileName() + "$ENDALL$");
-                
-                outToServer.write(sb.toString().getBytes("UTF-8"));
-               
-                /*InputStream inFromServer = client.getInputStream();
-                DataInputStream in = new DataInputStream(inFromServer);
-                String reply = "";
-                int i;
-                char c;
-                while (( i = in.read())!= -1) {
-                    c = (char)i;
-                    reply += c;
-                }*/
-                //System.out.println(reply);
-                client.close();
-            } catch (IOException e) {
-               e.printStackTrace();
-            }
-//			SCPInputStream scpin = scp.get("vmol/output.efpout");
-//			FileOutputStream out = new FileOutputStream(new File("output.efpout"));
-//			IOUtils.copy(scpin, out);
-//			out.close();
-//			scpin.close();
-//			
-//			toXYZ("output.efpout");
-//			Stage currStage = (Stage) root.getScene().getWindow();
-//			new JmolVisualization(currStage).show(new File("output.xyz"));		
-			
-			
-//			sess = conn.openSession();
-//			sess.execCommand("ls");
-//			InputStream stdout = new StreamGobbler(sess.getStdout());
-//			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-//			while (true) {
-//				String line = br.readLine();
-//				if (line == null)
-//					break;
-//				System.out.println(line);
-//			}
-//			System.out.println("ExitCode: " + sess.getExitStatus());
-//			br.close();
-//			sess.close();
-			conn.close();
-			
-		}
-		// Handle SSH case later
-	}
 
 	private void submitJobToLocalServer(ServerDetails selectedServer) throws IOException, InterruptedException {
 		// Printing the complete absolute path from where the application was initialized
@@ -864,23 +576,13 @@ public class QChemInputController implements Initializable{
                 }
                 
                 Connection conn = loginForm.getConnection(authorized);
-                //Connection conn = new Connection(hostname);
-                //conn.connect();
-              
+            
                 String username = loginForm.getUsername();
                 String password = loginForm.getPassword();
             
-                //boolean isAuthenticated = conn.authenticateWithPassword(username, password);
-                //if (!isAuthenticated)
-                //    throw new IOException("Authentication failed.");
-                
+            
                 SCPClient scp = conn.createSCPClient();
-                //System.out.println("current dir:"+System.getProperty("user.dir"));
-                
-                //SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./vmol","0666");
-     //           FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
-                //FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
-              
+       
                 
                 SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./iSpiClient/Libefp/input","0666");
                 FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
@@ -893,7 +595,6 @@ public class QChemInputController implements Initializable{
 
                 
                 Session sess = conn.openSession();
-                //sess.execCommand("cd vmol; mkdir fraglib; source ~/.bashrc;");
                 sess.close();
                 
                 for(String filename : this.efpFilenames) {
@@ -907,30 +608,11 @@ public class QChemInputController implements Initializable{
                     scpos.close();
                 }
                 
-               /*
-                scpos = scp.put("nh3.efp",new File("./md_test/fraglib/nh3.efp").length(),"./vmol/fraglib","0666");
-                in = new FileInputStream(new File("./md_test/fraglib/nh3.efp"));
-                IOUtils.copy(in, scpos);
-                in.close();
-                scpos.close();*/
                 
                 DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
                 Date date = new Date();
                 String currentTime = dateFormat.format(date).toString();
                 
-                /*
-                .append("mkdir iSpiClient;")
-                .append("cd iSpiClient;")
-                .append("mkdir Gamess;")
-                .append("mkdir Libefp;")
-                .append("cd Gamess; cd ..;")
-                .append("cd Libefp; mkdir fraglib; cd ..;")
-                .toString();
-                */
-                //../inputs/md_1.in > ../outputs/outFile
-                //String pbs_script = "cd vmol;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd md_1.in > output_" + currentTime;
-                //source ~/.bashrc
-                //String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp/src;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
                 //String pbs_script = "\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
                 String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + currentTime;
                 
@@ -941,10 +623,7 @@ public class QChemInputController implements Initializable{
                 scpos.close();
                 
                 sess = conn.openSession();
-                //sess.execCommand("source /etc/profile; cd vmol; /group/lslipche/apps/libefp/libefp_09012017/libefp/bin/efpmd md_1.in > output.efpout");
-                //sess.waitUntilDataAvailable(0);
-                
-                //String readyUser = "source ~/.bashrc;";
+            
 
                 sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
                 //sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
@@ -974,10 +653,7 @@ public class QChemInputController implements Initializable{
                 currentTime = dateFormat.format(date).toString();
                 
                 jobID = (new JobManager()).generateJobID().toString();
-                //String jobID = jobManager.generateJobID();
-                //String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
-               
-                
+             
                 userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
 
                 
@@ -1001,23 +677,13 @@ public class QChemInputController implements Initializable{
                 JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
                 jobManager.watchJobStatus();
                 
-               // QChemInputController controller = new QChemInputController(null);
-               // Node parent = this.root.getParent();
-                
-                //System.out.println(parent.getClass());
-              //  controller.getClass()
-                //Stage stage = (Stage) .getScene().getWindow();
-                
-               // stage.close();
-                
+             
                 Alert alert = new Alert(AlertType.INFORMATION);
                 alert.setTitle("Libefp Submission");
                 alert.setHeaderText(null);
                 alert.setContentText("Job submitted to cluster successfully.");
                 alert.showAndWait();
-            }
-            
-            
+            } 
         }
         // Handle SSH case later
     }
@@ -1029,11 +695,5 @@ public class QChemInputController implements Initializable{
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
-	
-	
-	
-	
-
-	
 	
 }
