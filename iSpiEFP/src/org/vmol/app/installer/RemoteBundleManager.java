@@ -46,7 +46,7 @@ public class RemoteBundleManager {
     private final String LIBEFP = "LIBEFP";
     private final String GAMESS = "GAMESS";
     
-    private static final String BASH_EFPMD_NOT_FOUND = "bash: iSpiClient/Libefp/src/efpmd: No such file or directory";
+    private static final String BASH_EFPMD_NOT_FOUND = "iSpiClient/Libefp/src/efpmd: cannot open (No such file or directory)";
     
     public RemoteBundleManager(String username, String password, String hostname, String bundleType, Connection conn) {
         this.username = username;
@@ -255,7 +255,7 @@ public class RemoteBundleManager {
             sess.execCommand(script);
             sess.close();
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -348,10 +348,10 @@ public class RemoteBundleManager {
         Connection conn = this.conn;
  
         Session sess = conn.openSession();
-        String script = "iSpiClient/Libefp/src/efpmd";
+        String script = "file iSpiClient/Libefp/src/efpmd";
         sess.execCommand(script);
         
-        InputStream stderr = new StreamGobbler(sess.getStderr());
+        InputStream stderr = new StreamGobbler(sess.getStdout());
         BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
         String jobID = "";
         
