@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.vmol.app.Main;
+import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.util.Atom;
 
 import com.google.gson.Gson;
@@ -107,7 +108,12 @@ public class RemoteBundleManager {
         String serverName = Main.iSpiEFP_SERVER;
         int port = Main.iSpiEFP_PORT;
     
-        Socket client = new Socket(serverName, port);
+       // Socket client = new Socket(serverName, port);
+        iSpiEFPServer iSpiServer = new iSpiEFPServer();
+        Socket client = iSpiServer.connect(serverName, port);
+        if(client == null) {
+            return null;
+        }
         OutputStream outToServer = client.getOutputStream();
 
                 

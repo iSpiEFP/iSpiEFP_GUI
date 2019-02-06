@@ -37,6 +37,7 @@ import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.server.JobManager;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
+import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.UnrecognizedAtomException;
@@ -667,7 +668,12 @@ public class QChemInputController implements Initializable{
                 query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
                 query+= "$ENDALL$";
                 
-                Socket client = new Socket(serverName, port);
+                //Socket client = new Socket(serverName, port);
+                iSpiEFPServer iSpiServer = new iSpiEFPServer();
+                Socket client = iSpiServer.connect(serverName, port);
+                if(client == null) {
+                    return;
+                }
                 OutputStream outToServer = client.getOutputStream();
                 //DataOutputStream out = new DataOutputStream(outToServer);
                 

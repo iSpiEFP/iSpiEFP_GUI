@@ -31,6 +31,7 @@ import org.vmol.app.gamess.gamessInputController;
 import org.vmol.app.installer.LocalBundleManager;
 import org.vmol.app.localDataBase.localDataBaseController;
 import org.vmol.app.qchem.QChemInputController;
+import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
 import org.vmol.app.visualizer.JmolVisualizer;
@@ -198,7 +199,12 @@ public class DatabaseController2 {
                 }
                 query+="$ENDALL$";
     				
-    	        Socket client = new Socket(serverName, port);
+                iSpiEFPServer iSpiServer = new iSpiEFPServer();
+                Socket client = iSpiServer.connect(serverName, port);
+                if(client == null) {
+                    return null;
+                }
+    	        //Socket client = new Socket(serverName, port);
     	        OutputStream outToServer = client.getOutputStream();
     	        //DataOutputStream out = new DataOutputStream(outToServer);
     	        

@@ -165,7 +165,12 @@ public class JobManager implements Runnable {
         query += job_id + "  " + title + "  " + date + "  " + status + "  " + type;
         query+= "$ENDALL$";
         
-        Socket client = new Socket(serverName, port);
+        //Socket client = new Socket(serverName, port);
+        iSpiEFPServer iSpiServer = new iSpiEFPServer();
+        Socket client = iSpiServer.connect(serverName, port);
+        if(client == null) {
+            return;
+        }
         OutputStream outToServer = client.getOutputStream();        
         System.out.println(query);
         outToServer.write(query.getBytes("UTF-8"));
@@ -185,8 +190,13 @@ public class JobManager implements Runnable {
         query += username + "  " + hostname + "  " + type;
         query+= "$ENDALL$";
         
-        Socket client;
-        client = new Socket(serverName, port);
+        //Socket client;
+        //client = new Socket(serverName, port);
+        iSpiEFPServer iSpiServer = new iSpiEFPServer();
+        Socket client = iSpiServer.connect(serverName, port);
+        if(client == null) {
+            return null;
+        }
         OutputStream outToServer = client.getOutputStream();
          //DataOutputStream out = new DataOutputStream(outToServer);
             
