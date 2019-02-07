@@ -18,6 +18,36 @@ public class ViewerHelper {
         this.auxViewer = auxViewer;
     }
     
+    public ViewerHelper() {
+        
+    }
+    
+    //returns a chemical formula from an array size 26(alphabet) with counts of occurences
+    //this uses Hill's method for generating a formula
+    //First count occurences of 'C' then 'H' then the rest in sorted order
+    public String getChemicalFormula(int[] symbols) {
+        StringBuilder chemicalFormula = new StringBuilder();
+        int c_index = 'C' - 'A';
+        int h_index = 'H' - 'A';
+        
+        if(symbols[c_index] > 0) {
+            chemicalFormula.append("C"+symbols[c_index]);
+        }
+        if(symbols[h_index] > 0) {
+            chemicalFormula.append("H"+symbols[h_index]);
+        }
+        for(int i = 0; i < symbols.length; i++) {
+            if(i != c_index && i != h_index) {
+                if(symbols[i] > 0){
+                    char symbol = ((char)('A' + i));
+                    chemicalFormula.append((Character.toString(symbol))+symbols[i]);
+                }
+            }
+        }
+        return chemicalFormula.toString();
+    }
+    
+    
     public void ConnectXYZBonds() {
         System.out.println("Dumping atoms from actually fragment");
         Collections.sort(atomList);

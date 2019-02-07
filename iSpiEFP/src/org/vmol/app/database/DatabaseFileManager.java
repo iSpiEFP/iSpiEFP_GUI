@@ -7,7 +7,13 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 
+import org.vmol.app.MainViewController;
 import org.vmol.app.installer.LocalBundleManager;
+import org.vmol.app.util.Atom;
+import org.vmol.app.util.PDBParser;
+import org.vmol.app.visualizer.ViewerHelper;
+
+import com.google.gson.Gson;
 
 /*
 DatabaseFileManager Class processes database response from server,
@@ -21,10 +27,17 @@ public class DatabaseFileManager {
     private String mainDBDirectory;
     private String xyzDirectory;
     private String efpDirectory;
+    private ArrayList<String> groupNames;
+    
+    public DatabaseFileManager() {
+        groupNames = new ArrayList<String>();
+    }
     
     public DatabaseFileManager(String path) {
         this.workingDirectoryPath = path;
         initWorkingDir();
+        groupNames = new ArrayList<String>();
+
     }
     
     private void initWorkingDir() {
@@ -60,8 +73,8 @@ public class DatabaseFileManager {
                    
                     //seperate xyz file and efp file
                     String [] xyz_and_efp_pair = content[i].split("\\$EFP\\$");
-                    System.out.println("xyz file:"+xyz_and_efp_pair[0]);
-                    System.out.println("efp file:"+xyz_and_efp_pair[1]);
+                    //System.out.println("xyz file:"+xyz_and_efp_pair[0]);
+                    //System.out.println("efp file:"+xyz_and_efp_pair[1]);
                     
                     String parsed_xyz_file = parseXYZresponse(xyz_and_efp_pair[0]);
                    
@@ -71,6 +84,54 @@ public class DatabaseFileManager {
                 }
            }
            files.add(fragment_files);     
+        }
+        return files;
+    }
+    
+  //INPUT: Raw response from Database
+    public ArrayList<ArrayList<String []>> processDBresponse2(JsonFilePair[] response) {
+        ArrayList<ArrayList<String []>> files = new ArrayList<ArrayList<String []>>(this.groupNames.size());
+
+        System.out.println("size:"+this.groupNames.size());
+        
+        //initialize file list
+        for(int i = 0; i < this.groupNames.size(); i++) {
+            //String[] strArr = new String[2];
+            ArrayList<String []> list = new ArrayList<String []>();
+            //list.add(strArr);
+            files.add(list);
+        }
+        
+        for(JsonFilePair pair : response){
+            //String reply = res;
+            //reply = reply.substring(1);
+            
+            //String[] content = reply.split("\\$NEXT\\$");    
+            //ArrayList<String []> fragment_files = new ArrayList<String []>();
+
+            //if(content.length <= 1){
+                //no response
+            //} else {
+                //parse response and dump in folders for each file line
+           // for(int i = 1; i < content.length; i++) {
+            int index = groupNames.indexOf(pair.chemicalFormula);
+            
+                    //seperate xyz file and efp file
+            String [] xyz_and_efp_pair = new String[2];
+                    //System.out.println("xyz file:"+xyz_and_efp_pair[0]);
+                    //System.out.println("efp file:"+xyz_and_efp_pair[1]);
+                    
+            String parsed_xyz_file = parseXYZresponse(pair.xyz_file);
+            xyz_and_efp_pair[0] = parsed_xyz_file;
+            xyz_and_efp_pair[1] = pair.efp_file;
+                    
+            //fragment_files.add(xyz_and_efp_pair);
+            //    }
+           //}
+            //files.get(index).add(xyz_and_efp_pair);
+            ArrayList<String []> list = files.get(index);
+            list.add(xyz_and_efp_pair);
+            //files.add(fragment_files);     
         }
         return files;
     }
@@ -92,12 +153,22 @@ public class DatabaseFileManager {
             //char atom_name = name.charAt(3);
             //name = Character.toString(atom_name);
             
+            //name = name.replaceAll("^\\s+", "");
+
+            //I apologize for this mess, I initially tried to just make this all work. Then I realized we needed Json
+            //To really make this happen, then I got lazy, it should all be compatable to json and not need parsing
+            //Oh well... if it aint broke dont fix it
+            if(name.charAt(0) == '[') {
+                name = name.substring(1);
+            }
             name = name.substring(1);
+
             System.out.println("name:"+name);
             if(name.charAt(0) == 'B'){
                 System.out.println("bond encountered");
             } else {
                 //parse name
+                
                 name = name.substring(1);
                 for(int u = 0; u < name.length(); u++){
                     char ch = name.charAt(u);
@@ -106,6 +177,7 @@ public class DatabaseFileManager {
                         break;
                     }
                 }
+                name = Character.toString(name.charAt(name.length()-1));
                 line = name + "      " + x_coord + "   " + y_coord + "   " + z_coord + "\n";
                 result.add(line);
             }
@@ -188,5 +260,68 @@ public class DatabaseFileManager {
                  
             }
         }
+    }
+    
+    public String generateJsonQuery(ArrayList<ArrayList> groups) throws IOException {
+        Gson gson = new Gson();
+        //TypeDTO[] myTypes = gson.fromJson(new FileReader("input.json"), TypeDTO[].class);
+        
+        ArrayList<Atom> pdb;
+        
+        pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
+       
+        System.out.println("Atoms count: " + groups);
+        
+        JsonFragment[] jsonFragments = new JsonFragment[groups.size()];
+        System.out.println(groups.size());
+        System.out.print(jsonFragments.length);
+        for (int x = 0; x < groups.size(); x ++) {
+                
+                jsonFragments[x] = new JsonFragment();
+                                
+                int[] symbols = new int[26];
+                ArrayList<JsonCoordinatePair> jsonCoordPairs = new ArrayList<JsonCoordinatePair>();
+                
+                for (int j = 0; j < groups.get(x).size(); j ++) {
+                    JsonCoordinatePair coord = new JsonCoordinatePair();
+                    Atom current_atom = (Atom) pdb.get((Integer) groups.get(x).get(j));
+                    if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
+
+                        String symbol = current_atom.type;
+                        String sign = symbol.substring(symbol.length() - 1);
+                        String digits = symbol.replaceAll("\\D+", "");
+                        String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
+                        //query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
+                        int index = real_symbol.charAt(0) - 'A';
+                        symbols[index]++;
+                        
+                        coord.symbol = current_atom.type;
+                        coord.x = current_atom.x;
+                        coord.y = current_atom.y;
+                        coord.z = current_atom.z;
+                        
+                    } else {
+                        String symbol = current_atom.type;
+
+                        int index = symbol.charAt(0) - 'A';
+                        symbols[index]++;
+                        
+                        coord.symbol = symbol;
+                        coord.x = current_atom.x;
+                        coord.y = current_atom.y;
+                        coord.z = current_atom.z;
+                        //query += "$END$" + current_atom.type + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
+                    }
+                    jsonCoordPairs.add(coord);
+                }
+                String chemFormula = (new ViewerHelper()).getChemicalFormula(symbols);
+                this.groupNames.add(chemFormula);
+                jsonFragments[x].chemicalFormula = chemFormula;
+                jsonFragments[x].coords = jsonCoordPairs;
+                //query+="$ENDALL$";
+                  
+        }
+        String json = new Gson().toJson(jsonFragments);
+        return "Query2$END$"+json+"$ENDALL$";
     }
 }

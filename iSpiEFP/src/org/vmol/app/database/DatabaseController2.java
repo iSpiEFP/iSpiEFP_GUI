@@ -2,12 +2,14 @@ package org.vmol.app.database;
 
 import java.awt.Checkbox;
 import java.awt.Container;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.Socket;
@@ -36,6 +38,9 @@ import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
 import org.vmol.app.visualizer.JmolVisualizer;
 import org.vmol.app.visualizer.ViewerHelper;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -100,13 +105,17 @@ public class DatabaseController2 {
 	    this.groups = groups;
 	    
 		//query database
-		ArrayList<String> dbResponse = queryDatabase(groups);
+		//ArrayList<String> dbResponse = queryDatabase(groups);
 	
 		String workingDirectory = System.getProperty("user.dir");
 		DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
         
-		ArrayList<ArrayList<String []>> group_files = databaseFileManager.processDBresponse(dbResponse);
-        ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(group_files);
+	    JsonFilePair[] response = queryDatabase2(groups, databaseFileManager);
+
+	       //currently supported by queryV2 which sends and recieves JSON
+		ArrayList<ArrayList<String []>> files = databaseFileManager.processDBresponse2(response);
+		//ArrayList<ArrayList<String []>> group_files = databaseFileManager.processDBresponse(dbResponse);
+        ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(files);
         
         if(group_filenames.size() > 0){
             //read files into array of strings
@@ -169,6 +178,54 @@ public class DatabaseController2 {
 	    return button_libefp;
 	}
 	
+	private JsonFilePair[] queryDatabase2(ArrayList<ArrayList> groups, DatabaseFileManager fileManager) throws IOException {
+	    String jsonQuery = fileManager.generateJsonQuery(groups);
+	    
+	    String serverName = Main.iSpiEFP_SERVER;
+        int port = Main.iSpiEFP_PORT;
+              
+        iSpiEFPServer iSpiServer = new iSpiEFPServer();
+        Socket client = iSpiServer.connect(serverName, port);
+        if(client == null) {
+            return null;
+        }
+        OutputStream outToServer = client.getOutputStream();
+        System.out.println(jsonQuery);
+
+                
+        outToServer.write(jsonQuery.getBytes("UTF-8"));
+           
+        
+        InputStream inFromServer = client.getInputStream();
+        DataInputStream in = new DataInputStream(inFromServer);
+        
+        String str = "";
+        StringBuffer buf = new StringBuffer();            
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        if (in != null) {                            
+            while ((str = reader.readLine()) != null) {    
+                buf.append(str + "\n");
+            }                
+        }
+                
+        String reply = buf.toString();
+        System.out.println("Database Response from Query V2:" + reply);
+      
+        Gson gson = new GsonBuilder().create(); 
+        JsonFilePair[] response = gson.fromJson(reply, JsonFilePair[].class);
+        //JsonDatabaseResponse response = gson.fromJson(reply, JsonDatabaseResponse.class);
+        
+        client.close();
+        
+        //JsonFilePair pair = response.databaseResponse.get(0);
+        
+        System.out.println("Printing json response now");
+        System.out.println(response[0].chemicalFormula);
+      //  System.out.println(pair.chemicalFormula);
+      //  System.out.println(pair.efp_file);
+        return response;   
+	}
+	
 	//query remote database from AWS server, and return response
     @SuppressWarnings("unchecked")
     private ArrayList<String> queryDatabase(ArrayList<ArrayList> groups) throws IOException {
@@ -226,7 +283,7 @@ public class DatabaseController2 {
     	        }
     	        
     	        String reply = sb.toString().substring(1);
-    	        System.out.println("Database Response:" + reply);
+    	        //System.out.println("Database Response:" + reply);
     	        response.add(reply);
     	        
     	        client.close();
