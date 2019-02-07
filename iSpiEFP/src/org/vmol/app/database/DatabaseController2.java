@@ -125,12 +125,21 @@ public class DatabaseController2 {
             
             for (ArrayList<String []> group : group_filenames){ 
                 if(group.size() > 0) {
+                    //boolean groupFound = false;
                     for(String [] pair_name : group) {
                         String xyz_filename = pair_name[0];
                         String efp_filename = pair_name[1];
                         
                         filenames.add(xyz_filename);
+                        //groupFound = true;
                     }
+                    /*
+                    if(!groupFound){
+                        boolean yes = sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
+                        if(yes) {
+                            to_be_submitted.add(groupNumber-1);
+                        }
+                    }*/
                 } else {
                     //this particular fragment did not have any matches from the database
                     boolean yes = sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");

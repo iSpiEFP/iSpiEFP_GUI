@@ -114,33 +114,41 @@ public class DatabaseFileManager {
             //} else {
                 //parse response and dump in folders for each file line
            // for(int i = 1; i < content.length; i++) {
-            int index = groupNames.indexOf(pair.chemicalFormula);
-            
-                    //seperate xyz file and efp file
-            String [] xyz_and_efp_pair = new String[2];
-                    //System.out.println("xyz file:"+xyz_and_efp_pair[0]);
-                    //System.out.println("efp file:"+xyz_and_efp_pair[1]);
-                    
-            String parsed_xyz_file = parseXYZresponse(pair.xyz_file);
-            xyz_and_efp_pair[0] = parsed_xyz_file;
-            xyz_and_efp_pair[1] = pair.efp_file;
-                    
-            //fragment_files.add(xyz_and_efp_pair);
-            //    }
-           //}
-            //files.get(index).add(xyz_and_efp_pair);
-            ArrayList<String []> list = files.get(index);
-            list.add(xyz_and_efp_pair);
-            //files.add(fragment_files);     
+            if(!pair.xyz_file.isEmpty()){
+                String parsed_xyz_file = parseXYZresponse(pair.xyz_file);
+                int index = groupNames.indexOf(pair.chemicalFormula);
+                
+                //seperate xyz file and efp file
+                String [] xyz_and_efp_pair = new String[2];
+                //System.out.println("xyz file:"+xyz_and_efp_pair[0]);
+                //System.out.println("efp file:"+xyz_and_efp_pair[1]);
+                
+                xyz_and_efp_pair[0] = parsed_xyz_file;
+                xyz_and_efp_pair[1] = pair.efp_file;
+                        
+                //fragment_files.add(xyz_and_efp_pair);
+                //    }
+               //}
+                //files.get(index).add(xyz_and_efp_pair);
+                ArrayList<String []> list = files.get(index);
+                list.add(xyz_and_efp_pair);
+           }
+           
+                //files.add(fragment_files);     
         }
         return files;
     }
     
     private String parseXYZresponse(String rawFile) {
         ArrayList<String> result = new ArrayList<String>();
-        
+        System.out.println("printing raw xyz");
+        System.out.println(rawFile);
+        if(rawFile.isEmpty()) {
+            System.out.println("raw file is empty");
+        }
         String[] lines = rawFile.split("n', ");
         System.out.println(lines.length);
+        
         for(String line : lines){
             System.out.println(line);
             String[] pieces = line.split("\\s+");
