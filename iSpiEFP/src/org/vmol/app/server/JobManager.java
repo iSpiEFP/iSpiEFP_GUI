@@ -74,13 +74,21 @@ public class JobManager implements Runnable {
         SCPClient scp = conn.createSCPClient();        
         SCPInputStream scpos = null;
         try {
-            scpos = scp.get("iSpiClient/Libefp/output/output_"+job_date);
-            scpos.close();
-            jobIsDone = true;
+            if(this.type != null){
+                if(this.type.equals("LIBEFP")) {
+                    scpos = scp.get("iSpiClient/Libefp/output/output_"+job_date);
+                    scpos.close();
+                    jobIsDone = true;
+                } else if(this.type.equals("GAMESS")) {
+                    scpos = scp.get("iSpiClient/Gamess/output/gamess_"+job_date+".efp");
+                    scpos.close();
+                    jobIsDone = true;
+                }
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             //e.printStackTrace();
-            System.out.println("Job is not found!");
+            System.out.println("Job is running!");
         }
         conn.close();
         return jobIsDone;  

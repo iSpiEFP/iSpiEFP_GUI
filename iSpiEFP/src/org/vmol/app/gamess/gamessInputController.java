@@ -10,7 +10,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
@@ -28,12 +30,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.qchem.QChemInputController;
+import org.vmol.app.server.JobManager;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
+import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
@@ -529,6 +534,9 @@ public class gamessInputController implements Initializable{
                     
                 Connection conn = loginForm.getConnection(authorized);
     		    
+                String username = loginForm.getUsername();
+                String password = loginForm.getPassword();
+            
     		    /*
     			Dialog<Pair<String, String>> dialog = new Dialog<>();
     			dialog.setTitle("Login Dialog");
@@ -600,10 +608,13 @@ public class gamessInputController implements Initializable{
     //						PrintWriter out = new PrintWriter(MainViewController.getLastOpenedFileName() + "_" + i);
     //						out.print(inputs.get(i));
     //						out.close();
+    					    
     						SCPClient scp = conn.createSCPClient();
-    						
+    						DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+                            Date date = new Date();
+                            String currentTime = dateFormat.format(date).toString();
     						//LEGACYSCPOutputStream scpos = scp.put(MainViewController.getLastOpenedFileName() + "_" + i + ".inp",((String)inputs.get(i)).length(),"./ispiefp","0666" );
-    	                    SCPOutputStream scpos = scp.put(MainViewController.getLastOpenedFileName() + "_" + i + ".inp",((String)inputs.get(i)).length(),"./iSpiClient/Gamess/src","0666" );
+    	                    SCPOutputStream scpos = scp.put("gamess_"+currentTime+"_"+i+".inp",((String)inputs.get(i)).length(),"./iSpiClient/Gamess/src","0666" );
     						InputStream istream = IOUtils.toInputStream((String) inputs.get(i), "UTF-8");
     						IOUtils.copy(istream, scpos);
     						istream.close();
@@ -614,10 +625,10 @@ public class gamessInputController implements Initializable{
     						//LEGACYString pbs_script = "cd ispiefp;\n/group/lslipche/apps/gamess/gamess_2014R1/rungms_pradeep " + MainViewController.getLastOpenedFileName() + "_" + i + ".inp" + " 555 1 > " + MainViewController.getLastOpenedFileName() + "_" + i + ".log";
     		             //   String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp/src;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
     
-    						String pbs_script = "cd iSpiClient/Gamess/src;\n ./rungms " + MainViewController.getLastOpenedFileName() + "_" + i + ".inp" + " > " + MainViewController.getLastOpenedFileName() + "_" + i + ".log";
+    						String pbs_script = "cd iSpiClient/Gamess/src;\n ./rungms gamess_" +currentTime+"_"+i+".inp" + " > gamess_"+currentTime+"_"+i+".log";
     
     						//LEGACYscpos = scp.put("pbs_" + MainViewController.getLastOpenedFileName() + "_" + i, pbs_script.length(), "./ispiefp",  "0666");
-    	                    scpos = scp.put("pbs_" + MainViewController.getLastOpenedFileName() + "_" + i, pbs_script.length(), "./iSpiClient/Gamess/src",  "0666");
+    	                    scpos = scp.put("pbs_" +currentTime+ "_" + i, pbs_script.length(), "./iSpiClient/Gamess/src",  "0666");
     
     						istream = IOUtils.toInputStream(pbs_script, "UTF-8");
     						IOUtils.copy(istream, scpos);
@@ -626,7 +637,7 @@ public class gamessInputController implements Initializable{
     						
     						Session sess = conn.openSession();
     						//LEGACYsess.execCommand("source /etc/profile; cd ispiefp; qsub -l walltime=4:00:00 -l nodes=1:ppn=1 -q standby pbs_" + MainViewController.getLastOpenedFileName() + "_" + i);
-    	                    sess.execCommand("source /etc/profile; cd iSpiClient/Gamess/src; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby pbs_" + MainViewController.getLastOpenedFileName() + "_" + i);
+    	                    sess.execCommand("source /etc/profile; cd iSpiClient/Gamess/src; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby pbs_" + currentTime + "_" + i);
     
     						InputStream stdout = new StreamGobbler(sess.getStdout());
     						BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
@@ -643,12 +654,51 @@ public class gamessInputController implements Initializable{
     							//System.out.println(line);
     						}
     						jobids.add(jobID);
-    						Date date = new Date();
+    						//Date date = new Date();
     						Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
     						String str = date.toString() + "\n" + MainViewController.getLastOpenedFileName() + "_" + i + "\n" + hostname + "\n";// + uname + "\n" + pwd + "\n";
     						System.out.println(str);
     						System.out.println(jobID);
     						userPrefs.put(jobID, str);
+    						
+    						jobID = (new JobManager()).generateJobID().toString();
+    			             
+    		                userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
+
+    		                
+    		                String serverName = Main.iSpiEFP_SERVER;
+    		                int port = Main.iSpiEFP_PORT;
+    		                //int port = 8080;
+    		                
+    		                String title = "A_Default_title";
+    		                String time = currentTime;
+    		                //send over job data to database
+    		                String query = "Submit2";
+    		                query += "$END$";
+    		                query += username + "  " + hostname + "  " + jobID + "  " + title + "  " + time + "  " + "QUEUE" + "  " + "GAMESS";
+    		                query+= "$ENDALL$";
+    		                
+    		                //Socket client = new Socket(serverName, port);
+    		                iSpiEFPServer iSpiServer = new iSpiEFPServer();
+    		                Socket client = iSpiServer.connect(serverName, port);
+    		                if(client == null) {
+    		                    return;
+    		                }
+    		                OutputStream outToServer = client.getOutputStream();
+    		                //DataOutputStream out = new DataOutputStream(outToServer);
+    		                
+    		                System.out.println(query);
+    		                outToServer.write(query.getBytes("UTF-8"));
+    		                
+    		                JobManager jobManager = new JobManager(username, password, hostname, jobID, title, time, "QUEUE", "GAMESS");
+    		                jobManager.watchJobStatus();
+    		                
+    		             
+    		                Alert alert = new Alert(AlertType.INFORMATION);
+    		                alert.setTitle("Gamess Submission");
+    		                alert.setHeaderText(null);
+    		                alert.setContentText("Job submitted to cluster successfully.");
+    		                alert.showAndWait();
     					}
     					
     		//./		} catch (Exception e1) {
@@ -662,6 +712,8 @@ public class gamessInputController implements Initializable{
     				conn.close();
     				
     				
+    				
+    				/*
     				StringBuilder sb = new StringBuilder();
     				for (int i = 0; i < final_lists.size(); i ++) {
     					sb.append("fragment " + MainViewController.getLastOpenedFileName() + "_" + i + "\n");
@@ -704,7 +756,7 @@ public class gamessInputController implements Initializable{
     						}
     						
     					}
-    					});
+    					});*/
     		//	});
     			
     			
