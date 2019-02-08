@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.vmol.app.fileparser.FileParserController;
+import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.UnrecognizedAtomException;
@@ -193,12 +194,38 @@ public class MainViewController {
 	
 	@FXML
 	public void openGamessSubmissionHistoryWindow() throws IOException {
-		Parent gamessSubmissionHistory = FXMLLoader.load(getClass().getResource("gamessSubmission/gamessSubmissionHistory.fxml"));
+		/*
+	    Parent gamessSubmissionHistory = FXMLLoader.load(getClass().getResource("gamessSubmission/gamessSubmissionHistory.fxml"));
 		Stage stage = new Stage();
 		stage.initModality(Modality.WINDOW_MODAL);
 		stage.setTitle("Gamess Submission History");
 		stage.setScene(new Scene(gamessSubmissionHistory));
 		stage.show();
+		*/
+		
+		LoginForm loginForm = new LoginForm("GAMESS");
+        boolean authorized = loginForm.authenticate();
+        if(authorized) {
+            gamessSubmissionHistoryController controller = new gamessSubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(
+                        "submission/submissionHistory.fxml"
+                )
+            );
+            //                        "gamessSubmission/gamessSubmissionHistory.fxml"
+
+            loader.setController(controller);
+
+            Stage stage = new Stage(StageStyle.DECORATED);
+            stage.setScene(
+              new Scene(
+                  (Pane) loader.load()
+              )
+            );
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Gamess Submission History");
+            stage.show();
+        }
 	}
 	
 	

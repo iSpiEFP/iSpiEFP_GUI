@@ -7,9 +7,14 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import org.vmol.app.server.JobManager;
+import org.vmol.app.submission.OutputController;
+import org.vmol.app.submission.SubmissionRecord;
+import org.vmol.app.util.UnrecognizedAtomException;
 import org.xml.sax.SAXException;
 
 import ch.ethz.ssh2.Connection;
@@ -27,12 +32,37 @@ public class gamessSubmissionHistoryController {
 	@FXML
 	private Parent root;
 	@FXML
-	private TableView<gamessSubmissionRecord> tableView;
+	private TableView<SubmissionRecord> tableView;
+	//private TableView<gamessSubmissionRecord> tableView;
+	
+	private String username;
+    private String password;
+    private String hostname;
+    
+    
+    public gamessSubmissionHistoryController(String username, String password, String hostname) {
+        this.username = username;
+        this.password = password;
+        this.hostname = hostname;
+      
+    }
 	
 	@FXML
 	public void initialize() throws BackingStoreException, IOException, SAXException, SQLException, ParseException, URISyntaxException {
-		ObservableList<gamessSubmissionRecord> data = tableView.getItems();
+		//ObservableList<gamessSubmissionRecord> data = tableView.getItems();
 		//userPrefs.clear();
+	    ObservableList<SubmissionRecord> data = tableView.getItems();
+
+
+		
+		
+        JobManager jobManager = new JobManager(this.username, this.password, this.hostname, "GAMESS");
+        ArrayList<String []> jobHistory = jobManager.queryDatabaseforJobHistory("GAMESS");
+        jobHistory = jobManager.checkJobStatus(jobHistory);
+        
+        
+        loadData(jobHistory, data);
+		/*
 		String[] keys = userPrefs.keys();
 
 		for (int i = 0; i < keys.length; i++) {
@@ -77,7 +107,7 @@ public class gamessSubmissionHistoryController {
 			gamessSubmissionRecord r = new gamessSubmissionRecord(records[1], status, records[0]);
 			data.add(r);
 			conn.close();
-		}
+		}*/
 	}
 	
 	@FXML
@@ -95,5 +125,37 @@ public class gamessSubmissionHistoryController {
 		}
 		initialize();
 	}
+	
+	private void loadData(ArrayList<String[]> jobHistory, ObservableList<SubmissionRecord> data) {
+        for (String [] line : jobHistory) {
+            String job_id = line[0];
+            String title = line[1];
+            String date = line[2];
+            String status = line[3];           
+
+            String statement = new String();
+            if(status.equals("QUEUE")) {
+                statement = "Queuing";
+            } else {
+                statement = "Ready to open";
+            }
+            SubmissionRecord record = new SubmissionRecord(title, statement, date);
+            data.add(record);
+        }
+    }
+	
+	public void visualize() throws IOException, ParseException, UnrecognizedAtomException {
+	    
+        SubmissionRecord record = tableView.getSelectionModel().getSelectedItem();
+        
+        if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
+            System.out.println("opening record");
+            JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
+            String output = jobManager.getRemoteVmolOutput(record.getTime(), "GAMESS"); 
+            
+            OutputController outputController = new OutputController();
+            outputController.initialize(output, "GAMESS");
+        } 
+    }
 
 }

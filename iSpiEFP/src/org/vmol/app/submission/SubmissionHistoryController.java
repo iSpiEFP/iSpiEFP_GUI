@@ -102,7 +102,7 @@ public class SubmissionHistoryController {
 
 		ObservableList<SubmissionRecord> data = tableView.getItems();
 		
-	    JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
+	    JobManager jobManager = new JobManager(this.username, this.password, this.hostname, "LIBEFP");
 	    ArrayList<String []> jobHistory = jobManager.queryDatabaseforJobHistory("LIBEFP");
 	    jobHistory = jobManager.checkJobStatus(jobHistory);
 	    
@@ -240,10 +240,10 @@ public class SubmissionHistoryController {
         if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
             System.out.println("opening record");
             JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
-            String output = jobManager.getRemoteVmolOutput(record.getTime()); 
+            String output = jobManager.getRemoteVmolOutput(record.getTime(), "LIBEFP"); 
             
             OutputController outputController = new OutputController();
-            outputController.initialize(output);
+            outputController.initialize(output, "LIBEFP");
         } 
     }
 	

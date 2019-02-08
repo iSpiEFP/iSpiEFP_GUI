@@ -45,6 +45,13 @@ public class JobManager implements Runnable {
         this.type = type;
     }
     
+    public JobManager(String username, String password, String hostname, String type) {
+        this.username = username;
+        this.password = password;
+        this.hostname = hostname;
+        this.type = type;
+    }
+    
     public JobManager(String username, String password, String hostname) {
         this.username = username;
         this.password = password;
@@ -80,6 +87,7 @@ public class JobManager implements Runnable {
                     scpos.close();
                     jobIsDone = true;
                 } else if(this.type.equals("GAMESS")) {
+                    System.out.println("iSpiClient/Gamess/output/gamess_"+job_date+".efp");
                     scpos = scp.get("iSpiClient/Gamess/output/gamess_"+job_date+".efp");
                     scpos.close();
                     jobIsDone = true;
@@ -127,6 +135,11 @@ public class JobManager implements Runnable {
                     System.out.println("job finished...");
                     updateDBStatus(this.jobID, this.title, this.date, "DONE", this.type);
                     notify(this.title, this.type);
+                    if(this.type.equals("GAMESS")){
+                        //update the database with this efp file
+                        String efp_file = getRemoteVmolOutput(this.date, this.type);
+                        sendEFPFile(efp_file);
+                    }
                 }
             } while(!jobIsDone);
         } catch (InterruptedException e) {
@@ -277,7 +290,7 @@ public class JobManager implements Runnable {
     /*
      * get output file from a lib efp job
      */
-    public String getRemoteVmolOutput(String job_date) throws IOException {
+    public String getRemoteVmolOutput(String job_date, String type) throws IOException {
         Connection conn = new Connection(this.hostname);
         conn.connect();
         
@@ -285,9 +298,16 @@ public class JobManager implements Runnable {
         if (!isAuthenticated)
             throw new IOException("Authentication failed.");
         
-        SCPClient scp = conn.createSCPClient();
-        SCPInputStream scpos = scp.get("iSpiClient/Libefp/output/output_"+job_date);
         
+        String path = new String();
+        if(type.equals("LIBEFP")) {
+            path = "iSpiClient/Libefp/output/output_"+job_date;
+        } else if(type.equals("GAMESS")) {
+            path = "iSpiClient/Gamess/output/gamess_"+job_date+".efp";
+        }
+        
+        SCPClient scp = conn.createSCPClient();
+        SCPInputStream scpos = scp.get(path);
         InputStream stdout = new StreamGobbler(scpos);
         BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
         StringBuilder sb = new StringBuilder();
@@ -308,6 +328,34 @@ public class JobManager implements Runnable {
         //br.close(); //OVIEN STRANGE RESULTS HERE 
         
         return sb.toString();  
+    }
+    
+    //update database with new efp file
+    private void  sendEFPFile(String efp_file){
+        String serverName = Main.iSpiEFP_SERVER;
+        int port = Main.iSpiEFP_PORT;
+      
+        String payload = "EFP_FILE";
+        payload += "$END$";
+        payload += efp_file;
+        payload += "$ENDALL$";
+        
+        //Socket client = new Socket(serverName, port);
+        iSpiEFPServer iSpiServer = new iSpiEFPServer();
+        Socket client = iSpiServer.connect(serverName, port);
+        if(client == null) {
+            return;
+        }
+        OutputStream outToServer;
+        try {
+            outToServer = client.getOutputStream();
+            outToServer.write(payload.getBytes("UTF-8"));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //DataOutputStream out = new DataOutputStream(outToServer);
+        
     }
 
 }

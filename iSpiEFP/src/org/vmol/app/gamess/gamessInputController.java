@@ -614,7 +614,7 @@ public class gamessInputController implements Initializable{
                             Date date = new Date();
                             String currentTime = dateFormat.format(date).toString();
     						//LEGACYSCPOutputStream scpos = scp.put(MainViewController.getLastOpenedFileName() + "_" + i + ".inp",((String)inputs.get(i)).length(),"./ispiefp","0666" );
-    	                    SCPOutputStream scpos = scp.put("gamess_"+currentTime+"_"+i+".inp",((String)inputs.get(i)).length(),"./iSpiClient/Gamess/src","0666" );
+    	                    SCPOutputStream scpos = scp.put("gamess_"+currentTime+".inp",((String)inputs.get(i)).length(),"./iSpiClient/Gamess/src","0666" );
     						InputStream istream = IOUtils.toInputStream((String) inputs.get(i), "UTF-8");
     						IOUtils.copy(istream, scpos);
     						istream.close();
@@ -625,10 +625,10 @@ public class gamessInputController implements Initializable{
     						//LEGACYString pbs_script = "cd ispiefp;\n/group/lslipche/apps/gamess/gamess_2014R1/rungms_pradeep " + MainViewController.getLastOpenedFileName() + "_" + i + ".inp" + " 555 1 > " + MainViewController.getLastOpenedFileName() + "_" + i + ".log";
     		             //   String pbs_script = "source ~/.bashrc;\ncd iSpiClient/Libefp/src;\nmodule load intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
     
-    						String pbs_script = "cd iSpiClient/Gamess/src;\n ./rungms gamess_" +currentTime+"_"+i+".inp" + " > gamess_"+currentTime+"_"+i+".log";
+    						String pbs_script = "cd iSpiClient/Gamess/src;\n ./rungms gamess_" +currentTime+".inp" + " > gamess_"+currentTime+".log";
     
     						//LEGACYscpos = scp.put("pbs_" + MainViewController.getLastOpenedFileName() + "_" + i, pbs_script.length(), "./ispiefp",  "0666");
-    	                    scpos = scp.put("pbs_" +currentTime+ "_" + i, pbs_script.length(), "./iSpiClient/Gamess/src",  "0666");
+    	                    scpos = scp.put("pbs_" +currentTime, pbs_script.length(), "./iSpiClient/Gamess/src",  "0666");
     
     						istream = IOUtils.toInputStream(pbs_script, "UTF-8");
     						IOUtils.copy(istream, scpos);
@@ -637,7 +637,7 @@ public class gamessInputController implements Initializable{
     						
     						Session sess = conn.openSession();
     						//LEGACYsess.execCommand("source /etc/profile; cd ispiefp; qsub -l walltime=4:00:00 -l nodes=1:ppn=1 -q standby pbs_" + MainViewController.getLastOpenedFileName() + "_" + i);
-    	                    sess.execCommand("source /etc/profile; cd iSpiClient/Gamess/src; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby pbs_" + currentTime + "_" + i);
+    	                    sess.execCommand("source /etc/profile; cd iSpiClient/Gamess/src; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby pbs_" + currentTime);
     
     						InputStream stdout = new StreamGobbler(sess.getStdout());
     						BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
@@ -656,7 +656,7 @@ public class gamessInputController implements Initializable{
     						jobids.add(jobID);
     						//Date date = new Date();
     						Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
-    						String str = date.toString() + "\n" + MainViewController.getLastOpenedFileName() + "_" + i + "\n" + hostname + "\n";// + uname + "\n" + pwd + "\n";
+    						String str = date.toString() + "\n" + MainViewController.getLastOpenedFileName()+"\n" + hostname + "\n";// + uname + "\n" + pwd + "\n";
     						System.out.println(str);
     						System.out.println(jobID);
     						userPrefs.put(jobID, str);
