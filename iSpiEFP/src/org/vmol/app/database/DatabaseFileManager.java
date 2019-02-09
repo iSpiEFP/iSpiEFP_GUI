@@ -174,9 +174,10 @@ public class DatabaseFileManager {
             System.out.println("name:"+name);
             if(name.charAt(0) == 'B'){
                 System.out.println("bond encountered");
+            } else if (name.endsWith("H000")) {
+                System.out.println("artificial hydrogen bond encountered");
             } else {
                 //parse name
-                
                 name = name.substring(1);
                 for(int u = 0; u < name.length(); u++){
                     char ch = name.charAt(u);
