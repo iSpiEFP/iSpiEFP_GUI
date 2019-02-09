@@ -48,6 +48,7 @@ public class RemoteBundleManager {
     private final String GAMESS = "GAMESS";
     
     private static final String BASH_EFPMD_NOT_FOUND = "iSpiClient/Libefp/src/efpmd: cannot open (No such file or directory)";
+    private static final String BASH_GMS_NOT_FOUND = "iSpiClient/Gamess/src/rungms: cannot open (No such file or directory)";
     
     public RemoteBundleManager(String username, String password, String hostname, String bundleType, Connection conn) {
         this.username = username;
@@ -96,6 +97,9 @@ public class RemoteBundleManager {
         System.out.println(errorStatement);
         if(errorStatement.equals(BASH_EFPMD_NOT_FOUND)) {
             System.out.println("user missing EFP PAckage!");
+            return false;
+        } else if(errorStatement.equals(BASH_GMS_NOT_FOUND)) {
+            System.out.println("user missing GAMESS Package!");
             return false;
         } else {
             System.out.println("user ready!");
@@ -206,23 +210,50 @@ public class RemoteBundleManager {
     
     private boolean setCustomPath(String bundleType) {
         System.out.println("Setting a custom path for "+bundleType);
-        TextInputDialog dialog = new TextInputDialog("/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd");
-        dialog.setTitle("Set Path");
-        dialog.setContentText("Please enter the path of your executable:");
+        TextInputDialog dialog;
+        if(bundleType.equals(GAMESS)){
+            
+            TextInputDialog gamess_dialog = new TextInputDialog("/group/lslipche/apps/gamess/gamess_2018_feb_yb/rungms");
+            dialog = gamess_dialog;
+            dialog.setTitle("Set Path");
+            dialog.setContentText("Please enter the path of your executable:");
+            
+            Image image = new Image("file:wizard.png");
+            ImageView imageView = new ImageView(image);
+            dialog.setGraphic(imageView);
+           //();
+            
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()){
+                System.out.println("Your path: " + result.get());
+                return setPathOnRemoteMachine(result.get(),bundleType);
+            } else {
+                return false;
         
-        Image image = new Image("file:wizard.png");
-        ImageView imageView = new ImageView(image);
-        dialog.setGraphic(imageView);
-       //();
+            }
+        } else if(bundleType.equals(LIBEFP)){
+            TextInputDialog efp_dialog = new TextInputDialog("/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd");
+            dialog = efp_dialog;
+            dialog.setTitle("Set Path");
+            dialog.setContentText("Please enter the path of your executable:");
+            
+            Image image = new Image("file:wizard.png");
+            ImageView imageView = new ImageView(image);
+            dialog.setGraphic(imageView);
+           //();
+            
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()){
+                System.out.println("Your path: " + result.get());
+                return setPathOnRemoteMachine(result.get(),bundleType);
+            } else {
+                return false;
         
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()){
-            System.out.println("Your path: " + result.get());
-            return setPathOnRemoteMachine(result.get(),bundleType);
-        } else {
-            return false;
-    
+            }
         }
+        return false;
+        //TextInputDialog dialog = new TextInputDialog("/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd");
+        
     }
 
     private boolean setPathOnRemoteMachine(String path, String bundleType) {
@@ -244,17 +275,23 @@ public class RemoteBundleManager {
             
             Session sess = conn.openSession();
           
-            String exportPath = "export PATH='$PATH:"+path+"';";
-            
+        //    String exportPath = "export PATH='$PATH:"+path+"';";
+            /*
             String testPackage = "";
             if(bundleType.equals(LIBEFP)) {
                 testPackage = "module load intel;efpmd;";
             } else if(bundleType.equals(GAMESS)) {
                 
-            }
+            } */
             
             //String script = defaultBundleScript + exportPath + testPackage;
-            String script = defaultBundleScript + "cp "+path+" iSpiClient/Libefp/src/;";
+            String packagePath = path;
+            if(bundleType.equals(LIBEFP)) {
+                path = path +" iSpiClient/Libefp/src/;";
+            } else if(bundleType.equals(GAMESS)) {
+                path = path +" iSpiClient/Gamess/src/;";
+            }
+            String script = defaultBundleScript + "cp "+path;
             //+ testPackage;
             
            
@@ -277,18 +314,34 @@ public class RemoteBundleManager {
             
             //System.out.println("last line:"+lastLine);
             
-            if(lastLine.equals(BASH_EFPMD_NOT_FOUND)) {
+            if(lastLine.equals(BASH_EFPMD_NOT_FOUND) || lastLine.equals(BASH_GMS_NOT_FOUND)) {
                 System.out.println("Path was incorrect!!!");
                 Alert alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Bundle Install Wizard");
                 alert.setHeaderText(null);
-                alert.setContentText("Your path:"+path+" was incorrect!\nPlease retry with another path pointing to efpmd");
+                alert.setContentText("Your path:"+packagePath+" was incorrect!\nPlease retry with another path pointing to "+this.bundleType);
                 Image image = new Image("file:wizard.png");
                 ImageView imageView = new ImageView(image);
                 alert.setGraphic(imageView);
                 Optional<ButtonType> result = alert.showAndWait();
                 
                 return false;
+                
+            } else if(bundleType.equals(GAMESS)) {
+                //configure rungms script for user paths
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                boolean configureSuccess = runGMSConfigureScript(packagePath);
+       
+                if(!configureSuccess) {
+                    //this is unhandled right now
+                    System.out.println("unhandled exception in remote installer set path");
+                    return false;
+                }
             }
             
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -354,7 +407,13 @@ public class RemoteBundleManager {
         Connection conn = this.conn;
  
         Session sess = conn.openSession();
-        String script = "file iSpiClient/Libefp/src/efpmd";
+        String script = new String();
+        if(packageType.equals(LIBEFP)) {
+            script = "file iSpiClient/Libefp/src/efpmd";
+        } else if(packageType.equals(GAMESS)) {
+            script = "file iSpiClient/Gamess/src/rungms";
+        }
+        //String script = "file iSpiClient/Libefp/src/efpmd";
         sess.execCommand(script);
         
         InputStream stderr = new StreamGobbler(sess.getStdout());
@@ -376,6 +435,52 @@ public class RemoteBundleManager {
         sess.close();
         //conn.close();
         return errorString.toString(); 
+    }
+    
+    private boolean runGMSConfigureScript(String gmsPath) throws IOException {
+        //parse gamess file path
+        //strip rungms from path
+        gmsPath = gmsPath.replace("/rungms","");
+        //load with escapes
+        gmsPath = gmsPath.replace("/","\\/");
+        
+        StringBuilder errorString = new StringBuilder();
+        Connection conn = this.conn;
+        
+        Session sess = conn.openSession();
+        String script = new String();
+        script += "sed -i 's/set SCR=${RCAC_SCRATCH}/set SCR=\\/home\\/$USER\\/iSpiClient\\/Gamess\\/output/g' /home/$USER/iSpiClient/Gamess/src/rungms;";
+        script += "sed -i 's/set USERSCR=\\/home\\/$USER\\/scr/set USERSCR=\\/home\\/$USER\\/iSpiClient\\/Gamess\\/output/g' /home/$USER/iSpiClient/Gamess/src/rungms;";
+        //script += "sed -i 's/set GMSPATH=/set GMSPATH="+gmsPath+"/g' /home/$USER/iSpiClient/Gamess/src/rungms;";
+        //String script = "file iSpiClient/Libefp/src/efpmd";
+        sess.execCommand(script);
+        
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        InputStream stderr = new StreamGobbler(sess.getStdout());
+        BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
+        String jobID = "";
+        
+        System.out.println("Reading bundle manager output:");
+        
+        String lastLine = new String();
+        String line = br.readLine();
+        while (line != null) {
+            //System.out.println(line);
+            errorString.append(line);
+            lastLine = line;
+            line = br.readLine();      
+        }
+        
+        br.close();
+        sess.close();
+        //conn.close();        
+        return true;
     }
     
     private String getBuildDefaultRemoteDirectoryScript() {

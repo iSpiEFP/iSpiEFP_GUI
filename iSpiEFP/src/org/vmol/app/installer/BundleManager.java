@@ -48,10 +48,11 @@ public class BundleManager {
         //////////////////////
         //userIsMissingPackage = true; //tricked it for testing
         //////////////////////
-        if(this.bundleType.equals(GAMESS)){
+        /*if(this.bundleType.equals(GAMESS)){
             System.out.println("Missing GAMESS Package");
+            
             return true;
-        }
+        } */
         
         if(!packageReady) {
             System.out.println("User is missing bundle:"+bundleType);
