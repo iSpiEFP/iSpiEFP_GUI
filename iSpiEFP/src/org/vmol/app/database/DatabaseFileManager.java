@@ -50,10 +50,6 @@ public class DatabaseFileManager {
         //createDir(efpDirectory);
     }
     
-    private void createDir(String path) {
-        new File(path).mkdirs();
-    }
-    
     //INPUT: Raw response from Database
     public ArrayList<ArrayList<String []>> processDBresponse(ArrayList<String> response) {
         ArrayList<ArrayList<String []>> files = new ArrayList<ArrayList<String []>>();

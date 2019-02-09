@@ -66,7 +66,7 @@ public class LocalBundleManager {
             this.GAMESS_INPUTS = GAMESS + FILE_SEPERATOR + "Inputs";
             this.GAMESS_SRC_EXE = GAMESS_SRC + FILE_SEPERATOR + "gms";
             
-            this.LIBEFP = workingDirectory + FILE_SEPERATOR + "Libefp";
+            this.LIBEFP = WORKSPACE + FILE_SEPERATOR + "Libefp";
             this.LIBEFP_SRC = LIBEFP + FILE_SEPERATOR + "src";
             this.LIBEFP_INPUTS = LIBEFP + FILE_SEPERATOR + "Inputs";
             this.LIBEFP_PARAMETERS = LIBEFP + FILE_SEPERATOR + "Parameters";
