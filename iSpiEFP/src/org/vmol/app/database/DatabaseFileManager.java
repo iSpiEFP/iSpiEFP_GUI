@@ -304,7 +304,7 @@ public class DatabaseFileManager {
                         int index = real_symbol.charAt(0) - 'A';
                         symbols[index]++;
                         
-                        coord.symbol = current_atom.type;
+                        coord.symbol = real_symbol;
                         coord.x = current_atom.x;
                         coord.y = current_atom.y;
                         coord.z = current_atom.z;

@@ -139,7 +139,7 @@ public class gamessSubmissionHistoryController {
             } else {
                 statement = "Ready to open";
             }
-            SubmissionRecord record = new SubmissionRecord(title, statement, date);
+            SubmissionRecord record = new SubmissionRecord(title, statement, date, job_id);
             data.add(record);
         }
     }
@@ -151,7 +151,7 @@ public class gamessSubmissionHistoryController {
         if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
             System.out.println("opening record");
             JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
-            String output = jobManager.getRemoteVmolOutput(record.getTime(), "GAMESS"); 
+            String output = jobManager.getRemoteVmolOutput(record.getJob_id(), "GAMESS"); 
             
             OutputController outputController = new OutputController();
             outputController.initialize(output, "GAMESS");

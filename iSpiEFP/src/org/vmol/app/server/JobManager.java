@@ -69,7 +69,7 @@ public class JobManager implements Runnable {
     /*
      * Check whether the job is DONE or still in QUEUE
     */
-    public boolean checkStatus(String job_date) throws IOException {
+    public boolean checkStatus(String jobID) throws IOException {
         boolean jobIsDone = false;
         
         Connection conn = new Connection(hostname);
@@ -83,12 +83,12 @@ public class JobManager implements Runnable {
         try {
             if(this.type != null){
                 if(this.type.equals("LIBEFP")) {
-                    scpos = scp.get("iSpiClient/Libefp/output/output_"+job_date);
+                    scpos = scp.get("iSpiClient/Libefp/output/output_"+jobID);
                     scpos.close();
                     jobIsDone = true;
                 } else if(this.type.equals("GAMESS")) {
-                    System.out.println("iSpiClient/Gamess/output/gamess_"+job_date+".efp");
-                    scpos = scp.get("iSpiClient/Gamess/output/gamess_"+job_date+".efp");
+                    System.out.println("iSpiClient/Gamess/output/gamess_"+jobID+".efp");
+                    scpos = scp.get("iSpiClient/Gamess/output/gamess_"+jobID+".efp");
                     scpos.close();
                     jobIsDone = true;
                 }
@@ -129,7 +129,7 @@ public class JobManager implements Runnable {
             do {
                 Thread.sleep(3000);
                 System.out.println("polling");
-                jobIsDone = checkStatus(this.date);
+                jobIsDone = checkStatus(this.jobID);
                 if(jobIsDone){
                     //update database
                     System.out.println("job finished...");
@@ -137,7 +137,7 @@ public class JobManager implements Runnable {
                     notify(this.title, this.type);
                     if(this.type.equals("GAMESS")){
                         //update the database with this efp file
-                        String efp_file = getRemoteVmolOutput(this.date, this.type);
+                        String efp_file = getRemoteVmolOutput(this.jobID, this.type);
                         sendEFPFile(efp_file);
                     }
                 }
@@ -290,7 +290,7 @@ public class JobManager implements Runnable {
     /*
      * get output file from a lib efp job
      */
-    public String getRemoteVmolOutput(String job_date, String type) throws IOException {
+    public String getRemoteVmolOutput(String job_stamp, String type) throws IOException {
         Connection conn = new Connection(this.hostname);
         conn.connect();
         
@@ -301,9 +301,9 @@ public class JobManager implements Runnable {
         
         String path = new String();
         if(type.equals("LIBEFP")) {
-            path = "iSpiClient/Libefp/output/output_"+job_date;
+            path = "iSpiClient/Libefp/output/output_"+job_stamp;
         } else if(type.equals("GAMESS")) {
-            path = "iSpiClient/Gamess/output/gamess_"+job_date+".efp";
+            path = "iSpiClient/Gamess/output/gamess_"+job_stamp+".efp";
         }
         
         SCPClient scp = conn.createSCPClient();

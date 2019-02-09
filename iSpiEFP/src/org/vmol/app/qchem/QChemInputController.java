@@ -583,7 +583,7 @@ public class QChemInputController implements Initializable{
             
             
                 SCPClient scp = conn.createSCPClient();
-       
+                
                 
                 SCPOutputStream scpos = scp.put("md_1.in",new File(this.QChemInputsDirectory + "/md_1.in").length(),"./iSpiClient/Libefp/input","0666");
                 FileInputStream in = new FileInputStream(new File(this.QChemInputsDirectory + "/md_1.in"));
@@ -614,10 +614,13 @@ public class QChemInputController implements Initializable{
                 Date date = new Date();
                 String currentTime = dateFormat.format(date).toString();
                 
-                //String pbs_script = "\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
-                String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + currentTime;
+                String jobID = (new JobManager()).generateJobID().toString();
+
                 
-                scpos = scp.put("vmol_"+ currentTime,pbs_script.length(),"iSpiClient/Libefp/output","0666");
+                //String pbs_script = "\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd ../input/md_1.in > ../output/output_" + currentTime;
+                String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
+                
+                scpos = scp.put("vmol_"+ jobID,pbs_script.length(),"iSpiClient/Libefp/output","0666");
                 InputStream istream = IOUtils.toInputStream(pbs_script,"UTF-8");
                 IOUtils.copy(istream, scpos);
                 istream.close();
@@ -626,11 +629,11 @@ public class QChemInputController implements Initializable{
                 sess = conn.openSession();
             
 
-                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
+                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + jobID);
                 //sess.execCommand("source /etc/profile; cd vmol; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby vmol_" + currentTime);
                 InputStream stdout = new StreamGobbler(sess.getStdout());
                 BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-                String jobID = "";
+                String clusterjobID = "";
                 while (true) {
                     String line = br.readLine();
                     if (line == null)
@@ -638,11 +641,11 @@ public class QChemInputController implements Initializable{
                     System.out.println(line);
                     String[] tokens = line.split("\\.");
                     if (tokens[0].matches("\\d+")) {
-                        jobID = tokens[0];
+                        clusterjobID = tokens[0];
                     }
                     //System.out.println(line);
                 }
-                System.out.println(jobID);
+                System.out.println(clusterjobID);
                 br.close();
                 sess.close();
                 
@@ -653,9 +656,8 @@ public class QChemInputController implements Initializable{
                 dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                 currentTime = dateFormat.format(date).toString();
                 
-                jobID = (new JobManager()).generateJobID().toString();
              
-                userPrefs.put(jobID,jobID+"\n"+currentTime+"\n");
+                userPrefs.put(clusterjobID,clusterjobID+"\n"+currentTime+"\n");
 
                 
                 String serverName = Main.iSpiEFP_SERVER;
