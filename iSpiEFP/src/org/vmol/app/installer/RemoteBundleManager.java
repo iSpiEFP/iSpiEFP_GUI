@@ -172,7 +172,8 @@ public class RemoteBundleManager {
         ImageView imageView = new ImageView(image);
         alert.setGraphic(imageView);
         
-        ButtonType install = new ButtonType("Install(doesnt work)");
+        ButtonType install = new ButtonType("Install(doesnt work dont click)");
+        
        
         ButtonType setPath = new ButtonType("Set Path");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
