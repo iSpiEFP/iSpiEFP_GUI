@@ -58,7 +58,13 @@ public class Main extends Application {
 	public static JmolPanel auxiliaryJmolPanel;
 	
 	//iSpiEFP Server Credentials
-	public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
+	/*
+	 * Here are the server credentials to the iSpiEFP server
+	 * Development Server: Server where developing takes place for development
+	 * Test Server: Server constantly running for current iSpiEFP(jar file release) for real users
+	 */
+	//public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
+	public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
 	public static final int iSpiEFP_PORT = 8080;
 	        
 	public static void main(String[] args) {
