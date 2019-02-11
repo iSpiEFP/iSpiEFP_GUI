@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.JPanel;
 
@@ -30,12 +31,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
@@ -63,8 +67,9 @@ public class Main extends Application {
 	 * Development Server: Server where developing takes place for development
 	 * Test Server: Server constantly running for current iSpiEFP(jar file release) for real users
 	 */
-	//public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
-	public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
+	
+	public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
+	//public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
 	public static final int iSpiEFP_PORT = 8080;
 	        
 	public static void main(String[] args) {
@@ -77,6 +82,22 @@ public class Main extends Application {
 		Main.getPrimaryStage().setTitle("iSpiEFP");
 		showMainView();
 		showJmolViewer(true, null);
+		
+		//optional alert for jar test files
+		Alert alert = new Alert(AlertType.WARNING);
+		String msg = "Welcome to iSpiEFP\n\n"
+		         + "I acknowledge that this is a Pre-Alpha Release which means my jobs and data can be damaged or lost.\n"
+	             + "My credentials will be safe however.\n"
+	             + "This application will install a directory: '/iSpiClient' on a remote machine and\n"
+                 + "a working directory on the local machine in the app's current directory: '/iSpiWorkspace for storing data'\n\n"
+	             + "This product is new and will have lots of bugs. There are no loading bars so please wait\n"
+	             + "a few seconds while submitting jobs, searching for parameters, and configuring servers.\n"
+	             + "If I encounter a freeze or serious issue I will shake the app or restart it.\n"
+	             + "If I encounter an issue I will report it.\n";
+        alert.setTitle("Terms of Agreement");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        Optional<ButtonType> result = alert.showAndWait();
 		
 	}
 
