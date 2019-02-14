@@ -14,8 +14,6 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
-import org.vmol.app.visualization.JmolVisualization;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -134,8 +132,8 @@ public class FileParserController implements Initializable {
 		List<StringBuilder> geometries = parseGeometries();
 		List<File> files = createTemporaryFiles(geometries);
 		Stage currStage = (Stage) root.getScene().getWindow();
-		JmolVisualization jmolVisualization = new JmolVisualization(currStage, false);
-		jmolVisualization.showMultipleFiles(files);
+		//JmolVisualization jmolVisualization = new JmolVisualization(currStage, false);
+		//jmolVisualization.showMultipleFiles(files);
 	}
 
 	private List<File> createTemporaryFiles(List<StringBuilder> geometries) {

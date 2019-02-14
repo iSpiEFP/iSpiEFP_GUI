@@ -18,7 +18,6 @@ import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.vmol.app.installer.BundleManager;
-import org.vmol.app.visualization.JmolVisualization;
 import org.vmol.app.visualizer.JmolVisualizer;
 
 import javafx.application.Application;
@@ -68,8 +67,8 @@ public class Main extends Application {
 	 * Test Server: Server constantly running for current iSpiEFP(jar file release) for real users
 	 */
 	
-	//public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
-	public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
+	public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
+	//public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
 	public static final int iSpiEFP_PORT = 8080;
 	        
 	public static void main(String[] args) {

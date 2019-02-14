@@ -30,7 +30,6 @@ import org.vmol.app.server.JobManager;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
 import org.vmol.app.util.UnrecognizedAtomException;
-import org.vmol.app.visualization.JmolVisualization;
 import org.xml.sax.SAXException;
 
 import ch.ethz.ssh2.Connection;
@@ -168,7 +167,7 @@ public class SubmissionHistoryController {
 
 		toXYZ("output_" + date_extension, date_extension);
 		Stage currStage = (Stage) root.getScene().getWindow();
-		new JmolVisualization(currStage, false).show(new File("output_" + date_extension + ".xyz"));
+		//new JmolVisualization(currStage, false).show(new File("output_" + date_extension + ".xyz"));
 	}
 
 	public void refresh()

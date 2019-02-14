@@ -9,7 +9,6 @@ import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.UnrecognizedAtomException;
-import org.vmol.app.visualization.JmolVisualization;
 import org.vmol.app.visualizer.JmolVisualizer;
 
 import javafx.beans.value.ChangeListener;
@@ -45,7 +44,7 @@ public class MainViewController {
 	private static String lastOpenedFileName;
 	private static boolean[] interested_parameters = {false,false,false};
 	
-	private static JmolVisualization jmolVisualization;
+	//private static JmolVisualization jmolVisualization;
 	
 	@FXML
 	public void openFile() throws IOException, UnrecognizedAtomException {
@@ -237,13 +236,14 @@ public class MainViewController {
 		System.out.println("Button clicked!");
 	}
 
+	/*
 	public static JmolVisualization getJmolVisualization() {
 		return jmolVisualization;
 	}
 
 	public static void setJmolVisualization(JmolVisualization jmolVisualization) {
 		MainViewController.jmolVisualization = jmolVisualization;
-	}
+	}*/
 	
 	public static String getLastOpenedFile() {
 		return lastOpenedFile;

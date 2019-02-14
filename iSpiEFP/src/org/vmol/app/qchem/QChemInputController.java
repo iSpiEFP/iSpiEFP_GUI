@@ -41,7 +41,6 @@ import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.UnrecognizedAtomException;
-import org.vmol.app.visualization.JmolVisualization;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
@@ -474,8 +473,8 @@ public class QChemInputController implements Initializable{
         
         File currentOpenFile = null ;
         
-        if (MainViewController.getJmolVisualization() != null) 
-        	currentOpenFile = MainViewController.getJmolVisualization().getCurrentOpenFile(); 
+        //if (MainViewController.getJmolVisualization() != null) 
+        //	currentOpenFile = MainViewController.getJmolVisualization().getCurrentOpenFile(); 
         
         if (currentOpenFile != null) {
         	String fileName = currentOpenFile.getName();

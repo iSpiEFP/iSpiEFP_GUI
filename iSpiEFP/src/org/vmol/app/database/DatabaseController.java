@@ -1,72 +1,73 @@
 package org.vmol.app.database;
 
-import java.awt.BorderLayout;
+import java.awt.Checkbox;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import org.apache.commons.io.IOUtils;
-import org.controlsfx.control.action.Action;
-import org.jmol.adapter.smarter.SmarterJmolAdapter;
-import org.jmol.api.JmolSelectionListener;
-import org.jmol.java.BS;
 import org.jmol.viewer.Viewer;
+import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
-import org.vmol.app.database.DatabaseRecord;
+import org.vmol.app.database.DatabaseController;
 import org.vmol.app.gamess.gamessInputController;
-import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
+import org.vmol.app.installer.LocalBundleManager;
+import org.vmol.app.localDataBase.localDataBaseController;
 import org.vmol.app.qchem.QChemInputController;
-import org.vmol.app.submission.SubmissionHistoryController;
+import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
-import org.vmol.app.visualization.JmolVisualization;
+import org.vmol.app.visualizer.JmolVisualizer;
+import org.vmol.app.visualizer.ViewerHelper;
 
-import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.SCPClient;
-import ch.ethz.ssh2.SCPOutputStream;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.beans.property.BooleanPropertyBase;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
@@ -75,671 +76,558 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 public class DatabaseController {
-	@FXML
-	private Parent root;
-	
-	@FXML
-	private ComboBox<String> group_selector;
-	
-	@FXML
-	private TableView<DatabaseRecord> choices;
-	
-	private int prev_selection_index = 0;
-	
-	List<ObservableList<DatabaseRecord>> data;
-	
-	private ArrayList<ArrayList> groups;
 	
 	private Viewer jmolViewer;
+	private Viewer auxiliaryJmolViewer;
+	@SuppressWarnings("rawtypes")
+    private TableView auxiliary_list;
+	private List<ArrayList<Integer>> fragment_list;
+	private ArrayList<ArrayList> groups;
 	
-	private JFrame jmolWindow;
+	private int prev_selection_index = 0;
+    private List<ObservableList<DatabaseRecord>> userData;
+    private ArrayList<String> final_selections;
+    
+    private int viewerIndex; //index of selected fragment in main viewer
+    
+    private ListView listView;
 	
-	private String previous_selected_group = "";
-	
-	private int curr_group_index = 0;
-	
-	private Viewer left_viewer;
-	private Viewer right_viewer;
-	
-	private ArrayList<ArrayList> final_selections;
-
-	private static Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
-	
-	private boolean firstStart = true;
-	
-	private ArrayList<ArrayList<ArrayList>> xyzs;
-	
-	Map<String, Double> charges;
-	
-	public DatabaseController(ArrayList<ArrayList> groups, Viewer jmolViewer, JFrame jmolWindow) {
-		this.groups = groups;
+	public DatabaseController(Viewer jmolViewer, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
 		this.jmolViewer = jmolViewer;
-		this.jmolWindow = jmolWindow;
+		this.auxiliaryJmolViewer = auxiliaryJmolViewer;
+		this.auxiliary_list = auxiliary_list;
+		this.fragment_list = fragment_list;
 	}
 	
-	@FXML  
-	public void initialize() throws IOException {
-		charges = new HashMap<String,Double>();
-    	charges.put("H", 1.0);
-    	charges.put("H000", 1.0);
-    	charges.put("C", 6.0);
-    	charges.put("N", 7.0);
-    	charges.put("O", 8.0);
-    	charges.put("S", 16.0);
-    	xyzs = new ArrayList<ArrayList<ArrayList>>();
-		final_selections = new ArrayList<ArrayList>();
-		for (int i = 0; i < groups.size(); i ++) {
-			final_selections.add(new ArrayList());
-			final_selections.get(i).add(0);
-		}
+	public void run() throws IOException {
+	    @SuppressWarnings("rawtypes")
+        ArrayList<ArrayList> groups = getGroups(this.fragment_list);
+	    this.groups = groups;
+	    
+		//query database
+		//ArrayList<String> dbResponse = queryDatabase(groups);
 	
-		
-		jmolViewer.runScript("select clear");
-        //jmolViewer.clearSelection();
-        jmolViewer.runScript("set pickingstyle SELECT DRAG");
-        jmolViewer.runScript("set picking atom");
-        jmolViewer.runScript("selectionHalos on");
-        String selecting = "select ({";
+		String workingDirectory = System.getProperty("user.dir");
+		DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
         
-        //ERROR HERE 
-		for (int i = 0; i < groups.get(0).size(); i++) {
-			selecting += groups.get(0).get(i) + " ";
-		}
-		
-		selecting += "})";
-		jmolViewer.runScript(selecting);
-		jmolWindow.repaint();
-		
-		JFrame comparison = new JFrame("Fragmentation comparasion");
-		comparison.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                System.out.println("Jmol window closing");
-                jmolWindow.setVisible(false);
-                
+	    JsonFilePair[] response = queryDatabase2(groups, databaseFileManager);
+
+	       //currently supported by queryV2 which sends and recieves JSON
+		ArrayList<ArrayList<String []>> files = databaseFileManager.processDBresponse2(response);
+		//ArrayList<ArrayList<String []>> group_files = databaseFileManager.processDBresponse(dbResponse);
+        ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(files);
+        
+        if(group_filenames.size() > 0){
+            //read files into array of strings
+            ArrayList<String> filenames = new ArrayList<String>();
+            int groupNumber = 1;
+            ArrayList<Integer> to_be_submitted = new ArrayList<Integer>();
             
+            for (ArrayList<String []> group : group_filenames){ 
+                if(group.size() > 0) {
+                    //boolean groupFound = false;
+                    for(String [] pair_name : group) {
+                        String xyz_filename = pair_name[0];
+                        String efp_filename = pair_name[1];
+                        
+                        filenames.add(xyz_filename);
+                        //groupFound = true;
+                    }
+                    /*
+                    if(!groupFound){
+                        boolean yes = sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
+                        if(yes) {
+                            to_be_submitted.add(groupNumber-1);
+                        }
+                    }*/
+                } else {
+                    //this particular fragment did not have any matches from the database
+                    boolean yes = sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
+                    if(yes) {
+                        to_be_submitted.add(groupNumber-1);
+                    }
+                }
+                groupNumber++;
+            }
+            
+            if(to_be_submitted.size() > 0){
+                sendRealGamessForm(groups, to_be_submitted);
+            }
+            runAuxiliaryList(group_filenames);
+          
+            Button button_libefp = getLibefpSubmitButton();
+            button_libefp.setOnAction(new EventHandler <ActionEvent>()
+            {
+                public void handle(ActionEvent event)
+                {
+                    //handle action
+                    sendQChemForm(); //send and arm qchem input form
+
+                }
+            });            
+        } else {
+            //There is zero matched fragments
+            //refer to gamess
+            //sendGamessForm("There are 0 matches for any of the fragments in the Database, do you want to calculate them by Gamess?");
+            
+            //build index of gorups to be submitted since there are zero matches it is simply the size of groups
+            ArrayList<Integer> to_be_submitted = new ArrayList<Integer>();
+            for(int i = 0; i < groups.size(); i++) {
+                to_be_submitted.add(i);
+            }
+            
+            sendRealGamessForm(groups, to_be_submitted);
+        }
+	}
+	
+	private Button getLibefpSubmitButton() {
+        ObservableList<Node> buttonList = new JmolVisualizer().getButtonList();
+	    Button button_libefp = (Button) buttonList.get(6);
+        button_libefp.setDisable(false);
+	    return button_libefp;
+	}
+	
+	private JsonFilePair[] queryDatabase2(ArrayList<ArrayList> groups, DatabaseFileManager fileManager) throws IOException {
+	    String jsonQuery = fileManager.generateJsonQuery(groups);
+	    
+	    String serverName = Main.iSpiEFP_SERVER;
+        int port = Main.iSpiEFP_PORT;
+              
+        iSpiEFPServer iSpiServer = new iSpiEFPServer();
+        Socket client = iSpiServer.connect(serverName, port);
+        if(client == null) {
+            return null;
+        }
+        OutputStream outToServer = client.getOutputStream();
+        System.out.println(jsonQuery);
+
+                
+        outToServer.write(jsonQuery.getBytes("UTF-8"));
+           
+        
+        InputStream inFromServer = client.getInputStream();
+        DataInputStream in = new DataInputStream(inFromServer);
+        
+        String str = "";
+        StringBuffer buf = new StringBuffer();            
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        if (in != null) {                            
+            while ((str = reader.readLine()) != null) {    
+                buf.append(str + "\n");
+            }                
+        }
+                
+        String reply = buf.toString();
+        System.out.println("Database Response from Query V2:" + reply);
+      
+        Gson gson = new GsonBuilder().create(); 
+        JsonFilePair[] response = gson.fromJson(reply, JsonFilePair[].class);
+        //JsonDatabaseResponse response = gson.fromJson(reply, JsonDatabaseResponse.class);
+        
+        client.close();
+        
+        //JsonFilePair pair = response.databaseResponse.get(0);
+        
+        System.out.println("Printing json response now");
+        System.out.println(response[0].chemicalFormula);
+      //  System.out.println(pair.chemicalFormula);
+      //  System.out.println(pair.efp_file);
+        return response;   
+	}
+	
+	//query remote database from AWS server, and return response
+    @SuppressWarnings("unchecked")
+    private ArrayList<String> queryDatabase(ArrayList<ArrayList> groups) throws IOException {
+        ArrayList<String> response = new ArrayList<String>();
+	    ArrayList<Atom> pdb;
+		pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
+		
+		String serverName = Main.iSpiEFP_SERVER;
+		int port = Main.iSpiEFP_PORT;
+	
+		System.out.println("Atoms count: " + groups);
+		
+		for (int x = 0; x < groups.size(); x ++) {
+            try {
+                String query = "Query";
+                for (int j = 0; j < groups.get(x).size(); j ++) {
+                    Atom current_atom = (Atom) pdb.get((Integer) groups.get(x).get(j));
+                    if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
+                        String symbol = current_atom.type;
+                        String sign = symbol.substring(symbol.length() - 1);
+                        String digits = symbol.replaceAll("\\D+", "");
+                        String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
+                        query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
+                        
+                    } else {
+                        query += "$END$" + current_atom.type + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
+                    }
+                }
+                query+="$ENDALL$";
+    				
+                iSpiEFPServer iSpiServer = new iSpiEFPServer();
+                Socket client = iSpiServer.connect(serverName, port);
+                if(client == null) {
+                    return null;
+                }
+    	        //Socket client = new Socket(serverName, port);
+    	        OutputStream outToServer = client.getOutputStream();
+    	        //DataOutputStream out = new DataOutputStream(outToServer);
+    	        
+    	        System.out.println(query);
+    	        outToServer.write(query.getBytes("UTF-8"));
+    	       
+    	        InputStream inFromServer = client.getInputStream();
+    	        DataInputStream in = new DataInputStream(inFromServer);
+    	        StringBuilder sb = new StringBuilder();
+    	        int i;
+    	        char c;
+    	        boolean start = false;
+    	        while (( i = in.read())!= -1) {
+    	        	c = (char)i;
+    	        	if (c == '#')
+    	        		start = true;
+    	        	if (start == true)
+    	        		sb.append(c);
+    	        }
+    	        
+    	        String reply = sb.toString().substring(1);
+    	        //System.out.println("Database Response:" + reply);
+    	        response.add(reply);
+    	        
+    	        client.close();
+    	    } catch (IOException e) {
+    	        e.printStackTrace();
+    	    } 
+		}
+		return response;
+	}
+	
+	//converts Addison's frag list to Hanjings Groups
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+    private ArrayList<ArrayList> getGroups(List<ArrayList<Integer>> fragment_list) {
+	    ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
+        for (ArrayList<Integer> frag : fragment_list) {
+            if(frag.size() > 0){
+                ArrayList curr_group = new ArrayList();
+                for(int piece : frag){
+                    curr_group.add(piece);
+                }
+                Collections.sort(curr_group);
+                groups.add(curr_group);
+            }
+        }
+	    return groups;
+	}
+	
+	private void runAuxiliaryList(ArrayList<ArrayList<String []>> group_filenames) {
+	    List<ObservableList<DatabaseRecord>> data = loadAuxListData(group_filenames);
+	    this.userData = data;
+	    
+        ListView<String> listView = getFragmentListButtons();
+        listView.getSelectionModel().selectFirst();
+
+        this.listView = listView;
+        String path = data.get(0).get(this.prev_selection_index).getChoice().toString();
+        if(path.equalsIgnoreCase("not found")) {
+            
+        } else {
+            loadAuxJmolViewer(path, 0);
+        }
+        //set listener to items
+        //TRIGGER LIST LOAD WITH FRAGMENT CLICK
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                String[] arrOfStr = newValue.split(" "); 
+                System.out.println("split0: " + arrOfStr[0] + " split1: " + arrOfStr[1]);
+                int index = Integer.parseInt(arrOfStr[1]) - 1;
+                System.out.println("Selected itemITEM IN DB CONTROLLER: " + index);
+                
+                runTable(data, index);
             }
         });
-		comparison.setSize(1200, 600);
-        
-		if (firstStart == true) {
-			firstStart = false;
-			choices.setEditable(true);
-			choices.setRowFactory(tv -> {
-				TableRow<DatabaseRecord> row = new TableRow<>();
-				row.setOnMouseClicked(event -> {
-					if (event.getClickCount() == 2 && (!row.isEmpty())) {
-						// SubmissionRecord rowData = row.getItem();
-						
-						try {
-							
-				            Container contentPane = comparison.getContentPane();
-				            
-
-				            // main panel -- Jmol panel on top
-				            
-				            
-				            JmolPanel jmolPanel = new JmolPanel();
-				            
-				            String homeDir = System.getProperty("user.home");
-				            
-				            
-				            
-				            JmolPanel jmolPanel_right = new JmolPanel();
-				            
-				            JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jmolPanel, jmolPanel_right);
-				            panel.setResizeWeight(0.5);
-				            contentPane.add(panel);
-//							if (previous_selected_group.equals("")) {
-//								left_viewer = jmolPanel.viewer;
-//								right_viewer = jmolPanel_right.viewer;
-//								
-//								
-//					            BufferedWriter writer = new BufferedWriter(new FileWriter(homeDir+"/left.xyz"));
-//					            ArrayList<Atom> pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-//					            writer.write(groups.get(0).size() + "\n");
-//					            writer.write(" \n");
-//					            for (int i = 0; i < groups.get(0).size(); i++) {
-//					            	Atom current_atom = (Atom) pdb.get((Integer) groups.get(0).get(i));
-//					            	writer.write(current_atom.type + "   " + current_atom.x + "   " + current_atom.y + "   " + current_atom.z + "\n");
-//					            }
-//					            writer.close();
-//					            
-//					            
-//								left_viewer.openFile(homeDir+"/left.xyz");
-//								
-//					           
-//					           
-//					            int index = Integer.parseInt(row.getItem().getChoice()) - 1;
-//					            writer = new BufferedWriter(new FileWriter(homeDir+"/right.xyz"));
-//					            writer.write(xyzs.get(0).get(index).size() + "\n");
-//					            writer.write(" \n");
-//					            
-//					            for (int i = 0; i < xyzs.get(0).get(index).size(); i ++) {
-//					            	Atom current_atom = (Atom) xyzs.get(0).get(index).get(i);
-//					            	writer.write(current_atom.type + "   " + current_atom.x + "   " + current_atom.y + "   " + current_atom.z + "\n");
-//					            }
-//					            writer.close();
-//					            
-//					            right_viewer.openFile(homeDir+"/right.xyz");
-//					            previous_selected_group = group_selector.getValue();
-//					            
-//					            comparison.setVisible(true);
-//					            comparison.repaint();
-//							} else   {
-								
-				            	left_viewer = jmolPanel.viewer;
-								right_viewer = jmolPanel_right.viewer;
-					            BufferedWriter writer = new BufferedWriter(new FileWriter(homeDir+"/left.xyz"));
-					            ArrayList<Atom> pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-					            writer.write(groups.get(Integer.parseInt(group_selector.getValue()) -1 ).size() + "\n");
-					            
-					            writer.write(" \n");
-					            for (int i = 0; i < groups.get(Integer.parseInt(group_selector.getValue()) -1 ).size(); i++) {
-					            	Atom current_atom = (Atom) pdb.get((Integer) groups.get(Integer.parseInt(group_selector.getValue()) -1 ).get(i));
-					            	writer.write(current_atom.type + "   " + current_atom.x + "   " + current_atom.y + "   " + current_atom.z + "\n");
-					            }
-					            writer.close();
-					            
-					            
-					            int index = Integer.parseInt(row.getItem().getChoice()) - 1;
-					            writer = new BufferedWriter(new FileWriter(homeDir+"/right.xyz"));
-					            writer.write(xyzs.get(Integer.parseInt(group_selector.getValue()) -1 ).get(index).size() + "\n");
-					            writer.write(" \n");
-					            
-					            for (int i = 0; i < xyzs.get(Integer.parseInt(group_selector.getValue()) -1 ).get(index).size(); i ++) {
-					            	Atom current_atom = (Atom) xyzs.get(Integer.parseInt(group_selector.getValue()) -1 ).get(index).get(i);
-					            	writer.write(current_atom.type + "   " + current_atom.x + "   " + current_atom.y + "   " + current_atom.z + "\n");
-					            }
-					            writer.close();
-					            
-					            
-					            
-					            
-					            left_viewer.openFile(homeDir+"/left.xyz");
-					            right_viewer.openFile(homeDir+"/right.xyz");
-								comparison.setVisible(true);
-								comparison.repaint();
-							
-							System.out.println("clicking");
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-				return row;
-			});
-			
-			List<String> no = new ArrayList<String>();
-			for (int i = 1 ; i <= groups.size(); i ++) {
-				no.add(Integer.toString(i));
-			}
-			group_selector.setItems(FXCollections.observableArrayList(no));
-			group_selector.setValue("1");
-			group_selector.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
-				int group_index = newValue.charAt(0) - '1';
-				String selecting2 = "select ({";
-				for (int i = 0; i < groups.get(group_index).size(); i++) {
-					selecting2 += groups.get(group_index).get(i) + " ";
-				}
-				selecting2 += "})";
-				jmolViewer.runScript(selecting2);
-				jmolWindow.repaint();
-			});
-			
-			ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
-			
-			ArrayList<Atom> pdb;
-			
-			pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-			
-			//legacy server name
-			//String serverName = "ec2-18-219-71-66.us-east-2.compute.amazonaws.com";
-			//new server name
-			String serverName = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com";
-			int port = 8080;
-			
-			for (int x = 0; x < groups.size(); x ++) {
-			ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
-			ArrayList<ArrayList> molecules = new ArrayList<ArrayList>();
-			int index = 1;
-			try {
-				String query = "Query";
-				for (int j = 0; j < groups.get(x).size(); j ++) {
-					Atom current_atom = (Atom) pdb.get((Integer) groups.get(x).get(j));
-					if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
-						String symbol = current_atom.type;
-						String sign = symbol.substring(symbol.length() - 1);
-						String digits = symbol.replaceAll("\\D+", "");
-						String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
-						query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-						
-					} else {
-						query += "$END$" + current_atom.type + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-					}
-				}
-				query+="$ENDALL$";
-					
-		        Socket client = new Socket(serverName, port);
-		        OutputStream outToServer = client.getOutputStream();
-		        //DataOutputStream out = new DataOutputStream(outToServer);
-		        
-		        System.out.println(query);
-		        
-		        
-		        outToServer.write(query.getBytes("UTF-8"));
-		       
-		        InputStream inFromServer = client.getInputStream();
-		        DataInputStream in = new DataInputStream(inFromServer);
-		        StringBuilder sb = new StringBuilder();
-		        int i;
-		        char c;
-		        boolean start = false;
-		        while (( i = in.read())!= -1) {
-		        	c = (char)i;
-		        	if (c == '#')
-		        		start = true;
-		        	if (start == true)
-		        		sb.append(c);
-		        }
-		        //System.out.println(reply);
-		        String reply = sb.toString();
-		        System.out.println("Database Response:" + reply);
-		        if (reply.contains("none")) {
-		        	continue;
-		        }
-		        reply = reply.substring(1);
-		        
-		        String[] current_xyzs = reply.split("\\$NEXT\\$");
-		        for (i = 0; i < current_xyzs.length / 2; i ++) {
-		        	String id = current_xyzs[2*i];
-		        	String[] lines = current_xyzs[2*i+1].split(",");
-		        	ArrayList<Atom> atoms = new ArrayList<Atom>();
-		        	for (int j = 0; j < lines.length; j ++) {
-		        		if (lines[j].indexOf("A") != -1) {
-		        			
-		        			String[] tokens = lines[j].trim().split("\\s+");
-		        			String symbol = tokens[0].substring(tokens[0].indexOf("A")+3);
-		        			Atom current_atom = new Atom(symbol, Integer.parseInt(id), Double.parseDouble(tokens[1]), Double.parseDouble(tokens[2]) , Double.parseDouble(tokens[3]));
-		        			atoms.add(current_atom);
-		        			
-		        			//System.out.println(current_atom.type + "  " + current_atom.index + "  " + current_atom.x);
-		        		}
-		        	}
-		        	molecules.add(atoms);
-		        	drs.add(new DatabaseRecord(Integer.toString(index), "0" , false , Integer.parseInt(id)));
-		        	index++;
-		        	
-		        }
-		        
-		        
-		        if (drs.size()>=1) {
-		        	xyzs.add(molecules);
-		        	drs.get(0).setCheck(true);
-			        items.add(drs);
-		        } else {
-		        	drs.add(new DatabaseRecord("Not found",  "0", false , -1));
-		        	items.add(drs);
-		        	xyzs.add(new ArrayList<>());
-		        	final_selections.get(xyzs.size()-1).clear();
-		        }
-		        
-		        
-		        
-		        //System.out.println("Server says " + in.readUTF());
-		        client.close();
-		     } catch (IOException e) {
-		        e.printStackTrace();
-		     }
-			
-		
-		}
-			
-			
-			
-//			List<DatabaseRecord> items1 = Arrays.asList(new DatabaseRecord("1","0",true),
-//					new DatabaseRecord("2","0",false),
-//					new DatabaseRecord("3","0.967048526",false),
-//					new DatabaseRecord("4","1.716201617",false));
-//			List<DatabaseRecord> items2 = Arrays.asList(new DatabaseRecord("1","0",true),
-//					new DatabaseRecord("2","0.676954958",false),
-//					new DatabaseRecord("3","1.279396548",false),
-//					new DatabaseRecord("4","2.463240909",false));
-//			List<DatabaseRecord> items3 = Arrays.asList(new DatabaseRecord("1","0",true),
-//					new DatabaseRecord("2","0.995958917",false),
-//					new DatabaseRecord("3","2.3000735202074365",false),
-//					new DatabaseRecord("4","3.051696274",false));
-			
-			
-			
-			data = new ArrayList<ObservableList<DatabaseRecord>>();
-			System.out.println("items has " + items.size());
-			for (int i = 0; i < items.size(); i ++) {
-				this.data.add(FXCollections.observableArrayList(new Callback<DatabaseRecord, Observable[]>() {
-					@Override
-					public Observable[] call(DatabaseRecord param) {
-						return new Observable[] {
-								param.checkProperty()};
-						
-					}
-				}));
-				this.data.get(i).addAll(items.get(i));
-				
-			}
-			
-			ObservableList<DatabaseRecord> data_subset = data.get(0);
-			for (int j = 0; j < data_subset.size(); j ++) {
-				String item = Integer.toString(j);
-				DatabaseRecord d = data_subset.get(j);
-				d.checkProperty().addListener((obs, wasCompleted, isNowCompleted) -> {
-					//data_subset.get(prev_selection_index).checkProperty().set(false);
-					int curr = Integer.parseInt(d.getChoice())-1;
-					if (prev_selection_index != curr) {
-						data_subset.get(prev_selection_index).checkProperty().set(false);
-					}
-					prev_selection_index = curr;
-					final_selections.get(curr_group_index).clear();
-					if (isNowCompleted == true) {
-						final_selections.get(curr_group_index).add(curr);
-						
-					}
-					
-					System.out.println("group" + curr_group_index + " selecting " + curr + "  " + isNowCompleted);
-					//data.get(prev_selection_index).checkProperty().set(true);
-				});
-			}
-			
-//			data.addListener(new ListChangeListener <DatabaseRecord>() {
-//				@Override
-//				public void onChanged(ListChangeListener.Change<? extends DatabaseRecord> c) {
-//					while (c.next()) {
-//						if (c.wasUpdated() ) {
-//							data.get(prev_selection_index).setCheck(false);
-//							System.out.println(prev_selection_index);
-//							prev_selection_index = c.getFrom();
-//							data.get(prev_selection_index).setCheck(true);
-//							//System.out.println("Cours "+items.get(c.getFrom()).getChoice()+" changed value to " +items.get(c.getFrom()).getCheck());
-//						}
-//					}
-//				}
-//			});
-			
-			
-			
-			TableColumn<DatabaseRecord,String> index = new TableColumn<DatabaseRecord,String>("Choice");
-			index.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("choice"));
-			choices.getColumns().add(index);
-			index.setPrefWidth(100.0);
-			
-			TableColumn<DatabaseRecord,String> rmsd = new TableColumn<DatabaseRecord,String>("RMSD");
-			rmsd.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("rmsd"));
-			choices.getColumns().add(rmsd);
-			rmsd.setPrefWidth(300.0);
-			
-			TableColumn<DatabaseRecord,Boolean> check = new TableColumn<DatabaseRecord,Boolean>("Check?");
-			check.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Boolean>("check"));
-			check.setCellFactory(column -> new CheckBoxTableCell());
-			check.setEditable(true);
-			check.setPrefWidth(255.0);
-			choices.getColumns().add(check);
-			choices.setItems(data.get(0));
-		}
-		
-		
 	}
 	
-	@FXML
-	protected void switch_group() {
-		int index = group_selector.getValue().charAt(0) - '1';
-		System.out.println(index);
-		curr_group_index = index;
-		choices.setItems(data.get(index));
-		prev_selection_index = (int) final_selections.get(index).get(0);
-		ObservableList<DatabaseRecord> data_subset = data.get(index);
-		for (int j = 0; j < data_subset.size(); j ++) {
-			String item = Integer.toString(j);
-			DatabaseRecord d = data_subset.get(j);
-			d.checkProperty().addListener((obs, wasCompleted, isNowCompleted) -> {
-				
-				int curr = Integer.parseInt(d.getChoice())-1;
-				if (prev_selection_index != curr) {
-					data_subset.get(prev_selection_index).checkProperty().set(false);
-				}
-				prev_selection_index = curr;
-				final_selections.get(curr_group_index).clear();
-				if (isNowCompleted == true) {
-					final_selections.get(curr_group_index).add(curr);
-				}
-				System.out.println("group" + curr_group_index + " selecting " + curr);
-				//data.get(prev_selection_index).checkProperty().set(true);
-			});
-		}
-	}
-	
-	@FXML
-	protected void finish() throws IOException {
-		for (int i = 0; i < final_selections.size(); i ++) {
-			for (int j = 0; j < final_selections.get(i).size(); j++)
-			System.out.println(final_selections.get(i).get(j));
-		}
-		ArrayList to_be_submitted = new ArrayList<>();
-		boolean all = true;
-		for (int i = 0; i < final_selections.size(); i ++) {
-			
-			if (final_selections.get(i).size() == 0) {
-				to_be_submitted.add(i);
-				all = false;
-				System.out.println("currently selected record: none");
-			} else {
-				System.out.println("currently selected record: " + final_selections.get(i).get(0));
-			}
-			//System.out.println("currently selected record: " + final_selections.get(i).get(0));
-			
-		}
-		
-		if (all == false) {
-			Alert alert = new Alert(AlertType.CONFIRMATION);
-			alert.setTitle("Gamess");
-			alert.setHeaderText(null);
-			alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
-			Optional<ButtonType> result = alert.showAndWait();
-			if (result.get() == ButtonType.OK) {
-				ArrayList<Atom> atom_list = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-				DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-				Date date = new Date();
-				
-//				for (int j = 0; j < to_be_submitted.size(); j ++) {
-//					int num = (int) to_be_submitted.get(j);
-//					userPrefs.put(MainViewController.getLastOpenedFileName()+"_"+Character.toString((char) ('A'+ num)) ,date.toString());
-//				}
-				jmolViewer.runScript("selectionHalos off");
-				jmolWindow.repaint();
-				((Stage)choices.getScene().getWindow()).close();
-				
-				//String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
-	        	StringBuilder sb = new StringBuilder();
-	        	for (int i = 0; i < to_be_submitted.size(); i ++) {
-	        		sb.append("fragment frag_" + i + "\n");
-	        		for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j ++) {
-	        			if (j >= 3) {
-	        				break;
-	        			}
-	        			sb.append(atom_list.get((int) groups.get((Integer) to_be_submitted.get(i)).get(j)).x + "  " + atom_list.get((int) groups.get(i).get(j)).y + "  " + atom_list.get((int) groups.get(i).get(j)).z + "\n");
-	        		}
-	        		sb.append("\n");
-	        	}
-//	        	ArrayList job_ids = new ArrayList<>();
-//	        	for (int i = 0; i < groups.size(); i ++) {
-//	        		StringBuilder inp_file = new StringBuilder();
-//	        		inp_file.append(" $contrl units=angs local=boys runtyp=makefp\n");
-//	        		inp_file.append("       mult=1 icharg=0 coord=cart icut=11 $end\n");
-//	        		inp_file.append(" $system timlim=99999   mwords=200 $end\n");
-//	        		inp_file.append(" $scf soscf=.f. dirscf=.t. diis=.t. CONV=1.0d-06  $end\n");
-//	        		inp_file.append(" $basis gbasis=n31 ngauss=6 ndfunc=1 $end\n");
-//	        		inp_file.append(" $DAMP IFTTYP(1)=2,0 IFTFIX(1)=1,1 thrsh=500.0 $end\n");
-//	        		inp_file.append(" $MAKEFP  POL=.t. DISP=.f. CHTR=.f.  EXREP=.f. $end\n");
-//	        		inp_file.append(" $data\n");
-//	        		inp_file.append(" frag_"+i+"\n");
-//	        		inp_file.append(" C1\n");
-//	        		for (int j = 0; j < groups.get(i).size(); j ++) {
-//	        			Atom a = (Atom) atom_list.get((int) groups.get(i).get(j));
-//	        			inp_file.append("  ");
-//	        			inp_file.append(a.type);
-//	        			inp_file.append("   ");
-//	        			inp_file.append(String.format("%.1f", charges.get(a.type)));
-//	        			inp_file.append("   ");
-//	        			inp_file.append(Double.toString(a.x));
-//	        			inp_file.append("   ");
-//	        			inp_file.append(Double.toString(a.y));
-//	        			inp_file.append("   ");
-//	        			inp_file.append(Double.toString(a.z));
-//	        			inp_file.append("\n");
-//	        		}
-//	        		inp_file.append(" $end\n $comment Atoms to be erased:  $end\n");
-//	        		System.out.println(inp_file.toString());
-//	        	}
-	        	
-	        	
-	        	
-	        	final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/gamess/gamessInput.fxml"));
-	        	gamessInputController gamess_controller;
-	        	gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), groups, to_be_submitted);
-	        	gamess_loader.setController(gamess_controller);
-	        	ArrayList<ArrayList> fragments = gamess_controller.get_fragments_with_h();
-	        	
-	        	HashMap<String, Integer> protons = new HashMap<>();
-				protons.put("H", 1);
-				protons.put("C", 6);
-				protons.put("N", 7);
-				protons.put("O", 8);
-				protons.put("S", 16);
-				protons.put("CL", 17);
-				protons.put("H000", 1);
-				ArrayList total_charges = new ArrayList();
-//				for (int i = 0; i < fragments.size(); i ++) {
-//					int total_charge = 0;
-//					for (int j = 0 ; j < fragments.get(i).size(); j++) {
-//						Atom current_atom = (Atom)  fragments.get(i).get(j);
-//						if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
-//							String symbol = current_atom.type;
-//							String sign = symbol.substring(symbol.length() - 1);
-//							String digits = symbol.replaceAll("\\D+", "");
-//							String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
-//							if (sign.equals("-")) {
-//								total_charge = total_charge + protons.get(real_symbol);
-//							} else {
-//								total_charge = total_charge + protons.get(real_symbol);
-//							}
-//						} else {
-//							total_charge += protons.get(current_atom.type);
-//						}
-//						total_charges.add(total_charge);
-//					}
-//					
-//				}
-//				Dialog dialog = new Dialog<>();
-//				dialog.setTitle("Charge Choices");
-//				dialog.setHeaderText("Please input the charge for your fragments:");
-//				ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
-//				dialog.getDialogPane().getButtonTypes().addAll(ok);
-//				BorderPane bp = new BorderPane();
-				
-				
-	        	Platform.runLater(new Runnable(){
-					@Override
-					public void run() {
-						BorderPane bp;
-						try {
-							bp = gamess_loader.load();
-							Scene scene = new Scene(bp,659.0,500.0);
-		    	        	Stage stage = new Stage();
-		    	        	stage.initModality(Modality.WINDOW_MODAL);
-		    	        	stage.setTitle("Gamess Input");
-		    	        	stage.setScene(scene);
-		    	        	stage.show();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					}
-					});
-	        	
-	        	
-				
-				
-				
-			} else {
-				
-			}
-			
-		} else {
-			jmolViewer.runScript("selectionHalos off");
-			jmolWindow.repaint();
-			((Stage)choices.getScene().getWindow()).close();
-			final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
-			String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
-        	QChemInputController controller;
-			controller = new QChemInputController(coords,null);
-			loader.setController(controller);
-			Platform.runLater(new Runnable(){
-				@Override
-				public void run() {
-					TabPane bp;
-					try {
-						
-						bp = loader.load();
-						Scene scene = new Scene(bp,600.0,480.0);
-	    	        	Stage stage = new Stage();
-	    	        	stage.initModality(Modality.WINDOW_MODAL);
-	    	        	stage.setTitle("Libefp Input");
-	    	        	stage.setScene(scene);
-	    	        	stage.show();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-				}
-				});
-		}
-		
-		
-		
-		
-		
-		
-	}
-	
-	static class JmolPanel extends JPanel {
-
-        /**
-		 * 
-		 */
-		private static final long serialVersionUID = -3661941083797644242L;
-		Viewer viewer;
-
-        private final Dimension currentSize = new Dimension();
+	@SuppressWarnings("unchecked")
+    private void runTable(List<ObservableList<DatabaseRecord>> data, int index) {
+	    //LOAD AUXILIARY LIST
+        @SuppressWarnings("rawtypes")
+        TableView table = this.auxiliary_list;
+	    table.setItems(data.get(index));
+	    allowOnlyOneCheck(data, index);
+        this.viewerIndex = index;
         
-        
-
-        JmolPanel() {
-            viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
-                    null, null, null, null, null);
+        //Initialize first jmol viewer
+        String path = data.get(index).get(this.prev_selection_index).getChoice().toString();
+        if(path.equalsIgnoreCase("not found")) {
             
-            viewer.setAnimationFps(60);
+        } else {
+            loadAuxJmolViewer(path, index);
         }
-
-        @Override
-        public void paint(Graphics g) {
-            getSize(currentSize);
-            viewer.renderScreenImage(g, currentSize.width, currentSize.height);
-            
+	    //LOAD AUX JMOL VIEWER ON CLICK
+        table.setRowFactory(tv -> {
+            TableRow<DatabaseRecord> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                
+                
+                if (event.getClickCount() == 1 && (!row.isEmpty())) {
+                    // SubmissionRecord rowData = row.getItem();
+                    try {
+                        //System.out.println("clicking:" + row.getItem().getRmsd() + row.getItem().getChoice() + row.getItem().getCheck());
+                        loadAuxJmolViewer(row.getItem().getChoice().toString(), index);
+                       
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            });
+            return row;
+        });
+	}
+	
+	private void loadAuxJmolViewer(String filename, int index) {
+	    if(!filename.equalsIgnoreCase("NOT FOUND")){
+	        String path = LocalBundleManager.LIBEFP_COORDINATES;
+            auxiliaryJmolViewer.setAutoBond(true);
+	        auxiliaryJmolViewer.openFile("file:"+path+"\\"+filename);
+            @SuppressWarnings("unchecked")
+            ViewerHelper viewerHelper = new ViewerHelper(jmolViewer, auxiliaryJmolViewer, this.groups.get(this.viewerIndex));
+            viewerHelper.ConnectXYZBonds();
+            auxiliaryJmolViewer.setAutoBond(true);
+            //auxiliaryJmolViewer.
+	    }
+	}
+	
+	private void allowOnlyOneCheck(List<ObservableList<DatabaseRecord>> data, int index) {
+	    this.prev_selection_index = 0;
+	    ObservableList<DatabaseRecord> data_subset = data.get(index);
+        for (int i = 0 ; i < data_subset.size();i++) {
+            DatabaseRecord d = data_subset.get(i);
+            d.checkProperty().addListener( (o, oldV, newV) -> {
+                if(newV) {
+                    int curr = d.getIndex();
+                    if (prev_selection_index != curr) {
+                        data_subset.get(prev_selection_index).checkProperty().set(false);
+                    }
+                    this.prev_selection_index = curr;
+                }
+           });
+       }
+	}
+	
+	//returns button list on main page with fragment lists
+	@SuppressWarnings("unchecked")
+    private ListView<String> getFragmentListButtons() {
+	    SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
+        ObservableList<Node> list = splitpane.getItems();
+        @SuppressWarnings("rawtypes")
+        ListView<String> listView = (ListView) list.get(0);
+        return listView;
+	}
+	
+	private List<ObservableList<DatabaseRecord>> loadAuxListData(ArrayList<ArrayList<String []>> group_filenames) {
+        ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
+        for (ArrayList<String []> group : group_filenames){ 
+            ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
+            if(group.size() > 0) {
+                int index = 0;
+                for(String [] pair_name : group) {
+                    String xyz_filename = pair_name[0];
+                    if(index == 0) {
+                        drs.add(new DatabaseRecord(xyz_filename,  "6.022 E23", true , index++));
+                    } else {
+                        drs.add(new DatabaseRecord(xyz_filename,  "6.022 E23", false , index++));
+                    }
+                }
+            } else {
+                //this particular fragment did not have any matches from the database
+                drs.add(new DatabaseRecord("Not found",  "0", true , 0));
+            }
+            items.add(drs);
             
         }
-    }
+        //LOAD AUXILIARY LIST STRUCTURES
+        List<ObservableList<DatabaseRecord>> data = new ArrayList<ObservableList<DatabaseRecord>>();
+        for (int i = 0; i < items.size(); i ++) {
+            data.add(FXCollections.observableArrayList(new Callback<DatabaseRecord, Observable[]>() {
+                @Override
+                public Observable[] call(DatabaseRecord param) {
+                    return new Observable[] {
+                            param.checkProperty()};
+                    
+                }
+            }));
+            data.get(i).addAll(items.get(i));
+        }
+        return data;
+	}
 	
+	private void sendQChemForm() {
+	    List<ObservableList<DatabaseRecord>> data = this.userData;
+	    //List<ArrayList<Integer>> groups = this.fragment_list;
+	    @SuppressWarnings("rawtypes")
+        ArrayList<ArrayList> groups = getGroups(this.fragment_list);
+        
+	    String coords = generateQchemInput(data, groups);
+	    
+	    final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
+        //String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
+        QChemInputController controller;
+        controller = new QChemInputController(coords,null,this.final_selections);
+        loader.setController(controller);
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                TabPane bp;
+                try {
+                    
+                    bp = loader.load();
+                    Scene scene = new Scene(bp,600.0,480.0);
+                    Stage stage = new Stage();
+                    stage.initModality(Modality.WINDOW_MODAL);
+                    stage.setTitle("Libefp Input");
+                    stage.setScene(scene);
+                    stage.show(); 
+                                      
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
+            }
+        });
+	}
 	
+	@SuppressWarnings("unchecked")
+    private String generateQchemInput(List<ObservableList<DatabaseRecord>> data,   @SuppressWarnings("rawtypes") ArrayList<ArrayList> groups) {
+	    StringBuilder sb = new StringBuilder();
+	    this.final_selections = new ArrayList<String>();
+	    ArrayList<Atom> pdb = null;
+        try {
+            pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
+            
+            int group_number = 0;
+            for(ObservableList<DatabaseRecord> list : data) {
+                for(DatabaseRecord record : list) {
+                    if(record.getCheck() == true) {
+                        if(!record.getChoice().equalsIgnoreCase("NOT FOUND")) {
+                            //parse filename
+                            String file_name = record.getChoice().toString();
+                            
+                            String [] filename = file_name.split("\\.");
+                            final_selections.add(filename[0] + ".efp");
+                            if(group_number == 0) {
+                                sb.append("fragment " + filename[0] + "\n");
+                            } else {
+                                sb.append("\nfragment " + filename[0] + "\n");
+                            }
+                            //apend equivalent group coordinates
+                            ArrayList<Integer> fragment = groups.get(group_number);
+                            int i = 0;
+                            for(int atom_num : fragment) {
+                                if(i == 3) {
+                                    break;
+                                }
+                                Atom current_atom = (Atom) pdb.get(atom_num);
+                                sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z+"\n");
+                                i++;
+                            }
+                            
+                        }
+                        break;
+                    }
+                }
+                group_number++;
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	    return sb.toString();
+	}
 	
+	private boolean sendGamessForm(String msg) {
+	    Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Gamess");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            return true;
+        }
+        return false;
+	} 
+	
+	private void sendRealGamessForm(ArrayList<ArrayList> groups, ArrayList to_be_submitted) throws IOException {
+    	Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Gamess");
+        alert.setHeaderText(null);
+        alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+        Optional<ButtonType> result = alert.showAndWait();
+        
+        if (result.get() == ButtonType.OK) {
+            ArrayList<Atom> atom_list = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+            Date date = new Date();
+      
+            //jmolViewer.runScript("selectionHalos off");
+            //jmolWindow.repaint();
+            //((Stage)choices.getScene().getWindow()).close();
+            
+            //String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < to_be_submitted.size(); i ++) {
+                sb.append("fragment frag_" + i + "\n");
+                for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j ++) {
+                    if (j >= 3) {
+                        break;
+                    }
+                    sb.append(atom_list.get((int) groups.get((Integer) to_be_submitted.get(i)).get(j)).x + "  " + atom_list.get((int) groups.get(i).get(j)).y + "  " + atom_list.get((int) groups.get(i).get(j)).z + "\n");
+                }
+                sb.append("\n");
+            }
+            
+            final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/gamess/gamessInput.fxml"));
+            gamessInputController gamess_controller;
+            gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), groups, to_be_submitted);
+            gamess_loader.setController(gamess_controller);
+            ArrayList<ArrayList> fragments = gamess_controller.get_fragments_with_h();
+            
+            HashMap<String, Integer> protons = new HashMap<>();
+            protons.put("H", 1);
+            protons.put("C", 6);
+            protons.put("N", 7);
+            protons.put("O", 8);
+            protons.put("S", 16);
+            protons.put("CL", 17);
+            protons.put("H000", 1);
+    
+            System.out.println("hit the stage");
+            
+            Platform.runLater(new Runnable(){
+                @Override
+                public void run() {
+                    BorderPane bp;
+                    try {
+                        bp = gamess_loader.load();
+                        Scene scene = new Scene(bp,659.0,500.0);
+                        Stage stage = new Stage();
+                        stage.initModality(Modality.WINDOW_MODAL);
+                        stage.setTitle("Gamess Input");
+                        stage.setScene(scene);
+                        stage.show();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    
+                }
+                });
+            
+        
+        }
+	}
 }

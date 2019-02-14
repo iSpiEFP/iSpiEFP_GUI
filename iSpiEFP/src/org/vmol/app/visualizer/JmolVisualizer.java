@@ -30,7 +30,7 @@ import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.vmol.app.Main;
 import org.vmol.app.Main.JmolPanel;
 import org.vmol.app.database.DatabaseController;
-import org.vmol.app.database.DatabaseController2;
+import org.vmol.app.database.DatabaseController;
 import org.vmol.app.database.DatabaseRecord;
 import org.vmol.app.util.PDBParser;
 
@@ -262,8 +262,8 @@ public class JmolVisualizer {
                
                 //load table list
         		TableView aux_table = loadAuxiliaryList();
-        		DatabaseController2 DBcontroller;
-				DBcontroller = new DatabaseController2(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_table, fragment_list);
+        		DatabaseController DBcontroller;
+				DBcontroller = new DatabaseController(jmolViewer, Main.auxiliaryJmolPanel.viewer, aux_table, fragment_list);
 				try {
 					DBcontroller.run();
 				} catch (IOException e) {
