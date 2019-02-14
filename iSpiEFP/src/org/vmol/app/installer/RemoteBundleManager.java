@@ -168,7 +168,7 @@ public class RemoteBundleManager {
         alert.setTitle("Bundle Install Wizard");
         alert.setHeaderText("Looks like you are missing "+bundleType+" on the server:"+this.hostname);
         alert.setContentText("Would you like to install "+bundleType+" on the server, or give us the path location of where it is so we can set it?");
-        Image image = new Image("file:wizard.png");
+        Image image = new Image(Main.class.getResource("/images/wizard.png").toString());
         ImageView imageView = new ImageView(image);
         alert.setGraphic(imageView);
         
@@ -238,7 +238,7 @@ public class RemoteBundleManager {
             dialog.setTitle("Set Path");
             dialog.setContentText("Please enter the path of your executable:");
             
-            Image image = new Image("file:wizard.png");
+            Image image = new Image(Main.class.getResource("/images/wizard.png").toString());
             ImageView imageView = new ImageView(image);
             dialog.setGraphic(imageView);
            //();
@@ -321,7 +321,7 @@ public class RemoteBundleManager {
                 alert.setTitle("Bundle Install Wizard");
                 alert.setHeaderText(null);
                 alert.setContentText("Your path:"+packagePath+" was incorrect!\nPlease retry with another path pointing to "+this.bundleType);
-                Image image = new Image("file:wizard.png");
+                Image image = new Image(Main.class.getResource("/images/wizard.png").toString());
                 ImageView imageView = new ImageView(image);
                 alert.setGraphic(imageView);
                 Optional<ButtonType> result = alert.showAndWait();
@@ -349,7 +349,7 @@ public class RemoteBundleManager {
             alert.setTitle("Bundle Install Wizard");
             alert.setHeaderText(null);
             alert.setContentText("Path Success! We won't ask you again for your path on this machine,\nunless you delete it :)");
-            Image image = new Image("file:wizard.png");
+            Image image = new Image(Main.class.getResource("/images/wizard.png").toString());
             ImageView imageView = new ImageView(image);
             alert.setGraphic(imageView);
             Optional<ButtonType> result = alert.showAndWait();

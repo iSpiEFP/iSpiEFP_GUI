@@ -202,8 +202,8 @@ public class LoginForm {
         
         
         ////////////////////////////////////////////////////////////////////////////////////
-        username.setText("apolcyn");
-        password.setText("P15mac&new");
+        //username.setText("apolcyn");
+        //password.setText("P15mac&new");
         
         
         
@@ -298,8 +298,8 @@ public class LoginForm {
         
         
         ////////////////////////////////////////////////////////////////////////////////////
-        username.setText("apolcyn");
-        password.setText("P15mac&new");
+        //username.setText("apolcyn");
+        //password.setText("P15mac&new");
         
         
         

@@ -68,8 +68,8 @@ public class Main extends Application {
 	 * Test Server: Server constantly running for current iSpiEFP(jar file release) for real users
 	 */
 	
-	public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
-	//public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
+	//public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
+	public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
 	public static final int iSpiEFP_PORT = 8080;
 	        
 	public static void main(String[] args) {
@@ -102,17 +102,8 @@ public class Main extends Application {
 	}
 
 	private void showMainView() throws IOException {
-//		System.out.println("Working Directory = " +
-//	              System.getProperty("user.dir"));
 		setMainLayout(FXMLLoader.load(getClass().getResource("MainView.fxml")));
-		//background image
-		String url = "file:background.png";
-		Image img = new Image(url);
-		//BackgroundImage bmImg = new BackgroundImage(img, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(100,95,true,true, true, false));
-		//mainLayout.setBackground(new Background(bmImg));
-		//background image end
-		initializeButtonIcons();
-
+	
 		getMainLayout().setScaleShape(true);
 		getPrimaryStage().setScene(new Scene(getMainLayout()));
 		getPrimaryStage().setOnCloseRequest(new EventHandler<javafx.stage.WindowEvent>() {
@@ -127,21 +118,26 @@ public class Main extends Application {
 		getPrimaryStage().setHeight(700);
 		getPrimaryStage().setWidth(1200);
 		
-		//add icon
+		//add iSpiEFP Spider icon
+	    String url = Main.class.getResource("/images/iSpiEFP_Logo.png").toString();
 		getPrimaryStage().getIcons().add(new Image(url));
+		
+		//load buttons
+        initializeButtonIcons();
 		
 		//Manage Working Directory
 		BundleManager bundleManager = new BundleManager("LOCAL");
 		bundleManager.manageLocal();
 		
+		//launch stage
 		getPrimaryStage().show();
 	}
 	
 	private void initializeButtonIcons(){
-		Image halo = new Image("file:icons8-reflector-bulb-filled-30.png");
- 		Image scissors = new Image("file:icons8-scissors-30.png");
- 		Image play = new Image("file:icons8-play-filled-30.png");
- 		Image terminal = new Image("file:terminal.png");
+	    Image halo = new Image(Main.class.getResource("/images/halo.png").toString());
+ 		Image scissors = new Image(Main.class.getResource("/images/scissors.png").toString());
+ 		Image play = new Image(Main.class.getResource("/images/play.png").toString());
+ 		Image terminal = new Image(Main.class.getResource("/images/terminal.png").toString());
  		
  		//get button list
  		//SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);

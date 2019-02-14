@@ -110,8 +110,8 @@ public class JmolVisualizer {
         button_submit.setDisable(false);
      		
      	//init icons
-     	Image play = new Image("file:icons8-play-filled-30.png");
-    	Image pause = new Image("file:icons8-pause-30.png");
+     	Image play = new Image(Main.class.getResource("/images/play.png").toString());
+    	Image pause = new Image(Main.class.getResource("/images/pause.png").toString());
      		
    
    		System.out.println("running visualizer...");
