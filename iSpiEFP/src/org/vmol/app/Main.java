@@ -96,7 +96,7 @@ public class Main extends Application {
         alert.setTitle("Terms of Agreement");
         alert.setHeaderText(null);
         alert.setContentText(msg);
-        Optional<ButtonType> result = alert.showAndWait();
+        //Optional<ButtonType> result = alert.showAndWait();
 		
 	}
 

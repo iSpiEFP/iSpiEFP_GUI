@@ -8,12 +8,9 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -22,45 +19,33 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import org.jmol.api.JmolSelectionListener;
-import org.jmol.java.BS;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.vmol.app.Main;
 import org.vmol.app.Main.JmolPanel;
 import org.vmol.app.database.DatabaseController;
-import org.vmol.app.database.DatabaseController;
 import org.vmol.app.database.DatabaseRecord;
-import org.vmol.app.util.PDBParser;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 
 public class JmolVisualizer {
@@ -69,6 +54,8 @@ public class JmolVisualizer {
 	private static Viewer jmolViewer;
 	private static LinkedList<Integer> adj[];
 	private static List<ArrayList<Integer>> fragment_list;	
+	
+	private static ChangeListener<String> fragmentList_Listener;
 	
 	
 	public JmolVisualizer(JmolPanel jmolPanel){
@@ -116,6 +103,10 @@ public class JmolVisualizer {
    
    		System.out.println("running visualizer...");
     			
+   		
+   		//initialize visualizer window by collapsing panels
+   		initVisualizer();
+   		
    		//initialize jmol with default settings
         initJmol();
         	    
@@ -273,7 +264,47 @@ public class JmolVisualizer {
        	});
 	} //end of visualize function 
 	
-	//get buttons from left pane in window
+	
+	//collapse and ready windows
+	private void initVisualizer() {
+	    SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
+        ObservableList<Node> list = splitpane.getItems();
+        SplitPane nodepane = (SplitPane) list.get(1);
+        
+        destructFragmentList();
+        
+        //add swingnode to left split pane
+        ObservableList<Node> sublist = nodepane.getItems();
+        
+        if(Main.auxiliaryJmolPanel != null) {
+            Main.auxiliaryJmolPanel.viewer.clearModelDependentObjects();
+            Main.auxiliaryJmolPanel.viewer.cacheClear();
+            Main.auxiliaryJmolPanel.viewer.dispose();
+            Main.auxiliaryJmolPanel.removeAll();
+        }
+
+        
+            //nodepane.setDividerPositions(0.6f, 0.4f);
+        SplitPane vertSplit = (SplitPane) sublist.get(1);
+        
+        ObservableList<Node> vertlist = vertSplit.getItems();
+        Pane viewerPane = (Pane) vertlist.get(0);
+        Pane tablePane = (Pane) vertlist.get(1);
+        viewerPane.getChildren().clear();
+        tablePane.getChildren().clear();
+        
+        //Jmol Fragment Panel & Main Visualizer Panel
+        splitpane.setDividerPositions(0.2f, 0.3f);
+        
+        //Give Main Visualizer 100% of stage, 0% for aux Visualizer
+        nodepane.setDividerPositions(1, 0);
+        
+        //initialize fragment list on left panel
+        //initFragmentList();
+        
+    }
+
+    //get buttons from left pane in window
 	public ObservableList<Node> getButtonList() {	
  		VBox vbox = (VBox) Main.getMainLayout().getChildren().get(0);
  		Pane buttonBar = (Pane)vbox.getChildren().get(1);
@@ -405,6 +436,55 @@ public class JmolVisualizer {
 		return null;
 	}
 	
+	private void destructFragmentList() {
+	    SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
+        //splitpane.getItems().add(swingNode);
+        //get items 1 and 2 from main split pane
+        ObservableList<Node> list = splitpane.getItems();
+        ListView<String> listView = (ListView) list.get(0);
+        
+        //listView.getSelectionModel().getSelectedItems().clear();
+        listView.getSelectionModel().clearSelection();
+        //listView.getSelectionModel().
+        listView.getItems().clear();   
+	}
+	
+	private void initFragmentList() {
+	    this.fragmentList_Listener = (new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                // Your action here
+                String[] arrOfStr = newValue.split(" "); 
+                System.out.println("split0: " + arrOfStr[0] + " split1: " + arrOfStr[1]);
+                int index = Integer.parseInt(arrOfStr[1]);
+                System.out.println("Selected item: " + index);
+                int i = 1;
+                
+                for (ArrayList<Integer> frag : fragment_list) {
+                    if(i == index){
+                        //highlight this fragment
+                        //jmolViewer.runScript("selectionHalos on");
+                        //jmolViewer.runScript("halos on");
+                        for(int piece : frag){
+                            jmolViewer.runScript("select atomno="+(piece+1)+"; halos on; color halos gold;");
+                            
+                        }
+                        //jmolViewer.runScript("select atomno="+1+"; color lime; select atomno="+2+"; color lime;");
+                        
+                    } else {
+                        for(int piece : frag){
+                            jmolViewer.runScript("select atomno="+(piece+1)+"; halos off;");
+                            
+                        }
+                    }
+                    
+                    i++;
+                }
+                jmolPanel.repaint();
+            }
+	    });
+	}
+	
 	private static void loadFragmentList(){
 		//get list
 		SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
@@ -432,6 +512,7 @@ public class JmolVisualizer {
 		
 			    
 		//set listener to items
+	        
 		listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 	    	@Override
 	    	public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -465,7 +546,7 @@ public class JmolVisualizer {
 	    		jmolPanel.repaint();
 	    		
 	    	}
-	    });	
+	    });
 	}
 	
 	private static	LinkedList<Integer> [] buildJmolAdjacencyList() {
