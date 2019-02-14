@@ -27,6 +27,7 @@ import org.vmol.app.Main.JmolPanel;
 import org.vmol.app.database.DatabaseController;
 import org.vmol.app.database.DatabaseRecord;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -293,6 +294,11 @@ public class JmolVisualizer {
         viewerPane.getChildren().clear();
         tablePane.getChildren().clear();
         
+        //reset size
+        //jmolPanel.setPreferredSize(new Dimension(940, 595));
+        jmolPanel.setSize(new Dimension(940, 595));
+        jmolPanel.repaint();
+        
         //Jmol Fragment Panel & Main Visualizer Panel
         splitpane.setDividerPositions(0.2f, 0.3f);
         
@@ -508,6 +514,7 @@ public class JmolVisualizer {
 		    	data.add("Fragment " + fragmentCounter++);
 		    }
 		}
+		
 		listView.setItems(data);
 		
 			    
@@ -575,15 +582,16 @@ public class JmolVisualizer {
        	} 
        } 
 		
-		//print graph adjlist
+		//print graph adjlist for debugging
+		/*
 		for(int i = 0; i < size; i++){
-			System.out.println("Adjacency list of vertex "+ (i+1)); 
-           System.out.print("head"); 
+			//System.out.println("Adjacency list of vertex "+ (i+1)); 
+           //System.out.print("head"); 
            for(Integer pCrawl: adjListArray[i]){ 
-               System.out.print(" -> "+(pCrawl+1)); 
+             //  System.out.print(" -> "+(pCrawl+1)); 
            } 
-           System.out.println("\n"); 
-		}
+           //System.out.println("\n"); 
+		}*/
 		return adjListArray;
 	}
 	
@@ -595,7 +603,7 @@ public class JmolVisualizer {
     { 
         // Mark the current node as visited and print it 
         visited[v] = true; 
-        System.out.print(v+" "); 
+        //System.out.print(v+" "); 
        // ArrayList<Integer> sub_frag_list = new ArrayList<Integer>();
     	//fragment_list.add(sub_frag_list);
         // Recur for all the vertices adjacent to this vertex 
@@ -644,7 +652,14 @@ public class JmolVisualizer {
      	fragment_list = new ArrayList<ArrayList<Integer>>();
      	DFS();
 
-     	loadFragmentList();
+     	
+     	Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+              //javaFX operations should go here
+              loadFragmentList();
+            }
+       });
     }
 
 }
