@@ -14,18 +14,23 @@ import ch.ethz.ssh2.Connection;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 public class LoginForm {
@@ -38,6 +43,7 @@ public class LoginForm {
     private Connection connection;
     
     private boolean cancel;
+    private boolean _remember = false;
     
     private final String CANCEL = "CANCEL";
     private final String INVALID = "INVALID";
@@ -47,7 +53,10 @@ public class LoginForm {
     private final String DEFAULT = "DEFAULT";
     private final String SERVER_FORM = "SERVER_FORM";
     
-    private static final String USERNAME = "USERNAME";
+    //These relate to random values, in a weak attempt to obfuscate them in local memory
+    private static final String USERNAME = "!=U+Cyc^Z8VqvZuW+c$-";
+    private static final String REMEMBER_ME = "+ue&$LT7=g%uDWfcNy6p";
+    private static final String PASSWORD = "aA%v$mMcjwHE$^&^j5u_";
     
     public LoginForm(String hostname, String bundleType) {
         this.hostname = hostname;
@@ -78,10 +87,27 @@ public class LoginForm {
     }
     
     private void setUsername(String username) {
+        if(_remember) {
+            //overwrite preferences - May not work for windows computers
+            if(username != null) {
+                Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
+                //prefs.put(USERNAME, Security.encrypt(username));
+                prefs.put(USERNAME, username);
+            }
+           
+        }
         this.username = username;
     }
     
     private void setPassword(String password) {
+        if(_remember) {
+            //overwrite preferences
+            if(password != null) {
+                Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
+                //prefs.put(PASSWORD, Security.encrypt(password));
+                prefs.put(PASSWORD, password);
+            }
+        }
         this.password = password;
     }
     
@@ -203,28 +229,83 @@ public class LoginForm {
         PasswordField password = new PasswordField();
         password.setPromptText("Password");
         
+        // Enable/Disable login button depending on whether a username was entered.
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+        loginButton.setDisable(true);
+       
+        /*
+         * Remember Me Field Notes
+         * 
+         * This stores password and username in local computer
+         * Java Preferences 
+         * The password will be encrypted however since it will
+         * be encrypted on local machines it will not be 100% safe
+         * Thus it is not recommended to remember user. 
+         */
+        //Remember Me Field
+        CheckBox rememberMe = new CheckBox(); 
+        final Tooltip tooltip = new Tooltip("Not Recommended");
+        tooltip.setFont(new Font("Arial", 16));
+        rememberMe.setTooltip(tooltip);
+
+        //Check if box has been selected
+        Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
+        String remember = prefs.get(REMEMBER_ME, "FALSE");
+        if(remember.equals("TRUE")) {
+            rememberMe.setSelected(true);
+            _remember = true;
+        } else {
+            rememberMe.setSelected(false);
+            _remember = false;
+        }
         
-        ////////////////////////////////////////////////////////////////////////////////////
-     // Setup the Preferences for this application, by class.
+        if(_remember) {
+            //set fields to values
+            String uname = prefs.get(USERNAME, null);            
+            String psw = prefs.get(PASSWORD, null);
+            if(uname != null) {
+                //username.setText(Security.decrypt(uname));
+                username.setText((uname));
+                loginButton.setDisable(false);
+
+            }
+            if(psw != null) {
+                //password.setText(Security.decrypt(psw));
+                password.setText((psw));
+                loginButton.setDisable(false);
+            }
+        }
       
-        //username.setText("apolcyn");
-        //password.setText("P15mac&new");
-        
-        
-        
+        //event handler for remember me checkbox 
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            { 
+                Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
+                if (rememberMe.isSelected()) {
+                    _remember = true;
+                    prefs.put(REMEMBER_ME, "TRUE");
+                } else {
+                    _remember = false;
+                    prefs.put(REMEMBER_ME, "FALSE");
+                }
+            } 
+
+        }; 
+        // set event to checkbox 
+        rememberMe.setOnAction(event);
+        ////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////
 
         grid.add(new Label("Username:"), 0, 0);
         grid.add(username, 1, 0);
         grid.add(new Label("Password:"), 0, 1);
         grid.add(password, 1, 1);
+        grid.add(new Label("Remember me:"), 0, 2);
+        grid.add(rememberMe, 1, 2);
 
-        // Enable/Disable login button depending on whether a username was entered.
-        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-        loginButton.setDisable(true);
         
         ////////////////////////////////////////////////////
-        loginButton.setDisable(false);
+        //loginButton.setDisable(false);
         
         /////////////////////////////////////////////////
 
@@ -280,7 +361,9 @@ public class LoginForm {
         setPassword(null);
         setUsername(null);
         setHostname(null);
-        setCancel(true);
+        setCancel(true);  
+      
+
         
         Dialog<Pair<String, String>> dialog = new Dialog<>();
         dialog.setTitle("Login Dialog");
@@ -295,38 +378,82 @@ public class LoginForm {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
+        //Username Text Field
         TextField username = new TextField();
         username.setPromptText("Username");
         
+        //Password Text Field
         PasswordField password = new PasswordField();
         password.setPromptText("Password");
         
+        // Enable/Disable login button depending on whether a username was entered.
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+        loginButton.setDisable(true);
+        
+        /*
+         * Remember Me Field Notes
+         * 
+         * This stores password and username in local computer
+         * Java Preferences 
+         * The password will be encrypted however since it will
+         * be encrypted on local machines it will not be 100% safe
+         * Thus it is not recommended to remember user. 
+         */
+        //Remember Me Field
+        CheckBox rememberMe = new CheckBox(); 
+        final Tooltip tooltip = new Tooltip("Not Recommended");
+        tooltip.setFont(new Font("Arial", 16));
+        rememberMe.setTooltip(tooltip);
+
+        //Check if box has been selected
+        Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
+        String remember = prefs.get(REMEMBER_ME, "FALSE");
+        if(remember.equals("TRUE")) {
+            rememberMe.setSelected(true);
+            _remember = true;
+        } else {
+            rememberMe.setSelected(false);
+            _remember = false;
+        }
+        
+        if(_remember) {
+            //set fields to values
+            String uname = prefs.get(USERNAME, null);            
+            String psw = prefs.get(PASSWORD, null);
+            if(uname != null) {
+                //username.setText(Security.decrypt(uname));
+                loginButton.setDisable(false);
+                username.setText((uname));
+            }
+            if(psw != null) {
+                //password.setText(Security.decrypt(psw));
+                loginButton.setDisable(false);
+                password.setText((psw));
+            }
+        }
+      
+        //event handler for remember me checkbox 
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            { 
+                Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
+                if (rememberMe.isSelected()) {
+                    _remember = true;
+                    prefs.put(REMEMBER_ME, "TRUE");
+                } else {
+                    _remember = false;
+                    prefs.put(REMEMBER_ME, "FALSE");
+                }
+            } 
+
+        }; 
+        // set event to checkbox 
+        rememberMe.setOnAction(event);
         
         ////////////////////////////////////////////////////////////////////////////////////
-        //username.setText("apolcyn");
-        //password.setText("P15mac&new");
-        
-        Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
-
-        // Retrieve some preferences previously stored, with defaults in case
-        // this is the first run.
-        String uname = prefs.get(USERNAME, "empty");
-        System.out.println("uname:"+uname);
-        
-        if(uname.equals("empty")) {
-            
-        } else {
-            username.setText(uname);
-        }
-
-        // Assume the user chose new preference values: Store them back.
-        
-        
-        
-        
-        /////////////////////////////////////////////////////////////////////////////////////////
-        String defaultServer = "";
-        
+  
+        //load server selection choices
+        String defaultServer = ""; 
         @SuppressWarnings("rawtypes")
         final ComboBox comboBox = new ComboBox();
         ServerConfigController serverConfig = new ServerConfigController();
@@ -352,8 +479,9 @@ public class LoginForm {
         comboBox.setPromptText("Server address");
         comboBox.setValue(this.hostname);
         comboBox.setValue("hoicheso");
-
-        comboBox.setEditable(true);        
+        comboBox.setEditable(true);   
+        
+        //event handler for server selection
         comboBox.valueProperty().addListener(new ChangeListener<String>() {
             @Override 
             public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {                
@@ -363,19 +491,17 @@ public class LoginForm {
             }    
         });
         
+        //Add Fields
         grid.add(new Label("Server:"), 0, 0);
         grid.add(comboBox, 1, 0);
         grid.add(new Label("Username:"), 0, 1);
         grid.add(username, 1, 1);
         grid.add(new Label("Password:"), 0, 2);
         grid.add(password, 1, 2);
+        grid.add(new Label("Remember me:"), 0, 3);
+        grid.add(rememberMe, 1, 3);
 
-        // Enable/Disable login button depending on whether a username was entered.
-        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-        loginButton.setDisable(true);
-        
         ////////////////////////////////////////////////////
-        loginButton.setDisable(false);
         
         /////////////////////////////////////////////////
 
@@ -404,8 +530,8 @@ public class LoginForm {
         } else {
             result.ifPresent(usernamePassword -> {
                 System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
-                prefs.put(USERNAME, usernamePassword.getKey());
-                
+
+                //update username password
                 setUsername(usernamePassword.getKey());
                 setPassword(usernamePassword.getValue());
                 setCancel(false);
