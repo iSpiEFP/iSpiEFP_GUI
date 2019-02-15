@@ -245,13 +245,19 @@ public class JmolVisualizer {
         		nodepane.setDividerPositions(0.6f, 0.4f);
         	    
         		//reset size of main pane
+                jmolPanel.setPreferredSize(new Dimension(600, 595));
         		jmolPanel.setSize((new Dimension(600,595)));
+        		jmolPanel.currentHeight = 595;
+        		jmolPanel.currentWidth = 600;
         		jmolPanel.repaint();
         		
         		//Runs auxiliary JmolViewer
                 Main.showJmolViewer(false, null);
                 
-               
+                //400,300
+                //Main.auxiliaryJmolPanel.setSize((new Dimension(100,50)));
+                Main.auxiliaryJmolPanel.repaint();
+                
                 //load table list
         		TableView aux_table = loadAuxiliaryList();
         		DatabaseController DBcontroller;
@@ -295,8 +301,10 @@ public class JmolVisualizer {
         tablePane.getChildren().clear();
         
         //reset size
-        //jmolPanel.setPreferredSize(new Dimension(940, 595));
+        jmolPanel.setPreferredSize(new Dimension(940, 595));
         jmolPanel.setSize(new Dimension(940, 595));
+        jmolPanel.currentHeight = 595;
+        jmolPanel.currentWidth = 940;
         jmolPanel.repaint();
         
         //Jmol Fragment Panel & Main Visualizer Panel

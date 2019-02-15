@@ -60,6 +60,8 @@ public class Main extends Application {
 	public static JmolPanel jmolPanel;
 	public static JmolPanel auxiliaryJmolPanel;
 	
+	
+	
 	//iSpiEFP Server Credentials
 	/*
 	 * Here are the server credentials to the iSpiEFP server
@@ -242,8 +244,13 @@ public class Main extends Application {
                 @Override
                 public void run() {
             	    
-            	    auxiliaryJmolPanel.setPreferredSize(new Dimension(400, 300));
-            	    //jmolPanel.setPreferredSize(new Dimension(100, 100));
+            	    //auxiliaryJmolPanel.setPreferredSize(new Dimension(400, 300));
+                    auxiliaryJmolPanel.setPreferredSize(new Dimension(370, 265));
+                    
+                    auxiliaryJmolPanel.currentWidth = 370;
+                    auxiliaryJmolPanel.currentHeight = 265;
+                    //jmolPanel.setPreferredSize(new Dimension(100, 100));
+            	    
 
             	    // main panel -- Jmol panel on top
 
@@ -263,7 +270,8 @@ public class Main extends Application {
             	      Logger.error(strError);
 
             	    panel.setFocusable(true);
-                    swingNode.setContent(panel);  
+                    swingNode.setContent(panel); 
+                    
                     
                 }
             });	
@@ -305,17 +313,20 @@ public class Main extends Application {
 	    
 	    private final Dimension currentSize = new Dimension();
 	    
+	    public int currentWidth = 940;
+	    public int currentHeight = 595;
+	    
 	    JmolPanel() {
 	      viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(), 
 	          null, null, null, null, null);
 	      viewer.setAnimationFps(60);
 	    }
-       
 
 	    @Override
 	    public void paint(Graphics g) {
 	      getSize(currentSize);
-          viewer.renderScreenImage(g, currentSize.width, currentSize.height);
+          //viewer.renderScreenImage(g, currentSize.width, currentSize.height);
+          viewer.renderScreenImage(g, currentWidth, currentHeight);
           ArrayList bond = JmolVisualizer.find_deleted_bonds(jmolPanel);
           if (bond != null) {
           	

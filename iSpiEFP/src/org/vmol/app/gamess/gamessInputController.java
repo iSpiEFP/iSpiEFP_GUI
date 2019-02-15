@@ -444,7 +444,6 @@ public class gamessInputController implements Initializable{
 	}
 	
 	// Generate Q-Chem Input file
-
 	public void export() throws IOException {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Save Zip Files to...");

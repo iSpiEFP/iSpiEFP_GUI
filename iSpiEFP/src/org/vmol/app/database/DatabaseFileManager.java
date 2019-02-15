@@ -297,6 +297,7 @@ public class DatabaseFileManager {
                         String digits = symbol.replaceAll("\\D+", "");
                         String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
                         //query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
+                        System.out.println("symbol:"+real_symbol);
                         int index = real_symbol.charAt(0) - 'A';
                         symbols[index]++;
                         
@@ -307,7 +308,8 @@ public class DatabaseFileManager {
                         
                     } else {
                         String symbol = current_atom.type;
-
+                        System.out.println("symbol:"+symbol);
+                        
                         int index = symbol.charAt(0) - 'A';
                         symbols[index]++;
                         
@@ -324,7 +326,9 @@ public class DatabaseFileManager {
                 jsonFragments[x].chemicalFormula = chemFormula;
                 jsonFragments[x].coords = jsonCoordPairs;
                 //query+="$ENDALL$";
-                  
+                
+                //String chemFormula2 = (new ViewerHelper()).getChemicalFormula2(symbols);
+                //System.out.println("Chemical Formula:"+chemFormula2);  
         }
         String json = new Gson().toJson(jsonFragments);
         return "Query2$END$"+json+"$ENDALL$";

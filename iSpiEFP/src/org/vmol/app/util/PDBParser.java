@@ -37,6 +37,7 @@ public class PDBParser {
 				if (tokens[tokens.length-1].matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
 					System.out.println("Warning: " + tokens[tokens.length-1]);
 					String symbol = tokens[tokens.length-1];
+	                //String symbol = tokens[2];
 					String sign = symbol.substring(symbol.length() - 1);
 					String digits = symbol.replaceAll("\\D+", "");
 					String real_symbol = symbol.substring(0, symbol.length() - 1 - digits.length());
