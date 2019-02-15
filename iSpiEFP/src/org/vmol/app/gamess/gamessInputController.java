@@ -189,8 +189,6 @@ public class gamessInputController implements Initializable{
     		boolean found = false;
     		for (int j = 0; j < frag.size(); j ++) {
     			
-    			
-    			
     			if ((int) frag.get(j) == ((Atom) given.get(i)).index) {
     				found = true;
     			}

@@ -174,8 +174,7 @@ public class DatabaseController {
             ArrayList<Integer> to_be_submitted = new ArrayList<Integer>();
             for(int i = 0; i < groups.size(); i++) {
                 to_be_submitted.add(i);
-            }
-            
+            }   
             sendRealGamessForm(groups, to_be_submitted);
         }
 	}

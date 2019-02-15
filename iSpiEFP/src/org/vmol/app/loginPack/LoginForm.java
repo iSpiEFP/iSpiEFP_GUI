@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import org.vmol.app.installer.BundleManager;
 import org.vmol.app.server.ServerConfigController;
@@ -45,6 +46,8 @@ public class LoginForm {
     
     private final String DEFAULT = "DEFAULT";
     private final String SERVER_FORM = "SERVER_FORM";
+    
+    private static final String USERNAME = "USERNAME";
     
     public LoginForm(String hostname, String bundleType) {
         this.hostname = hostname;
@@ -202,6 +205,8 @@ public class LoginForm {
         
         
         ////////////////////////////////////////////////////////////////////////////////////
+     // Setup the Preferences for this application, by class.
+      
         //username.setText("apolcyn");
         //password.setText("P15mac&new");
         
@@ -301,6 +306,22 @@ public class LoginForm {
         //username.setText("apolcyn");
         //password.setText("P15mac&new");
         
+        Preferences prefs = Preferences.userNodeForPackage(LoginForm.class);
+
+        // Retrieve some preferences previously stored, with defaults in case
+        // this is the first run.
+        String uname = prefs.get(USERNAME, "empty");
+        System.out.println("uname:"+uname);
+        
+        if(uname.equals("empty")) {
+            
+        } else {
+            username.setText(uname);
+        }
+
+        // Assume the user chose new preference values: Store them back.
+        
+        
         
         
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -383,6 +404,8 @@ public class LoginForm {
         } else {
             result.ifPresent(usernamePassword -> {
                 System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
+                prefs.put(USERNAME, usernamePassword.getKey());
+                
                 setUsername(usernamePassword.getKey());
                 setPassword(usernamePassword.getValue());
                 setCancel(false);
