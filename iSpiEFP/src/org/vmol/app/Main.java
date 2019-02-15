@@ -247,8 +247,9 @@ public class Main extends Application {
             	    //auxiliaryJmolPanel.setPreferredSize(new Dimension(400, 300));
                     auxiliaryJmolPanel.setPreferredSize(new Dimension(370, 265));
                     
-                    auxiliaryJmolPanel.currentWidth = 370;
-                    auxiliaryJmolPanel.currentHeight = 265;
+                    auxiliaryJmolPanel.currentWidth = 390;
+                    auxiliaryJmolPanel.currentHeight = 290;
+                    auxiliaryJmolPanel.repaint();
                     //jmolPanel.setPreferredSize(new Dimension(100, 100));
             	    
 

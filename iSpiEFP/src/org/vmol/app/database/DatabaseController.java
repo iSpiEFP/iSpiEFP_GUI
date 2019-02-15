@@ -321,6 +321,13 @@ public class DatabaseController {
 	}
 	
 	private void runAuxiliaryList(ArrayList<ArrayList<String []>> group_filenames) {
+	    try {
+	        //wait for files to write
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 	    List<ObservableList<DatabaseRecord>> data = loadAuxListData(group_filenames);
 	    this.userData = data;
 	    
@@ -392,6 +399,7 @@ public class DatabaseController {
 	    if(!filename.equalsIgnoreCase("NOT FOUND")){
 	        String path = LocalBundleManager.LIBEFP_COORDINATES;
             auxiliaryJmolViewer.setAutoBond(true);
+            
 	        auxiliaryJmolViewer.openFile("file:"+path+"\\"+filename);
             @SuppressWarnings("unchecked")
             ViewerHelper viewerHelper = new ViewerHelper(jmolViewer, auxiliaryJmolViewer, this.groups.get(this.viewerIndex));
