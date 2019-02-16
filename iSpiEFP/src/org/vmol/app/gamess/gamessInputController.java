@@ -88,33 +88,6 @@ public class gamessInputController implements Initializable{
 	
 	@FXML
 	private Parent root;
-	
-//    @FXML
-//    private TextField title;
-//    
-//    @FXML
-//    private ComboBox<String> calculation;
-//    
-//    private Map<String, String> calculationMap = new HashMap<String, String>() {{
-//    	put("Single Point Energy", "SP");
-//    	put("Geometry Optimization", "Opt");
-//    	put("Frequencies", "Freq");
-//    }};
-//    
-//    @FXML
-//    private ComboBox<String> theory;
-//    
-//    @FXML
-//    private ComboBox<String> basis;
-//    
-//    @FXML
-//    private TextField charge;
-//    
-//    @FXML
-//    private TextField multiplicity;
-//    
-//    @FXML
-//    private ComboBox<String> format;
 
     @FXML
     private TextArea gamessInputArea;
@@ -136,40 +109,23 @@ public class gamessInputController implements Initializable{
     
     public gamessInputController(File file, ArrayList<ArrayList> groups, ArrayList to_be_submitted)  {
     	inputs = new ArrayList();
-    	try {
-			connections = PDBParser.connectivity(file);
-			atoms = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-		} catch (IOException | UnrecognizedAtomException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	
     	Viewer viewer = Main.jmolPanel.viewer;
  
-    	/*
+    	//get atoms from to be submitted atoms list
         for (int i = 0; i < to_be_submitted.size(); i++) {
-            ArrayList<org.jmol.modelset.Atom> curr_group = new ArrayList<org.jmol.modelset.Atom>();
+            ArrayList<Atom> curr_group = new ArrayList<Atom>();
             
             for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j++) {
                 int atomNum = (int) groups.get((Integer) to_be_submitted.get(i)).get(j);
                 org.jmol.modelset.Atom atom = viewer.ms.at[atomNum];
-                curr_group.add(atom);
-                //curr_group.add((Atom) atoms.get((int) groups.get((Integer) to_be_submitted.get(i)).get(j)));
+                Atom liteAtom = new Atom(atom.getAtomName(), atomNum, atom.getElementNumber(), atom.x, atom.y, atom.z);
+                curr_group.add(liteAtom);
             }
             final_lists.add(curr_group);
-        }*/
-        
-        
-    	for (int i = 0; i < to_be_submitted.size(); i++) {
-    		ArrayList<Atom> curr_group = new ArrayList<Atom>();
-    		for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j++) {
-    			if (atoms == null) {
-    				System.out.println("wtf");
-    			}
-    			curr_group.add((Atom) atoms.get((int) groups.get((Integer) to_be_submitted.get(i)).get(j)));
-    		}
-    		final_lists.add(curr_group);
-    	}
+        }
     	
+        //find missing bonds and add hydrogens to them
     	for (int i = 0; i < to_be_submitted.size(); i ++) {
     		ArrayList<Atom> new_hydrogens = addHydrogens(groups.get((Integer) to_be_submitted.get(i)));
     		for (int j = 0; j < new_hydrogens.size(); j++) {
@@ -178,30 +134,7 @@ public class gamessInputController implements Initializable{
     			
     		}
     	}
-    	
-    	for (int i = 0; i < final_lists.size();i++) {
-    		System.out.println("Group " + Integer.toString(i));
-    		for (int j = 0; j < final_lists.get(i).size(); j ++) {
-    			Atom p = (Atom) final_lists.get(i).get(j);
-    			//System.out.println(p.type + "  " + Double.toString(p.x) + "  " + Double.toString(p.y) + "  " + Double.toString(p.z));
-    		}
-    		//System.out.println(" ");
-    		//System.out.println(" ");
-    	}
-    	
-    	
-    	
-    	charges = new HashMap<String,Double>();
-    	charges.put("H", 1.0);
-    	charges.put("H000", 1.0);
-    	charges.put("C", 6.0);
-    	charges.put("N", 7.0);
-    	charges.put("O", 8.0);
-    	charges.put("S", 16.0);
-    	
     	generateGamessInputFiles();
-    	
-    	
     }
     
     private ArrayList<Integer> missingAtom2(int fragAtomIndex, ArrayList<Integer> frag, ArrayList<ArrayList<Integer>> originalBonds) {        
@@ -221,24 +154,6 @@ public class gamessInputController implements Initializable{
             }
         }
         return missingAtoms;
-    }
-    
-    private Atom missingAtom(ArrayList frag, ArrayList given) {
-       
-        
-    	for (int i = 0; i < given.size(); i ++) {
-    		boolean found = false;
-    		for (int j = 0; j < frag.size(); j ++) {
-    			
-    			if ((int) frag.get(j) == ((Atom) given.get(i)).index) {
-    				found = true;
-    			}
-    		}
-    		if (found == false) {
-    			return (Atom) given.get(i);
-    		}
-    	}
-    	return null;
     }
     
 	private static int searchArray(String[] a, String to_be_matched) {
@@ -261,14 +176,10 @@ public class gamessInputController implements Initializable{
     	ArrayList<Atom> hydrogens = new ArrayList<Atom>();
     	for (int i = 0; i < frag.size(); i ++) {
     		        int atomIndex = (int) frag.get(i);
-    				
-    				Atom cut_off_atom = missingAtom(frag, connections.get((int) frag.get(i)));
-                    ArrayList<Integer> cutOffAtoms = missingAtom2(atomIndex, frag, originalBonds);
-    				
-                    
                     org.jmol.modelset.Atom atom1 = viewer.ms.at[atomIndex];
+    		        
+                    ArrayList<Integer> cutOffAtoms = missingAtom2(atomIndex, frag, originalBonds);
 
-                    
                     for(Integer atomNum : cutOffAtoms) {
                         org.jmol.modelset.Atom atom2 = viewer.ms.at[atomNum];
                         
@@ -286,95 +197,14 @@ public class gamessInputController implements Initializable{
                         double x3 = ((x2-x1)*desired_length/actual_length)+x1;
                         double y3 = ((y2-y1)*desired_length/actual_length)+y1;
                         double z3 = ((z2-z1)*desired_length/actual_length)+z1;
-                        hydrogens.add(new Atom("H000",-1,x3,y3,z3));
+                        hydrogens.add(new Atom("H000",-1,1,x3,y3,z3));
                     }
     	}	
     	return hydrogens;
     }
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		// Adding listener to title
-//		title.textProperty().addListener((observable, oldValue, newValue) -> {
-//		    try {
-//				updateQChemInputText();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
-//		
-//		// Initializing calculation ComboBox
-//		calculation.setItems(FXCollections.observableList(new ArrayList<>(calculationMap.keySet())));
-//		calculation.setValue("Geometry Optimization");
-//		
-//		// Initializing theory ComboBox
-//		List<String> theoryTypes = new ArrayList<String>();
-//		theoryTypes.add("HF");
-//		theoryTypes.add("MP2");
-//		theoryTypes.add("B3LYP");
-//		theoryTypes.add("B3LYP5");
-//		theoryTypes.add("EDF1");
-//		theoryTypes.add("M06-2X");
-//		theoryTypes.add("CCSD");
-//		
-//		theory.setItems(FXCollections.observableList(theoryTypes));
-//		theory.setValue("B3LYP");
-//		
-//		// Initializing basis ComboBox
-//		List<String> basisTypes = new ArrayList<String>();
-//		basisTypes.add("STO-3G");
-//		basisTypes.add("3-21G");
-//		basisTypes.add("6-31G(d)");
-//		basisTypes.add("6-31G(d,p)");
-//		basisTypes.add("6-31+G(d)");
-//		basisTypes.add("6-311G(d)");
-//		basisTypes.add("cc-pVDZ");
-//		basisTypes.add("LANL2DZ");
-//		basisTypes.add("LACVP");
-//		
-//		basis.setItems(FXCollections.observableList(basisTypes));
-//		basis.setValue("6-31G(d)");
-//		
-//		// TODO : Make both charge and multiplicity fields accept only Numbers 
-//		// Initializing Charge textField
-//		charge.setText("0");
-//		charge.textProperty().addListener((observable, oldValue, newValue) -> {
-//			// force the field to be numeric only
-//            if (!newValue.matches("-?[0-9]+")) {
-//                charge.setText(newValue.replaceAll("[^\\d]", ""));
-//            }
-//		    try {
-//				updateQChemInputText();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
-//		
-//		// Initializing Multiplicity textField
-//		multiplicity.setText("1");
-//		multiplicity.textProperty().addListener((observable, oldValue, newValue) -> {
-//			// force the field to be numeric only
-//            if (!newValue.matches("^[1-9]\\d*$")) {
-//                multiplicity.setText("");
-//            }
-//		    try {
-//				updateQChemInputText();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
-//		
-//		// Initializing Format ComboBox
-//		List<String> formatTypes = new ArrayList<String>();
-//		
-//		formatTypes.add("Cartesian");
-////		formatTypes.add("Z-matrix");
-////		formatTypes.add("Z-matrix (compact)");
-//		
-//		format.setItems(FXCollections.observableList(formatTypes));
-//		if (formatTypes.size() > 0) format.setValue(formatTypes.get(0));
+		
 //		
 		// Initializing qChemInputTextArea
 		try {
@@ -433,7 +263,8 @@ public class gamessInputController implements Initializable{
 	}
 	
 	public void generateGamessInputFiles() {
-		
+        Viewer viewer = Main.jmolPanel.viewer;
+	    
 		for (int i = 0 ; i < final_lists.size(); i++) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(" $contrl units=angs local=boys runtyp=makefp\n");
@@ -463,17 +294,20 @@ public class gamessInputController implements Initializable{
 			sb.append(" C1\n");
 			for (int j = 0; j < final_lists.get(i).size(); j++) {
 				Atom a = (Atom) final_lists.get(i).get(j);
-				sb.append("  ");
-				sb.append(a.type);
-				sb.append("   ");
-				sb.append(String.format("%.1f", charges.get(a.type)));
-				sb.append("   ");
-				sb.append(Double.toString(a.x));
-				sb.append("   ");
-				sb.append(Double.toString(a.y));
-				sb.append("   ");
-				sb.append(Double.toString(a.z));
-				sb.append("\n");
+				
+				    
+    			sb.append("  ");
+    			sb.append(a.type);
+    			sb.append("   ");
+    			sb.append(String.format("%.1f", a.charge));
+   				sb.append("   ");
+   				sb.append(Double.toString(a.x));
+    			sb.append("   ");
+    			sb.append(Double.toString(a.y));
+    			sb.append("   ");
+    			sb.append(Double.toString(a.z));
+    			sb.append("\n");
+			    
 			}
 			sb.append(" $end\n $comment Atoms to be erased:  $end\n");
 			//System.out.println(sb.toString());
@@ -584,71 +418,7 @@ public class gamessInputController implements Initializable{
                 String username = loginForm.getUsername();
                 String password = loginForm.getPassword();
             
-    		    /*
-    			Dialog<Pair<String, String>> dialog = new Dialog<>();
-    			dialog.setTitle("Login Dialog");
-    			dialog.setHeaderText("Please type your username and password for the selected host");
-    
-    			// Set the icon (must be included in the project).
-    			//dialog.setGraphic(new ImageView(this.getClass().getResource("login.png").toString()));
-    
-    			// Set the button types.
-    			ButtonType loginButtonType = new ButtonType("Login", ButtonData.OK_DONE);
-    			dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
-    
-    			// Create the username and password labels and fields.
-    			GridPane grid = new GridPane();
-    			grid.setHgap(10);
-    			grid.setVgap(10);
-    			grid.setPadding(new Insets(20, 150, 10, 10));
-    
-    			TextField username = new TextField();
-    			username.setPromptText("Username");
-    			PasswordField password = new PasswordField();
-    			password.setPromptText("Password");
-    
-    			grid.add(new Label("Username:"), 0, 0);
-    			grid.add(username, 1, 0);
-    			grid.add(new Label("Password:"), 0, 1);
-    			grid.add(password, 1, 1);
-    
-    			// Enable/Disable login button depending on whether a username was entered.
-    			Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-    			loginButton.setDisable(true);
-    
-    			// Do some validation (using the Java 8 lambda syntax).
-    			username.textProperty().addListener((observable, oldValue, newValue) -> {
-    			    loginButton.setDisable(newValue.trim().isEmpty());
-    			});
-    
-    			dialog.getDialogPane().setContent(grid);
-    			
-    			// Request focus on the username field by default.
-    			Platform.runLater(() -> username.requestFocus());
-    			dialog.setResultConverter(dialogButton -> {
-    			    if (dialogButton == loginButtonType) {
-    			    
-    			        return new Pair<>(username.getText(), password.getText());
-    			    } 
-    			    return null;
-    			});
-    			
-    			Optional<Pair<String, String>> result = dialog.showAndWait();
-    		*/
-                
-                
-    			//result.ifPresent(usernamePassword -> {
-    			//	String uname = usernamePassword.getKey();
-    			//	String pwd = usernamePassword.getValue();
-    			//	String hostname = selectedServer.getAddress();
-    			//	Connection conn = new Connection(hostname);
-    		//		ArrayList jobids = new ArrayList();
-    	//			try {
-    		//			conn.connect();
-    			//		boolean isAuthenticated = conn.authenticateWithPassword(uname, pwd);
-    				//	if (!isAuthenticated) {
-    					//	throw new IOException("Authentication failed");
-    			//		}
+    		   
                         ArrayList jobids = new ArrayList();
 
     					for (int i = 0; i < inputs.size(); i++) {
@@ -762,57 +532,6 @@ public class gamessInputController implements Initializable{
     				
     				
     				
-    				/*
-    				StringBuilder sb = new StringBuilder();
-    				for (int i = 0; i < final_lists.size(); i ++) {
-    					sb.append("fragment " + MainViewController.getLastOpenedFileName() + "_" + i + "\n");
-    					for (int j = 0; j < 3; j ++) {
-    						try {
-    							Atom a = (Atom) final_lists.get(i).get(j);
-    							sb.append(Double.toString(a.x));
-    							sb.append("  ");
-    							sb.append(Double.toString(a.y));
-    							sb.append("  ");
-    							sb.append(Double.toString(a.z));
-    							sb.append("\n");
-    						} catch (ArrayIndexOutOfBoundsException e) {
-    							break;
-    						}
-    					}
-    					sb.append("\n");
-    				}
-    				
-    				QChemInputController controller;
-    				final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
-    				controller = new QChemInputController(sb.toString(), jobids);
-    				loader.setController(controller);
-    				Platform.runLater(new Runnable(){
-    					@Override
-    					public void run() {
-    						TabPane bp;
-    						try {
-    							
-    							bp = loader.load();
-    							Scene scene = new Scene(bp,600.0,480.0);
-    		    	        	Stage stage = new Stage();
-    		    	        	stage.initModality(Modality.WINDOW_MODAL);
-    		    	        	stage.setTitle("Libefp Input");
-    		    	        	stage.setScene(scene);
-    		    	        	stage.show();
-    						} catch (IOException e) {
-    							// TODO Auto-generated catch block
-    							e.printStackTrace();
-    						}
-    						
-    					}
-    					});*/
-    		//	});
-    			
-    			
-    			
-    			
-    
-    			// Convert the result to a username-password-pair when the login button is clicked.
     			
     			
 		    }

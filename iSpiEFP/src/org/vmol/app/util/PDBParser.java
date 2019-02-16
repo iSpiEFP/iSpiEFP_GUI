@@ -22,6 +22,7 @@ public class PDBParser {
 		return atoms;
 	}
 	
+	//Not sure if this function is even ever used
 	public static ArrayList get_atoms(File file) throws IOException {
 		ArrayList atoms = new ArrayList();
 		FileReader fileReader = new FileReader(file);

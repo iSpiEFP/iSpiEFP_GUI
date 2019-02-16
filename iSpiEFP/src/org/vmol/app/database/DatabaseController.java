@@ -504,7 +504,7 @@ public class DatabaseController {
         Optional<ButtonType> result = alert.showAndWait();
         
         if (result.get() == ButtonType.OK) {
-            ArrayList<Atom> atom_list = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
+            //ArrayList<Atom> atom_list = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             Date date = new Date();
       
@@ -514,6 +514,7 @@ public class DatabaseController {
             
             //String coords = "fragment frag_a\n16.380  20.017  16.822\n15.898  20.749  17.636\n16.748  18.743  17.075\n\nfragment frag_b\n15.252  17.863  18.838\n14.642  18.742  18.674\n14.861  17.071  18.204\n\nfragment frag_c\n13.634  16.902  22.237\n14.110  15.961  22.470\n14.051  17.676  22.864\n";
             StringBuilder sb = new StringBuilder();
+            /*
             for (int i = 0; i < to_be_submitted.size(); i ++) {
                 sb.append("fragment frag_" + i + "\n");
                 for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j ++) {
@@ -523,7 +524,7 @@ public class DatabaseController {
                     sb.append(atom_list.get((int) groups.get((Integer) to_be_submitted.get(i)).get(j)).x + "  " + atom_list.get((int) groups.get(i).get(j)).y + "  " + atom_list.get((int) groups.get(i).get(j)).z + "\n");
                 }
                 sb.append("\n");
-            }
+            }*/
             
             final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/gamess/gamessInput.fxml"));
             gamessInputController gamess_controller;
