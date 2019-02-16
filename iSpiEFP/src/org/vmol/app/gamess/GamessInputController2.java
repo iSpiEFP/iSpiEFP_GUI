@@ -31,6 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.jmol.modelset.Bond;
 import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
@@ -116,8 +117,7 @@ public class GamessInputController2 implements Initializable{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        Viewer viewer = Main.jmolPanel.viewer;
- 
+        Viewer viewer = Main.jmolPanel.viewer; 
         
         for (int i = 0; i < to_be_submitted.size(); i++) {
             ArrayList<org.jmol.modelset.Atom> curr_group = new ArrayList<org.jmol.modelset.Atom>();
@@ -167,7 +167,9 @@ public class GamessInputController2 implements Initializable{
     }
     
     private Atom missingAtom(ArrayList frag, ArrayList given) {
-
+        
+        
+        
         for (int i = 0; i < given.size(); i ++) {
             boolean found = false;
             for (int j = 0; j < frag.size(); j ++) {
@@ -200,7 +202,6 @@ public class GamessInputController2 implements Initializable{
         ArrayList<Atom> hydrogens = new ArrayList<Atom>();
         for (int i = 0; i < frag.size(); i ++) {
             
-                    
                     Atom cut_off_atom = missingAtom(frag, connections.get((int) frag.get(i)));
                     
                     if (cut_off_atom != null) {
@@ -225,6 +226,7 @@ public class GamessInputController2 implements Initializable{
             
         return hydrogens;
     }
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Adding listener to title

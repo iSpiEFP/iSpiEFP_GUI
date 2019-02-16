@@ -31,6 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.jmol.modelset.Bond;
 import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
@@ -47,6 +48,7 @@ import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.Atom;
 import org.vmol.app.util.PDBParser;
 import org.vmol.app.util.UnrecognizedAtomException;
+import org.vmol.app.visualizer.JmolVisualizer;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
@@ -202,8 +204,28 @@ public class gamessInputController implements Initializable{
     	
     }
     
+    private ArrayList<Integer> missingAtom2(int fragAtomIndex, ArrayList<Integer> frag, ArrayList<ArrayList<Integer>> originalBonds) {        
+        ArrayList<Integer> missingAtoms = new ArrayList<Integer>();
+        for(Integer atomIndex : originalBonds.get(fragAtomIndex)) {
+            boolean found = false;
+            //search frag for atomIndex, if not there then it has been broken
+            for(Integer fragAtom : frag) {
+                if(fragAtom.equals(atomIndex)) {
+                    found = true;
+                }
+            }
+            if(!found) {
+                //bond has been cut here
+                System.out.println("bond missing between atom:"+(fragAtomIndex+1)+" and atom:"+(atomIndex+1));
+                missingAtoms.add(atomIndex);
+            }
+        }
+        return missingAtoms;
+    }
+    
     private Atom missingAtom(ArrayList frag, ArrayList given) {
-
+       
+        
     	for (int i = 0; i < given.size(); i ++) {
     		boolean found = false;
     		for (int j = 0; j < frag.size(); j ++) {
@@ -233,32 +255,40 @@ public class gamessInputController implements Initializable{
 	}
 	
     public ArrayList<Atom> addHydrogens(ArrayList frag) {
+        ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
+        Viewer viewer = Main.jmolPanel.viewer;
+        
     	ArrayList<Atom> hydrogens = new ArrayList<Atom>();
     	for (int i = 0; i < frag.size(); i ++) {
-    		
+    		        int atomIndex = (int) frag.get(i);
     				
     				Atom cut_off_atom = missingAtom(frag, connections.get((int) frag.get(i)));
+                    ArrayList<Integer> cutOffAtoms = missingAtom2(atomIndex, frag, originalBonds);
     				
-    				if (cut_off_atom != null) {
-    					String a_type = ((Atom) atoms.get((int) frag.get(i))).type;
-    					String b_type = cut_off_atom.type;
-    					int index = searchArray(bonds, a_type+b_type);
-    					double desired_length = lengths[index];
-    					double x1 = ((Atom) atoms.get((int) frag.get(i))).x;
-    					double y1 = ((Atom) atoms.get((int) frag.get(i))).y;
-    					double z1 = ((Atom) atoms.get((int) frag.get(i))).z;
-    					double x2 = cut_off_atom.x;
-    					double y2 = cut_off_atom.y;
-    					double z2 = cut_off_atom.z;
-    					double actual_length = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2)+Math.pow(z1-z2,2));
-    					double x3 = ((x2-x1)*desired_length/actual_length)+x1;
-    					double y3 = ((y2-y1)*desired_length/actual_length)+y1;
-    					double z3 = ((z2-z1)*desired_length/actual_length)+z1;
-    					hydrogens.add(new Atom("H000",-1,x3,y3,z3));
-    					
-    				}
-    			}
-    		
+                    
+                    org.jmol.modelset.Atom atom1 = viewer.ms.at[atomIndex];
+
+                    
+                    for(Integer atomNum : cutOffAtoms) {
+                        org.jmol.modelset.Atom atom2 = viewer.ms.at[atomNum];
+                        
+                        String a_type = atom1.getAtomName();
+                        String b_type = atom2.getAtomName();
+                        int index = searchArray(bonds, a_type+b_type);
+                        double desired_length = lengths[index];
+                        double x1 = atom1.x;
+                        double y1 = atom1.y;
+                        double z1 = atom1.z;
+                        double x2 = atom2.x;
+                        double y2 = atom2.y;
+                        double z2 = atom2.z;
+                        double actual_length = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2)+Math.pow(z1-z2,2));
+                        double x3 = ((x2-x1)*desired_length/actual_length)+x1;
+                        double y3 = ((y2-y1)*desired_length/actual_length)+y1;
+                        double z3 = ((z2-z1)*desired_length/actual_length)+z1;
+                        hydrogens.add(new Atom("H000",-1,x3,y3,z3));
+                    }
+    	}	
     	return hydrogens;
     }
 	@Override
@@ -428,7 +458,8 @@ public class gamessInputController implements Initializable{
 			
 			sb.append(" $MAKEFP  POL=." + pol + ". DISP=." + disp + ". CHTR=.f.  EXREP=." + exrep +". $end\n");
 			sb.append(" $data\n");
-			sb.append(MainViewController.getLastOpenedFileName() + "_" + i + "\n");
+			sb.append("fragment" + " " + (i+1)
+			        + "\n");
 			sb.append(" C1\n");
 			for (int j = 0; j < final_lists.get(i).size(); j++) {
 				Atom a = (Atom) final_lists.get(i).get(j);

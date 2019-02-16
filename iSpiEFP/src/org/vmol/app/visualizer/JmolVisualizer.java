@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import org.jmol.modelset.Bond;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
@@ -55,8 +56,8 @@ public class JmolVisualizer {
 	private static Viewer jmolViewer;
 	private static LinkedList<Integer> adj[];
 	private static List<ArrayList<Integer>> fragment_list;	
+	public static ArrayList<ArrayList<Integer>> bondMap;
 	
-	private static ChangeListener<String> fragmentList_Listener;
 	
 	
 	public JmolVisualizer(JmolPanel jmolPanel){
@@ -104,6 +105,9 @@ public class JmolVisualizer {
    
    		System.out.println("running visualizer...");
     			
+   		
+   		//build original bond map
+        bondMap = buildOriginalBondMap(jmolViewer);
    		
    		//initialize visualizer window by collapsing panels
    		initVisualizer();
@@ -459,42 +463,6 @@ public class JmolVisualizer {
         listView.getItems().clear();   
 	}
 	
-	private void initFragmentList() {
-	    this.fragmentList_Listener = (new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                // Your action here
-                String[] arrOfStr = newValue.split(" "); 
-                System.out.println("split0: " + arrOfStr[0] + " split1: " + arrOfStr[1]);
-                int index = Integer.parseInt(arrOfStr[1]);
-                System.out.println("Selected item: " + index);
-                int i = 1;
-                
-                for (ArrayList<Integer> frag : fragment_list) {
-                    if(i == index){
-                        //highlight this fragment
-                        //jmolViewer.runScript("selectionHalos on");
-                        //jmolViewer.runScript("halos on");
-                        for(int piece : frag){
-                            jmolViewer.runScript("select atomno="+(piece+1)+"; halos on; color halos gold;");
-                            
-                        }
-                        //jmolViewer.runScript("select atomno="+1+"; color lime; select atomno="+2+"; color lime;");
-                        
-                    } else {
-                        for(int piece : frag){
-                            jmolViewer.runScript("select atomno="+(piece+1)+"; halos off;");
-                            
-                        }
-                    }
-                    
-                    i++;
-                }
-                jmolPanel.repaint();
-            }
-	    });
-	}
-	
 	private static void loadFragmentList(){
 		//get list
 		SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
@@ -560,6 +528,27 @@ public class JmolVisualizer {
 	    		
 	    	}
 	    });
+	}
+	
+	private ArrayList<ArrayList<Integer>> buildOriginalBondMap(Viewer viewer) {
+	    int atomCount = jmolViewer.ms.at.length;	    
+	    ArrayList<ArrayList<Integer>> bondMap = new ArrayList<ArrayList<Integer>>();
+	    Bond[] bonds = viewer.ms.bo;
+
+	    //init bondMap
+	    for(int i = 0; i < atomCount; i++) {
+	        bondMap.add(new ArrayList<Integer>());
+	    }
+	    
+        for(int i = 0; i < bonds.length; i++) {
+            int atomIndex1 = bonds[i].getAtomIndex1();
+            int atomIndex2 = bonds[i].getAtomIndex2();
+            
+            //update lists
+            bondMap.get(atomIndex1).add(atomIndex2);
+            bondMap.get(atomIndex2).add(atomIndex1);
+        }  
+        return bondMap;
 	}
 	
 	private static	LinkedList<Integer> [] buildJmolAdjacencyList() {
