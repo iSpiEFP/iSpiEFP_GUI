@@ -24,14 +24,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
+import org.vmol.app.database.JsonCoordinatePair;
+import org.vmol.app.database.JsonFragment;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.qchem.QChemInputController;
@@ -117,7 +121,7 @@ public class gamessInputController implements Initializable{
     private ComboBox<String> serversList;
     
     private ArrayList<ArrayList<Atom>> connections;
-    private ArrayList atoms;
+    private ArrayList<Atom> atoms;
     private ArrayList<ArrayList> final_lists = new ArrayList<ArrayList>();
     //TODO: change this to use hashmap
     String[] bonds = {"HH","CC","NN","OO","FF","CLCL","BRBR","II","CN","NC","CO","OC","CS","SC","CF","FC","CCL","CLC","CBR","BRC","CI","IC","HC","CH","HN","NH","HO","OH","HF","FH","HCL","CLH","HBR","BRH","HI","IH"};
@@ -137,7 +141,22 @@ public class gamessInputController implements Initializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
+    	Viewer viewer = Main.jmolPanel.viewer;
+ 
+    	/*
+        for (int i = 0; i < to_be_submitted.size(); i++) {
+            ArrayList<org.jmol.modelset.Atom> curr_group = new ArrayList<org.jmol.modelset.Atom>();
+            
+            for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j++) {
+                int atomNum = (int) groups.get((Integer) to_be_submitted.get(i)).get(j);
+                org.jmol.modelset.Atom atom = viewer.ms.at[atomNum];
+                curr_group.add(atom);
+                //curr_group.add((Atom) atoms.get((int) groups.get((Integer) to_be_submitted.get(i)).get(j)));
+            }
+            final_lists.add(curr_group);
+        }*/
+        
+        
     	for (int i = 0; i < to_be_submitted.size(); i++) {
     		ArrayList<Atom> curr_group = new ArrayList<Atom>();
     		for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j++) {

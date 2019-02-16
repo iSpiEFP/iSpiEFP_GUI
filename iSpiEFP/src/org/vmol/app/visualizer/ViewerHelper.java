@@ -115,7 +115,7 @@ public class ViewerHelper {
         return index;
     }
     
-    private int parseAtomNum(org.jmol.modelset.Atom bondedAtom) {
+    private int parseAtomNum(org.jmol.modelset.Atom bondedAtom) {        
         int num = 0;
         String strAtom = bondedAtom.toString();
         String[] strArr = strAtom.split("#");
