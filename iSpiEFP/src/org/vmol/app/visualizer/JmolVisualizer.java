@@ -312,10 +312,7 @@ public class JmolVisualizer {
         
         //Give Main Visualizer 100% of stage, 0% for aux Visualizer
         nodepane.setDividerPositions(1, 0);
-        
-        //initialize fragment list on left panel
-        //initFragmentList();
-        
+
     }
 
     //get buttons from left pane in window
@@ -366,8 +363,7 @@ public class JmolVisualizer {
 			jmolPanel.repaint();
 			//reset list
 			displayFragments(jmolPanel);
-		}
-		
+		}		
 	}
 	
 	public TableView loadAuxiliaryList() {
@@ -538,11 +534,13 @@ public class JmolVisualizer {
 	    		System.out.println("Selected item: " + index);
 	    		int i = 1;
 	    		
+	    		
 	    		for (ArrayList<Integer> frag : fragment_list) {
 	    		    if(i == index){
 	    		    	//highlight this fragment
 	    		    	//jmolViewer.runScript("selectionHalos on");
 	    		    	//jmolViewer.runScript("halos on");
+
 	    		    	for(int piece : frag){
 		    		    	jmolViewer.runScript("select atomno="+(piece+1)+"; halos on; color halos gold;");
 		    		    	
@@ -611,9 +609,7 @@ public class JmolVisualizer {
     { 
         // Mark the current node as visited and print it 
         visited[v] = true; 
-        //System.out.print(v+" "); 
-       // ArrayList<Integer> sub_frag_list = new ArrayList<Integer>();
-    	//fragment_list.add(sub_frag_list);
+     
         // Recur for all the vertices adjacent to this vertex 
         Iterator<Integer> i = adj[v].listIterator(); 
         while (i.hasNext()) 
@@ -631,7 +627,6 @@ public class JmolVisualizer {
     static // The function to do DFS traversal. It uses recursive DFSUtil() 
     void DFS() 
     { 
-    	//ArrayList<ArrayList> fragment_list = new ArrayList<ArrayList>();
     	fragment_list.clear();
         // Mark all the vertices as not visited(set as 
         // false by default in java) 

@@ -104,17 +104,13 @@ public class DatabaseController {
         ArrayList<ArrayList> groups = getGroups(this.fragment_list);
 	    this.groups = groups;
 	    
-		//query database
-		//ArrayList<String> dbResponse = queryDatabase(groups);
-	
 		String workingDirectory = System.getProperty("user.dir");
 		DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
         
-	    JsonFilePair[] response = queryDatabase2(groups, databaseFileManager);
+	    JsonFilePair[] response = queryDatabase(groups, databaseFileManager);
 
-	       //currently supported by queryV2 which sends and recieves JSON
-		ArrayList<ArrayList<String []>> files = databaseFileManager.processDBresponse2(response);
-		//ArrayList<ArrayList<String []>> group_files = databaseFileManager.processDBresponse(dbResponse);
+	    //currently supported by queryV2 which sends and recieves JSON
+		ArrayList<ArrayList<String []>> files = databaseFileManager.processDBresponse(response);
         ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(files);
         
         if(group_filenames.size() > 0){
@@ -186,7 +182,7 @@ public class DatabaseController {
 	    return button_libefp;
 	}
 	
-	private JsonFilePair[] queryDatabase2(ArrayList<ArrayList> groups, DatabaseFileManager fileManager) throws IOException {
+	private JsonFilePair[] queryDatabase(ArrayList<ArrayList> groups, DatabaseFileManager fileManager) throws IOException {
 	    String jsonQuery = fileManager.generateJsonQuery(groups);
 	    
 	    String serverName = Main.iSpiEFP_SERVER;
@@ -232,74 +228,6 @@ public class DatabaseController {
       //  System.out.println(pair.chemicalFormula);
       //  System.out.println(pair.efp_file);
         return response;   
-	}
-	
-	//query remote database from AWS server, and return response
-    @SuppressWarnings("unchecked")
-    private ArrayList<String> queryDatabase(ArrayList<ArrayList> groups) throws IOException {
-        ArrayList<String> response = new ArrayList<String>();
-	    ArrayList<Atom> pdb;
-		pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-		
-		String serverName = Main.iSpiEFP_SERVER;
-		int port = Main.iSpiEFP_PORT;
-	
-		System.out.println("Atoms count: " + groups);
-		
-		for (int x = 0; x < groups.size(); x ++) {
-            try {
-                String query = "Query";
-                for (int j = 0; j < groups.get(x).size(); j ++) {
-                    Atom current_atom = (Atom) pdb.get((Integer) groups.get(x).get(j));
-                    if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
-                        String symbol = current_atom.type;
-                        String sign = symbol.substring(symbol.length() - 1);
-                        String digits = symbol.replaceAll("\\D+", "");
-                        String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
-                        query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-                        
-                    } else {
-                        query += "$END$" + current_atom.type + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-                    }
-                }
-                query+="$ENDALL$";
-    				
-                iSpiEFPServer iSpiServer = new iSpiEFPServer();
-                Socket client = iSpiServer.connect(serverName, port);
-                if(client == null) {
-                    return null;
-                }
-    	        //Socket client = new Socket(serverName, port);
-    	        OutputStream outToServer = client.getOutputStream();
-    	        //DataOutputStream out = new DataOutputStream(outToServer);
-    	        
-    	        System.out.println(query);
-    	        outToServer.write(query.getBytes("UTF-8"));
-    	       
-    	        InputStream inFromServer = client.getInputStream();
-    	        DataInputStream in = new DataInputStream(inFromServer);
-    	        StringBuilder sb = new StringBuilder();
-    	        int i;
-    	        char c;
-    	        boolean start = false;
-    	        while (( i = in.read())!= -1) {
-    	        	c = (char)i;
-    	        	if (c == '#')
-    	        		start = true;
-    	        	if (start == true)
-    	        		sb.append(c);
-    	        }
-    	        
-    	        String reply = sb.toString().substring(1);
-    	        //System.out.println("Database Response:" + reply);
-    	        response.add(reply);
-    	        
-    	        client.close();
-    	    } catch (IOException e) {
-    	        e.printStackTrace();
-    	    } 
-		}
-		return response;
 	}
 	
 	//converts Addison's frag list to Hanjings Groups

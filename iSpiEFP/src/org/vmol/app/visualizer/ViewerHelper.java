@@ -2,6 +2,9 @@ package org.vmol.app.visualizer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.jmol.viewer.Viewer;
 import org.vmol.app.util.Atom;
@@ -46,6 +49,8 @@ public class ViewerHelper {
         }
         return chemicalFormula.toString();
     }
+    
+    
     
     
     public void ConnectXYZBonds() {
@@ -116,5 +121,38 @@ public class ViewerHelper {
         String[] strArr = strAtom.split("#");
         num = Integer.parseInt(strArr[1]);
         return num-1;
+    }
+    
+    /*
+     * Converts a HashMap into a chemical formula using Hill's method
+     * this uses Hill's method for generating a formula
+     * First count occurences of 'C' then 'H' then the rest in sorted order
+     */
+    public String getChemicalFormula2(TreeMap<String, Integer> symbolMap) {
+        StringBuilder chemicalFormula = new StringBuilder();
+        Integer count;
+        
+        //first check for appearances of Carbon
+        count = symbolMap.get("C");
+        if(count != null) {
+            chemicalFormula.append("C"+count);
+        }
+        
+        //next check for appearances of Hydrogen
+        count = symbolMap.get("H");
+        if(count != null) {
+            chemicalFormula.append("H"+count);
+        }
+        
+        //Finally dump the rest of the list one by one in a sorted fashion
+        for(Map.Entry<String,Integer> entry : symbolMap.entrySet()) {
+            String key = entry.getKey();
+            Integer value = entry.getValue();
+
+            if(!key.equalsIgnoreCase("C") && !key.equalsIgnoreCase("H")) {
+                chemicalFormula.append(key+value);
+            }
+        }
+        return chemicalFormula.toString();
     }
 }

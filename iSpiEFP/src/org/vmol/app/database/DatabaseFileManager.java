@@ -6,7 +6,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
+import org.jmol.viewer.Viewer;
+import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
 import org.vmol.app.installer.LocalBundleManager;
 import org.vmol.app.util.Atom;
@@ -45,92 +49,35 @@ public class DatabaseFileManager {
         this.xyzDirectory = LocalBundleManager.LIBEFP_COORDINATES;  //storage for db incoming xyz files
         this.efpDirectory = LocalBundleManager.LIBEFP_PARAMETERS;  //storage for db incoming efp files
         
-        //createDir(mainDBDirectory);
-        //createDir(xyzDirectory);
-        //createDir(efpDirectory);
     }
     
     //INPUT: Raw response from Database
-    public ArrayList<ArrayList<String []>> processDBresponse(ArrayList<String> response) {
-        ArrayList<ArrayList<String []>> files = new ArrayList<ArrayList<String []>>();
-
-        for(String res : response){
-            String reply = res;
-            //reply = reply.substring(1);
-            
-            String[] content = reply.split("\\$NEXT\\$");    
-            ArrayList<String []> fragment_files = new ArrayList<String []>();
-
-            if(content.length <= 1){
-                //no response
-            } else {
-                //parse response and dump in folders for each file line
-                for(int i = 1; i < content.length; i++) {
-                   
-                    //seperate xyz file and efp file
-                    String [] xyz_and_efp_pair = content[i].split("\\$EFP\\$");
-                    //System.out.println("xyz file:"+xyz_and_efp_pair[0]);
-                    //System.out.println("efp file:"+xyz_and_efp_pair[1]);
-                    
-                    String parsed_xyz_file = parseXYZresponse(xyz_and_efp_pair[0]);
-                   
-                    xyz_and_efp_pair[0] = parsed_xyz_file;
-                    
-                    fragment_files.add(xyz_and_efp_pair);
-                }
-           }
-           files.add(fragment_files);     
-        }
-        return files;
-    }
-    
-  //INPUT: Raw response from Database
-    public ArrayList<ArrayList<String []>> processDBresponse2(JsonFilePair[] response) {
+    public ArrayList<ArrayList<String []>> processDBresponse(JsonFilePair[] response) {
         ArrayList<ArrayList<String []>> files = new ArrayList<ArrayList<String []>>(this.groupNames.size());
 
         System.out.println("size:"+this.groupNames.size());
         
         //initialize file list
         for(int i = 0; i < this.groupNames.size(); i++) {
-            //String[] strArr = new String[2];
             ArrayList<String []> list = new ArrayList<String []>();
-            //list.add(strArr);
             files.add(list);
         }
         
         for(JsonFilePair pair : response){
-            //String reply = res;
-            //reply = reply.substring(1);
-            
-            //String[] content = reply.split("\\$NEXT\\$");    
-            //ArrayList<String []> fragment_files = new ArrayList<String []>();
-
-            //if(content.length <= 1){
-                //no response
-            //} else {
-                //parse response and dump in folders for each file line
-           // for(int i = 1; i < content.length; i++) {
+         
             if(!pair.xyz_file.isEmpty()){
                 String parsed_xyz_file = parseXYZresponse(pair.xyz_file);
                 int index = groupNames.indexOf(pair.chemicalFormula);
                 
                 //seperate xyz file and efp file
                 String [] xyz_and_efp_pair = new String[2];
-                //System.out.println("xyz file:"+xyz_and_efp_pair[0]);
-                //System.out.println("efp file:"+xyz_and_efp_pair[1]);
-                
+     
                 xyz_and_efp_pair[0] = parsed_xyz_file;
                 xyz_and_efp_pair[1] = pair.efp_file;
                         
-                //fragment_files.add(xyz_and_efp_pair);
-                //    }
-               //}
-                //files.get(index).add(xyz_and_efp_pair);
                 ArrayList<String []> list = files.get(index);
                 list.add(xyz_and_efp_pair);
            }
-           
-                //files.add(fragment_files);     
         }
         return files;
     }
@@ -267,68 +214,45 @@ public class DatabaseFileManager {
         }
     }
     
-    public String generateJsonQuery(ArrayList<ArrayList> groups) throws IOException {
-        Gson gson = new Gson();
-        //TypeDTO[] myTypes = gson.fromJson(new FileReader("input.json"), TypeDTO[].class);
-        
-        ArrayList<Atom> pdb;
-        
-        pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-       
-        System.out.println("Atoms count: " + groups);
-        
+    public String generateJsonQuery(ArrayList<ArrayList> groups) throws IOException {        
+        ViewerHelper viewerHelper = new ViewerHelper();
+        Viewer viewer = Main.jmolPanel.viewer;
         JsonFragment[] jsonFragments = new JsonFragment[groups.size()];
-        System.out.println(groups.size());
-        System.out.print(jsonFragments.length);
+       
         for (int x = 0; x < groups.size(); x ++) {
-                
-                jsonFragments[x] = new JsonFragment();
-                                
-                int[] symbols = new int[26];
+                jsonFragments[x] = new JsonFragment();       
                 ArrayList<JsonCoordinatePair> jsonCoordPairs = new ArrayList<JsonCoordinatePair>();
-                
-                for (int j = 0; j < groups.get(x).size(); j ++) {
-                    JsonCoordinatePair coord = new JsonCoordinatePair();
-                    Atom current_atom = (Atom) pdb.get((Integer) groups.get(x).get(j));
-                    if (current_atom.type.matches(".*\\d+.*")) { // atom symbol has digits, treat as charged atom
+                TreeMap<String, Integer> symbolMap = new TreeMap<String, Integer>(); //helper for calculating chemical formula
 
-                        String symbol = current_atom.type;
-                        String sign = symbol.substring(symbol.length() - 1);
-                        String digits = symbol.replaceAll("\\D+", "");
-                        String real_symbol = symbol.substring(0, symbol.length() - 2 - digits.length());
-                        //query += "$END$" + real_symbol + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-                        System.out.println("symbol:"+real_symbol);
-                        int index = real_symbol.charAt(0) - 'A';
-                        symbols[index]++;
-                        
-                        coord.symbol = real_symbol;
-                        coord.x = current_atom.x;
-                        coord.y = current_atom.y;
-                        coord.z = current_atom.z;
-                        
-                    } else {
-                        String symbol = current_atom.type;
-                        System.out.println("symbol:"+symbol);
-                        
-                        int index = symbol.charAt(0) - 'A';
-                        symbols[index]++;
-                        
-                        coord.symbol = symbol;
-                        coord.x = current_atom.x;
-                        coord.y = current_atom.y;
-                        coord.z = current_atom.z;
-                        //query += "$END$" + current_atom.type + "  " + current_atom.x + "  " + current_atom.y + "  " + current_atom.z;
-                    }
+                //get parameter for each atom in fragment
+                for (int j = 0; j < groups.get(x).size(); j ++) {
+                    int atomNum = (int) groups.get(x).get(j);
+                    org.jmol.modelset.Atom atom = viewer.ms.at[atomNum];
+                    JsonCoordinatePair coord = new JsonCoordinatePair();
+                    String symbol = atom.getAtomName();
+                    
+                    coord.symbol = symbol;
+                    coord.x = atom.x;
+                    coord.y = atom.y;
+                    coord.z = atom.z;
                     jsonCoordPairs.add(coord);
+                    
+                    //update symbol map
+                    Integer value = symbolMap.get(symbol);
+                    if(value == null){
+                        symbolMap.put(symbol, 1);
+                    } else {
+                        symbolMap.put(symbol, value+1);
+                    }     
                 }
-                String chemFormula = (new ViewerHelper()).getChemicalFormula(symbols);
+                //calculate chemical formula
+                String chemFormula = viewerHelper.getChemicalFormula2(symbolMap);
+                System.out.println("new chem formula:"+chemFormula);
+                
+                //add parameters
                 this.groupNames.add(chemFormula);
                 jsonFragments[x].chemicalFormula = chemFormula;
                 jsonFragments[x].coords = jsonCoordPairs;
-                //query+="$ENDALL$";
-                
-                //String chemFormula2 = (new ViewerHelper()).getChemicalFormula2(symbols);
-                //System.out.println("Chemical Formula:"+chemFormula2);  
         }
         String json = new Gson().toJson(jsonFragments);
         return "Query2$END$"+json+"$ENDALL$";
