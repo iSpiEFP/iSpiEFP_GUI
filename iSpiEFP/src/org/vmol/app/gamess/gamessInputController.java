@@ -515,7 +515,8 @@ public class gamessInputController implements Initializable {
 
                     System.out.println(query);
                     outToServer.write(query.getBytes("UTF-8"));
-
+                    client.close();
+                    
                     JobManager jobManager = new JobManager(username, password, hostname, jobID, title, time, "QUEUE",
                             "GAMESS");
                     jobManager.watchJobStatus();

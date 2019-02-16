@@ -350,6 +350,7 @@ public class JobManager implements Runnable {
         try {
             outToServer = client.getOutputStream();
             outToServer.write(payload.getBytes("UTF-8"));
+            client.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

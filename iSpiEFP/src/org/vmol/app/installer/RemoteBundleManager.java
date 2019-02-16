@@ -63,28 +63,6 @@ public class RemoteBundleManager {
     }
 
     public boolean checkIfPackageIsReady() {
-        /*try {
-            String packageType = queryUserHistory();
-            if(packageType.equals(USER_READY)) {
-                //user has all packages installed and is ready to go
-                return false;
-            } else if (packageType.equals(NEW_USER)) {
-                //user needs basic installation with package
-                return true;
-            } else {
-                if(packageType.equals(this.bundleType)) {
-                    //user is ready, and has the desired package
-                    return false;
-                } else {
-                    //user needs to install this package
-                    return true;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        return false;*/
         String errorStatement = null;
         try {
             errorStatement = testPackage(this.bundleType);
@@ -147,6 +125,7 @@ public class RemoteBundleManager {
             c = (char)i;
             sb.append(c);
         }
+        client.close();
                 
         String reply = sb.toString();
         System.out.println("Bundle Manager Response:"+reply);
