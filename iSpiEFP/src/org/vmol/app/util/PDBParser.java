@@ -43,11 +43,13 @@ public class PDBParser {
 					String digits = symbol.replaceAll("\\D+", "");
 					String real_symbol = symbol.substring(0, symbol.length() - 1 - digits.length());
 					System.out.println("Warning: " + real_symbol);
-					Atom a = new Atom(real_symbol, count,Double.parseDouble(x),Double.parseDouble(y),Double.parseDouble(z) );
-					atoms.add(a);
+					//LEGACYAtom a = new Atom(real_symbol, count,Double.parseDouble(x),Double.parseDouble(y),Double.parseDouble(z) );
+					Integer i = new Integer(null); //throw error when it gets here
+					//atoms.add(a);
 				} else {
-					Atom a = new Atom(tokens[tokens.length-1], count,Double.parseDouble(x),Double.parseDouble(y),Double.parseDouble(z) );
-					atoms.add(a);
+					//LEGACYAtom a = new Atom(tokens[tokens.length-1], count,Double.parseDouble(x),Double.parseDouble(y),Double.parseDouble(z) );
+	                   Integer i = new Integer(null); //throw error when it gets here
+				    //atoms.add(a);
 				}
 				//Atom a = new Atom(tokens[tokens.length-1], count,Double.parseDouble(x),Double.parseDouble(y),Double.parseDouble(z) );
 				//atoms.add(a);
@@ -115,6 +117,7 @@ public class PDBParser {
 					String digits = symbol.replaceAll("\\D+", "");
 					String real_symbol = symbol.substring(0, symbol.length() - 1 - digits.length());
 					System.out.println("Warning: " + real_symbol);
+					//this function should not be used
 					Atom a = new Atom(real_symbol, index,Double.parseDouble(x),Double.parseDouble(y),Double.parseDouble(z) );
 					atoms.add(a);
 				} else {

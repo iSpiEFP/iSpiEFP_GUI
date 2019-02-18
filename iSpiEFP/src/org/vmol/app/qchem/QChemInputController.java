@@ -646,8 +646,9 @@ public class QChemInputController implements Initializable{
                 }
                 System.out.println(clusterjobID);
                 br.close();
+                stdout.close();
                 sess.close();
-                
+              
                 conn.close();
                 
                 
@@ -681,6 +682,7 @@ public class QChemInputController implements Initializable{
                 System.out.println(query);
                 outToServer.write(query.getBytes("UTF-8"));
                 client.close();
+                outToServer.close();
                 
                 JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
                 jobManager.watchJobStatus();

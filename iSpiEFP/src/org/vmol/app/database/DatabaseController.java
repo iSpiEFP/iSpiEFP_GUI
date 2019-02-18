@@ -218,7 +218,10 @@ public class DatabaseController {
         Gson gson = new GsonBuilder().create(); 
         JsonFilePair[] response = gson.fromJson(reply, JsonFilePair[].class);
         //JsonDatabaseResponse response = gson.fromJson(reply, JsonDatabaseResponse.class);
-        
+        reader.close();
+        in.close();
+        inFromServer.close();
+        outToServer.close();
         client.close();
         
         //JsonFilePair pair = response.databaseResponse.get(0);

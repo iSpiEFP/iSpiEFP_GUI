@@ -459,6 +459,8 @@ public class RemoteBundleManager {
         
         br.close();
         sess.close();
+        stderr.close();
+        
         //conn.close();        
         return true;
     }
