@@ -22,11 +22,14 @@ import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.JmolPanel;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -37,6 +40,10 @@ public class OutputController {
     private Viewer jmolViewer;
     private JFrame jmolWindow;
     private String type;
+    private static String current_tab = "OUTPUT";
+    
+    private static final String OUTPUT = "OUTPUT";
+    private static final String LOG = "LOG";
 
     public OutputController() {
         
@@ -66,17 +73,23 @@ public class OutputController {
         }
     }
     
-    public void initialize(String output, String type) {
+    public void initialize(String output, String log, String type) {
         this.type = type;
         VBox root = new VBox();
         root.setPadding(new Insets(10));
         root.setSpacing(5);
  
-        Label label = new Label("Libefp Output:");
-        TextArea textArea = new TextArea();
-        textArea.setScaleShape(true);
-        textArea.setText(output);
-        textArea.setPrefHeight(700);
+        Label label = new Label(type + " Output:");
+        TextArea outputTextArea = new TextArea();
+        outputTextArea.setScaleShape(true);
+        outputTextArea.setText(output);
+        outputTextArea.setPrefHeight(700);
+        
+        Label label2 = new Label(type + " Log:");
+        TextArea logTextArea = new TextArea();
+        logTextArea.setScaleShape(true);
+        logTextArea.setText(log);
+        logTextArea.setPrefHeight(700);
         
         // To contain the buttons
         HBox buttonBar = new HBox();
@@ -88,7 +101,11 @@ public class OutputController {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("download");
-                download();
+                if(current_tab.equals(OUTPUT)){
+                    download(output);
+                } else if(current_tab.equals(LOG)) {
+                    download(log);
+                }
             }
         });
  
@@ -110,9 +127,44 @@ public class OutputController {
                 //visualize(output);
             }
         });
+        
+        // create a tabpane 
+        TabPane tabpane = new TabPane(); 
+ 
+        // create Tab 
+        Tab outputTab = new Tab("Output"); 
+        outputTab.setContent(outputTextArea); 
+        
+        
+        
+        Tab logTab = new Tab("Log"); 
+        logTab.setContent(logTextArea); 
+        
+        //Handle Tabs 
+        EventHandler<Event> event =  new EventHandler<Event>() { 
+            public void handle(Event e) 
+            { 
+                if (outputTab.isSelected()) { 
+                    buttonVisualize.setDisable(false);
+                    current_tab = OUTPUT;
+
+                } else if(logTab.isSelected()) {
+                    buttonVisualize.setDisable(true);
+                    current_tab = LOG;
+
+                }
+            } 
+        }; 
+        outputTab.setOnSelectionChanged(event); 
+        logTab.setOnSelectionChanged(event); 
+      
+            
+        // add tab 
+        tabpane.getTabs().addAll(outputTab, logTab);
+       
  
         buttonBar.getChildren().addAll(buttonDownload, buttonVisualize, buttonAnalyze);
-        root.getChildren().addAll(label, textArea, buttonBar);
+        root.getChildren().addAll(label, tabpane, buttonBar);
         Scene scene = new Scene(root, 520, 520);
         Stage newStage = new Stage();
         
@@ -144,7 +196,7 @@ public class OutputController {
         jmolWindow.setVisible(true);
     }
     
-    private void download() {
+    private void download(String contents) {
         System.out.println("downloading molecule");
     }
     

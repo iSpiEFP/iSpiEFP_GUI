@@ -181,6 +181,7 @@ public class LoginForm {
         if(getCancel() == true) {
             return CANCEL;
         } else {
+            
             Connection conn = new Connection(this.hostname);
             try {
                 
@@ -536,8 +537,8 @@ public class LoginForm {
             result.ifPresent(usernamePassword -> {
                 System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
 
-                ProgressIndicatorTest pb = new ProgressIndicatorTest();
-                pb.fire();
+                
+                
                 //update username password
                 setUsername(usernamePassword.getKey());
                 setPassword(usernamePassword.getValue());

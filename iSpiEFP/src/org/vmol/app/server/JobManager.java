@@ -83,12 +83,12 @@ public class JobManager implements Runnable {
         try {
             if(this.type != null){
                 if(this.type.equals("LIBEFP")) {
-                    scpos = scp.get("iSpiClient/Libefp/output/output_"+jobID);
+                    scpos = scp.get("iSpiClient/Libefp/output/error_"+jobID);
                     scpos.close();
                     jobIsDone = true;
                 } else if(this.type.equals("GAMESS")) {
-                    System.out.println("iSpiClient/Gamess/output/gamess_"+jobID+".efp");
-                    scpos = scp.get("iSpiClient/Gamess/output/gamess_"+jobID+".efp");
+                    
+                    scpos = scp.get("iSpiClient/Gamess/src/gamess_"+jobID+".log");
                     scpos.close();
                     jobIsDone = true;
                 }
@@ -327,6 +327,71 @@ public class JobManager implements Runnable {
         conn.close();
         //br.close(); //OVIEN STRANGE RESULTS HERE 
         
+        return sb.toString();  
+    }
+    
+    /*
+     * get output file from a lib efp job
+     */
+    public String getRemoteFile(String filename) throws IOException {
+        SCPInputStream scpos = null;
+        InputStream stdout = null;
+        BufferedReader br = null;
+        Connection conn = null;
+        StringBuilder sb = new StringBuilder();
+        
+        try {
+            conn = new Connection(this.hostname);
+            conn.connect();
+            boolean isAuthenticated = conn.authenticateWithPassword(this.username, this.password);
+            if (!isAuthenticated)
+                throw new IOException("Authentication failed.");
+            
+            SCPClient scp = conn.createSCPClient();
+            scpos = scp.get(filename);
+            stdout = new StreamGobbler(scpos);
+            br = new BufferedReader(new InputStreamReader(stdout));
+            System.out.println("aaaaaaaaaaaaaaa");
+            while (true) {
+                String line = br.readLine();
+                if (line == null)
+                    break;
+                //System.out.println("gobbler");
+                System.out.println(line);
+                sb.append(line+"\n");
+                //output.add(line);
+                //System.out.println(line);
+            }
+            //conn.close();            
+            System.out.println("bbbbbbbbbbbbbbbbbbb");
+
+            
+           
+           // in.close();
+            //br.close();
+            //br.close();
+            //stdout.close();
+            //br.close(); //OVIEN STRANGE RESULTS HERE 
+            return sb.toString();  
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            conn.close();
+        } finally {
+            if(scpos!=null){
+                //scpos.close();
+            }
+            if(stdout!= null) {
+                stdout.close();
+            }
+            if(br!=null) {
+                br.close();
+            }
+            if(conn!=null) {
+                conn.close();
+            }
+        }
         return sb.toString();  
     }
     

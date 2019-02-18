@@ -232,17 +232,36 @@ public class SubmissionHistoryController {
 		}
 	}
 	
-	public void visualize() throws IOException, ParseException, UnrecognizedAtomException {
+	public void visualize() throws ParseException, UnrecognizedAtomException {
     
         SubmissionRecord record = tableView.getSelectionModel().getSelectedItem();
         
         if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
             System.out.println("opening record");
-            JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
-            String output = jobManager.getRemoteVmolOutput(record.getJob_id(), "LIBEFP"); 
+          
+            String output = "Error.";
+            JobManager jobManager = new JobManager(this.username, this.password, this.hostname);  
+            try {
+                output = jobManager.getRemoteFile("iSpiClient/Libefp/output/output_"+record.getJob_id());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+          
+            
+            String log = "Error.";
+            JobManager jobManager2 = new JobManager(this.username, this.password, this.hostname);
+            try {
+                log = jobManager2.getRemoteFile("iSpiClient/Libefp/output/error_"+record.getJob_id());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+               
+                
+                e.printStackTrace();
+            }            
             
             OutputController outputController = new OutputController();
-            outputController.initialize(output, "LIBEFP");
+            outputController.initialize(output, log,"LIBEFP");
         } 
     }
 	

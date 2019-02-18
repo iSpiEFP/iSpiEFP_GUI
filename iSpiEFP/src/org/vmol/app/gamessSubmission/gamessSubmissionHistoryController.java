@@ -144,17 +144,36 @@ public class gamessSubmissionHistoryController {
         }
     }
 	
-	public void visualize() throws IOException, ParseException, UnrecognizedAtomException {
+	public void visualize() throws ParseException, UnrecognizedAtomException {
 	    
         SubmissionRecord record = tableView.getSelectionModel().getSelectedItem();
         
         if(record.getStatus().equalsIgnoreCase("READY TO OPEN")){
             System.out.println("opening record");
-            JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
-            String output = jobManager.getRemoteVmolOutput(record.getJob_id(), "GAMESS"); 
+           
+            String output = "Error.";
+            JobManager jobManager = new JobManager(this.username, this.password, this.hostname);  
+            try {
+                output = jobManager.getRemoteFile("iSpiClient/Gamess/output/gamess_"+record.getJob_id()+".efp");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+          
+            
+            String log = "Error.";
+            JobManager jobManager2 = new JobManager(this.username, this.password, this.hostname);
+            try {
+                log = jobManager2.getRemoteFile("iSpiClient/Gamess/src/gamess_"+record.getJob_id()+".log");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+               
+                
+                e.printStackTrace();
+            }
             
             OutputController outputController = new OutputController();
-            outputController.initialize(output, "GAMESS");
+            outputController.initialize(output, log, "GAMESS");
         } 
     }
 
