@@ -7,11 +7,22 @@ import java.awt.Graphics;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -20,6 +31,7 @@ import org.jmol.api.JmolSelectionListener;
 import org.jmol.java.BS;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.JmolPanel;
+import org.vmol.app.Main;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -33,6 +45,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class OutputController {
@@ -96,15 +110,22 @@ public class OutputController {
  
         // Button to Append text
         Button buttonDownload = new Button("Download");
-        buttonDownload.setDisable(true);
         buttonDownload.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 System.out.println("download");
                 if(current_tab.equals(OUTPUT)){
-                    download(output);
+                    try {
+                        download(output);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else if(current_tab.equals(LOG)) {
-                    download(log);
+                    try {
+                        download(log);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -196,8 +217,45 @@ public class OutputController {
         jmolWindow.setVisible(true);
     }
     
-    private void download(String contents) {
-        System.out.println("downloading molecule");
+    private void download(String content) throws UnsupportedEncodingException, FileNotFoundException, IOException { 
+        
+        String filename = "";
+        
+        Random ran = new Random();
+        int x = ran.nextInt(999999);
+        filename += Integer.toString(x);
+        
+        if(current_tab.equals(LOG)) {
+            filename += ".log";
+        } else {
+            filename += ".out";
+        }
+         
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Specify a file to save");   
+        fileChooser.setInitialFileName(filename);
+        
+        
+        File userSelection = fileChooser.showSaveDialog(Main.getPrimaryStage());
+         
+        if (userSelection != null) {
+            File fileToSave = userSelection.getAbsoluteFile();
+            System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+            
+            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(fileToSave.getAbsolutePath()), "utf-8"))) {
+                
+                Scanner scanner = new Scanner(content);
+                while (scanner.hasNextLine()) {
+                  String line = scanner.nextLine();
+                  // process the line
+                  writer.write(line);
+                  writer.newLine();
+                }
+                scanner.close();
+                writer.close();
+            }
+        }
     }
     
     private String getXYZfromEFP(String output){
