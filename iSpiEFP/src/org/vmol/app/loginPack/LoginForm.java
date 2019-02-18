@@ -9,6 +9,7 @@ import java.util.prefs.Preferences;
 import org.vmol.app.installer.BundleManager;
 import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
+import org.vmol.app.util.ProgressIndicatorTest;
 
 import ch.ethz.ssh2.Connection;
 import javafx.application.Platform;
@@ -26,6 +27,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
@@ -181,6 +183,7 @@ public class LoginForm {
         } else {
             Connection conn = new Connection(this.hostname);
             try {
+                
                 conn.connect();
                 try {
                     String username = getUsername();
@@ -491,6 +494,8 @@ public class LoginForm {
             }    
         });
         
+        
+        
         //Add Fields
         grid.add(new Label("Server:"), 0, 0);
         grid.add(comboBox, 1, 0);
@@ -531,6 +536,8 @@ public class LoginForm {
             result.ifPresent(usernamePassword -> {
                 System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
 
+                ProgressIndicatorTest pb = new ProgressIndicatorTest();
+                pb.fire();
                 //update username password
                 setUsername(usernamePassword.getKey());
                 setPassword(usernamePassword.getValue());
