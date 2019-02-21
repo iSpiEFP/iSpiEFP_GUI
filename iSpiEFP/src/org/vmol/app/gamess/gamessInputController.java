@@ -108,10 +108,12 @@ public class gamessInputController implements Initializable {
     Map<String, Double> charges;
 
     private ArrayList inputs;
-
+    private ArrayList<Integer> fragmentNumbers;
+    
     public gamessInputController(File file, ArrayList<ArrayList> groups, ArrayList to_be_submitted) {
         inputs = new ArrayList();
-
+        fragmentNumbers = to_be_submitted;
+        
         Viewer viewer = Main.jmolPanel.viewer;
 
         // get atoms from to be submitted atoms list
@@ -293,7 +295,7 @@ public class gamessInputController implements Initializable {
 
             sb.append(" $MAKEFP  POL=." + pol + ". DISP=." + disp + ". CHTR=.f.  EXREP=." + exrep + ". $end\n");
             sb.append(" $data\n");
-            sb.append("fragment" + " " + (i + 1) + "\n");
+            sb.append("Fragment" + " " + (fragmentNumbers.get(i)+1) + "\n");
             sb.append(" C1\n");
             for (int j = 0; j < final_lists.get(i).size(); j++) {
                 Atom a = (Atom) final_lists.get(i).get(j);

@@ -29,6 +29,7 @@ import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
 import org.vmol.app.MainViewController;
 import org.vmol.app.database.DatabaseController;
+import org.vmol.app.gamess.GamessFormController;
 import org.vmol.app.gamess.gamessInputController;
 import org.vmol.app.installer.LocalBundleManager;
 import org.vmol.app.localDataBase.localDataBaseController;
@@ -113,6 +114,8 @@ public class DatabaseController {
 		ArrayList<ArrayList<String []>> files = databaseFileManager.processDBresponse(response);
         ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(files);
         
+        ArrayList<Integer> unknownGroups = new ArrayList<Integer>();
+
         if(group_filenames.size() > 0){
             //read files into array of strings
             ArrayList<String> filenames = new ArrayList<String>();
@@ -138,19 +141,31 @@ public class DatabaseController {
                     }*/
                 } else {
                     //this particular fragment did not have any matches from the database
-                    boolean yes = sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
-                    if(yes) {
+                    //boolean yes = sendGamessForm("There are 0 matches for fragment:"+Integer.toString(groupNumber)+" in the Database, do you want to calculate them by Gamess?");
+                    unknownGroups.add(groupNumber-1);
+                    //if(yes) {
                         to_be_submitted.add(groupNumber-1);
-                    }
+                    //}
                 }
                 groupNumber++;
             }
+            runAuxiliaryList(group_filenames);
             
             if(to_be_submitted.size() > 0){
-                sendRealGamessForm(groups, to_be_submitted);
+                //sendRealGamessForm(groups, to_be_submitted);
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Gamess");
+                alert.setHeaderText(null);
+                alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+                Optional<ButtonType> result = alert.showAndWait();
+                
+                if (result.get() == ButtonType.OK) {
+                    GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups);
+                    gamessFormController.run();
+                    
+                }
             }
-            runAuxiliaryList(group_filenames);
-          
+            
             Button button_libefp = getLibefpSubmitButton();
             button_libefp.setOnAction(new EventHandler <ActionEvent>()
             {
@@ -162,6 +177,8 @@ public class DatabaseController {
                 }
             });            
         } else {
+            //GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups);
+            //gamessFormController.run();
             //There is zero matched fragments
             //refer to gamess
             //sendGamessForm("There are 0 matches for any of the fragments in the Database, do you want to calculate them by Gamess?");
@@ -170,8 +187,21 @@ public class DatabaseController {
             ArrayList<Integer> to_be_submitted = new ArrayList<Integer>();
             for(int i = 0; i < groups.size(); i++) {
                 to_be_submitted.add(i);
+                unknownGroups.add(i);
             }   
-            sendRealGamessForm(groups, to_be_submitted);
+            //sendRealGamessForm(groups, to_be_submitted);
+          //sendRealGamessForm(groups, to_be_submitted);
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Gamess");
+            alert.setHeaderText(null);
+            alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+            Optional<ButtonType> result = alert.showAndWait();
+            
+            if (result.get() == ButtonType.OK) {
+                GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups);
+                gamessFormController.run();
+                
+            }
         }
 	}
 	
