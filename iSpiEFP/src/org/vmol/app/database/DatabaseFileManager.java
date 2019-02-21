@@ -69,13 +69,13 @@ public class DatabaseFileManager {
                     String parsed_xyz_file = parseXYZresponse(pair.xyz_file);
                     
                     //seperate xyz file and efp file
-                    String [] xyz_and_efp_pair = new String[2];
+                    String [] xyz_efp_rmsd = new String[3];
          
-                    xyz_and_efp_pair[0] = parsed_xyz_file;
-                    xyz_and_efp_pair[1] = pair.efp_file;
+                    xyz_efp_rmsd[0] = parsed_xyz_file;
+                    xyz_efp_rmsd[1] = pair.efp_file;
+                    xyz_efp_rmsd[2] = pair.rmsd;
                     
-                    
-                    list.add(xyz_and_efp_pair);
+                    list.add(xyz_efp_rmsd);
                     
                }
             }
@@ -174,20 +174,22 @@ public class DatabaseFileManager {
         for(ArrayList<String []> group : group_files){
             ArrayList<String []> pairNames = new ArrayList<String []>();
             
+            Integer i = 1;
             for(String [] pair : group){
                 String chemicalName = parseCHEMNAMEfromEFPfile(pair[1]);
                 System.out.println("###############"+chemicalName);
                 
                 //create file names
-                String xyz = chemicalName + ".xyz";
-                String efp = chemicalName + ".efp";
+                String xyz = chemicalName +"_"+i+".xyz";
+                String efp = chemicalName +"_"+i+".efp";
                 System.out.println(xyz);
                 
                 createFile(this.xyzDirectory, xyz, pair[0]);
                 createFile(this.efpDirectory, efp, pair[1]);
                 
-                String[] pairName = { xyz, efp};
+                String[] pairName = { xyz, efp, pair[2]}; //pair[2] is rmsd
                 pairNames.add(pairName);
+                i++;
             }
             filenames.add(pairNames);
         }

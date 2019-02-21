@@ -154,11 +154,12 @@ public class OutputController {
  
         // create Tab 
         Tab outputTab = new Tab("Output"); 
+        outputTab.setClosable(false);
         outputTab.setContent(outputTextArea); 
         
         
-        
         Tab logTab = new Tab("Log"); 
+        logTab.setClosable(false);
         logTab.setContent(logTextArea); 
         
         //Handle Tabs 

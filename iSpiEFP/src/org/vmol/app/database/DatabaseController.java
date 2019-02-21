@@ -108,9 +108,7 @@ public class DatabaseController {
 		DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
         
 	    JsonFilePair[][] response = queryDatabase(groups, databaseFileManager);
-        //JsonDatabaseResponse response = queryDatabase(groups, databaseFileManager);
-
-		
+       
 	    //currently supported by queryV2 which sends and recieves JSON
 		ArrayList<ArrayList<String []>> files = databaseFileManager.processDBresponse(response);
         ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(files);
@@ -376,15 +374,19 @@ public class DatabaseController {
                 int index = 0;
                 for(String [] pair_name : group) {
                     String xyz_filename = pair_name[0];
+                    String rmsd = pair_name[2];
+                    if(rmsd.equals("0.0")) {
+                        rmsd = "Exact Match";
+                    }
                     if(index == 0) {
-                        drs.add(new DatabaseRecord(xyz_filename,  "6.022 E23", true , index++));
+                        drs.add(new DatabaseRecord(xyz_filename,  rmsd , true , index++));
                     } else {
-                        drs.add(new DatabaseRecord(xyz_filename,  "6.022 E23", false , index++));
+                        drs.add(new DatabaseRecord(xyz_filename,  rmsd, false , index++));
                     }
                 }
             } else {
                 //this particular fragment did not have any matches from the database
-                drs.add(new DatabaseRecord("Not found",  "0", true , 0));
+                drs.add(new DatabaseRecord("Not found",  "", true , 0));
             }
             items.add(drs);
             

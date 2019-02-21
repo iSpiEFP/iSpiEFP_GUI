@@ -274,7 +274,7 @@ public class JobManager implements Runnable {
            
             if(status.equals("QUEUE")) {
                // boolean done = askRemoteServerJobStatus(job_id, date);
-                boolean done = checkStatus(date);
+                boolean done = checkStatus(job_id);
                 //boolean done = askR
                 if(done) {
                     System.out.println("Job:"+job_id + " done. updating database");
