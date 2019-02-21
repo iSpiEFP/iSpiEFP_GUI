@@ -52,32 +52,34 @@ public class DatabaseFileManager {
     }
     
     //INPUT: Raw response from Database
-    public ArrayList<ArrayList<String []>> processDBresponse(JsonFilePair[] response) {
+    //public ArrayList<ArrayList<String []>> processDBresponse(JsonDatabaseResponse response) {
+    public ArrayList<ArrayList<String []>> processDBresponse(JsonFilePair[][] response) {
         ArrayList<ArrayList<String []>> files = new ArrayList<ArrayList<String []>>(this.groupNames.size());
 
         System.out.println("size:"+this.groupNames.size());
         
-        //initialize file list
-        for(int i = 0; i < this.groupNames.size(); i++) {
-            ArrayList<String []> list = new ArrayList<String []>();
-            files.add(list);
-        }
         
-        for(JsonFilePair pair : response){
+        for(JsonFilePair[] group: response) {
+            ArrayList<String []> list = new ArrayList<String []>();
+
+            for(JsonFilePair pair : group){
+                System.out.println("rolling a pair");
+             
+                if(!pair.xyz_file.isEmpty()){
+                    String parsed_xyz_file = parseXYZresponse(pair.xyz_file);
+                    
+                    //seperate xyz file and efp file
+                    String [] xyz_and_efp_pair = new String[2];
          
-            if(!pair.xyz_file.isEmpty()){
-                String parsed_xyz_file = parseXYZresponse(pair.xyz_file);
-                int index = groupNames.indexOf(pair.chemicalFormula);
-                
-                //seperate xyz file and efp file
-                String [] xyz_and_efp_pair = new String[2];
-     
-                xyz_and_efp_pair[0] = parsed_xyz_file;
-                xyz_and_efp_pair[1] = pair.efp_file;
-                        
-                ArrayList<String []> list = files.get(index);
-                list.add(xyz_and_efp_pair);
-           }
+                    xyz_and_efp_pair[0] = parsed_xyz_file;
+                    xyz_and_efp_pair[1] = pair.efp_file;
+                    
+                    
+                    list.add(xyz_and_efp_pair);
+                    
+               }
+            }
+            files.add(list);
         }
         return files;
     }

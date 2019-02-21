@@ -87,7 +87,7 @@ public class OutputController {
         }
     }
     
-    public void initialize(String output, String log, String type) {
+    public void initialize(String output, String log, String type) {        
         this.type = type;
         VBox root = new VBox();
         root.setPadding(new Insets(10));

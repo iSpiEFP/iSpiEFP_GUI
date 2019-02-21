@@ -107,8 +107,10 @@ public class DatabaseController {
 		String workingDirectory = System.getProperty("user.dir");
 		DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
         
-	    JsonFilePair[] response = queryDatabase(groups, databaseFileManager);
+	    JsonFilePair[][] response = queryDatabase(groups, databaseFileManager);
+        //JsonDatabaseResponse response = queryDatabase(groups, databaseFileManager);
 
+		
 	    //currently supported by queryV2 which sends and recieves JSON
 		ArrayList<ArrayList<String []>> files = databaseFileManager.processDBresponse(response);
         ArrayList<ArrayList<String []>> group_filenames = databaseFileManager.writeFiles(files);
@@ -182,7 +184,7 @@ public class DatabaseController {
 	    return button_libefp;
 	}
 	
-	private JsonFilePair[] queryDatabase(ArrayList<ArrayList> groups, DatabaseFileManager fileManager) throws IOException {
+	private JsonFilePair[][] queryDatabase(ArrayList<ArrayList> groups, DatabaseFileManager fileManager) throws IOException {
 	    String jsonQuery = fileManager.generateJsonQuery(groups);
 	    
 	    String serverName = Main.iSpiEFP_SERVER;
@@ -216,7 +218,7 @@ public class DatabaseController {
         System.out.println("Database Response from Query V2:" + reply);
       
         Gson gson = new GsonBuilder().create(); 
-        JsonFilePair[] response = gson.fromJson(reply, JsonFilePair[].class);
+        JsonFilePair[][] response = gson.fromJson(reply, JsonFilePair[][].class);
         //JsonDatabaseResponse response = gson.fromJson(reply, JsonDatabaseResponse.class);
         reader.close();
         in.close();
@@ -227,7 +229,7 @@ public class DatabaseController {
         //JsonFilePair pair = response.databaseResponse.get(0);
         
         System.out.println("Printing json response now");
-        System.out.println(response[0].chemicalFormula);
+        //System.out.println(response[0].chemicalFormula);
       //  System.out.println(pair.chemicalFormula);
       //  System.out.println(pair.efp_file);
         return response;   
