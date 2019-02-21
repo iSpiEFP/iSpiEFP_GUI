@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import org.jmol.modelset.Atom;
 import org.jmol.modelset.Bond;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
@@ -302,7 +303,7 @@ public class JmolVisualizer {
         }
 
         
-            //nodepane.setDividerPositions(0.6f, 0.4f);
+        //nodepane.setDividerPositions(0.6f, 0.4f);
         SplitPane vertSplit = (SplitPane) sublist.get(1);
         
         ObservableList<Node> vertlist = vertSplit.getItems();
@@ -662,6 +663,8 @@ public class JmolVisualizer {
                 fragment_list.get(index).add(i);
                 
             }
+            automaticFragmentation(fragment_list);
+
         } else {
             //manual fragmentation
             adj = JmolVisualizer.buildJmolAdjacencyList();
@@ -676,6 +679,37 @@ public class JmolVisualizer {
               loadFragmentList();
             }
        });
+    }
+    
+    /*
+     * Automatically apply fragmentation to the jmol viewer
+     * So bonds will be visually cut
+     */
+    private static void automaticFragmentation(List<ArrayList<Integer>> groups) {
+        Bond[] bonds = jmolViewer.ms.bo;
+        ArrayList<String> scripts = new ArrayList<String>();
+        int i = 0;
+        for(Bond bond : bonds) {
+            //System.out.println("bond:"+i);
+            //Bond bond = bonds[i];
+            Atom atom1 = bond.atom1;
+            Atom atom2 = bond.atom2;
+            
+            if(atom1.group.groupIndex != atom2.group.groupIndex) {
+                String jmolScript = "select atomno="+(atom1.getIndex()+1)+", atomno="+(atom2.getIndex()+1)+"; connect delete;";
+                System.out.println(jmolScript);
+                scripts.add(jmolScript);
+                
+            }
+            i++;
+        }
+        //execute scripts
+        for(String script : scripts) {
+            jmolViewer.runScript(script);
+            jmolPanel.repaint();
+        }
+        
+        
     }
 
 }

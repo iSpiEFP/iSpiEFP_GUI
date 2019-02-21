@@ -189,6 +189,8 @@ public class DatabaseFileManager {
                 //create file names
                 String xyz = chemicalName +"_"+i+".xyz";
                 String efp = chemicalName +"_"+i+".efp";
+                
+                pair[1] = pair[1].replaceFirst(chemicalName, chemicalName+"_"+i); //replace first string with correct chem name
                 System.out.println(xyz);
                 
                 createFile(this.xyzDirectory, xyz, pair[0]);
