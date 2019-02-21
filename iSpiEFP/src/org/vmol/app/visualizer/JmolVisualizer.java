@@ -63,7 +63,7 @@ public class JmolVisualizer {
 	public JmolVisualizer(JmolPanel jmolPanel, boolean automaticFragmentation){
 		this.jmolPanel = jmolPanel;
 		this.jmolViewer = jmolPanel.viewer;
-		this.automaticFragmentation = true;
+		this.automaticFragmentation = automaticFragmentation;
 	}
 	
 	public JmolVisualizer() {
@@ -90,9 +90,13 @@ public class JmolVisualizer {
    		ObservableList<Node> buttonList = getButtonList();
      	ToggleButton button_halo_on = (ToggleButton) buttonList.get(0);
     	ToggleButton button_fragmentation = (ToggleButton) buttonList.get(1);
+    	if(automaticFragmentation) { 
+    	    button_fragmentation.setDisable(true); 
+    	} else { button_fragmentation.setDisable(false); }
    		//ToggleButton button_pick_by_bonds = (ToggleButton) buttonList.get(2);
    		//ToggleButton button_pick_by_atoms = (ToggleButton) buttonList.get(3);
-   		Button button_back = (Button) buttonList.get(2);
+   		
+    	Button button_back = (Button) buttonList.get(2);
      	ToggleButton button_play_pause = (ToggleButton) buttonList.get(3);
      	Button button_show_console = (Button) buttonList.get(4);
      	Button button_submit = (Button) buttonList.get(5);
@@ -647,8 +651,6 @@ public class JmolVisualizer {
      	
         if(automaticFragmentation) {
             //auto fragmentation
-            
-            //init fragment_list         
             int length = jmolViewer.ms.at.length;
             for(int i = 0; i < length; i++){
                 System.out.println("Group for atom:"+i);
