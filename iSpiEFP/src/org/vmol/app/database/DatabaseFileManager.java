@@ -236,9 +236,9 @@ public class DatabaseFileManager {
                     String symbol = atom.getAtomName();
                     
                     coord.symbol = symbol;
-                    coord.x = atom.x;
-                    coord.y = atom.y;
-                    coord.z = atom.z;
+                    coord.x = ViewerHelper.convertAngstromToBohr(atom.x);
+                    coord.y = ViewerHelper.convertAngstromToBohr(atom.y);
+                    coord.z = ViewerHelper.convertAngstromToBohr(atom.z);
                     jsonCoordPairs.add(coord);
                     
                     //update symbol map

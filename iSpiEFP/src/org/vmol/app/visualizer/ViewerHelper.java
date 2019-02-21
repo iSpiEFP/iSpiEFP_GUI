@@ -155,4 +155,12 @@ public class ViewerHelper {
         }
         return chemicalFormula.toString();
     }
+    
+    public static double convertAngstromToBohr(double angstrom) {
+        return angstrom * 1.88972687777;
+    }
+    
+    public static double convertBohrToAngstrom(double bohr) {
+        return bohr * 0.529177;
+    }
 }
