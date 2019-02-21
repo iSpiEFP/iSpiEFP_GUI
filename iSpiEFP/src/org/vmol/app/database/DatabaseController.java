@@ -465,46 +465,40 @@ public class DatabaseController {
     private String generateQchemInput(List<ObservableList<DatabaseRecord>> data,   @SuppressWarnings("rawtypes") ArrayList<ArrayList> groups) {
 	    StringBuilder sb = new StringBuilder();
 	    this.final_selections = new ArrayList<String>();
-	    ArrayList<Atom> pdb = null;
-        try {
-            pdb = PDBParser.get_atoms(new File(MainViewController.getLastOpenedFile()));
-            
-            int group_number = 0;
-            for(ObservableList<DatabaseRecord> list : data) {
-                for(DatabaseRecord record : list) {
-                    if(record.getCheck() == true) {
-                        if(!record.getChoice().equalsIgnoreCase("NOT FOUND")) {
-                            //parse filename
-                            String file_name = record.getChoice().toString();
-                            
-                            String [] filename = file_name.split("\\.");
-                            final_selections.add(filename[0] + ".efp");
-                            if(group_number == 0) {
-                                sb.append("fragment " + filename[0] + "\n");
-                            } else {
-                                sb.append("\nfragment " + filename[0] + "\n");
-                            }
-                            //apend equivalent group coordinates
-                            ArrayList<Integer> fragment = groups.get(group_number);
-                            int i = 0;
-                            for(int atom_num : fragment) {
-                                if(i == 3) {
-                                    break;
-                                }
-                                Atom current_atom = (Atom) pdb.get(atom_num);
-                                sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z+"\n");
-                                i++;
-                            }
-                            
+	    int group_number = 0;
+        for(ObservableList<DatabaseRecord> list : data) {
+            for(DatabaseRecord record : list) {
+                if(record.getCheck() == true) {
+                    if(!record.getChoice().equalsIgnoreCase("NOT FOUND")) {
+                        //parse filename
+                        String file_name = record.getChoice().toString();
+                        
+                        String [] filename = file_name.split("\\.");
+                        final_selections.add(filename[0] + ".efp");
+                        if(group_number == 0) {
+                            sb.append("fragment " + filename[0] + "\n");
+                        } else {
+                            sb.append("\nfragment " + filename[0] + "\n");
                         }
-                        break;
+                        //apend equivalent group coordinates
+                        ArrayList<Integer> fragment = groups.get(group_number);
+                        int i = 0;
+                        for(int atom_num : fragment) {
+                            if(i == 3) {
+                                break;
+                            }
+                            org.jmol.modelset.Atom current_atom = Main.jmolPanel.viewer.ms.at[atom_num];
+
+                            //Atom current_atom = (Atom) pdb.get(atom_num);
+                            sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z+"\n");
+                            i++;
+                        }
+                        
                     }
+                    break;
                 }
-                group_number++;
             }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            group_number++;
         }
 	    return sb.toString();
 	}
