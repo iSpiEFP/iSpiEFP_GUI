@@ -132,7 +132,14 @@ public class DatabaseFileManager {
                     }
                 }
                 name = Character.toString(name.charAt(name.length()-1));
-                line = name + "      " + x_coord + "   " + y_coord + "   " + z_coord + "\n";
+                
+                //convert gamess bohr output to angstroms
+                double x = ViewerHelper.convertBohrToAngstrom(Double.parseDouble(x_coord));
+                double y = ViewerHelper.convertBohrToAngstrom(Double.parseDouble(y_coord));
+                double z = ViewerHelper.convertBohrToAngstrom(Double.parseDouble(z_coord));
+
+                
+                line = name + "      " + x + "   " + y + "   " + z + "\n";
                 result.add(line);
             }
         }

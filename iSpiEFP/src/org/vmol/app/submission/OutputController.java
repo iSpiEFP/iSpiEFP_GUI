@@ -32,6 +32,7 @@ import org.jmol.java.BS;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.JmolPanel;
 import org.vmol.app.Main;
+import org.vmol.app.visualizer.ViewerHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -276,20 +277,40 @@ public class OutputController {
                     line = br.readLine();
                     if(triggerLine.startsWith("    GEOMETRY (ANGSTROMS)")){
                         line = br.readLine();
-                    }
-                    //line = br.readLine();
-                    while (line != null && !line.isEmpty() && !line.startsWith(" STOP")) {
-                        String[] tokens = line.split("\\s+");
-                        if(tokens[0].charAt(0) == 'A' && !tokens[0].endsWith("H000")) {
-                            char atom_symbol = (tokens[0].charAt(tokens[0].length()-1));
-                            sb.append(atom_symbol);
-                            sb.append("  " + tokens[1] + "  " + tokens[2] + "  " + tokens[3] + "\n");
-                            lineCount++;
+                        //line = br.readLine();
+                        while (line != null && !line.isEmpty() && !line.startsWith(" STOP")) {
+                            String[] tokens = line.split("\\s+");
+                            if(tokens[0].charAt(0) == 'A' && !tokens[0].endsWith("H000")) {
+                                char atom_symbol = (tokens[0].charAt(tokens[0].length()-1));
+                                sb.append(atom_symbol);
+                                
+                                sb.append("  " + tokens[1] + "  " + tokens[2] + "  " + tokens[3] + "\n");
+                                lineCount++;
+                            }
+                           
+                            System.out.println(line);
+                            line = br.readLine();
                         }
-                       
-                        System.out.println(line);
-                        line = br.readLine();
+                    } else if(triggerLine.startsWith(" COORDINATES (BOHR)")) {
+                        while (line != null && !line.isEmpty() && !line.startsWith(" STOP")) {
+                            String[] tokens = line.split("\\s+");
+                            if(tokens[0].charAt(0) == 'A' && !tokens[0].endsWith("H000")) {
+                                char atom_symbol = (tokens[0].charAt(tokens[0].length()-1));
+                                sb.append(atom_symbol);
+                                //convert tokens to angstroms
+                                double x_coord = ViewerHelper.convertBohrToAngstrom(Double.parseDouble(tokens[1]));
+                                double y_coord = ViewerHelper.convertBohrToAngstrom(Double.parseDouble(tokens[2]));
+                                double z_coord = ViewerHelper.convertBohrToAngstrom(Double.parseDouble(tokens[3]));
+
+                                sb.append("  " + x_coord + "  " + y_coord + "  " + z_coord + "\n");
+                                lineCount++;
+                            }
+                           
+                            System.out.println(line);
+                            line = br.readLine();
+                        }
                     }
+                    
                 }
             }
             br.close();

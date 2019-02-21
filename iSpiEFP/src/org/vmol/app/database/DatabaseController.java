@@ -345,14 +345,14 @@ public class DatabaseController {
             @SuppressWarnings("unchecked")
             ViewerHelper viewerHelper = new ViewerHelper(jmolViewer, auxiliaryJmolViewer, this.groups.get(this.viewerIndex));
             viewerHelper.ConnectXYZBonds();
-            auxiliaryJmolViewer.setAutoBond(true);
-            Main.auxiliaryJmolPanel.viewer.runScript("hide none;");
+            //auxiliaryJmolViewer.setAutoBond(true);
+            //Main.auxiliaryJmolPanel.viewer.runScript("hide none;");
 
             //auxiliaryJmolViewer.
 	    } else {
-	        System.out.println("Wiping screen$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+	        //System.out.println("Wiping screen$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 	        
-            Main.auxiliaryJmolPanel.viewer.runScript("hide all;");
+            //Main.auxiliaryJmolPanel.viewer.runScript("hide all;");
 
 	    }
 	}
