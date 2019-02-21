@@ -267,9 +267,11 @@ public class DatabaseController {
         this.listView = listView;
         String path = data.get(0).get(this.prev_selection_index).getChoice().toString();
         if(path.equalsIgnoreCase("not found")) {
-            
+            //auxiliaryJmolViewer.openFile(null);
+            runTable(data, 0);
         } else {
-            loadAuxJmolViewer(path, 0);
+            //loadAuxJmolViewer(path, 0);
+            runTable(data, 0);
         }
         //set listener to items
         //TRIGGER LIST LOAD WITH FRAGMENT CLICK
@@ -282,6 +284,8 @@ public class DatabaseController {
                 int index = Integer.parseInt(arrOfStr[1]) - 1;
                 System.out.println("Selected itemITEM IN DB CONTROLLER: " + index);
                 
+                
+                
                 runTable(data, index);
             }
         });
@@ -292,14 +296,20 @@ public class DatabaseController {
 	    //LOAD AUXILIARY LIST
         @SuppressWarnings("rawtypes")
         TableView table = this.auxiliary_list;
-	    table.setItems(data.get(index));
+	    
+        table.setItems(data.get(index));
 	    allowOnlyOneCheck(data, index);
         this.viewerIndex = index;
         
         //Initialize first jmol viewer
         String path = data.get(index).get(this.prev_selection_index).getChoice().toString();
-        if(path.equalsIgnoreCase("not found")) {
-            
+        System.out.println(path);
+
+        if(path.equals("Not found")) {
+            System.out.println("Wiping screen &&&&&&&&&&");
+            Main.auxiliaryJmolPanel.viewer.runScript("delete;");
+            Main.auxiliaryJmolPanel.repaint();
+            loadAuxJmolViewer("Not found", index);
         } else {
             loadAuxJmolViewer(path, index);
         }
@@ -326,16 +336,24 @@ public class DatabaseController {
 	}
 	
 	private void loadAuxJmolViewer(String filename, int index) {
-	    if(!filename.equalsIgnoreCase("NOT FOUND")){
+	    
+	    if(!filename.equals("Not found")){
 	        String path = LocalBundleManager.LIBEFP_COORDINATES;
             auxiliaryJmolViewer.setAutoBond(true);
-            
+
 	        auxiliaryJmolViewer.openFile("file:"+path+"\\"+filename);
             @SuppressWarnings("unchecked")
             ViewerHelper viewerHelper = new ViewerHelper(jmolViewer, auxiliaryJmolViewer, this.groups.get(this.viewerIndex));
             viewerHelper.ConnectXYZBonds();
             auxiliaryJmolViewer.setAutoBond(true);
+            Main.auxiliaryJmolPanel.viewer.runScript("hide none;");
+
             //auxiliaryJmolViewer.
+	    } else {
+	        System.out.println("Wiping screen$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+	        
+            Main.auxiliaryJmolPanel.viewer.runScript("hide all;");
+
 	    }
 	}
 	
