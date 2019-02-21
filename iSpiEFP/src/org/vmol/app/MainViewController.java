@@ -100,15 +100,52 @@ public class MainViewController {
 				//dialog.getDialogPane().getButtonTypes().addAll(buttons)
 				//setJmolVisualization(new JmolVisualization(currStage, false));
 				//getJmolVisualization().show(file);	
-				
+                boolean automaticFragmentation = false;
+
 				//file is valid, sending to visualizer
-				JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer());
+				JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer(), automaticFragmentation);
 				jmolVisualizer.show(file);
 			} else {
 				openFileParserWindow(file);
 			}
 		}
 	}
+	
+	@FXML
+    public void autoFragOpenFile() throws IOException, UnrecognizedAtomException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Molecule");
+        fileChooser.setInitialDirectory(
+                new File(System.getProperty("user.home"))
+            );
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All Files", "*.*"),
+                new FileChooser.ExtensionFilter("XYZ", "*.xyz"),
+                new FileChooser.ExtensionFilter("PDB", "*.pdb")
+            );
+        Stage currStage = (Stage) root.getScene().getWindow();
+        
+        
+        File file = fileChooser.showOpenDialog(currStage);
+        if (file != null) {
+            // Check if it's an xyz or pdb file
+            lastOpenedFile = file.getAbsolutePath();
+            lastOpenedFileName = file.getName();
+            String fileName = file.getName();
+            System.out.println(fileName);
+            boolean isXyzorPDB = fileName.contains("xyz") || fileName.contains("pdb");
+            if (isXyzorPDB) {
+                // TODO: validate an xyz file if it is in correct format
+               
+                boolean automaticFragmentation = true;
+                //file is valid, sending to visualizer
+                JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer(), automaticFragmentation);
+                jmolVisualizer.show(file);
+            } else {
+                openFileParserWindow(file);
+            }
+        }
+    }
 	
 	private void openFileParserWindow(File file) throws IOException {
 		

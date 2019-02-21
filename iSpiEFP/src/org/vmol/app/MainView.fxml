@@ -23,6 +23,7 @@
                 <Menu mnemonicParsing="false" text="Viewer">
                   <items>
                     <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
+                    <MenuItem mnemonicParsing="false" onAction="#autoFragOpenFile" text="Open(Auto Fragmentation)" />
                         
                   </items>
                 </Menu>

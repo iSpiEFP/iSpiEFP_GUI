@@ -57,12 +57,13 @@ public class JmolVisualizer {
 	private static LinkedList<Integer> adj[];
 	private static List<ArrayList<Integer>> fragment_list;	
 	public static ArrayList<ArrayList<Integer>> bondMap;
+	public static boolean automaticFragmentation = false;
 	
 	
-	
-	public JmolVisualizer(JmolPanel jmolPanel){
+	public JmolVisualizer(JmolPanel jmolPanel, boolean automaticFragmentation){
 		this.jmolPanel = jmolPanel;
 		this.jmolViewer = jmolPanel.viewer;
+		this.automaticFragmentation = true;
 	}
 	
 	public JmolVisualizer() {
@@ -105,6 +106,8 @@ public class JmolVisualizer {
    
    		System.out.println("running visualizer...");
     			
+   		
+   		
    		
    		//build original bond map
         bondMap = buildOriginalBondMap(jmolViewer);
@@ -640,9 +643,28 @@ public class JmolVisualizer {
 	    jmolPanel.viewer.clearSelection();
      	jmolPanel.repaint();
 	
-     	adj = JmolVisualizer.buildJmolAdjacencyList();
-     	fragment_list = new ArrayList<ArrayList<Integer>>();
-     	DFS();
+        fragment_list = new ArrayList<ArrayList<Integer>>();
+     	
+        if(automaticFragmentation) {
+            //auto fragmentation
+            
+            //init fragment_list         
+            int length = jmolViewer.ms.at.length;
+            for(int i = 0; i < length; i++){
+                System.out.println("Group for atom:"+i);
+                System.out.println(jmolViewer.ms.at[i].group.groupIndex);
+                int index = (jmolViewer.ms.at[i].group.groupIndex);
+                if(index >= fragment_list.size()) {
+                    fragment_list.add(new ArrayList<Integer>());
+                }
+                fragment_list.get(index).add(i);
+                
+            }
+        } else {
+            //manual fragmentation
+            adj = JmolVisualizer.buildJmolAdjacencyList();
+     	    DFS();
+        }
 
      	
      	Platform.runLater(new Runnable() {
