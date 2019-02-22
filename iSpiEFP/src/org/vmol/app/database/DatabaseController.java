@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -128,7 +129,17 @@ public class DatabaseController {
                     for(String [] pair_name : group) {
                         String xyz_filename = pair_name[0];
                         String efp_filename = pair_name[1];
+                        String rmsd = pair_name[2];
                         
+                        
+                        //files with rmsd 0.5 and under only
+                        BigDecimal val = new BigDecimal(rmsd);
+                        if(val.doubleValue() > 0.5) {
+                            unknownGroups.add(groupNumber-1);
+                            //if(yes) {
+                            to_be_submitted.add(groupNumber-1);
+                        
+                        }
                         filenames.add(xyz_filename);
                         //groupFound = true;
                     }
@@ -153,17 +164,17 @@ public class DatabaseController {
             
             if(to_be_submitted.size() > 0){
                 //sendRealGamessForm(groups, to_be_submitted);
-                Alert alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle("Gamess");
-                alert.setHeaderText(null);
-                alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
-                Optional<ButtonType> result = alert.showAndWait();
+                //Alert alert = new Alert(AlertType.CONFIRMATION);
+                //alert.setTitle("Gamess");
+                //alert.setHeaderText(null);
+                //alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+                //Optional<ButtonType> result = alert.showAndWait();
                 
-                if (result.get() == ButtonType.OK) {
+                //if (result.get() == ButtonType.OK) {
                     GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups);
                     gamessFormController.run();
                     
-                }
+                //}
             }
             
             Button button_libefp = getLibefpSubmitButton();
@@ -191,17 +202,17 @@ public class DatabaseController {
             }   
             //sendRealGamessForm(groups, to_be_submitted);
           //sendRealGamessForm(groups, to_be_submitted);
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Gamess");
-            alert.setHeaderText(null);
-            alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
-            Optional<ButtonType> result = alert.showAndWait();
+            //Alert alert = new Alert(AlertType.CONFIRMATION);
+            //a/lert.setTitle("Gamess");
+            //alert.setHeaderText(null);
+            //alert.setContentText("There are groups you have not picked parameters for, do you want to calculate them by Gamess?");
+            //Optional<ButtonType> result = alert.showAndWait();
             
-            if (result.get() == ButtonType.OK) {
+            //if (result.get() == ButtonType.OK) {
                 GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups);
                 gamessFormController.run();
                 
-            }
+            //}
         }
 	}
 	
