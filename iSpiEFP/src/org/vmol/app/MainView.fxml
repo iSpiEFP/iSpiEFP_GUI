@@ -59,8 +59,8 @@
                   <Button layoutX="139.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="70.0" text="undo" />
                   <ToggleButton layoutX="221.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="play_pause" />
                   <Button layoutX="283.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="show_console" />
-                  <Button layoutX="343.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="80.0" text="Submit" />
-                  <Button layoutX="429.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="70.0" text="libefp" />
+                  <Button layoutX="343.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="120.0" text="Search Fragments" />
+                  <Button layoutX="473.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="70.0" text="libefp" />
                </children>
             </Pane>
          </children>
