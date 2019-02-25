@@ -123,7 +123,7 @@ public class gamessInputController implements Initializable {
             for (int j = 0; j < groups.get((Integer) to_be_submitted.get(i)).size(); j++) {
                 int atomNum = (int) groups.get((Integer) to_be_submitted.get(i)).get(j);
                 org.jmol.modelset.Atom atom = viewer.ms.at[atomNum];
-                Atom liteAtom = new Atom(atom.getAtomName(), atomNum, atom.getElementNumber(), atom.x, atom.y, atom.z);
+                Atom liteAtom = new Atom(atom.getElementSymbol(), atomNum, atom.getElementNumber(), atom.x, atom.y, atom.z);
                 curr_group.add(liteAtom);
             }
             final_lists.add(curr_group);

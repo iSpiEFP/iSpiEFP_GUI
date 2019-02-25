@@ -70,6 +70,7 @@ public class ViewerHelper {
             System.out.println(xyzAtomNum);
             System.out.println("bonded too");
             org.jmol.modelset.Atom atom = viewer.ms.at[atomNum];
+            
             for(int u = 0; u < atom.getBondCount(); u++){
                 //System.out.println(atom.getBondedAtomIndex(u));
                 System.out.println(viewer.ms.at[atom.getBondedAtomIndex(u)]);
