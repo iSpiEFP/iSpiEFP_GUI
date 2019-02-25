@@ -242,7 +242,7 @@ public class DatabaseFileManager {
                     int atomNum = (int) groups.get(x).get(j);
                     org.jmol.modelset.Atom atom = viewer.ms.at[atomNum];
                     JsonCoordinatePair coord = new JsonCoordinatePair();
-                    String symbol = atom.getAtomName();
+                    String symbol = atom.getElementSymbol();
                     
                     coord.symbol = symbol;
                     coord.x = ViewerHelper.convertAngstromToBohr(atom.x);
