@@ -204,7 +204,7 @@ public class JobManager implements Runnable {
         int port = Main.iSpiEFP_PORT;
 
         //send over job data to database
-        String query = "Check2";
+        String query = "Check";
         query += "$END$";
         query += username + "  " + hostname + "  " + type;
         query += "$ENDALL$";

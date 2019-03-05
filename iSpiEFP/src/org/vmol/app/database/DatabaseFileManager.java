@@ -282,6 +282,6 @@ public class DatabaseFileManager {
             jsonFragments[x].coords = jsonCoordPairs;
         }
         String json = new Gson().toJson(jsonFragments);
-        return "Query2$END$" + json + "$ENDALL$";
+        return "Query$END$" + json + "$ENDALL$";
     }
 }

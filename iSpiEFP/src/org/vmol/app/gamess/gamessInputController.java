@@ -456,7 +456,7 @@ public class gamessInputController implements Initializable {
                     String time = currentTime;
 
                     // send over job data to database
-                    String query = "Submit2";
+                    String query = "Submit";
                     query += "$END$";
                     query += username + "  " + hostname + "  " + jobID + "  " + title + "  " + time + "  " + "QUEUE"
                             + "  " + "GAMESS";

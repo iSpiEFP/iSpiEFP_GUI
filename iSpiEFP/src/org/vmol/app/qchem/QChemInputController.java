@@ -614,7 +614,7 @@ public class QChemInputController implements Initializable {
                 int port = Main.iSpiEFP_PORT;
 
                 //send over job data to database
-                String query = "Submit2";
+                String query = "Submit";
                 query += "$END$";
                 query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
                 query += "$ENDALL$";
