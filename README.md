@@ -7,6 +7,10 @@ This application serves as a job-workflow manager which binds different technolo
 For patch notes on the latest release: iSpiEFP Version 1.0-Alpha
  - https://github.com/slipchenko/iSpiEFP_Dev_Scripts/releases/tag/v1.0-alpha
  
+### Help
+For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>
+---
+ 
 ### Chemistry Technologies
 iSpiEFP uses many different chemistry packages for visualizing and computing:
 #### Jmol
@@ -16,9 +20,6 @@ For more information visit: http://jmol.sourceforge.net/
 The General Atomic and Molecular Electronic Structure System (GAMESS) is a general ab initio quantum chemistry package. GAMESS is maintained by the members of the Gordon research group at Iowa State University. For more information visit: https://www.msg.chem.iastate.edu/gamess/
 #### LibEFP
 LibEFP is a full implementation of the Effective Fragment Potential (EFP method). LibEFP facilitates extension of unique electronic structure methodologies designed for accurate simulations in the gas phase to condensed phases via QM/EFP. LibEFP is designed to give developers of quantum chemistry software an easy way to add EFP support to their favorite package. For more information visit: http://carlosborca.com/libefp.html
-
-### Help
-For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>
 
 ---
 
