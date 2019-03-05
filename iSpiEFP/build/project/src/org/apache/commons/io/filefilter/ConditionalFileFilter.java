@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * Defines operations for conditional file filters.
  *
- * @since 1.1
  * @version $Id$
+ * @since 1.1
  */
 public interface ConditionalFileFilter {
 

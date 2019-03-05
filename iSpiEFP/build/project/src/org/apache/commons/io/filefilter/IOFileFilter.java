@@ -24,8 +24,8 @@ import java.io.FilenameFilter;
  * An interface which brings the FileFilter and FilenameFilter
  * interfaces together.
  *
- * @since 1.0
  * @version $Id$
+ * @since 1.0
  */
 public interface IOFileFilter extends FileFilter, FilenameFilter {
 
@@ -34,7 +34,7 @@ public interface IOFileFilter extends FileFilter, FilenameFilter {
      * <p>
      * Defined in {@link java.io.FileFilter}.
      *
-     * @param file  the File to check
+     * @param file the File to check
      * @return true if this file matches the test
      */
     @Override
@@ -46,7 +46,7 @@ public interface IOFileFilter extends FileFilter, FilenameFilter {
      * Defined in {@link java.io.FilenameFilter}.
      *
      * @param dir  the directory File to check
-     * @param name  the filename within the directory to check
+     * @param name the filename within the directory to check
      * @return true if this file matches the test
      */
     @Override

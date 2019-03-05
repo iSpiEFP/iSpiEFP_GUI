@@ -24,7 +24,8 @@ import java.io.OutputStream;
  * <p>
  * This output stream has no destination (file/socket etc.) and all
  * bytes written to it are ignored and lost.
- *</p>
+ * </p>
+ *
  * @version $Id$
  */
 public class NullOutputStream extends OutputStream {
@@ -36,7 +37,8 @@ public class NullOutputStream extends OutputStream {
 
     /**
      * Does nothing - output to <code>/dev/null</code>.
-     * @param b The bytes to write
+     *
+     * @param b   The bytes to write
      * @param off The start offset
      * @param len The number of bytes to write
      */
@@ -47,6 +49,7 @@ public class NullOutputStream extends OutputStream {
 
     /**
      * Does nothing - output to <code>/dev/null</code>.
+     *
      * @param b The byte to write
      */
     @Override
@@ -56,6 +59,7 @@ public class NullOutputStream extends OutputStream {
 
     /**
      * Does nothing - output to <code>/dev/null</code>.
+     *
      * @param b The bytes to write
      * @throws IOException never
      */

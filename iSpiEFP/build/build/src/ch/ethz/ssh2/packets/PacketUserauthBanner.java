@@ -8,57 +8,51 @@ import java.io.IOException;
 
 /**
  * PacketUserauthBanner.
- * 
+ *
  * @author Christian Plattner
  * @version 2.50, 03/15/10
  */
-public class PacketUserauthBanner
-{
-	byte[] payload;
+public class PacketUserauthBanner {
+    byte[] payload;
 
-	String message;
-	String language;
+    String message;
+    String language;
 
-	public PacketUserauthBanner(String message, String language)
-	{
-		this.message = message;
-		this.language = language;
-	}
+    public PacketUserauthBanner(String message, String language) {
+        this.message = message;
+        this.language = language;
+    }
 
-	public String getBanner()
-	{
-		return message;
-	}
-	
-	public PacketUserauthBanner(byte payload[], int off, int len) throws IOException
-	{
-		this.payload = new byte[len];
-		System.arraycopy(payload, off, this.payload, 0, len);
+    public String getBanner() {
+        return message;
+    }
 
-		TypesReader tr = new TypesReader(payload, off, len);
+    public PacketUserauthBanner(byte payload[], int off, int len) throws IOException {
+        this.payload = new byte[len];
+        System.arraycopy(payload, off, this.payload, 0, len);
 
-		int packet_type = tr.readByte();
+        TypesReader tr = new TypesReader(payload, off, len);
 
-		if (packet_type != Packets.SSH_MSG_USERAUTH_BANNER)
-			throw new IOException("This is not a SSH_MSG_USERAUTH_BANNER! (" + packet_type + ")");
+        int packet_type = tr.readByte();
 
-		message = tr.readString("UTF-8");
-		language = tr.readString();
+        if (packet_type != Packets.SSH_MSG_USERAUTH_BANNER)
+            throw new IOException("This is not a SSH_MSG_USERAUTH_BANNER! (" + packet_type + ")");
 
-		if (tr.remain() != 0)
-			throw new IOException("Padding in SSH_MSG_USERAUTH_REQUEST packet!");
-	}
+        message = tr.readString("UTF-8");
+        language = tr.readString();
 
-	public byte[] getPayload()
-	{
-		if (payload == null)
-		{
-			TypesWriter tw = new TypesWriter();
-			tw.writeByte(Packets.SSH_MSG_USERAUTH_BANNER);
-			tw.writeString(message);
-			tw.writeString(language);
-			payload = tw.getBytes();
-		}
-		return payload;
-	}
+        if (tr.remain() != 0)
+            throw new IOException("Padding in SSH_MSG_USERAUTH_REQUEST packet!");
+    }
+
+    public byte[] getPayload() {
+        if (payload == null) {
+            TypesWriter tw = new TypesWriter();
+            tw.writeByte(Packets.SSH_MSG_USERAUTH_BANNER);
+            tw.writeString(message);
+            tw.writeString(language);
+            payload = tw.getBytes();
+        }
+        return payload;
+    }
 }

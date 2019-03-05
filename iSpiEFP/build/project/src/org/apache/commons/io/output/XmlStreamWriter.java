@@ -16,19 +16,12 @@
  */
 package org.apache.commons.io.output;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import org.apache.commons.io.input.XmlStreamReader;
+
+import java.io.*;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.io.input.XmlStreamReader;
 
 /**
  * Character stream that handles all the necessary Voodoo to figure out the
@@ -64,7 +57,7 @@ public class XmlStreamWriter extends Writer {
      * Constructs a new XML stream writer for the specified output stream
      * with the specified default encoding.
      *
-     * @param out The output stream
+     * @param out             The output stream
      * @param defaultEncoding The default encoding if not encoding could be detected
      */
     public XmlStreamWriter(final OutputStream out, final String defaultEncoding) {
@@ -78,7 +71,7 @@ public class XmlStreamWriter extends Writer {
      *
      * @param file The file to write to
      * @throws FileNotFoundException if there is an error creating or
-     * opening the file
+     *                               opening the file
      */
     public XmlStreamWriter(final File file) throws FileNotFoundException {
         this(file, null);
@@ -88,10 +81,10 @@ public class XmlStreamWriter extends Writer {
      * Constructs a new XML stream writer for the specified file
      * with the specified default encoding.
      *
-     * @param file The file to write to
+     * @param file            The file to write to
      * @param defaultEncoding The default encoding if not encoding could be detected
      * @throws FileNotFoundException if there is an error creating or
-     * opening the file
+     *                               opening the file
      */
     public XmlStreamWriter(final File file, final String defaultEncoding) throws FileNotFoundException {
         this(new FileOutputStream(file), defaultEncoding);
@@ -146,8 +139,8 @@ public class XmlStreamWriter extends Writer {
      * Detects the encoding.
      *
      * @param cbuf the buffer to write the characters from
-     * @param off The start offset
-     * @param len The number of characters to write
+     * @param off  The start offset
+     * @param len  The number of characters to write
      * @throws IOException if an error occurs detecting the encoding
      */
     private void detectEncoding(final char[] cbuf, final int off, final int len)
@@ -203,8 +196,8 @@ public class XmlStreamWriter extends Writer {
      * Writes the characters to the underlying writer, detecting encoding.
      *
      * @param cbuf the buffer to write the characters from
-     * @param off The start offset
-     * @param len The number of characters to write
+     * @param off  The start offset
+     * @param len  The number of characters to write
      * @throws IOException if an error occurs detecting the encoding
      */
     @Override

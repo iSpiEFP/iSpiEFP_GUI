@@ -10,16 +10,15 @@ import ch.ethz.ssh2.transport.KexManager;
 
 /**
  * CryptoWishList.
- * 
+ *
  * @author Christian Plattner
  * @version 2.50, 03/15/10
  */
-public class CryptoWishList
-{
-	public String[] kexAlgorithms = KexManager.getDefaultKexAlgorithmList();
-	public String[] serverHostKeyAlgorithms = KexManager.getDefaultServerHostkeyAlgorithmList();
-	public String[] c2s_enc_algos = BlockCipherFactory.getDefaultCipherList();
-	public String[] s2c_enc_algos = BlockCipherFactory.getDefaultCipherList();
-	public String[] c2s_mac_algos = MAC.getMacList();
-	public String[] s2c_mac_algos = MAC.getMacList();
+public class CryptoWishList {
+    public String[] kexAlgorithms = KexManager.getDefaultKexAlgorithmList();
+    public String[] serverHostKeyAlgorithms = KexManager.getDefaultServerHostkeyAlgorithmList();
+    public String[] c2s_enc_algos = BlockCipherFactory.getDefaultCipherList();
+    public String[] s2c_enc_algos = BlockCipherFactory.getDefaultCipherList();
+    public String[] c2s_mac_algos = MAC.getMacList();
+    public String[] s2c_mac_algos = MAC.getMacList();
 }

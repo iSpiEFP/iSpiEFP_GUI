@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.commons.io.monitor;
+
 import java.io.File;
 
 /**
@@ -22,8 +23,8 @@ import java.io.File;
  * <p>
  * Register {@link FileAlterationListener}s with a {@link FileAlterationObserver}.
  *
- * @see FileAlterationObserver
  * @version $Id$
+ * @see FileAlterationObserver
  * @since 2.0
  */
 public interface FileAlterationListener {

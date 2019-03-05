@@ -29,10 +29,9 @@ import java.util.List;
  * Checking of the file filter list stops when the first filter returns
  * {@code false}.
  *
- * @since 1.0
  * @version $Id$
- *
  * @see FileFilterUtils#and(IOFileFilter...)
+ * @since 1.0
  */
 public class AndFileFilter
         extends AbstractFileFilter
@@ -40,7 +39,9 @@ public class AndFileFilter
 
     private static final long serialVersionUID = 7215974688563965257L;
 
-    /** The list of file filters. */
+    /**
+     * The list of file filters.
+     */
     private final List<IOFileFilter> fileFilters;
 
     /**
@@ -56,7 +57,7 @@ public class AndFileFilter
      * Constructs a new instance of <code>AndFileFilter</code>
      * with the specified list of filters.
      *
-     * @param fileFilters  a List of IOFileFilter instances, copied, null ignored
+     * @param fileFilters a List of IOFileFilter instances, copied, null ignored
      * @since 1.1
      */
     public AndFileFilter(final List<IOFileFilter> fileFilters) {
@@ -70,8 +71,8 @@ public class AndFileFilter
     /**
      * Constructs a new file filter that ANDs the result of two other filters.
      *
-     * @param filter1  the first filter, must not be null
-     * @param filter2  the second filter, must not be null
+     * @param filter1 the first filter, must not be null
+     * @param filter2 the second filter, must not be null
      * @throws IllegalArgumentException if either filter is null
      */
     public AndFileFilter(final IOFileFilter filter1, final IOFileFilter filter2) {

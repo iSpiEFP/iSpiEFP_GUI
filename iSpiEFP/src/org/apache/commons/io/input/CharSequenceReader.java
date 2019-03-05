@@ -16,10 +16,10 @@
  */
 package org.apache.commons.io.input;
 
-import static org.apache.commons.io.IOUtils.EOF;
-
 import java.io.Reader;
 import java.io.Serializable;
+
+import static org.apache.commons.io.IOUtils.EOF;
 
 /**
  * {@link Reader} implementation that can read from String, StringBuffer,
@@ -92,7 +92,7 @@ public class CharSequenceReader extends Reader implements Serializable {
     /**
      * Read the specified number of characters into the array.
      *
-     * @param array The array to store the characters in
+     * @param array  The array to store the characters in
      * @param offset The starting position in the array to store
      * @param length The maximum number of characters to read
      * @return The number of characters read or -1 if there are
@@ -116,7 +116,7 @@ public class CharSequenceReader extends Reader implements Serializable {
             if (c == EOF) {
                 return count;
             }
-            array[offset + i] = (char)c;
+            array[offset + i] = (char) c;
             count++;
         }
         return count;
@@ -146,7 +146,7 @@ public class CharSequenceReader extends Reader implements Serializable {
         if (idx >= charSequence.length()) {
             return EOF;
         }
-        final int dest = (int)Math.min(charSequence.length(), idx + n);
+        final int dest = (int) Math.min(charSequence.length(), idx + n);
         final int count = dest - idx;
         idx = dest;
         return count;

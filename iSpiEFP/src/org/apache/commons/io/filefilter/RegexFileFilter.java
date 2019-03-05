@@ -16,11 +16,11 @@
  */
 package org.apache.commons.io.filefilter;
 
+import org.apache.commons.io.IOCase;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.regex.Pattern;
-
-import org.apache.commons.io.IOCase;
 
 /**
  * Filters files using supplied regular expression(s).
@@ -44,7 +44,9 @@ import org.apache.commons.io.IOCase;
 public class RegexFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = 4269646126155225062L;
-    /** The regular expression pattern that will be used to match filenames */
+    /**
+     * The regular expression pattern that will be used to match filenames
+     */
     private final Pattern pattern;
 
     /**
@@ -64,8 +66,8 @@ public class RegexFileFilter extends AbstractFileFilter implements Serializable 
     /**
      * Construct a new regular expression filter with the specified flags case sensitivity.
      *
-     * @param pattern regular string expression to match
-     * @param caseSensitivity  how to handle case sensitivity, null means case-sensitive
+     * @param pattern         regular string expression to match
+     * @param caseSensitivity how to handle case sensitivity, null means case-sensitive
      * @throws IllegalArgumentException if the pattern is null
      */
     public RegexFileFilter(final String pattern, final IOCase caseSensitivity) {
@@ -83,7 +85,7 @@ public class RegexFileFilter extends AbstractFileFilter implements Serializable 
      * Construct a new regular expression filter with the specified flags.
      *
      * @param pattern regular string expression to match
-     * @param flags pattern flags - e.g. {@link Pattern#CASE_INSENSITIVE}
+     * @param flags   pattern flags - e.g. {@link Pattern#CASE_INSENSITIVE}
      * @throws IllegalArgumentException if the pattern is null
      */
     public RegexFileFilter(final String pattern, final int flags) {
@@ -110,8 +112,8 @@ public class RegexFileFilter extends AbstractFileFilter implements Serializable 
     /**
      * Checks to see if the filename matches one of the regular expressions.
      *
-     * @param dir   the file directory (ignored)
-     * @param name  the filename
+     * @param dir  the file directory (ignored)
+     * @param name the filename
      * @return true if the filename matches one of the regular expressions
      */
     @Override

@@ -43,20 +43,21 @@ public class UnixLineEndingInputStream extends InputStream {
      * @param in                        The input stream to wrap
      * @param ensureLineFeedAtEndOfFile true to ensure that the file ends with LF
      */
-    public UnixLineEndingInputStream( final InputStream in, final boolean ensureLineFeedAtEndOfFile ) {
+    public UnixLineEndingInputStream(final InputStream in, final boolean ensureLineFeedAtEndOfFile) {
         this.target = in;
         this.ensureLineFeedAtEndOfFile = ensureLineFeedAtEndOfFile;
     }
 
     /**
      * Reads the next item from the target, updating internal flags in the process
+     *
      * @return the next int read from the target stream
      * @throws IOException upon error
      */
     private int readWithUpdate() throws IOException {
         final int target = this.target.read();
         eofSeen = target == -1;
-        if ( eofSeen ) {
+        if (eofSeen) {
             return target;
         }
         slashNSeen = target == '\n';
@@ -70,20 +71,18 @@ public class UnixLineEndingInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         final boolean previousWasSlashR = slashRSeen;
-        if ( eofSeen ) {
+        if (eofSeen) {
             return eofGame(previousWasSlashR);
-        }
-        else {
+        } else {
             final int target = readWithUpdate();
-            if ( eofSeen ) {
+            if (eofSeen) {
                 return eofGame(previousWasSlashR);
             }
-            if (slashRSeen)
-            {
+            if (slashRSeen) {
                 return '\n';
             }
 
-            if ( previousWasSlashR && slashNSeen){
+            if (previousWasSlashR && slashNSeen) {
                 return read();
             }
 
@@ -93,14 +92,15 @@ public class UnixLineEndingInputStream extends InputStream {
 
     /**
      * Handles the eof-handling at the end of the stream
+     *
      * @param previousWasSlashR Indicates if the last seen was a \r
      * @return The next char to output to the stream
      */
     private int eofGame(final boolean previousWasSlashR) {
-        if ( previousWasSlashR || !ensureLineFeedAtEndOfFile ) {
+        if (previousWasSlashR || !ensureLineFeedAtEndOfFile) {
             return -1;
         }
-        if ( !slashNSeen ) {
+        if (!slashNSeen) {
             slashNSeen = true;
             return '\n';
         } else {
@@ -110,6 +110,7 @@ public class UnixLineEndingInputStream extends InputStream {
 
     /**
      * Closes the stream. Also closes the underlying stream.
+     *
      * @throws IOException upon error
      */
     @Override
@@ -122,7 +123,7 @@ public class UnixLineEndingInputStream extends InputStream {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void mark( final int readlimit ) {
-        throw new UnsupportedOperationException( "Mark notsupported" );
+    public synchronized void mark(final int readlimit) {
+        throw new UnsupportedOperationException("Mark notsupported");
     }
 }

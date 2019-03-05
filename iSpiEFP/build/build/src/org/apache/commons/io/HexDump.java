@@ -27,7 +27,6 @@ import java.nio.charset.Charset;
  * in hexadecimal form.
  * <p>
  * Origin of code: POI.
- *
  */
 public class HexDump {
 
@@ -55,17 +54,16 @@ public class HexDump {
      * All bytes between the given index (inclusive) and the end of the
      * data array are dumped.
      *
-     * @param data  the byte array to be dumped
-     * @param offset  offset of the byte array within a larger entity
-     * @param stream  the OutputStream to which the data is to be
+     * @param data   the byte array to be dumped
+     * @param offset offset of the byte array within a larger entity
+     * @param stream the OutputStream to which the data is to be
      *               written
-     * @param index initial index into the byte array
-     *
-     * @throws IOException is thrown if anything goes wrong writing
-     *         the data to stream
+     * @param index  initial index into the byte array
+     * @throws IOException                    is thrown if anything goes wrong writing
+     *                                        the data to stream
      * @throws ArrayIndexOutOfBoundsException if the index is
-     *         outside the data array's bounds
-     * @throws IllegalArgumentException if the output stream is null
+     *                                        outside the data array's bounds
+     * @throws IllegalArgumentException       if the output stream is null
      */
 
     public static void dump(final byte[] data, final long offset,
@@ -76,7 +74,7 @@ public class HexDump {
         if (index < 0 || index >= data.length) {
             throw new ArrayIndexOutOfBoundsException(
                     "illegal index: " + index + " into array of length "
-                    + data.length);
+                            + data.length);
         }
         if (stream == null) {
             throw new IllegalArgumentException("cannot write to nullstream");
@@ -122,19 +120,19 @@ public class HexDump {
             System.getProperty("line.separator");
     private static final char[] _hexcodes =
             {
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'A', 'B', 'C', 'D', 'E', 'F'
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                    'A', 'B', 'C', 'D', 'E', 'F'
             };
     private static final int[] _shifts =
             {
-                28, 24, 20, 16, 12, 8, 4, 0
+                    28, 24, 20, 16, 12, 8, 4, 0
             };
 
     /**
      * Dump a long value into a StringBuilder.
      *
      * @param _lbuffer the StringBuilder to dump the value in
-     * @param value  the long value to be dumped
+     * @param value    the long value to be dumped
      * @return StringBuilder containing the dumped value.
      */
     private static StringBuilder dump(final StringBuilder _lbuffer, final long value) {
@@ -149,7 +147,7 @@ public class HexDump {
      * Dump a byte value into a StringBuilder.
      *
      * @param _cbuffer the StringBuilder to dump the value in
-     * @param value  the byte value to be dumped
+     * @param value    the byte value to be dumped
      * @return StringBuilder containing the dumped value.
      */
     private static StringBuilder dump(final StringBuilder _cbuffer, final byte value) {

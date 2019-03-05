@@ -10,64 +10,68 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="root" prefHeight="500.0" prefWidth="550" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vmol.app.MainViewController">
-   <top>
-      <VBox BorderPane.alignment="CENTER">
-         <children>
-            <MenuBar>
-              <menus>
-                <Menu mnemonicParsing="false" text="Viewer">
-                  <items>
-                    <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
-                        <MenuItem mnemonicParsing="false" text="Close" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Gamess">
-                  <items>
-                    
-                    <MenuItem mnemonicParsing="false" onAction="#openGamessSubmissionHistoryWindow" text="Submission History.." />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Libefp">
-                  <items>
-                    
-                    <MenuItem mnemonicParsing="false" onAction="#openSubmissionHistoryWindow" text="Submission History.." />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Server">
-                  <items>
-                    <MenuItem mnemonicParsing="false" onAction="#openServersListWindow" text="Edit Servers.." />
-                  </items>
-                </Menu>
-                
-                <Menu mnemonicParsing="false" text="Help">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
-                  </items>
-                </Menu>
-              </menus>
-            </MenuBar>
-         </children>
-      </VBox>
-   </top>
-   <bottom>
-      <HBox BorderPane.alignment="CENTER">
-         <children>
-            <Label text="iSpiEFP">
-               <HBox.margin>
-                  <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
-               </HBox.margin>
-            </Label>
-         </children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-         </padding>
-      </HBox>
-   </bottom>
-   <center>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-   </center>
+<BorderPane fx:id="root" prefHeight="500.0" prefWidth="550" xmlns="http://javafx.com/javafx/8.0.60"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vmol.app.MainViewController">
+    <top>
+        <VBox BorderPane.alignment="CENTER">
+            <children>
+                <MenuBar>
+                    <menus>
+                        <Menu mnemonicParsing="false" text="Viewer">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open"/>
+                                <MenuItem mnemonicParsing="false" text="Close"/>
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Gamess">
+                            <items>
+
+                                <MenuItem mnemonicParsing="false" onAction="#openGamessSubmissionHistoryWindow"
+                                          text="Submission History.."/>
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Libefp">
+                            <items>
+
+                                <MenuItem mnemonicParsing="false" onAction="#openSubmissionHistoryWindow"
+                                          text="Submission History.."/>
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Server">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#openServersListWindow"
+                                          text="Edit Servers.."/>
+                            </items>
+                        </Menu>
+
+                        <Menu mnemonicParsing="false" text="Help">
+                            <items>
+                                <MenuItem mnemonicParsing="false" text="About"/>
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+            </children>
+        </VBox>
+    </top>
+    <bottom>
+        <HBox BorderPane.alignment="CENTER">
+            <children>
+                <Label text="iSpiEFP">
+                    <HBox.margin>
+                        <Insets bottom="6.0" left="6.0" right="6.0" top="6.0"/>
+                    </HBox.margin>
+                </Label>
+            </children>
+            <BorderPane.margin>
+                <Insets/>
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
+            </padding>
+        </HBox>
+    </bottom>
+    <center>
+        <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+    </center>
 </BorderPane>

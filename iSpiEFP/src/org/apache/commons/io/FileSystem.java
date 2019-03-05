@@ -32,28 +32,28 @@ import java.util.Objects;
  */
 public enum FileSystem {
 
-    GENERIC(Integer.MAX_VALUE, Integer.MAX_VALUE, new char[] { 0 }, new String[] {}),
+    GENERIC(Integer.MAX_VALUE, Integer.MAX_VALUE, new char[]{0}, new String[]{}),
 
-    LINUX(255, 4096, new char[] {
+    LINUX(255, 4096, new char[]{
             // KEEP THIS ARRAY SORTED!
             // @formatter:off
             // ASCII NUL
             0,
-             '/'
+            '/'
             // @formatter:on
-    }, new String[] {}),
+    }, new String[]{}),
 
-    MAC_OSX(255, 1024, new char[] {
+    MAC_OSX(255, 1024, new char[]{
             // KEEP THIS ARRAY SORTED!
             // @formatter:off
             // ASCII NUL
             0,
             '/',
-             ':'
+            ':'
             // @formatter:on
-    }, new String[] {}),
+    }, new String[]{}),
 
-    WINDOWS(255, 32000, new char[] {
+    WINDOWS(255, 32000, new char[]{
             // KEEP THIS ARRAY SORTED!
             // @formatter:off
             // ASCII NUL
@@ -65,8 +65,8 @@ public enum FileSystem {
             // @formatter:on
     },
             // KEEP THIS ARRAY SORTED!
-            new String[] { "AUX", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "CON", "LPT1",
-                    "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "NUL", "PRN" });
+            new String[]{"AUX", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "CON", "LPT1",
+                    "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "NUL", "PRN"});
 
     /**
      * <p>
@@ -126,8 +126,7 @@ public enum FileSystem {
     /**
      * Decides if the operating system matches.
      *
-     * @param osNamePrefix
-     *            the prefix for the os name
+     * @param osNamePrefix the prefix for the os name
      * @return true if matches, or false if not or can't determine
      */
     private static boolean getOsMatchesName(final String osNamePrefix) {
@@ -143,8 +142,7 @@ public enum FileSystem {
      * {@code System.err}.
      * </p>
      *
-     * @param property
-     *            the system property name
+     * @param property the system property name
      * @return the system property value or {@code null} if a security problem occurs
      */
     private static String getSystemProperty(final String property) {
@@ -164,10 +162,8 @@ public enum FileSystem {
      * This method is package private instead of private to support unit test invocation.
      * </p>
      *
-     * @param osName
-     *            the actual OS name
-     * @param osNamePrefix
-     *            the prefix for the expected OS name
+     * @param osName       the actual OS name
+     * @param osNamePrefix the prefix for the expected OS name
      * @return true if matches, or false if not or can't determine
      */
     private static boolean isOsNameMatch(final String osName, final String osNamePrefix) {
@@ -184,15 +180,11 @@ public enum FileSystem {
 
     /**
      * Constructs a new instance.
-     * 
-     * @param maxFileLength
-     *            the maximum length for file names. The file name does not include folders.
-     * @param maxPathLength
-     *            the maximum length of the path to a file. This can include folders.
-     * @param illegalFileNameChars
-     *            illegal characters for this file system.
-     * @param reservedFileNames
-     *            the reserved file names.
+     *
+     * @param maxFileLength        the maximum length for file names. The file name does not include folders.
+     * @param maxPathLength        the maximum length of the path to a file. This can include folders.
+     * @param illegalFileNameChars illegal characters for this file system.
+     * @param reservedFileNames    the reserved file names.
      */
     FileSystem(final int maxFileLength, final int maxPathLength, final char[] illegalFileNameChars,
                final String[] reservedFileNames) {
@@ -231,7 +223,7 @@ public enum FileSystem {
 
     /**
      * Gets a cloned copy of the reserved file names.
-     * 
+     *
      * @return the reserved file names.
      */
     public String[] getReservedFileNames() {
@@ -240,9 +232,8 @@ public enum FileSystem {
 
     /**
      * Returns {@code true} if the given character is illegal in a file name, {@code false} otherwise.
-     * 
-     * @param c
-     *            the character to test
+     *
+     * @param c the character to test
      * @return {@code true} if the given character is illegal in a file name, {@code false} otherwise.
      */
     private boolean isIllegalFileNameChar(final char c) {
@@ -254,8 +245,7 @@ public enum FileSystem {
      * potentially legal file name. If the file name length exceeds {@link #getMaxFileNameLength()}, or if it contains
      * an illegal character then the check fails.
      *
-     * @param candidate
-     *            a candidate file name (without a path) like {@code "filename.ext"} or {@code "filename"}
+     * @param candidate a candidate file name (without a path) like {@code "filename.ext"} or {@code "filename"}
      * @return {@code true} if the candidate name is legal
      */
     public boolean isLegalFileName(final CharSequence candidate) {
@@ -275,9 +265,8 @@ public enum FileSystem {
 
     /**
      * Returns whether the given string is a reserved file name.
-     * 
-     * @param candidate
-     *            the string to test
+     *
+     * @param candidate the string to test
      * @return {@code true} if the given string is a reserved file name.
      */
     public boolean isReservedFileName(final CharSequence candidate) {
@@ -290,10 +279,8 @@ public enum FileSystem {
      * name length exceeds {@link #getMaxFileNameLength()}, then the name is truncated to
      * {@link #getMaxFileNameLength()}.
      *
-     * @param candidate
-     *            a candidate file name (without a path) like {@code "filename.ext"} or {@code "filename"}
-     * @param replacement
-     *            Illegal characters in the candidate name are replaced by this character
+     * @param candidate   a candidate file name (without a path) like {@code "filename.ext"} or {@code "filename"}
+     * @param replacement Illegal characters in the candidate name are replaced by this character
      * @return a String without illegal characters
      */
     public String toLegalFileName(final String candidate, final char replacement) {

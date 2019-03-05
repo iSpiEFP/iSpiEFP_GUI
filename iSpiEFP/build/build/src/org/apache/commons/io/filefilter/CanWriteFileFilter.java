@@ -47,19 +47,23 @@ import java.io.Serializable;
  *
  * <p>
  * <b>N.B.</b> For read-only files, use
- *    <code>CanReadFileFilter.READ_ONLY</code>.
+ * <code>CanReadFileFilter.READ_ONLY</code>.
  *
- * @since 1.3
  * @version $Id$
+ * @since 1.3
  */
 public class CanWriteFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = 5132005214688990379L;
 
-    /** Singleton instance of <i>writable</i> filter */
+    /**
+     * Singleton instance of <i>writable</i> filter
+     */
     public static final IOFileFilter CAN_WRITE = new CanWriteFileFilter();
 
-    /** Singleton instance of not <i>writable</i> filter */
+    /**
+     * Singleton instance of not <i>writable</i> filter
+     */
     public static final IOFileFilter CANNOT_WRITE = new NotFileFilter(CAN_WRITE);
 
     /**
@@ -71,9 +75,9 @@ public class CanWriteFileFilter extends AbstractFileFilter implements Serializab
     /**
      * Checks to see if the file can be written to.
      *
-     * @param file  the File to check
+     * @param file the File to check
      * @return {@code true} if the file can be
-     *  written to, otherwise {@code false}.
+     * written to, otherwise {@code false}.
      */
     @Override
     public boolean accept(final File file) {

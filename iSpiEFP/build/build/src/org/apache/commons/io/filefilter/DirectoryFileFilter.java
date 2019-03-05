@@ -33,16 +33,16 @@ import java.io.Serializable;
  * }
  * </pre>
  *
- * @since 1.0
  * @version $Id$
- *
  * @see FileFilterUtils#directoryFileFilter()
+ * @since 1.0
  */
 public class DirectoryFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = -5148237843784525732L;
     /**
      * Singleton instance of directory filter.
+     *
      * @since 1.3
      */
     public static final IOFileFilter DIRECTORY = new DirectoryFileFilter();
@@ -63,7 +63,7 @@ public class DirectoryFileFilter extends AbstractFileFilter implements Serializa
     /**
      * Checks to see if the file is a directory.
      *
-     * @param file  the File to check
+     * @param file the File to check
      * @return true if the file is a directory
      */
     @Override

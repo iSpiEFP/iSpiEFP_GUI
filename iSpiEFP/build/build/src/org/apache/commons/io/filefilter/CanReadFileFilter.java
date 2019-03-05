@@ -57,22 +57,28 @@ import java.io.Serializable;
  * }
  * </pre>
  *
- * @since 1.3
  * @version $Id$
+ * @since 1.3
  */
 public class CanReadFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = 3179904805251622989L;
 
-    /** Singleton instance of <i>readable</i> filter */
+    /**
+     * Singleton instance of <i>readable</i> filter
+     */
     public static final IOFileFilter CAN_READ = new CanReadFileFilter();
 
-    /** Singleton instance of not <i>readable</i> filter */
+    /**
+     * Singleton instance of not <i>readable</i> filter
+     */
     public static final IOFileFilter CANNOT_READ = new NotFileFilter(CAN_READ);
 
-    /** Singleton instance of <i>read-only</i> filter */
+    /**
+     * Singleton instance of <i>read-only</i> filter
+     */
     public static final IOFileFilter READ_ONLY = new AndFileFilter(CAN_READ,
-                                                CanWriteFileFilter.CANNOT_WRITE);
+            CanWriteFileFilter.CANNOT_WRITE);
 
     /**
      * Restrictive constructor.
@@ -83,9 +89,9 @@ public class CanReadFileFilter extends AbstractFileFilter implements Serializabl
     /**
      * Checks to see if the file can be read.
      *
-     * @param file  the File to check.
+     * @param file the File to check.
      * @return {@code true} if the file can be
-     *  read, otherwise {@code false}.
+     * read, otherwise {@code false}.
      */
     @Override
     public boolean accept(final File file) {

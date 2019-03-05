@@ -24,19 +24,20 @@ import java.io.OutputStream;
  * <p>
  * A typical use case would be during debugging, to ensure that data is being
  * written as expected.
- *
  */
 public class CountingOutputStream extends ProxyOutputStream {
 
-    /** The count of bytes that have passed. */
+    /**
+     * The count of bytes that have passed.
+     */
     private long count = 0;
 
     /**
      * Constructs a new CountingOutputStream.
      *
-     * @param out  the OutputStream to write to
+     * @param out the OutputStream to write to
      */
-    public CountingOutputStream( final OutputStream out ) {
+    public CountingOutputStream(final OutputStream out) {
         super(out);
     }
 
@@ -54,6 +55,7 @@ public class CountingOutputStream extends ProxyOutputStream {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * The number of bytes that have passed through this stream.
      * <p>

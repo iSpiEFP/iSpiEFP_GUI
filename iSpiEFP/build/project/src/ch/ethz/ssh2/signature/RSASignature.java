@@ -9,22 +9,19 @@ import java.math.BigInteger;
 
 /**
  * RSASignature.
- * 
+ *
  * @author Christian Plattner
  * @version 2.50, 03/15/10
  */
 
-public class RSASignature
-{
-	BigInteger s;
+public class RSASignature {
+    BigInteger s;
 
-	public BigInteger getS()
-	{
-		return s;
-	}
+    public BigInteger getS() {
+        return s;
+    }
 
-	public RSASignature(BigInteger s)
-	{
-		this.s = s;
-	}
+    public RSASignature(BigInteger s) {
+        this.s = s;
+    }
 }

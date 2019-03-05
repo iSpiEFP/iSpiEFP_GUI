@@ -17,17 +17,13 @@
 
 package org.apache.commons.io.input;
 
-import static org.apache.commons.io.IOUtils.EOF;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
+import java.nio.charset.*;
+
+import static org.apache.commons.io.IOUtils.EOF;
 
 /**
  * {@link InputStream} implementation that can read from String, StringBuffer,
@@ -53,16 +49,16 @@ public class CharSequenceInputStream extends InputStream {
     /**
      * Constructor.
      *
-     * @param cs the input character sequence
-     * @param charset the character set name to use
+     * @param cs         the input character sequence
+     * @param charset    the character set name to use
      * @param bufferSize the buffer size to use.
      * @throws IllegalArgumentException if the buffer is not large enough to hold a complete character
      */
     public CharSequenceInputStream(final CharSequence cs, final Charset charset, final int bufferSize) {
         super();
         this.encoder = charset.newEncoder()
-            .onMalformedInput(CodingErrorAction.REPLACE)
-            .onUnmappableCharacter(CodingErrorAction.REPLACE);
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .onUnmappableCharacter(CodingErrorAction.REPLACE);
         // Ensure that buffer is long enough to hold a complete character
         final float maxBytesPerChar = encoder.maxBytesPerChar();
         if (bufferSize < maxBytesPerChar) {
@@ -79,8 +75,8 @@ public class CharSequenceInputStream extends InputStream {
     /**
      * Constructor, calls {@link #CharSequenceInputStream(CharSequence, Charset, int)}.
      *
-     * @param cs the input character sequence
-     * @param charset the character set name to use
+     * @param cs         the input character sequence
+     * @param charset    the character set name to use
      * @param bufferSize the buffer size to use.
      * @throws IllegalArgumentException if the buffer is not large enough to hold a complete character
      */
@@ -92,7 +88,7 @@ public class CharSequenceInputStream extends InputStream {
      * Constructor, calls {@link #CharSequenceInputStream(CharSequence, Charset, int)}
      * with a buffer size of 2048.
      *
-     * @param cs the input character sequence
+     * @param cs      the input character sequence
      * @param charset the character set name to use
      * @throws IllegalArgumentException if the buffer is not large enough to hold a complete character
      */
@@ -104,7 +100,7 @@ public class CharSequenceInputStream extends InputStream {
      * Constructor, calls {@link #CharSequenceInputStream(CharSequence, String, int)}
      * with a buffer size of 2048.
      *
-     * @param cs the input character sequence
+     * @param cs      the input character sequence
      * @param charset the character set name to use
      * @throws IllegalArgumentException if the buffer is not large enough to hold a complete character
      */
@@ -115,8 +111,7 @@ public class CharSequenceInputStream extends InputStream {
     /**
      * Fills the byte output buffer from the input char buffer.
      *
-     * @throws CharacterCodingException
-     *             an error encoding data
+     * @throws CharacterCodingException an error encoding data
      */
     private void fillBuffer() throws CharacterCodingException {
         this.bbuf.compact();
@@ -162,7 +157,7 @@ public class CharSequenceInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        for (;;) {
+        for (; ; ) {
             if (this.bbuf.hasRemaining()) {
                 return this.bbuf.get() & 0xFF;
             }
@@ -194,8 +189,8 @@ public class CharSequenceInputStream extends InputStream {
 
     /**
      * Return an estimate of the number of bytes remaining in the byte stream.
-     * @return the count of bytes that can be read without blocking (or returning EOF).
      *
+     * @return the count of bytes that can be read without blocking (or returning EOF).
      * @throws IOException if an error occurs (probably not possible)
      */
     @Override
@@ -213,6 +208,7 @@ public class CharSequenceInputStream extends InputStream {
 
     /**
      * {@inheritDoc}
+     *
      * @param readlimit max read limit (ignored)
      */
     @Override
@@ -245,7 +241,7 @@ public class CharSequenceInputStream extends InputStream {
                 this.cbuf.rewind();
                 this.bbuf.rewind();
                 this.bbuf.limit(0); // rewind does not clear the buffer
-                while(this.cbuf.position() < this.mark_cbuf) {
+                while (this.cbuf.position() < this.mark_cbuf) {
                     this.bbuf.rewind(); // empty the buffer (we only refill when empty during normal processing)
                     this.bbuf.limit(0);
                     fillBuffer();

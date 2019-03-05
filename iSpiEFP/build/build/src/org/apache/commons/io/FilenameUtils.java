@@ -85,12 +85,14 @@ public class FilenameUtils {
 
     /**
      * The extension separator character.
+     *
      * @since 1.4
      */
     public static final char EXTENSION_SEPARATOR = '.';
 
     /**
      * The extension separator String.
+     *
      * @since 1.4
      */
     public static final String EXTENSION_SEPARATOR_STR = Character.toString(EXTENSION_SEPARATOR);
@@ -114,6 +116,7 @@ public class FilenameUtils {
      * The separator character that is the opposite of the system separator.
      */
     private static final char OTHER_SEPARATOR;
+
     static {
         if (isSystemWindows()) {
             OTHER_SEPARATOR = UNIX_SEPARATOR;
@@ -130,6 +133,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Determines if Windows file system is in use.
      *
@@ -140,10 +144,11 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks if the character is a separator.
      *
-     * @param ch  the character to check
+     * @param ch the character to check
      * @return true if it is a separator character
      */
     private static boolean isSeparator(final char ch) {
@@ -151,6 +156,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Normalizes a path, removing double and single dot path steps.
      * <p>
@@ -188,12 +194,13 @@ public class FilenameUtils {
      * </pre>
      * (Note the file separator returned will be correct for Windows/Unix)
      *
-     * @param filename  the filename to normalize, null returns null
+     * @param filename the filename to normalize, null returns null
      * @return the normalized filename, or null if invalid. Null bytes inside string will be removed
      */
     public static String normalize(final String filename) {
         return doNormalize(filename, SYSTEM_SEPARATOR, true);
     }
+
     /**
      * Normalizes a path, removing double and single dot path steps.
      * <p>
@@ -232,9 +239,9 @@ public class FilenameUtils {
      * The output will be the same on both Unix and Windows including
      * the separator character.
      *
-     * @param filename  the filename to normalize, null returns null
+     * @param filename      the filename to normalize, null returns null
      * @param unixSeparator {@code true} if a unix separator should
-     * be used or {@code false} if a windows separator should be used.
+     *                      be used or {@code false} if a windows separator should be used.
      * @return the normalized filename, or null if invalid. Null bytes inside string will be removed
      * @since 2.0
      */
@@ -244,6 +251,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Normalizes a path, removing double and single dot path steps,
      * and removing any final directory separator.
@@ -282,7 +290,7 @@ public class FilenameUtils {
      * </pre>
      * (Note the file separator returned will be correct for Windows/Unix)
      *
-     * @param filename  the filename to normalize, null returns null
+     * @param filename the filename to normalize, null returns null
      * @return the normalized filename, or null if invalid. Null bytes inside string will be removed
      */
     public static String normalizeNoEndSeparator(final String filename) {
@@ -326,23 +334,23 @@ public class FilenameUtils {
      * ~/../bar             --&gt;   null
      * </pre>
      *
-     * @param filename  the filename to normalize, null returns null
+     * @param filename      the filename to normalize, null returns null
      * @param unixSeparator {@code true} if a unix separator should
-     * be used or {@code false} if a windows separator should be used.
+     *                      be used or {@code false} if a windows separator should be used.
      * @return the normalized filename, or null if invalid. Null bytes inside string will be removed
      * @since 2.0
      */
     public static String normalizeNoEndSeparator(final String filename, final boolean unixSeparator) {
-         final char separator = unixSeparator ? UNIX_SEPARATOR : WINDOWS_SEPARATOR;
+        final char separator = unixSeparator ? UNIX_SEPARATOR : WINDOWS_SEPARATOR;
         return doNormalize(filename, separator, false);
     }
 
     /**
      * Internal method to perform the normalization.
      *
-     * @param filename  the filename
-     * @param separator The separator character to use
-     * @param keepSeparator  true to keep the final separator
+     * @param filename      the filename
+     * @param separator     The separator character to use
+     * @param keepSeparator true to keep the final separator
      * @return the normalized filename. Null bytes inside string will be removed.
      */
     private static String doNormalize(final String filename, final char separator, final boolean keepSeparator) {
@@ -396,7 +404,7 @@ public class FilenameUtils {
                     lastIsDirectory = true;
                 }
                 System.arraycopy(array, i + 1, array, i - 1, size - i);
-                size -=2;
+                size -= 2;
                 i--;
             }
         }
@@ -413,7 +421,7 @@ public class FilenameUtils {
                     lastIsDirectory = true;
                 }
                 int j;
-                for (j = i - 4 ; j >= prefix; j--) {
+                for (j = i - 4; j >= prefix; j--) {
                     if (array[j] == separator) {
                         // remove b/../ from a/b/../c
                         System.arraycopy(array, i + 1, array, j + 1, size - i);
@@ -442,6 +450,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Concatenates a filename to a base path using normal command line style rules.
      * <p>
@@ -478,8 +487,8 @@ public class FilenameUtils {
      * the name will be built into the concatenated path. If this might be a problem,
      * use {@link #getFullPath(String)} on the base path argument.
      *
-     * @param basePath  the base path to attach to, always treated as a path
-     * @param fullFilenameToAdd  the filename (or path) to attach to the base
+     * @param basePath          the base path to attach to, always treated as a path
+     * @param fullFilenameToAdd the filename (or path) to attach to the base
      * @return the concatenated path, or null if invalid.  Null bytes inside string will be removed
      */
     public static String concat(final String basePath, final String fullFilenameToAdd) {
@@ -510,7 +519,7 @@ public class FilenameUtils {
      * <p>
      * The files names are expected to be normalized.
      * </p>
-     *
+     * <p>
      * Edge cases:
      * <ul>
      * <li>A {@code directory} must not be null: if null, throw IllegalArgumentException</li>
@@ -518,15 +527,12 @@ public class FilenameUtils {
      * <li>A null child file is not contained in any parent: return false</li>
      * </ul>
      *
-     * @param canonicalParent
-     *            the file to consider as the parent.
-     * @param canonicalChild
-     *            the file to consider as the child.
+     * @param canonicalParent the file to consider as the parent.
+     * @param canonicalChild  the file to consider as the child.
      * @return true is the candidate leaf is under by the specified composite. False otherwise.
-     * @throws IOException
-     *             if an IO error occurs while checking the files.
-     * @since 2.2
+     * @throws IOException if an IO error occurs while checking the files.
      * @see FileUtils#directoryContains(File, File)
+     * @since 2.2
      */
     public static boolean directoryContains(final String canonicalParent, final String canonicalChild)
             throws IOException {
@@ -548,10 +554,11 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Converts all separators to the Unix separator of forward slash.
      *
-     * @param path  the path to be changed, null ignored
+     * @param path the path to be changed, null ignored
      * @return the updated path
      */
     public static String separatorsToUnix(final String path) {
@@ -564,7 +571,7 @@ public class FilenameUtils {
     /**
      * Converts all separators to the Windows separator of backslash.
      *
-     * @param path  the path to be changed, null ignored
+     * @param path the path to be changed, null ignored
      * @return the updated path
      */
     public static String separatorsToWindows(final String path) {
@@ -577,7 +584,7 @@ public class FilenameUtils {
     /**
      * Converts all separators to the system separator.
      *
-     * @param path  the path to be changed, null ignored
+     * @param path the path to be changed, null ignored
      * @return the updated path
      */
     public static String separatorsToSystem(final String path) {
@@ -592,6 +599,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Returns the length of the filename prefix, such as <code>C:/</code> or <code>~/</code>.
      * <p>
@@ -622,12 +630,12 @@ public class FilenameUtils {
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
      * ie. both Unix and Windows prefixes are matched regardless.
-     *
+     * <p>
      * Note that a leading // (or \\) is used to indicate a UNC name on Windows.
      * These must be followed by a server name, so double-slashes are not collapsed
      * to a single slash at the start of the filename.
      *
-     * @param filename  the filename to find the prefix in, null returns -1
+     * @param filename the filename to find the prefix in, null returns -1
      * @return the length of the prefix, -1 if invalid or null
      */
     public static int getPrefixLength(final String filename) {
@@ -694,7 +702,7 @@ public class FilenameUtils {
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
      *
-     * @param filename  the filename to find the last path separator in, null returns -1
+     * @param filename the filename to find the last path separator in, null returns -1
      * @return the index of the last separator character, or -1 if there
      * is no such character
      */
@@ -717,8 +725,7 @@ public class FilenameUtils {
      * The output will be the same irrespective of the machine that the code is running on.
      * </p>
      *
-     * @param filename
-     *            the filename to find the last extension separator in, null returns -1
+     * @param filename the filename to find the last extension separator in, null returns -1
      * @return the index of the last extension separator character, or -1 if there is no such character
      */
     public static int indexOfExtension(final String filename) {
@@ -731,6 +738,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Gets the prefix from a full filename, such as <code>C:/</code>
      * or <code>~/</code>.
@@ -757,7 +765,7 @@ public class FilenameUtils {
      * The output will be the same irrespective of the machine that the code is running on.
      * ie. both Unix and Windows prefixes are matched regardless.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the prefix of the file, null if invalid. Null bytes inside string will be removed
      */
     public static String getPrefix(final String filename) {
@@ -796,7 +804,7 @@ public class FilenameUtils {
      * This method drops the prefix from the result.
      * See {@link #getFullPath(String)} for the method that retains the prefix.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the path of the file, an empty string if none exists, null if invalid.
      * Null bytes inside string will be removed
      */
@@ -824,7 +832,7 @@ public class FilenameUtils {
      * This method drops the prefix from the result.
      * See {@link #getFullPathNoEndSeparator(String)} for the method that retains the prefix.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the path of the file, an empty string if none exists, null if invalid.
      * Null bytes inside string will be removed
      */
@@ -835,8 +843,8 @@ public class FilenameUtils {
     /**
      * Does the work of getting the path.
      *
-     * @param filename  the filename
-     * @param separatorAdd  0 to omit the end separator, 1 to return it
+     * @param filename     the filename
+     * @param separatorAdd 0 to omit the end separator, 1 to return it
      * @return the path. Null bytes inside string will be removed
      */
     private static String doGetPath(final String filename, final int separatorAdd) {
@@ -848,7 +856,7 @@ public class FilenameUtils {
             return null;
         }
         final int index = indexOfLastSeparator(filename);
-        final int endIndex = index+separatorAdd;
+        final int endIndex = index + separatorAdd;
         if (prefix >= filename.length() || index < 0 || prefix >= endIndex) {
             return "";
         }
@@ -879,7 +887,7 @@ public class FilenameUtils {
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the path of the file, an empty string if none exists, null if invalid
      */
     public static String getFullPath(final String filename) {
@@ -909,7 +917,7 @@ public class FilenameUtils {
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the path of the file, an empty string if none exists, null if invalid
      */
     public static String getFullPathNoEndSeparator(final String filename) {
@@ -919,8 +927,8 @@ public class FilenameUtils {
     /**
      * Does the work of getting the path.
      *
-     * @param filename  the filename
-     * @param includeSeparator  true to include the end separator
+     * @param filename         the filename
+     * @param includeSeparator true to include the end separator
      * @return the path
      */
     private static String doGetFullPath(final String filename, final boolean includeSeparator) {
@@ -942,7 +950,7 @@ public class FilenameUtils {
         if (index < 0) {
             return filename.substring(0, prefix);
         }
-        int end = index + (includeSeparator ?  1 : 0);
+        int end = index + (includeSeparator ? 1 : 0);
         if (end == 0) {
             end++;
         }
@@ -963,7 +971,7 @@ public class FilenameUtils {
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the name of the file without the path, or an empty string if none exists.
      * Null bytes inside string will be removed
      */
@@ -978,8 +986,9 @@ public class FilenameUtils {
 
     /**
      * Check the input for null bytes, a sign of unsanitized data being passed to to file level functions.
-     *
+     * <p>
      * This may be used for poison byte attacks.
+     *
      * @param path the path to check
      */
     private static void failIfNullBytePresent(final String path) {
@@ -1006,7 +1015,7 @@ public class FilenameUtils {
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the name of the file without the path, or an empty string if none exists. Null bytes inside string
      * will be removed
      */
@@ -1045,6 +1054,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Removes the extension from a filename.
      * <p>
@@ -1059,7 +1069,7 @@ public class FilenameUtils {
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
      *
-     * @param filename  the filename to query, null returns null
+     * @param filename the filename to query, null returns null
      * @return the filename minus the extension
      */
     public static String removeExtension(final String filename) {
@@ -1077,14 +1087,15 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks whether two filenames are equal exactly.
      * <p>
      * No processing is performed on the filenames other than comparison,
      * thus this is merely a null-safe case-sensitive equals.
      *
-     * @param filename1  the first filename to query, may be null
-     * @param filename2  the second filename to query, may be null
+     * @param filename1 the first filename to query, may be null
+     * @param filename2 the second filename to query, may be null
      * @return true if the filenames are equal, null equals null
      * @see IOCase#SENSITIVE
      */
@@ -1098,8 +1109,8 @@ public class FilenameUtils {
      * No processing is performed on the filenames other than comparison.
      * The check is case-sensitive on Unix and case-insensitive on Windows.
      *
-     * @param filename1  the first filename to query, may be null
-     * @param filename2  the second filename to query, may be null
+     * @param filename1 the first filename to query, may be null
+     * @param filename2 the second filename to query, may be null
      * @return true if the filenames are equal, null equals null
      * @see IOCase#SYSTEM
      */
@@ -1108,14 +1119,15 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks whether two filenames are equal after both have been normalized.
      * <p>
      * Both filenames are first passed to {@link #normalize(String)}.
      * The check is then performed in a case-sensitive manner.
      *
-     * @param filename1  the first filename to query, may be null
-     * @param filename2  the second filename to query, may be null
+     * @param filename1 the first filename to query, may be null
+     * @param filename2 the second filename to query, may be null
      * @return true if the filenames are equal, null equals null
      * @see IOCase#SENSITIVE
      */
@@ -1131,8 +1143,8 @@ public class FilenameUtils {
      * The check is then performed case-sensitive on Unix and
      * case-insensitive on Windows.
      *
-     * @param filename1  the first filename to query, may be null
-     * @param filename2  the second filename to query, may be null
+     * @param filename1 the first filename to query, may be null
+     * @param filename2 the second filename to query, may be null
      * @return true if the filenames are equal, null equals null
      * @see IOCase#SYSTEM
      */
@@ -1144,10 +1156,10 @@ public class FilenameUtils {
      * Checks whether two filenames are equal, optionally normalizing and providing
      * control over the case-sensitivity.
      *
-     * @param filename1  the first filename to query, may be null
-     * @param filename2  the second filename to query, may be null
-     * @param normalized  whether to normalize the filenames
-     * @param caseSensitivity  what case sensitivity rule to use, null means case-sensitive
+     * @param filename1       the first filename to query, may be null
+     * @param filename2       the second filename to query, may be null
+     * @param normalized      whether to normalize the filenames
+     * @param caseSensitivity what case sensitivity rule to use, null means case-sensitive
      * @return true if the filenames are equal, null equals null
      * @since 1.3
      */
@@ -1163,7 +1175,7 @@ public class FilenameUtils {
             filename2 = normalize(filename2);
             if (filename1 == null || filename2 == null) {
                 throw new NullPointerException(
-                    "Error normalizing one or both of the file names");
+                        "Error normalizing one or both of the file names");
             }
         }
         if (caseSensitivity == null) {
@@ -1173,6 +1185,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks whether the extension of the filename is that specified.
      * <p>
@@ -1181,7 +1194,7 @@ public class FilenameUtils {
      * The extension check is case-sensitive on all platforms.
      *
      * @param filename  the filename to query, null returns false
-     * @param extension  the extension to check for, null or empty checks for no extension
+     * @param extension the extension to check for, null or empty checks for no extension
      * @return true if the filename has the specified extension
      * @throws java.lang.IllegalArgumentException if the supplied filename contains null bytes
      */
@@ -1205,8 +1218,8 @@ public class FilenameUtils {
      * after the last dot. There must be no directory separator after the dot.
      * The extension check is case-sensitive on all platforms.
      *
-     * @param filename  the filename to query, null returns false
-     * @param extensions  the extensions to check for, null checks for no extension
+     * @param filename   the filename to query, null returns false
+     * @param extensions the extensions to check for, null checks for no extension
      * @return true if the filename is one of the extensions
      * @throws java.lang.IllegalArgumentException if the supplied filename contains null bytes
      */
@@ -1235,8 +1248,8 @@ public class FilenameUtils {
      * after the last dot. There must be no directory separator after the dot.
      * The extension check is case-sensitive on all platforms.
      *
-     * @param filename  the filename to query, null returns false
-     * @param extensions  the extensions to check for, null checks for no extension
+     * @param filename   the filename to query, null returns false
+     * @param extensions the extensions to check for, null checks for no extension
      * @return true if the filename is one of the extensions
      * @throws java.lang.IllegalArgumentException if the supplied filename contains null bytes
      */
@@ -1259,6 +1272,7 @@ public class FilenameUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks a filename to see if it matches the specified wildcard matcher,
      * always testing case-sensitive.
@@ -1276,8 +1290,8 @@ public class FilenameUtils {
      * </pre>
      * N.B. the sequence "*?" does not work properly at present in match strings.
      *
-     * @param filename  the filename to match on
-     * @param wildcardMatcher  the wildcard string to match against
+     * @param filename        the filename to match on
+     * @param wildcardMatcher the wildcard string to match against
      * @return true if the filename matches the wildcard string
      * @see IOCase#SENSITIVE
      */
@@ -1302,8 +1316,8 @@ public class FilenameUtils {
      * </pre>
      * N.B. the sequence "*?" does not work properly at present in match strings.
      *
-     * @param filename  the filename to match on
-     * @param wildcardMatcher  the wildcard string to match against
+     * @param filename        the filename to match on
+     * @param wildcardMatcher the wildcard string to match against
      * @return true if the filename matches the wildcard string
      * @see IOCase#SYSTEM
      */
@@ -1319,9 +1333,9 @@ public class FilenameUtils {
      * single or multiple (zero or more) wildcard characters.
      * N.B. the sequence "*?" does not work properly at present in match strings.
      *
-     * @param filename  the filename to match on
-     * @param wildcardMatcher  the wildcard string to match against
-     * @param caseSensitivity  what case sensitivity rule to use, null means case-sensitive
+     * @param filename        the filename to match on
+     * @param wildcardMatcher the wildcard string to match against
+     * @param caseSensitivity what case sensitivity rule to use, null means case-sensitive
      * @return true if the filename matches the wildcard string
      * @since 1.3
      */
@@ -1379,7 +1393,7 @@ public class FilenameUtils {
                         }
                         final int repeat = caseSensitivity.checkIndexOf(filename, textIdx + 1, wcs[wcsIdx]);
                         if (repeat >= 0) {
-                            backtrack.push(new int[] {wcsIdx, repeat});
+                            backtrack.push(new int[]{wcsIdx, repeat});
                         }
                     } else {
                         // matching from current position
@@ -1412,7 +1426,7 @@ public class FilenameUtils {
      * The text is split by '?' and '*'.
      * Where multiple '*' occur consecutively they are collapsed into a single '*'.
      *
-     * @param text  the text to split
+     * @param text the text to split
      * @return the array of tokens, never null
      */
     static String[] splitOnTokens(final String text) {
@@ -1420,7 +1434,7 @@ public class FilenameUtils {
         // package level so a unit test may run on this
 
         if (text.indexOf('?') == NOT_FOUND && text.indexOf('*') == NOT_FOUND) {
-            return new String[] { text };
+            return new String[]{text};
         }
 
         final char[] array = text.toCharArray();
@@ -1447,7 +1461,7 @@ public class FilenameUtils {
             list.add(buffer.toString());
         }
 
-        return list.toArray( new String[ list.size() ] );
+        return list.toArray(new String[list.size()]);
     }
 
 }

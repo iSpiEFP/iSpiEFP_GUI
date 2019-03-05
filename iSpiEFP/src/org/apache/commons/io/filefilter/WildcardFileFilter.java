@@ -16,12 +16,12 @@
  */
 package org.apache.commons.io.filefilter;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOCase;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOCase;
 
 /**
  * Filters files using the supplied wildcards.
@@ -50,15 +50,19 @@ import org.apache.commons.io.IOCase;
 public class WildcardFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = -7426486598995782105L;
-    /** The wildcards that will be used to match filenames. */
+    /**
+     * The wildcards that will be used to match filenames.
+     */
     private final String[] wildcards;
-    /** Whether the comparison is case sensitive. */
+    /**
+     * Whether the comparison is case sensitive.
+     */
     private final IOCase caseSensitivity;
 
     /**
      * Construct a new case-sensitive wildcard filter for a single wildcard.
      *
-     * @param wildcard  the wildcard to match
+     * @param wildcard the wildcard to match
      * @throws IllegalArgumentException if the pattern is null
      */
     public WildcardFileFilter(final String wildcard) {
@@ -68,15 +72,15 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
     /**
      * Construct a new wildcard filter for a single wildcard specifying case-sensitivity.
      *
-     * @param wildcard  the wildcard to match, not null
-     * @param caseSensitivity  how to handle case sensitivity, null means case-sensitive
+     * @param wildcard        the wildcard to match, not null
+     * @param caseSensitivity how to handle case sensitivity, null means case-sensitive
      * @throws IllegalArgumentException if the pattern is null
      */
     public WildcardFileFilter(final String wildcard, final IOCase caseSensitivity) {
         if (wildcard == null) {
             throw new IllegalArgumentException("The wildcard must not be null");
         }
-        this.wildcards = new String[] { wildcard };
+        this.wildcards = new String[]{wildcard};
         this.caseSensitivity = caseSensitivity == null ? IOCase.SENSITIVE : caseSensitivity;
     }
 
@@ -84,7 +88,7 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
      * Construct a new case-sensitive wildcard filter for an array of wildcards.
      * <p>
      *
-     * @param wildcards  the array of wildcards to match
+     * @param wildcards the array of wildcards to match
      * @throws IllegalArgumentException if the pattern array is null
      */
     public WildcardFileFilter(final String[] wildcards) {
@@ -95,8 +99,8 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
      * Construct a new wildcard filter for an array of wildcards specifying case-sensitivity.
      * <p>
      *
-     * @param wildcards  the array of wildcards to match, not null
-     * @param caseSensitivity  how to handle case sensitivity, null means case-sensitive
+     * @param wildcards       the array of wildcards to match, not null
+     * @param caseSensitivity how to handle case sensitivity, null means case-sensitive
      * @throws IllegalArgumentException if the pattern array is null
      */
     public WildcardFileFilter(final String[] wildcards, final IOCase caseSensitivity) {
@@ -111,9 +115,9 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
     /**
      * Construct a new case-sensitive wildcard filter for a list of wildcards.
      *
-     * @param wildcards  the list of wildcards to match, not null
+     * @param wildcards the list of wildcards to match, not null
      * @throws IllegalArgumentException if the pattern list is null
-     * @throws ClassCastException if the list does not contain Strings
+     * @throws ClassCastException       if the list does not contain Strings
      */
     public WildcardFileFilter(final List<String> wildcards) {
         this(wildcards, IOCase.SENSITIVE);
@@ -122,10 +126,10 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
     /**
      * Construct a new wildcard filter for a list of wildcards specifying case-sensitivity.
      *
-     * @param wildcards  the list of wildcards to match, not null
-     * @param caseSensitivity  how to handle case sensitivity, null means case-sensitive
+     * @param wildcards       the list of wildcards to match, not null
+     * @param caseSensitivity how to handle case sensitivity, null means case-sensitive
      * @throws IllegalArgumentException if the pattern list is null
-     * @throws ClassCastException if the list does not contain Strings
+     * @throws ClassCastException       if the list does not contain Strings
      */
     public WildcardFileFilter(final List<String> wildcards, final IOCase caseSensitivity) {
         if (wildcards == null) {
@@ -136,11 +140,12 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks to see if the filename matches one of the wildcards.
      *
      * @param dir  the file directory (ignored)
-     * @param name  the filename
+     * @param name the filename
      * @return true if the filename matches one of the wildcards
      */
     @Override
@@ -156,7 +161,7 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
     /**
      * Checks to see if the filename matches one of the wildcards.
      *
-     * @param file  the file to check
+     * @param file the file to check
      * @return true if the filename matches one of the wildcards
      */
     @Override

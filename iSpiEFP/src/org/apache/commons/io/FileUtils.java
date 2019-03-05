@@ -16,17 +16,10 @@
  */
 package org.apache.commons.io;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
+import org.apache.commons.io.filefilter.*;
+import org.apache.commons.io.output.NullOutputStream;
+
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
@@ -35,22 +28,10 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 import java.util.zip.Checksum;
-
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.FalseFileFilter;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.io.output.NullOutputStream;
 
 /**
  * General file manipulation utilities.
@@ -177,11 +158,12 @@ public class FileUtils {
     public static final File[] EMPTY_FILE_ARRAY = new File[0];
 
     //-----------------------------------------------------------------------
+
     /**
      * Construct a file from the set of name elements.
      *
      * @param directory the parent directory
-     * @param names the name elements
+     * @param names     the name elements
      * @return the file
      * @since 2.1
      */
@@ -225,7 +207,6 @@ public class FileUtils {
      * Returns the path to the system temporary directory.
      *
      * @return the path to the system temporary directory.
-     *
      * @since 2.0
      */
     public static String getTempDirectoryPath() {
@@ -236,7 +217,6 @@ public class FileUtils {
      * Returns a {@link File} representing the system temporary directory.
      *
      * @return the system temporary directory.
-     *
      * @since 2.0
      */
     public static File getTempDirectory() {
@@ -247,7 +227,6 @@ public class FileUtils {
      * Returns the path to the user's home directory.
      *
      * @return the path to the user's home directory.
-     *
      * @since 2.0
      */
     public static String getUserDirectoryPath() {
@@ -258,7 +237,6 @@ public class FileUtils {
      * Returns a {@link File} representing the user's home directory.
      *
      * @return the user's home directory.
-     *
      * @since 2.0
      */
     public static File getUserDirectory() {
@@ -266,6 +244,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Opens a {@link FileInputStream} for the specified file, providing better
      * error messages than simply calling <code>new FileInputStream(file)</code>.
@@ -299,6 +278,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Opens a {@link FileOutputStream} for the specified file, checking and
      * creating the parent directory if it does not exist.
@@ -365,6 +345,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
@@ -422,6 +403,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Implements the same behaviour as the "touch" utility on Unix. It creates
      * a new file with size 0 or, if the file exists already, it is opened and
@@ -445,6 +427,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Converts a Collection containing java.io.File instanced into array
      * representation. This is to account for the difference between
@@ -458,6 +441,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Finds files within a given directory (and optionally its
      * subdirectories). All files found are filtered by an IOFileFilter.
@@ -609,6 +593,7 @@ public class FileUtils {
      * based on {@link #listFiles(File, IOFileFilter, IOFileFilter)},
      * which supports Iterable ('foreach' loop).
      * <p>
+     *
      * @param directory  the directory to search in
      * @param fileFilter filter to apply when finding files.
      * @param dirFilter  optional filter to apply when finding subdirectories.
@@ -650,6 +635,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Converts an array of file extensions to suffixes for use
      * with IOFileFilters.
@@ -708,6 +694,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Compares the contents of two files to determine if they are equal or not.
      * <p>
@@ -756,6 +743,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Compares the contents of two files to determine if they are equal or not.
      * <p>
@@ -796,16 +784,17 @@ public class FileUtils {
         }
 
         try (Reader input1 = charsetName == null
-                                 ? new InputStreamReader(new FileInputStream(file1), Charset.defaultCharset())
-                                 : new InputStreamReader(new FileInputStream(file1), charsetName);
+                ? new InputStreamReader(new FileInputStream(file1), Charset.defaultCharset())
+                : new InputStreamReader(new FileInputStream(file1), charsetName);
              Reader input2 = charsetName == null
-                                 ? new InputStreamReader(new FileInputStream(file2), Charset.defaultCharset())
-                                 : new InputStreamReader(new FileInputStream(file2), charsetName)) {
+                     ? new InputStreamReader(new FileInputStream(file2), Charset.defaultCharset())
+                     : new InputStreamReader(new FileInputStream(file2), charsetName)) {
             return IOUtils.contentEqualsIgnoreEOL(input1, input2);
         }
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Convert from a <code>URL</code> to a <code>File</code>.
      * <p>
@@ -935,6 +924,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Copies a file to a directory preserving the file date.
      * <p>
@@ -950,7 +940,6 @@ public class FileUtils {
      *
      * @param srcFile an existing file to copy, must not be {@code null}
      * @param destDir the directory to place the copy in, must not be {@code null}
-     *
      * @throws NullPointerException if source or destination is null
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
@@ -978,12 +967,11 @@ public class FileUtils {
      * @param destDir          the directory to place the copy in, must not be {@code null}
      * @param preserveFileDate true if the file date of the copy
      *                         should be the same as the original
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
      * @throws IOException          if the output file length is not the same as the input file length after the copy
-     * completes
+     *                              completes
      * @see #copyFile(File, File, boolean)
      * @since 1.3
      */
@@ -1014,12 +1002,11 @@ public class FileUtils {
      *
      * @param srcFile  an existing file to copy, must not be {@code null}
      * @param destFile the new file, must not be {@code null}
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
      * @throws IOException          if the output file length is not the same as the input file length after the copy
-     * completes
+     *                              completes
      * @see #copyFileToDirectory(File, File)
      * @see #copyFile(File, File, boolean)
      */
@@ -1045,12 +1032,11 @@ public class FileUtils {
      * @param destFile         the new file, must not be {@code null}
      * @param preserveFileDate true if the file date of the copy
      *                         should be the same as the original
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
      * @throws IOException          if the output file length is not the same as the input file length after the copy
-     * completes
+     *                              completes
      * @see #copyFileToDirectory(File, File, boolean)
      * @see #doCopyFile(File, File, boolean)
      */
@@ -1107,9 +1093,9 @@ public class FileUtils {
      * @param preserveFileDate whether to preserve the file date
      * @throws IOException              if an error occurs
      * @throws IOException              if the output file length is not the same as the input file length after the
-     * copy completes
+     *                                  copy completes
      * @throws IllegalArgumentException "Negative size" if the file is truncated so that the size is less than the
-     * position
+     *                                  position
      */
     private static void doCopyFile(final File srcFile, final File destFile, final boolean preserveFileDate)
             throws IOException {
@@ -1147,6 +1133,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Copies a directory to within another directory preserving the file dates.
      * <p>
@@ -1164,7 +1151,6 @@ public class FileUtils {
      *
      * @param srcDir  an existing directory to copy, must not be {@code null}
      * @param destDir the directory to place the copy in, must not be {@code null}
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
@@ -1204,7 +1190,6 @@ public class FileUtils {
      *
      * @param srcDir  an existing directory to copy, must not be {@code null}
      * @param destDir the new directory, must not be {@code null}
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
@@ -1234,7 +1219,6 @@ public class FileUtils {
      * @param destDir          the new directory, must not be {@code null}
      * @param preserveFileDate true if the file date of the copy
      *                         should be the same as the original
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
@@ -1283,7 +1267,6 @@ public class FileUtils {
      * @param destDir the new directory, must not be {@code null}
      * @param filter  the filter to apply, null means copy all directories and files
      *                should be the same as the original
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
@@ -1334,7 +1317,6 @@ public class FileUtils {
      * @param filter           the filter to apply, null means copy all directories and files
      * @param preserveFileDate true if the file date of the copy
      *                         should be the same as the original
-     *
      * @throws NullPointerException if source or destination is {@code null}
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
@@ -1367,7 +1349,8 @@ public class FileUtils {
 
     /**
      * checks requirements for file copy
-     * @param src the source file
+     *
+     * @param src  the source file
      * @param dest the destination
      * @throws FileNotFoundException if the destination does not exist
      */
@@ -1432,6 +1415,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Copies bytes from the URL <code>source</code> to a file
      * <code>destination</code>. The directories up to <code>destination</code>
@@ -1545,12 +1529,11 @@ public class FileUtils {
      * it is not guaranteed that those operations will succeed.
      * If the modification operation fails, no indication is provided.
      *
-     * @param src      an existing file or directory to copy, must not be {@code null}
-     * @param destDir  the directory to place the copy in, must not be {@code null}
-     *
+     * @param src     an existing file or directory to copy, must not be {@code null}
+     * @param destDir the directory to place the copy in, must not be {@code null}
      * @throws NullPointerException if source or destination is {@code null}
-     * @throws IOException if source or destination is invalid
-     * @throws IOException if an IO error occurs during copying
+     * @throws IOException          if source or destination is invalid
+     * @throws IOException          if an IO error occurs during copying
      * @see #copyDirectoryToDirectory(File, File)
      * @see #copyFileToDirectory(File, File)
      * @since 2.6
@@ -1581,12 +1564,11 @@ public class FileUtils {
      * it is not guaranteed that the operation will succeed.
      * If the modification operation fails, no indication is provided.
      *
-     * @param srcs     a existing files to copy, must not be {@code null}
-     * @param destDir  the directory to place the copy in, must not be {@code null}
-     *
+     * @param srcs    a existing files to copy, must not be {@code null}
+     * @param destDir the directory to place the copy in, must not be {@code null}
      * @throws NullPointerException if source or destination is null
-     * @throws IOException if source or destination is invalid
-     * @throws IOException if an IO error occurs during copying
+     * @throws IOException          if source or destination is invalid
+     * @throws IOException          if an IO error occurs during copying
      * @see #copyFileToDirectory(File, File)
      * @since 2.6
      */
@@ -1600,6 +1582,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Deletes a directory recursively.
      *
@@ -1635,7 +1618,6 @@ public class FileUtils {
      * @param file file or directory to delete, can be {@code null}
      * @return {@code true} if the file or directory was deleted, otherwise
      * {@code false}
-     *
      * @since 1.4
      */
     public static boolean deleteQuietly(final File file) {
@@ -1661,7 +1643,7 @@ public class FileUtils {
      * <p>
      * Files are normalized before comparison.
      * </p>
-     *
+     * <p>
      * Edge cases:
      * <ul>
      * <li>A {@code directory} must not be null: if null, throw IllegalArgumentException</li>
@@ -1730,6 +1712,7 @@ public class FileUtils {
 
     /**
      * Lists files in a directory, asserting that the supplied directory satisfies exists and is a directory
+     *
      * @param directory The directory to list
      * @return The files in the directory, never null.
      * @throws IOException if an I/O error occurs
@@ -1753,6 +1736,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Waits for NFS to propagate a file creation, imposing a timeout.
      * <p>
@@ -1769,8 +1753,8 @@ public class FileUtils {
         boolean wasInterrupted = false;
         try {
             while (!file.exists()) {
-                final long remaining = finishAt -  System.currentTimeMillis();
-                if (remaining < 0){
+                final long remaining = finishAt - System.currentTimeMillis();
+                if (remaining < 0) {
                     return false;
                 }
                 try {
@@ -1790,6 +1774,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Reads the contents of a file into a String.
      * The file is always closed.
@@ -1812,9 +1797,9 @@ public class FileUtils {
      * @param file     the file to read, must not be {@code null}
      * @param encoding the encoding to use, {@code null} means platform default
      * @return the file contents, never {@code null}
-     * @throws IOException                 in case of an I/O error
+     * @throws IOException                                  in case of an I/O error
      * @throws java.nio.charset.UnsupportedCharsetException thrown instead of {@link java.io
-     * .UnsupportedEncodingException} in version 2.2 if the encoding is not supported.
+     *                                                      .UnsupportedEncodingException} in version 2.2 if the encoding is not supported.
      * @since 2.3
      */
     public static String readFileToString(final File file, final String encoding) throws IOException {
@@ -1876,9 +1861,9 @@ public class FileUtils {
      * @param file     the file to read, must not be {@code null}
      * @param encoding the encoding to use, {@code null} means platform default
      * @return the list of Strings representing each line in the file, never {@code null}
-     * @throws IOException                 in case of an I/O error
+     * @throws IOException                                  in case of an I/O error
      * @throws java.nio.charset.UnsupportedCharsetException thrown instead of {@link java.io
-     * .UnsupportedEncodingException} in version 2.2 if the encoding is not supported.
+     *                                                      .UnsupportedEncodingException} in version 2.2 if the encoding is not supported.
      * @since 1.1
      */
     public static List<String> readLines(final File file, final String encoding) throws IOException {
@@ -1941,8 +1926,7 @@ public class FileUtils {
                 if (in != null) {
                     in.close();
                 }
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 ex.addSuppressed(e);
             }
             throw ex;
@@ -2024,9 +2008,9 @@ public class FileUtils {
      * @param encoding the encoding to use, {@code null} means platform default
      * @param append   if {@code true}, then the String will be added to the
      *                 end of the file rather than overwriting
-     * @throws IOException                 in case of an I/O error
+     * @throws IOException                                  in case of an I/O error
      * @throws java.nio.charset.UnsupportedCharsetException thrown instead of {@link java.io
-     * .UnsupportedEncodingException} in version 2.2 if the encoding is not supported by the VM
+     *                                                      .UnsupportedEncodingException} in version 2.2 if the encoding is not supported by the VM
      * @since 2.1
      */
     public static void writeStringToFile(final File file, final String data, final String encoding,
@@ -2145,9 +2129,9 @@ public class FileUtils {
      * @param encoding the encoding to use, {@code null} means platform default
      * @param append   if {@code true}, then the data will be added to the
      *                 end of the file rather than overwriting
-     * @throws IOException                 in case of an I/O error
+     * @throws IOException                                  in case of an I/O error
      * @throws java.nio.charset.UnsupportedCharsetException thrown instead of {@link java.io
-     * .UnsupportedEncodingException} in version 2.2 if the encoding is not supported by the VM
+     *                                                      .UnsupportedEncodingException} in version 2.2 if the encoding is not supported by the VM
      * @since 2.1
      */
     public static void write(final File file, final CharSequence data, final String encoding, final boolean append)
@@ -2370,6 +2354,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Deletes a file. If file is a directory, delete it and all sub-directories.
      * <p>
@@ -2511,6 +2496,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Returns the size of the specified file or directory. If the provided
      * {@link File} is a regular file, then the file's length is returned.
@@ -2524,13 +2510,10 @@ public class FileUtils {
      *
      * @param file the regular file or directory to return the size
      *             of (must not be {@code null}).
-     *
      * @return the length of the file, or recursive size of the directory,
      * provided (in bytes).
-     *
      * @throws NullPointerException     if the file is {@code null}
      * @throws IllegalArgumentException if the file does not exist.
-     *
      * @since 2.0
      */
     public static long sizeOf(final File file) {
@@ -2557,13 +2540,10 @@ public class FileUtils {
      *
      * @param file the regular file or directory to return the size
      *             of (must not be {@code null}).
-     *
      * @return the length of the file, or recursive size of the directory,
      * provided (in bytes).
-     *
      * @throws NullPointerException     if the file is {@code null}
      * @throws IllegalArgumentException if the file does not exist.
-     *
      * @since 2.4
      */
     public static BigInteger sizeOfAsBigInteger(final File file) {
@@ -2602,6 +2582,7 @@ public class FileUtils {
 
     /**
      * the size of a director
+     *
      * @param directory the directory to check
      * @return the size
      */
@@ -2632,6 +2613,7 @@ public class FileUtils {
 
     /**
      * the size of a file
+     *
      * @param file the file to check
      * @return the size of the file
      */
@@ -2688,6 +2670,7 @@ public class FileUtils {
 
     /**
      * Returns the size of a file
+     *
      * @param fileOrDir The file
      * @return the size
      */
@@ -2715,6 +2698,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Tests if the specified <code>File</code> is newer than the reference
      * <code>File</code>.
@@ -2782,6 +2766,7 @@ public class FileUtils {
 
 
     //-----------------------------------------------------------------------
+
     /**
      * Tests if the specified <code>File</code> is older than the reference
      * <code>File</code>.
@@ -2848,6 +2833,7 @@ public class FileUtils {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Computes the checksum of a file using the CRC32 checksum routine.
      * The value of the checksum is returned.
@@ -3094,6 +3080,7 @@ public class FileUtils {
      * For code that runs on Java 1.7 or later, use the following method instead:
      * <br>
      * {@code boolean java.nio.file.Files.isSymbolicLink(Path path)}
+     *
      * @param file the file to check
      * @return true if the file is a Symbolic Link
      * @throws IOException if an IO error occurs while checking the file

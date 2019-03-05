@@ -16,8 +16,6 @@
  */
 package org.apache.commons.io.input;
 
-import static org.apache.commons.io.IOUtils.EOF;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -27,6 +25,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+
+import static org.apache.commons.io.IOUtils.EOF;
 
 /**
  * {@link InputStream} implementation that reads a character stream from a {@link Reader}
@@ -73,7 +73,6 @@ import java.nio.charset.CodingErrorAction;
  * Instances of {@link ReaderInputStream} are not thread safe.
  *
  * @see org.apache.commons.io.output.WriterOutputStream
- *
  * @since 2.0
  */
 public class ReaderInputStream extends InputStream {
@@ -101,7 +100,7 @@ public class ReaderInputStream extends InputStream {
     /**
      * Construct a new {@link ReaderInputStream}.
      *
-     * @param reader the target {@link Reader}
+     * @param reader  the target {@link Reader}
      * @param encoder the charset encoder
      * @since 2.1
      */
@@ -112,8 +111,8 @@ public class ReaderInputStream extends InputStream {
     /**
      * Construct a new {@link ReaderInputStream}.
      *
-     * @param reader the target {@link Reader}
-     * @param encoder the charset encoder
+     * @param reader     the target {@link Reader}
+     * @param encoder    the charset encoder
      * @param bufferSize the size of the input buffer in number of characters
      * @since 2.1
      */
@@ -129,23 +128,23 @@ public class ReaderInputStream extends InputStream {
     /**
      * Construct a new {@link ReaderInputStream}.
      *
-     * @param reader the target {@link Reader}
-     * @param charset the charset encoding
+     * @param reader     the target {@link Reader}
+     * @param charset    the charset encoding
      * @param bufferSize the size of the input buffer in number of characters
      */
     public ReaderInputStream(final Reader reader, final Charset charset, final int bufferSize) {
         this(reader,
-             charset.newEncoder()
-                    .onMalformedInput(CodingErrorAction.REPLACE)
-                    .onUnmappableCharacter(CodingErrorAction.REPLACE),
-             bufferSize);
+                charset.newEncoder()
+                        .onMalformedInput(CodingErrorAction.REPLACE)
+                        .onUnmappableCharacter(CodingErrorAction.REPLACE),
+                bufferSize);
     }
 
     /**
      * Construct a new {@link ReaderInputStream} with a default input buffer size of
      * 1024 characters.
      *
-     * @param reader the target {@link Reader}
+     * @param reader  the target {@link Reader}
      * @param charset the charset encoding
      */
     public ReaderInputStream(final Reader reader, final Charset charset) {
@@ -155,9 +154,9 @@ public class ReaderInputStream extends InputStream {
     /**
      * Construct a new {@link ReaderInputStream}.
      *
-     * @param reader the target {@link Reader}
+     * @param reader      the target {@link Reader}
      * @param charsetName the name of the charset encoding
-     * @param bufferSize the size of the input buffer in number of characters
+     * @param bufferSize  the size of the input buffer in number of characters
      */
     public ReaderInputStream(final Reader reader, final String charsetName, final int bufferSize) {
         this(reader, Charset.forName(charsetName), bufferSize);
@@ -167,7 +166,7 @@ public class ReaderInputStream extends InputStream {
      * Construct a new {@link ReaderInputStream} with a default input buffer size of
      * 1024 characters.
      *
-     * @param reader the target {@link Reader}
+     * @param reader      the target {@link Reader}
      * @param charsetName the name of the charset encoding
      */
     public ReaderInputStream(final Reader reader, final String charsetName) {
@@ -189,8 +188,7 @@ public class ReaderInputStream extends InputStream {
     /**
      * Fills the internal char buffer from the reader.
      *
-     * @throws IOException
-     *             If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     private void fillBuffer() throws IOException {
         if (!endOfInput && (lastCoderResult == null || lastCoderResult.isUnderflow())) {
@@ -203,7 +201,7 @@ public class ReaderInputStream extends InputStream {
             if (c == EOF) {
                 endOfInput = true;
             } else {
-                encoderIn.position(position+c);
+                encoderIn.position(position + c);
             }
             encoderIn.flip();
         }
@@ -215,11 +213,11 @@ public class ReaderInputStream extends InputStream {
     /**
      * Read the specified number of bytes into an array.
      *
-     * @param b the byte array to read into
+     * @param b   the byte array to read into
      * @param off the offset to start reading bytes into
      * @param len the number of bytes to read
      * @return the number of bytes read or <code>-1</code>
-     *         if the end of the stream has been reached
+     * if the end of the stream has been reached
      * @throws IOException if an I/O error occurs
      */
     @Override
@@ -257,7 +255,7 @@ public class ReaderInputStream extends InputStream {
      *
      * @param b the byte array to read into
      * @return the number of bytes read or <code>-1</code>
-     *         if the end of the stream has been reached
+     * if the end of the stream has been reached
      * @throws IOException if an I/O error occurs
      */
     @Override
@@ -269,12 +267,12 @@ public class ReaderInputStream extends InputStream {
      * Read a single byte.
      *
      * @return either the byte read or <code>-1</code> if the end of the stream
-     *         has been reached
+     * has been reached
      * @throws IOException if an I/O error occurs
      */
     @Override
     public int read() throws IOException {
-        for (;;) {
+        for (; ; ) {
             if (encoderOut.hasRemaining()) {
                 return encoderOut.get() & 0xFF;
             }
@@ -288,6 +286,7 @@ public class ReaderInputStream extends InputStream {
     /**
      * Close the stream. This method will cause the underlying {@link Reader}
      * to be closed.
+     *
      * @throws IOException if an I/O error occurs
      */
     @Override

@@ -34,24 +34,28 @@ import java.io.Serializable;
  * }
  * </pre>
  *
- * @since 1.2
  * @see FileFilterUtils#sizeFileFilter(long)
  * @see FileFilterUtils#sizeFileFilter(long, boolean)
  * @see FileFilterUtils#sizeRangeFileFilter(long, long)
+ * @since 1.2
  */
 public class SizeFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = 7388077430788600069L;
-    /** The size threshold. */
+    /**
+     * The size threshold.
+     */
     private final long size;
-    /** Whether the files accepted will be larger or smaller. */
+    /**
+     * Whether the files accepted will be larger or smaller.
+     */
     private final boolean acceptLarger;
 
     /**
      * Constructs a new size file filter for files equal to or
      * larger than a certain size.
      *
-     * @param size  the threshold size of the files
+     * @param size the threshold size of the files
      * @throws IllegalArgumentException if the size is negative
      */
     public SizeFileFilter(final long size) {
@@ -62,9 +66,9 @@ public class SizeFileFilter extends AbstractFileFilter implements Serializable {
      * Constructs a new size file filter for files based on a certain size
      * threshold.
      *
-     * @param size  the threshold size of the files
-     * @param acceptLarger  if true, files equal to or larger are accepted,
-     * otherwise smaller ones (but not equal to)
+     * @param size         the threshold size of the files
+     * @param acceptLarger if true, files equal to or larger are accepted,
+     *                     otherwise smaller ones (but not equal to)
      * @throws IllegalArgumentException if the size is negative
      */
     public SizeFileFilter(final long size, final boolean acceptLarger) {
@@ -76,6 +80,7 @@ public class SizeFileFilter extends AbstractFileFilter implements Serializable {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks to see if the size of the file is favorable.
      * <p>
@@ -84,7 +89,7 @@ public class SizeFileFilter extends AbstractFileFilter implements Serializable {
      * If size equals threshold and larger files are required,
      * file <b>IS</b> selected.
      *
-     * @param file  the File to check
+     * @param file the File to check
      * @return true if the filename matches
      */
     @Override

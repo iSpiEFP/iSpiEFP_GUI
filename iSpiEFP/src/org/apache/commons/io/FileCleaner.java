@@ -42,13 +42,14 @@ public class FileCleaner {
     static final FileCleaningTracker theInstance = new FileCleaningTracker();
 
     //-----------------------------------------------------------------------
+
     /**
      * Track the specified file, using the provided marker, deleting the file
      * when the marker instance is garbage collected.
      * The {@link FileDeleteStrategy#NORMAL normal} deletion strategy will be used.
      *
-     * @param file  the file to be tracked, not null
-     * @param marker  the marker object used to track the file, not null
+     * @param file   the file to be tracked, not null
+     * @param marker the marker object used to track the file, not null
      * @throws NullPointerException if the file is null
      * @deprecated Use {@link FileCleaningTracker#track(File, Object)}.
      */
@@ -62,9 +63,9 @@ public class FileCleaner {
      * when the marker instance is garbage collected.
      * The specified deletion strategy is used.
      *
-     * @param file  the file to be tracked, not null
-     * @param marker  the marker object used to track the file, not null
-     * @param deleteStrategy  the strategy to delete the file, null means normal
+     * @param file           the file to be tracked, not null
+     * @param marker         the marker object used to track the file, not null
+     * @param deleteStrategy the strategy to delete the file, null means normal
      * @throws NullPointerException if the file is null
      * @deprecated Use {@link FileCleaningTracker#track(File, Object, FileDeleteStrategy)}.
      */
@@ -78,8 +79,8 @@ public class FileCleaner {
      * when the marker instance is garbage collected.
      * The {@link FileDeleteStrategy#NORMAL normal} deletion strategy will be used.
      *
-     * @param path  the full path to the file to be tracked, not null
-     * @param marker  the marker object used to track the file, not null
+     * @param path   the full path to the file to be tracked, not null
+     * @param marker the marker object used to track the file, not null
      * @throws NullPointerException if the path is null
      * @deprecated Use {@link FileCleaningTracker#track(String, Object)}.
      */
@@ -93,9 +94,9 @@ public class FileCleaner {
      * when the marker instance is garbage collected.
      * The specified deletion strategy is used.
      *
-     * @param path  the full path to the file to be tracked, not null
-     * @param marker  the marker object used to track the file, not null
-     * @param deleteStrategy  the strategy to delete the file, null means normal
+     * @param path           the full path to the file to be tracked, not null
+     * @param marker         the marker object used to track the file, not null
+     * @param deleteStrategy the strategy to delete the file, null means normal
      * @throws NullPointerException if the path is null
      * @deprecated Use {@link FileCleaningTracker#track(String, Object, FileDeleteStrategy)}.
      */
@@ -105,6 +106,7 @@ public class FileCleaner {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Retrieve the number of files currently being tracked, and therefore
      * awaiting deletion.
@@ -138,6 +140,7 @@ public class FileCleaner {
      * in the resource cleanup code, such as
      * {@code javax.servlet.ServletContextListener.contextDestroyed(javax.servlet.ServletContextEvent)}.
      * One called, no new objects can be tracked by the file cleaner.
+     *
      * @deprecated Use {@link FileCleaningTracker#exitWhenFinished()}.
      */
     @Deprecated

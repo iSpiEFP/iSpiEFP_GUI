@@ -39,6 +39,7 @@ public class MessageDigestCalculatingInputStream extends ObservableInputStream {
 
         /**
          * Creates an MessageDigestMaintainingObserver for the given MessageDigest.
+         *
          * @param pMd the message digest to use
          */
         public MessageDigestMaintainingObserver(final MessageDigest pMd) {
@@ -58,8 +59,10 @@ public class MessageDigestCalculatingInputStream extends ObservableInputStream {
 
     private final MessageDigest messageDigest;
 
-    /** Creates a new instance, which calculates a signature on the given stream,
+    /**
+     * Creates a new instance, which calculates a signature on the given stream,
      * using the given {@link MessageDigest}.
+     *
      * @param pStream the stream to calculate the message digest for
      * @param pDigest the message digest to use
      */
@@ -69,9 +72,11 @@ public class MessageDigestCalculatingInputStream extends ObservableInputStream {
         add(new MessageDigestMaintainingObserver(pDigest));
     }
 
-    /** Creates a new instance, which calculates a signature on the given stream,
+    /**
+     * Creates a new instance, which calculates a signature on the given stream,
      * using a {@link MessageDigest} with the given algorithm.
-     * @param pStream the stream to calculate the message digest for
+     *
+     * @param pStream    the stream to calculate the message digest for
      * @param pAlgorithm the name of the algorithm to use
      * @throws NoSuchAlgorithmException if no Provider supports a MessageDigestSpi implementation for the specified algorithm.
      */
@@ -79,8 +84,10 @@ public class MessageDigestCalculatingInputStream extends ObservableInputStream {
         this(pStream, MessageDigest.getInstance(pAlgorithm));
     }
 
-    /** Creates a new instance, which calculates a signature on the given stream,
+    /**
+     * Creates a new instance, which calculates a signature on the given stream,
      * using a {@link MessageDigest} with the "MD5" algorithm.
+     *
      * @param pStream the stream to calculate the message digest for
      * @throws NoSuchAlgorithmException if no Provider supports a MessageDigestSpi implementation for the specified algorithm.
      */
@@ -88,12 +95,14 @@ public class MessageDigestCalculatingInputStream extends ObservableInputStream {
         this(pStream, MessageDigest.getInstance("MD5"));
     }
 
-    /** Returns the {@link MessageDigest}, which is being used for generating the
+    /**
+     * Returns the {@link MessageDigest}, which is being used for generating the
      * checksum.
      * <em>Note</em>: The checksum will only reflect the data, which has been read so far.
      * This is probably not, what you expect. Make sure, that the complete data has been
      * read, if that is what you want. The easiest way to do so is by invoking
      * {@link #consume()}.
+     *
      * @return the message digest used
      */
     public MessageDigest getMessageDigest() {

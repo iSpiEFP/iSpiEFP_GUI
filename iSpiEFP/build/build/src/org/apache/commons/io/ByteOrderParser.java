@@ -46,11 +46,9 @@ public final class ByteOrderParser {
      * <li>{@code ByteOrderParser.parseByteOrder("BIG_ENDIAN")} returns {@code ByteOrder.BIG_ENDIAN}</li>
      * </ul>
      *
-     * @param value
-     *            the {@code String} containing the ByteOrder representation to be parsed
+     * @param value the {@code String} containing the ByteOrder representation to be parsed
      * @return the ByteOrder represented by the string argument
-     * @throws IllegalArgumentException
-     *             if the {@code String} containing the ByteOrder representation to be parsed is unknown.
+     * @throws IllegalArgumentException if the {@code String} containing the ByteOrder representation to be parsed is unknown.
      */
     public static ByteOrder parseByteOrder(final String value) {
         if (ByteOrder.BIG_ENDIAN.toString().equals(value)) {
@@ -60,7 +58,7 @@ public final class ByteOrderParser {
             return ByteOrder.LITTLE_ENDIAN;
         }
         throw new IllegalArgumentException("Unsupported byte order setting: " + value + ", expeced one of " + ByteOrder.LITTLE_ENDIAN +
-                 ", " + ByteOrder.BIG_ENDIAN);
+                ", " + ByteOrder.BIG_ENDIAN);
     }
 
 }

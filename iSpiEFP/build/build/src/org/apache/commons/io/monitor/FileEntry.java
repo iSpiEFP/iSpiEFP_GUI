@@ -22,12 +22,12 @@ import java.io.Serializable;
 /**
  * The state of a file or directory, capturing the following {@link File} attributes at a point in time.
  * <ul>
- *   <li>File Name (see {@link File#getName()})</li>
- *   <li>Exists - whether the file exists or not (see {@link File#exists()})</li>
- *   <li>Directory - whether the file is a directory or not (see {@link File#isDirectory()})</li>
- *   <li>Last Modified Date/Time (see {@link File#lastModified()})</li>
- *   <li>Length (see {@link File#length()}) - directories treated as zero</li>
- *   <li>Children - contents of a directory (see {@link File#listFiles(java.io.FileFilter)})</li>
+ * <li>File Name (see {@link File#getName()})</li>
+ * <li>Exists - whether the file exists or not (see {@link File#exists()})</li>
+ * <li>Directory - whether the file is a directory or not (see {@link File#isDirectory()})</li>
+ * <li>Last Modified Date/Time (see {@link File#lastModified()})</li>
+ * <li>Length (see {@link File#length()}) - directories treated as zero</li>
+ * <li>Children - contents of a directory (see {@link File#listFiles(java.io.FileFilter)})</li>
  * </ul>
  *
  * <h3>Custom Implementations</h3>
@@ -37,6 +37,7 @@ import java.io.Serializable;
  * {@link #newChildInstance(File)} to return a new instance of the appropriate type.
  * You may also want to override the {@link #refresh(File)} method.
  * </p>
+ *
  * @see FileAlterationObserver
  * @since 2.0
  */
@@ -68,7 +69,7 @@ public class FileEntry implements Serializable {
      * Construct a new monitor for a specified {@link File}.
      *
      * @param parent The parent
-     * @param file The file being monitored
+     * @param file   The file being monitored
      */
     public FileEntry(final FileEntry parent, final File file) {
         if (file == null) {
@@ -96,17 +97,17 @@ public class FileEntry implements Serializable {
     public boolean refresh(final File file) {
 
         // cache original values
-        final boolean origExists       = exists;
-        final long    origLastModified = lastModified;
-        final boolean origDirectory    = directory;
-        final long    origLength       = length;
+        final boolean origExists = exists;
+        final long origLastModified = lastModified;
+        final boolean origDirectory = directory;
+        final long origLength = length;
 
         // refresh the values
-        name         = file.getName();
-        exists       = file.exists();
-        directory    = exists && file.isDirectory();
+        name = file.getName();
+        exists = file.exists();
+        directory = exists && file.isDirectory();
         lastModified = exists ? file.lastModified() : 0;
-        length       = exists && !directory ? file.length() : 0;
+        length = exists && !directory ? file.length() : 0;
 
         // Return if there are changes
         return exists != origExists ||

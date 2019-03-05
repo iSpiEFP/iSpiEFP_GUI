@@ -42,16 +42,16 @@ public class ChunkedOutputStream extends FilterOutputStream {
     /**
      * Creates a new stream that uses the specified chunk size.
      *
-     * @param stream the stream to wrap
+     * @param stream    the stream to wrap
      * @param chunkSize the chunk size to use; must be a positive number.
      * @throws IllegalArgumentException if the chunk size is &lt;= 0
      */
     public ChunkedOutputStream(final OutputStream stream, final int chunkSize) {
-       super(stream);
-       if (chunkSize <= 0) {
-           throw new IllegalArgumentException();
-       }
-       this.chunkSize = chunkSize;
+        super(stream);
+        if (chunkSize <= 0) {
+            throw new IllegalArgumentException();
+        }
+        this.chunkSize = chunkSize;
     }
 
     /**
@@ -66,17 +66,16 @@ public class ChunkedOutputStream extends FilterOutputStream {
     /**
      * Writes the data buffer in chunks to the underlying stream
      *
-     * @param data the data to write
+     * @param data      the data to write
      * @param srcOffset the offset
-     * @param length the length of data to write
-     *
+     * @param length    the length of data to write
      * @throws IOException if an I/O error occurs.
      */
     @Override
     public void write(final byte[] data, final int srcOffset, final int length) throws IOException {
         int bytes = length;
         int dstOffset = srcOffset;
-        while(bytes > 0) {
+        while (bytes > 0) {
             final int chunk = Math.min(bytes, chunkSize);
             out.write(data, dstOffset, chunk);
             bytes -= chunk;

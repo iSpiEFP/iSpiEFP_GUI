@@ -1,45 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import org.vmol.app.submission.SubmissionRecord ?>
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 <BorderPane fx:id="root" prefHeight="500.0" prefWidth="659.0"
-	xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
-	<top>
-		<VBox BorderPane.alignment="CENTER">
-			<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0"
-				prefWidth="659.0">
-				<children>
-					
-					<Button layoutX="450.0" layoutY="450.0" onAction="#clearRecords" mnemonicParsing="false"
-						text="Clear" />
-					<Button layoutX="500.0" layoutY="450.0" onAction="#refresh" mnemonicParsing="false"
-						text="Refresh" />
-					<TableView fx:id="tableView" layoutX="-1.0" prefHeight="400.0" prefWidth="659.0">
-					<columns>
-						<TableColumn  text="Name"
-							prefWidth="100">
-							<cellValueFactory>
-								<PropertyValueFactory property="name" />
-							</cellValueFactory>
-						</TableColumn>
-						<TableColumn text="Status" prefWidth="200">
-							<cellValueFactory>
-								<PropertyValueFactory property="status" />
-							</cellValueFactory>
-						</TableColumn>
-						<TableColumn text="Submission Time" prefWidth="355">
-							<cellValueFactory>
-								<PropertyValueFactory property="time" />
-							</cellValueFactory>
-						</TableColumn>
-						</columns>
-					</TableView>
-				</children>
-			</AnchorPane>
-		</VBox>
-	</top>
+            xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <VBox BorderPane.alignment="CENTER">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0"
+                        prefWidth="659.0">
+                <children>
+
+                    <Button layoutX="450.0" layoutY="450.0" onAction="#clearRecords" mnemonicParsing="false"
+                            text="Clear"/>
+                    <Button layoutX="500.0" layoutY="450.0" onAction="#refresh" mnemonicParsing="false"
+                            text="Refresh"/>
+                    <TableView fx:id="tableView" layoutX="-1.0" prefHeight="400.0" prefWidth="659.0">
+                        <columns>
+                            <TableColumn text="Name"
+                                         prefWidth="100">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="name"/>
+                                </cellValueFactory>
+                            </TableColumn>
+                            <TableColumn text="Status" prefWidth="200">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="status"/>
+                                </cellValueFactory>
+                            </TableColumn>
+                            <TableColumn text="Submission Time" prefWidth="355">
+                                <cellValueFactory>
+                                    <PropertyValueFactory property="time"/>
+                                </cellValueFactory>
+                            </TableColumn>
+                        </columns>
+                    </TableView>
+                </children>
+            </AnchorPane>
+        </VBox>
+    </top>
 </BorderPane>

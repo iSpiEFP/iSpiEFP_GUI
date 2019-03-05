@@ -1,88 +1,46 @@
 package org.vmol.app.gamess;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import ch.ethz.ssh2.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+import org.apache.commons.io.IOUtils;
+import org.jmol.viewer.Viewer;
+import org.vmol.app.Main;
+import org.vmol.app.MainViewController;
+import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
+import org.vmol.app.loginPack.LoginForm;
+import org.vmol.app.server.JobManager;
+import org.vmol.app.server.ServerConfigController;
+import org.vmol.app.server.ServerDetails;
+import org.vmol.app.server.iSpiEFPServer;
+import org.vmol.app.util.Atom;
+import org.vmol.app.visualizer.JmolVisualizer;
+
+import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.IOUtils;
-import org.jmol.modelset.Bond;
-import org.jmol.viewer.Viewer;
-import org.vmol.app.Main;
-import org.vmol.app.MainViewController;
-import org.vmol.app.database.JsonCoordinatePair;
-import org.vmol.app.database.JsonFragment;
-import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
-import org.vmol.app.loginPack.LoginForm;
-import org.vmol.app.qchem.QChemInputController;
-import org.vmol.app.server.JobManager;
-import org.vmol.app.server.ServerConfigController;
-import org.vmol.app.server.ServerDetails;
-import org.vmol.app.server.iSpiEFPServer;
-import org.vmol.app.submission.SubmissionHistoryController;
-import org.vmol.app.util.Atom;
-import org.vmol.app.util.PDBParser;
-import org.vmol.app.util.UnrecognizedAtomException;
-import org.vmol.app.visualizer.JmolVisualizer;
-
-import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.SCPClient;
-import ch.ethz.ssh2.SCPOutputStream;
-import ch.ethz.ssh2.Session;
-import ch.ethz.ssh2.StreamGobbler;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.util.Pair;
-
+/**
+ * Handle all Gamess input and job submission for Gamess
+ */
 public class gamessInputController implements Initializable {
 
     @FXML
@@ -98,22 +56,22 @@ public class gamessInputController implements Initializable {
     private ArrayList<Atom> atoms;
     private ArrayList<ArrayList> final_lists = new ArrayList<ArrayList>();
     // TODO: change this to use hashmap
-    String[] bonds = { "HH", "CC", "NN", "OO", "FF", "CLCL", "BRBR", "II", "CN", "NC", "CO", "OC", "CS", "SC", "CF",
+    String[] bonds = {"HH", "CC", "NN", "OO", "FF", "CLCL", "BRBR", "II", "CN", "NC", "CO", "OC", "CS", "SC", "CF",
             "FC", "CCL", "CLC", "CBR", "BRC", "CI", "IC", "HC", "CH", "HN", "NH", "HO", "OH", "HF", "FH", "HCL", "CLH",
-            "HBR", "BRH", "HI", "IH" };
-    double[] lengths = { 0.74, 1.54, 0.45, 1.48, 1.42, 1.99, 2.28, 2.67, 1.47, 1.47, 1.43, 1.43, 1.82, 1.82, 1.35, 1.35,
+            "HBR", "BRH", "HI", "IH"};
+    double[] lengths = {0.74, 1.54, 0.45, 1.48, 1.42, 1.99, 2.28, 2.67, 1.47, 1.47, 1.43, 1.43, 1.82, 1.82, 1.35, 1.35,
             1.77, 1.77, 1.94, 1.94, 2.14, 2.14, 1.09, 1.09, 1.01, 1.01, 0.96, 0.96, 0.92, 0.92, 1.27, 1.27, 1.41, 1.41,
-            1.61, 1.61 };
+            1.61, 1.61};
     List<ServerDetails> serverDetailsList;
     Map<String, Double> charges;
 
     private ArrayList inputs;
     private ArrayList<Integer> fragmentNumbers;
-    
+
     public gamessInputController(File file, ArrayList<ArrayList> groups, ArrayList to_be_submitted) {
         inputs = new ArrayList();
         fragmentNumbers = to_be_submitted;
-        
+
         Viewer viewer = Main.jmolPanel.viewer;
 
         // get atoms from to be submitted atoms list
@@ -141,8 +99,16 @@ public class gamessInputController implements Initializable {
         generateGamessInputFiles();
     }
 
+    /**
+     * Find the missing atom where there used to be one from a bond
+     *
+     * @param fragAtomIndex fragmented atom index
+     * @param frag          list of frags
+     * @param originalBonds the original bonds before slicing
+     * @return
+     */
     private ArrayList<Integer> missingAtom(int fragAtomIndex, ArrayList<Integer> frag,
-            ArrayList<ArrayList<Integer>> originalBonds) {
+                                           ArrayList<ArrayList<Integer>> originalBonds) {
         ArrayList<Integer> missingAtoms = new ArrayList<Integer>();
         for (Integer atomIndex : originalBonds.get(fragAtomIndex)) {
             boolean found = false;
@@ -174,6 +140,12 @@ public class gamessInputController implements Initializable {
         return final_lists;
     }
 
+    /**
+     * Add dummy hydrogens where bonds were sliced
+     *
+     * @param frag list of fragments
+     * @return
+     */
     public ArrayList<Atom> addHydrogens(ArrayList frag) {
         ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
         Viewer viewer = Main.jmolPanel.viewer;
@@ -209,10 +181,11 @@ public class gamessInputController implements Initializable {
     }
 
     @Override
+    /**
+     * Initialize thee Gamess form for javaFX
+     */
     public void initialize(URL location, ResourceBundle resources) {
 
-        //
-        // Initializing qChemInputTextArea
         try {
 
             for (int i = 0; i < final_lists.size(); i++) {
@@ -248,7 +221,7 @@ public class gamessInputController implements Initializable {
         gamessInputArea.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(final ObservableValue<? extends String> observable, final String oldValue,
-                    final String newValue) {
+                                final String newValue) {
                 // this will run whenever text is changed
                 String[] arrays = newValue.split("\n\n\n");
                 inputs.clear();
@@ -268,6 +241,9 @@ public class gamessInputController implements Initializable {
         gamessInputArea.setText(gamessInputArea.getText() + text);
     }
 
+    /**
+     * Generate Gamess input Form from selected Fragments
+     */
     public void generateGamessInputFiles() {
         Viewer viewer = Main.jmolPanel.viewer;
 
@@ -295,7 +271,7 @@ public class gamessInputController implements Initializable {
 
             sb.append(" $MAKEFP  POL=." + pol + ". DISP=." + disp + ". CHTR=.f.  EXREP=." + exrep + ". $end\n");
             sb.append(" $data\n");
-            sb.append("Fragment" + " " + (fragmentNumbers.get(i)+1) + "\n");
+            sb.append("Fragment" + " " + (fragmentNumbers.get(i) + 1) + "\n");
             sb.append(" C1\n");
             for (int j = 0; j < final_lists.get(i).size(); j++) {
                 Atom a = (Atom) final_lists.get(i).get(j);
@@ -316,9 +292,7 @@ public class gamessInputController implements Initializable {
             sb.append(" $end\n $comment Atoms to be erased:  $end\n");
             // System.out.println(sb.toString());
             inputs.add(sb.toString());
-
         }
-
     }
 
     // Generate Q-Chem Input file
@@ -331,7 +305,6 @@ public class gamessInputController implements Initializable {
         File selectedDirectory = chooser.showDialog(currStage);
 
         // System.out.println(selectedDirectory.getAbsolutePath());
-
         FileOutputStream fos = new FileOutputStream(selectedDirectory.getAbsolutePath() + "/gamess.zip");
         ZipOutputStream zos = new ZipOutputStream(fos);
         for (int i = 0; i < inputs.size(); i++) {
@@ -350,7 +323,6 @@ public class gamessInputController implements Initializable {
     }
 
     public static void writeZipFile(File directoryToZip, List<File> fileList) {
-
         try {
             FileOutputStream fos = new FileOutputStream(directoryToZip.getName() + ".zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
@@ -391,7 +363,12 @@ public class gamessInputController implements Initializable {
         fis.close();
     }
 
-    // Method to handle the submit action to selected server
+    /**
+     * Handle job submission button on Gamess Form
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void handleSubmit() throws IOException, InterruptedException {
         ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
         System.out.println(selectedServer.getServerType());
@@ -411,6 +388,7 @@ public class gamessInputController implements Initializable {
 
                 ArrayList jobids = new ArrayList();
 
+                //For each fragment, generate input
                 for (int i = 0; i < inputs.size(); i++) {
 
                     SCPClient scp = conn.createSCPClient();
@@ -420,38 +398,16 @@ public class gamessInputController implements Initializable {
 
                     String jobID = (new JobManager()).generateJobID().toString();
 
-                    // LEGACYSCPOutputStream scpos =
-                    // scp.put(MainViewController.getLastOpenedFileName() + "_"
-                    // + i +
-                    // ".inp",((String)inputs.get(i)).length(),"./ispiefp","0666"
-                    // );
                     SCPOutputStream scpos = scp.put("gamess_" + jobID + ".inp", ((String) inputs.get(i)).length(),
                             "./iSpiClient/Gamess/src", "0666");
                     InputStream istream = IOUtils.toInputStream((String) inputs.get(i), "UTF-8");
                     IOUtils.copy(istream, scpos);
                     istream.close();
                     scpos.close();
-                    // new File(MainViewController.getLastOpenedFileName() + "_"
-                    // + i).delete();
-
-                    // /depot/lslipche/apps/gamess/gamess_2018R1/rungms
-                    // LEGACYString pbs_script = "cd
-                    // ispiefp;\n/group/lslipche/apps/gamess/gamess_2014R1/rungms_pradeep
-                    // " + MainViewController.getLastOpenedFileName() + "_" + i
-                    // + ".inp" + " 555 1 > " +
-                    // MainViewController.getLastOpenedFileName() + "_" + i +
-                    // ".log";
-                    // String pbs_script = "source ~/.bashrc;\ncd
-                    // iSpiClient/Libefp/src;\nmodule load
-                    // intel;\n/depot/lslipche/apps/libefp/libefp_yen_pairwise_july_2018_v5/efpmd/src/efpmd
-                    // ../input/md_1.in > ../output/output_" + currentTime;
 
                     String pbs_script = "cd iSpiClient/Gamess/src;\n ./rungms gamess_" + jobID + ".inp" + " > gamess_"
                             + jobID + ".log";
 
-                    // LEGACYscpos = scp.put("pbs_" +
-                    // MainViewController.getLastOpenedFileName() + "_" + i,
-                    // pbs_script.length(), "./ispiefp", "0666");
                     scpos = scp.put("pbs_" + jobID, pbs_script.length(), "./iSpiClient/Gamess/src", "0666");
 
                     istream = IOUtils.toInputStream(pbs_script, "UTF-8");
@@ -460,10 +416,7 @@ public class gamessInputController implements Initializable {
                     scpos.close();
 
                     Session sess = conn.openSession();
-                    // LEGACYsess.execCommand("source /etc/profile; cd ispiefp;
-                    // qsub -l walltime=4:00:00 -l nodes=1:ppn=1 -q standby
-                    // pbs_" + MainViewController.getLastOpenedFileName() + "_"
-                    // + i);
+
                     sess.execCommand(
                             "source /etc/profile; cd iSpiClient/Gamess/src; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -q standby pbs_"
                                     + jobID);
@@ -475,18 +428,16 @@ public class gamessInputController implements Initializable {
                         String line = br.readLine();
                         if (line == null)
                             break;
-                        // System.out.println(line);
                         String[] tokens = line.split("\\.");
                         if (tokens[0].matches("\\d+")) {
                             clusterjobID = tokens[0];
                         }
-                        // System.out.println(line);
                     }
                     br.close();
                     stdout.close();
                     sess.close();
-                    
-                    
+
+
                     jobids.add(clusterjobID);
                     // Date date = new Date();
                     Preferences userPrefs = Preferences.userNodeForPackage(gamessSubmissionHistoryController.class);
@@ -500,10 +451,10 @@ public class gamessInputController implements Initializable {
 
                     String serverName = Main.iSpiEFP_SERVER;
                     int port = Main.iSpiEFP_PORT;
-                    // int port = 8080;
 
                     String title = "A_Default_title";
                     String time = currentTime;
+
                     // send over job data to database
                     String query = "Submit2";
                     query += "$END$";
@@ -524,24 +475,19 @@ public class gamessInputController implements Initializable {
                     outToServer.write(query.getBytes("UTF-8"));
                     client.close();
                     outToServer.close();
-                    
-                    
+
+                    //poll for job finishing
                     JobManager jobManager = new JobManager(username, password, hostname, jobID, title, time, "QUEUE",
                             "GAMESS");
                     jobManager.watchJobStatus();
 
+                    //send success alert to user
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Gamess Submission");
                     alert.setHeaderText(null);
                     alert.setContentText("Job submitted to cluster successfully.");
                     alert.showAndWait();
                 }
-
-                // ./ } catch (Exception e1) {
-                // TODO Auto-generated catch block
-                // e1.printStackTrace();
-                // }
-
                 conn.close();
 
             }

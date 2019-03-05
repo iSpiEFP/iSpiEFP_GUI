@@ -8,28 +8,24 @@ import java.math.BigInteger;
 
 /**
  * RSAPublicKey.
- * 
+ *
  * @author Christian Plattner
  * @version 2.50, 03/15/10
  */
-public class RSAPublicKey
-{
-	BigInteger e;
-	BigInteger n;
+public class RSAPublicKey {
+    BigInteger e;
+    BigInteger n;
 
-	public RSAPublicKey(BigInteger e, BigInteger n)
-	{
-		this.e = e;
-		this.n = n;
-	}
+    public RSAPublicKey(BigInteger e, BigInteger n) {
+        this.e = e;
+        this.n = n;
+    }
 
-	public BigInteger getE()
-	{
-		return e;
-	}
+    public BigInteger getE() {
+        return e;
+    }
 
-	public BigInteger getN()
-	{
-		return n;
-	}
+    public BigInteger getN() {
+        return n;
+    }
 }

@@ -46,10 +46,14 @@ public class DirectoryFileComparator extends AbstractFileComparator implements S
 
     private static final long serialVersionUID = 296132640160964395L;
 
-    /** Singleton default comparator instance */
+    /**
+     * Singleton default comparator instance
+     */
     public static final Comparator<File> DIRECTORY_COMPARATOR = new DirectoryFileComparator();
 
-    /** Singleton reverse default comparator instance */
+    /**
+     * Singleton reverse default comparator instance
+     */
     public static final Comparator<File> DIRECTORY_REVERSE = new ReverseComparator(DIRECTORY_COMPARATOR);
 
     /**

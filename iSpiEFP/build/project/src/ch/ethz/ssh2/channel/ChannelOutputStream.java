@@ -9,71 +9,63 @@ import java.io.OutputStream;
 
 /**
  * ChannelOutputStream.
- * 
+ *
  * @author Christian Plattner
  * @version 2.50, 03/15/10
  */
-public final class ChannelOutputStream extends OutputStream
-{
-	Channel c;
+public final class ChannelOutputStream extends OutputStream {
+    Channel c;
 
-	boolean isClosed = false;
-	
-	ChannelOutputStream(Channel c)
-	{
-		this.c = c;
-	}
+    boolean isClosed = false;
 
-	@Override
-	public void write(int b) throws IOException
-	{	
-		byte[] buff = new byte[1];
-		
-		buff[0] = (byte) b;
-		
-		write(buff, 0, 1);
-	}
+    ChannelOutputStream(Channel c) {
+        this.c = c;
+    }
 
-	@Override
-	public void close() throws IOException
-	{
-		if (isClosed == false)
-		{
-			isClosed = true;
-			c.cm.sendEOF(c);
-		}
-	}
+    @Override
+    public void write(int b) throws IOException {
+        byte[] buff = new byte[1];
 
-	@Override
-	public void flush() throws IOException
-	{
-		if (isClosed)
-			throw new IOException("This OutputStream is closed.");
+        buff[0] = (byte) b;
 
-		/* This is a no-op, since this stream is unbuffered */
-	}
+        write(buff, 0, 1);
+    }
 
-	@Override
-	public void write(byte[] b, int off, int len) throws IOException
-	{
-		if (isClosed)
-			throw new IOException("This OutputStream is closed.");
-		
-		if (b == null)
-			throw new NullPointerException();
+    @Override
+    public void close() throws IOException {
+        if (isClosed == false) {
+            isClosed = true;
+            c.cm.sendEOF(c);
+        }
+    }
 
-		if ((off < 0) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0) || (off > b.length))
-			throw new IndexOutOfBoundsException();
+    @Override
+    public void flush() throws IOException {
+        if (isClosed)
+            throw new IOException("This OutputStream is closed.");
 
-		if (len == 0)
-			return;
-		
-		c.cm.sendData(c, b, off, len);
-	}
+        /* This is a no-op, since this stream is unbuffered */
+    }
 
-	@Override
-	public void write(byte[] b) throws IOException
-	{
-		write(b, 0, b.length);
-	}
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        if (isClosed)
+            throw new IOException("This OutputStream is closed.");
+
+        if (b == null)
+            throw new NullPointerException();
+
+        if ((off < 0) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0) || (off > b.length))
+            throw new IndexOutOfBoundsException();
+
+        if (len == 0)
+            return;
+
+        c.cm.sendData(c, b, off, len);
+    }
+
+    @Override
+    public void write(byte[] b) throws IOException {
+        write(b, 0, b.length);
+    }
 }

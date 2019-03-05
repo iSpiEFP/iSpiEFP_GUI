@@ -45,17 +45,21 @@ import java.io.Serializable;
  * }
  * </pre>
  *
- * @since 1.3
  * @version $Id$
+ * @since 1.3
  */
 public class HiddenFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = 8930842316112759062L;
 
-    /** Singleton instance of <i>hidden</i> filter */
-    public static final IOFileFilter HIDDEN  = new HiddenFileFilter();
+    /**
+     * Singleton instance of <i>hidden</i> filter
+     */
+    public static final IOFileFilter HIDDEN = new HiddenFileFilter();
 
-    /** Singleton instance of <i>visible</i> filter */
+    /**
+     * Singleton instance of <i>visible</i> filter
+     */
     public static final IOFileFilter VISIBLE = new NotFileFilter(HIDDEN);
 
     /**
@@ -67,9 +71,9 @@ public class HiddenFileFilter extends AbstractFileFilter implements Serializable
     /**
      * Checks to see if the file is hidden.
      *
-     * @param file  the File to check
+     * @param file the File to check
      * @return {@code true} if the file is
-     *  <i>hidden</i>, otherwise {@code false}.
+     * <i>hidden</i>, otherwise {@code false}.
      */
     @Override
     public boolean accept(final File file) {

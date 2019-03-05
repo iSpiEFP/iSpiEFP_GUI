@@ -16,6 +16,10 @@
  */
 package org.apache.commons.io.monitor;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.comparator.NameFileComparator;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.Serializable;
@@ -24,10 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.comparator.NameFileComparator;
-
 /**
  * FileAlterationObserver represents the state of files below a root directory,
  * checking the filesystem and notifying listeners of create, change or
@@ -35,12 +35,12 @@ import org.apache.commons.io.comparator.NameFileComparator;
  * <p>
  * To use this implementation:
  * <ul>
- *   <li>Create {@link FileAlterationListener} implementation(s) that process
- *      the file/directory create, change and delete events</li>
- *   <li>Register the listener(s) with a {@link FileAlterationObserver} for
- *       the appropriate directory.</li>
- *   <li>Either register the observer(s) with a {@link FileAlterationMonitor} or
- *       run manually.</li>
+ * <li>Create {@link FileAlterationListener} implementation(s) that process
+ * the file/directory create, change and delete events</li>
+ * <li>Register the listener(s) with a {@link FileAlterationObserver} for
+ * the appropriate directory.</li>
+ * <li>Either register the observer(s) with a {@link FileAlterationMonitor} or
+ * run manually.</li>
  * </ul>
  *
  * <h2>Basic Usage</h2>
@@ -114,9 +114,9 @@ import org.apache.commons.io.comparator.NameFileComparator;
  * method is used to determine if a file or directory has changed since the last
  * check and stores the current state of the {@link File}'s properties.
  *
+ * @version $Id$
  * @see FileAlterationListener
  * @see FileAlterationMonitor
- * @version $Id$
  * @since 2.0
  */
 public class FileAlterationObserver implements Serializable {
@@ -140,7 +140,7 @@ public class FileAlterationObserver implements Serializable {
      * Construct an observer for the specified directory and file filter.
      *
      * @param directoryName the name of the directory to observe
-     * @param fileFilter The file filter or null if none
+     * @param fileFilter    The file filter or null if none
      */
     public FileAlterationObserver(final String directoryName, final FileFilter fileFilter) {
         this(new File(directoryName), fileFilter);
@@ -150,9 +150,9 @@ public class FileAlterationObserver implements Serializable {
      * Construct an observer for the specified directory, file filter and
      * file comparator.
      *
-     * @param directoryName the name of the directory to observe
-     * @param fileFilter The file filter or null if none
-     * @param caseSensitivity  what case sensitivity to use comparing file names, null means system sensitive
+     * @param directoryName   the name of the directory to observe
+     * @param fileFilter      The file filter or null if none
+     * @param caseSensitivity what case sensitivity to use comparing file names, null means system sensitive
      */
     public FileAlterationObserver(final String directoryName, final FileFilter fileFilter,
                                   final IOCase caseSensitivity) {
@@ -171,7 +171,7 @@ public class FileAlterationObserver implements Serializable {
     /**
      * Construct an observer for the specified directory and file filter.
      *
-     * @param directory the directory to observe
+     * @param directory  the directory to observe
      * @param fileFilter The file filter or null if none
      */
     public FileAlterationObserver(final File directory, final FileFilter fileFilter) {
@@ -182,9 +182,9 @@ public class FileAlterationObserver implements Serializable {
      * Construct an observer for the specified directory, file filter and
      * file comparator.
      *
-     * @param directory the directory to observe
-     * @param fileFilter The file filter or null if none
-     * @param caseSensitivity  what case sensitivity to use comparing file names, null means system sensitive
+     * @param directory       the directory to observe
+     * @param fileFilter      The file filter or null if none
+     * @param caseSensitivity what case sensitivity to use comparing file names, null means system sensitive
      */
     public FileAlterationObserver(final File directory, final FileFilter fileFilter, final IOCase caseSensitivity) {
         this(new FileEntry(directory), fileFilter, caseSensitivity);
@@ -194,9 +194,9 @@ public class FileAlterationObserver implements Serializable {
      * Construct an observer for the specified directory, file filter and
      * file comparator.
      *
-     * @param rootEntry the root directory to observe
-     * @param fileFilter The file filter or null if none
-     * @param caseSensitivity  what case sensitivity to use comparing file names, null means system sensitive
+     * @param rootEntry       the root directory to observe
+     * @param fileFilter      The file filter or null if none
+     * @param caseSensitivity what case sensitivity to use comparing file names, null means system sensitive
      */
     protected FileAlterationObserver(final FileEntry rootEntry, final FileFilter fileFilter,
                                      final IOCase caseSensitivity) {
@@ -316,9 +316,9 @@ public class FileAlterationObserver implements Serializable {
     /**
      * Compare two file lists for files which have been created, modified or deleted.
      *
-     * @param parent The parent entry
+     * @param parent   The parent entry
      * @param previous The original list of files
-     * @param files  The current list of files
+     * @param files    The current list of files
      */
     private void checkAndNotify(final FileEntry parent, final FileEntry[] previous, final File[] files) {
         int c = 0;
@@ -350,7 +350,7 @@ public class FileAlterationObserver implements Serializable {
      * Create a new file entry for the specified file.
      *
      * @param parent The parent file entry
-     * @param file The file to create an entry for
+     * @param file   The file to create an entry for
      * @return A new file entry
      */
     private FileEntry createFileEntry(final FileEntry parent, final File file) {
@@ -363,7 +363,8 @@ public class FileAlterationObserver implements Serializable {
 
     /**
      * List the files
-     * @param file The file to list files for
+     *
+     * @param file  The file to list files for
      * @param entry the parent entry
      * @return The child files
      */
@@ -399,7 +400,7 @@ public class FileAlterationObserver implements Serializable {
      * Fire directory/file change events to the registered listeners.
      *
      * @param entry The previous file system entry
-     * @param file The current file
+     * @param file  The current file
      */
     private void doMatch(final FileEntry entry, final File file) {
         if (entry.refresh(file)) {

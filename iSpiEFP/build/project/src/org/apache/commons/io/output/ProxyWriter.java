@@ -27,14 +27,13 @@ import java.io.Writer;
  * to increase reusability, because FilterWriter changes the
  * methods being called, such as write(char[]) to write(char[], int, int)
  * and write(String) to write(String, int, int).
- *
  */
 public class ProxyWriter extends FilterWriter {
 
     /**
      * Constructs a new ProxyWriter.
      *
-     * @param proxy  the Writer to delegate to
+     * @param proxy the Writer to delegate to
      */
     public ProxyWriter(final Writer proxy) {
         super(proxy);
@@ -43,6 +42,7 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>append(char)</code> method.
+     *
      * @param c The character to write
      * @return this writer
      * @throws IOException if an I/O error occurs
@@ -62,9 +62,10 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>append(CharSequence, int, int)</code> method.
-     * @param csq The character sequence to write
+     *
+     * @param csq   The character sequence to write
      * @param start The index of the first character to write
-     * @param end  The index of the first character to write (exclusive)
+     * @param end   The index of the first character to write (exclusive)
      * @return this writer
      * @throws IOException if an I/O error occurs
      * @since 2.0
@@ -83,6 +84,7 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>append(CharSequence)</code> method.
+     *
      * @param csq The character sequence to write
      * @return this writer
      * @throws IOException if an I/O error occurs
@@ -107,6 +109,7 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>write(int)</code> method.
+     *
      * @param idx the character to write
      * @throws IOException if an I/O error occurs
      */
@@ -123,6 +126,7 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>write(char[])</code> method.
+     *
      * @param chr the characters to write
      * @throws IOException if an I/O error occurs
      */
@@ -144,8 +148,9 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>write(char[], int, int)</code> method.
+     *
      * @param chr the characters to write
-     * @param st The start offset
+     * @param st  The start offset
      * @param len The number of characters to write
      * @throws IOException if an I/O error occurs
      */
@@ -162,6 +167,7 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>write(String)</code> method.
+     *
      * @param str the string to write
      * @throws IOException if an I/O error occurs
      */
@@ -183,8 +189,9 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>write(String)</code> method.
+     *
      * @param str the string to write
-     * @param st The start offset
+     * @param st  The start offset
      * @param len The number of characters to write
      * @throws IOException if an I/O error occurs
      */
@@ -201,6 +208,7 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>flush()</code> method.
+     *
      * @throws IOException if an I/O error occurs
      */
     @Override
@@ -214,6 +222,7 @@ public class ProxyWriter extends FilterWriter {
 
     /**
      * Invokes the delegate's <code>close()</code> method.
+     *
      * @throws IOException if an I/O error occurs
      */
     @Override
@@ -234,9 +243,9 @@ public class ProxyWriter extends FilterWriter {
      * functionality without having to override all the write methods.
      * The default implementation does nothing.
      *
-     * @since 2.0
      * @param n number of chars to be written
      * @throws IOException if the pre-processing fails
+     * @since 2.0
      */
     protected void beforeWrite(final int n) throws IOException {
     }
@@ -251,9 +260,9 @@ public class ProxyWriter extends FilterWriter {
      * functionality without having to override all the write methods.
      * The default implementation does nothing.
      *
-     * @since 2.0
      * @param n number of chars written
      * @throws IOException if the post-processing fails
+     * @since 2.0
      */
     protected void afterWrite(final int n) throws IOException {
     }
@@ -263,6 +272,7 @@ public class ProxyWriter extends FilterWriter {
      * <p>
      * This method provides a point to implement custom exception
      * handling. The default behaviour is to re-throw the exception.
+     *
      * @param e The IOException thrown
      * @throws IOException if an I/O error occurs
      * @since 2.0

@@ -18,11 +18,7 @@
  */
 package org.apache.commons.io.serialization;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -59,7 +55,9 @@ public class ValidatingObjectInputStream extends ObjectInputStream {
         super(input);
     }
 
-    /** Check that the classname conforms to requirements.
+    /**
+     * Check that the classname conforms to requirements.
+     *
      * @param name The class name
      * @throws InvalidClassException when a non-accepted class is encountered
      */
@@ -134,7 +132,7 @@ public class ValidatingObjectInputStream extends ObjectInputStream {
      * unless they are otherwise rejected.
      *
      * @param patterns Wildcard filename patterns as defined by
-     *                  {@link org.apache.commons.io.FilenameUtils#wildcardMatch(String, String) FilenameUtils.wildcardMatch}
+     *                 {@link org.apache.commons.io.FilenameUtils#wildcardMatch(String, String) FilenameUtils.wildcardMatch}
      * @return this object
      */
     public ValidatingObjectInputStream accept(final String... patterns) {
@@ -149,7 +147,7 @@ public class ValidatingObjectInputStream extends ObjectInputStream {
      * even if they are otherwise accepted.
      *
      * @param patterns Wildcard filename patterns as defined by
-     *                  {@link org.apache.commons.io.FilenameUtils#wildcardMatch(String, String) FilenameUtils.wildcardMatch}
+     *                 {@link org.apache.commons.io.FilenameUtils#wildcardMatch(String, String) FilenameUtils.wildcardMatch}
      * @return this object
      */
     public ValidatingObjectInputStream reject(final String... patterns) {

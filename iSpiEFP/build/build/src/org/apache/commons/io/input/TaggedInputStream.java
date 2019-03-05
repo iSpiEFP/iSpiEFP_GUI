@@ -16,12 +16,12 @@
  */
 package org.apache.commons.io.input;
 
+import org.apache.commons.io.TaggedIOException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.UUID;
-
-import org.apache.commons.io.TaggedIOException;
 
 /**
  * An input stream decorator that tags potential exceptions so that the
@@ -82,7 +82,7 @@ public class TaggedInputStream extends ProxyInputStream {
      *
      * @param exception an exception
      * @return {@code true} if the exception was thrown by this stream,
-     *         {@code false} otherwise
+     * {@code false} otherwise
      */
     public boolean isCauseOf(final Throwable exception) {
         return TaggedIOException.isTaggedWith(exception, tag);

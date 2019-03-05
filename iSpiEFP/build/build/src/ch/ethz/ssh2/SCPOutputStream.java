@@ -4,58 +4,52 @@
  */
 package ch.ethz.ssh2;
 
+import ch.ethz.ssh2.util.StringEncoder;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import ch.ethz.ssh2.util.StringEncoder;
-
 /**
  * @version $Id:$
  */
-public class SCPOutputStream extends BufferedOutputStream
-{
+public class SCPOutputStream extends BufferedOutputStream {
 
-	private Session session;
+    private Session session;
 
-	private SCPClient scp;
+    private SCPClient scp;
 
-	public SCPOutputStream(SCPClient client, Session session, final String remoteFile, long length, String mode) throws IOException
-	{
-		super(session.getStdin(), 40000);
-		this.session = session;
-		this.scp = client;
+    public SCPOutputStream(SCPClient client, Session session, final String remoteFile, long length, String mode) throws IOException {
+        super(session.getStdin(), 40000);
+        this.session = session;
+        this.scp = client;
 
-		InputStream is = new BufferedInputStream(session.getStdout(), 512);
+        InputStream is = new BufferedInputStream(session.getStdout(), 512);
 
-		scp.readResponse(is);
+        scp.readResponse(is);
 
-		String cline = "C" + mode + " " + length + " " + remoteFile + "\n";
+        String cline = "C" + mode + " " + length + " " + remoteFile + "\n";
 
-		super.write(StringEncoder.GetBytes(cline));
-		this.flush();
+        super.write(StringEncoder.GetBytes(cline));
+        this.flush();
 
-		scp.readResponse(is);
-	}
+        scp.readResponse(is);
+    }
 
-	@Override
-	public void close() throws IOException
-	{
-		try
-		{
-			this.write(0);
-			this.flush();
+    @Override
+    public void close() throws IOException {
+        try {
+            this.write(0);
+            this.flush();
 
-			scp.readResponse(session.getStdout());
+            scp.readResponse(session.getStdout());
 
-			this.write(StringEncoder.GetBytes("E\n"));
-			this.flush();
-		}
-		finally
-		{
-			if (session != null)
-				session.close();
-		}
-	}
+            this.write(StringEncoder.GetBytes("E\n"));
+            this.flush();
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
 }

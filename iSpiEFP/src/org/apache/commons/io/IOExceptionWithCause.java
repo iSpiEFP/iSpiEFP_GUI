@@ -40,10 +40,8 @@ public class IOExceptionWithCause extends IOException {
      * message.
      * </p>
      *
-     * @param message
-     *            the message (see {@link #getMessage()})
-     * @param cause
-     *            the cause (see {@link #getCause()}). A {@code null} value is allowed.
+     * @param message the message (see {@link #getMessage()})
+     * @param cause   the cause (see {@link #getCause()}). A {@code null} value is allowed.
      */
     public IOExceptionWithCause(final String message, final Throwable cause) {
         super(message, cause);
@@ -56,8 +54,7 @@ public class IOExceptionWithCause extends IOException {
      * and message of <code>cause</code>. This constructor is useful for call sites that just wrap another throwable.
      * </p>
      *
-     * @param cause
-     *            the cause (see {@link #getCause()}). A {@code null} value is allowed.
+     * @param cause the cause (see {@link #getCause()}). A {@code null} value is allowed.
      */
     public IOExceptionWithCause(final Throwable cause) {
         super(cause);

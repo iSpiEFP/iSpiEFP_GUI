@@ -11,29 +11,23 @@ import java.io.UnsupportedEncodingException;
  * @author Christian Plattner
  * @version $Id$
  */
-public class StringEncoder
-{
-	public static byte[] GetBytes(String data)
-	{
+public class StringEncoder {
+    public static byte[] GetBytes(String data) {
         try {
             return data.getBytes("UTF-8");
-        }
-        catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
 
-	public static String GetString(byte[] data)
-	{
-		return GetString(data, 0, data.length);
-	}
+    public static String GetString(byte[] data) {
+        return GetString(data, 0, data.length);
+    }
 
-	public static String GetString(byte[] data, int off, int len)
-	{
+    public static String GetString(byte[] data, int off, int len) {
         try {
             return new String(data, off, len, "UTF-8");
-        }
-        catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }

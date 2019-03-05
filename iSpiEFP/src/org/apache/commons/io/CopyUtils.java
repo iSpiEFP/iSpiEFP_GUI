@@ -16,15 +16,7 @@
  */
 package org.apache.commons.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.Charset;
 
 /**
@@ -104,9 +96,9 @@ import java.nio.charset.Charset;
  * Origin of code: Excalibur.
  *
  * @deprecated Use IOUtils. Will be removed in 2.0.
- *  Methods renamed to IOUtils.write() or IOUtils.copy().
- *  Null handling behaviour changed in IOUtils (null data does not
- *  throw NullPointerException).
+ * Methods renamed to IOUtils.write() or IOUtils.copy().
+ * Null handling behaviour changed in IOUtils (null data does not
+ * throw NullPointerException).
  */
 @Deprecated
 public class CopyUtils {
@@ -119,7 +111,8 @@ public class CopyUtils {
     /**
      * Instances should NOT be constructed in standard programming.
      */
-    public CopyUtils() { }
+    public CopyUtils() {
+    }
 
     // ----------------------------------------------------------------
     // byte[] -> OutputStream
@@ -127,7 +120,8 @@ public class CopyUtils {
 
     /**
      * Copy bytes from a <code>byte[]</code> to an <code>OutputStream</code>.
-     * @param input the byte array to read from
+     *
+     * @param input  the byte array to read from
      * @param output the <code>OutputStream</code> to write to
      * @throws IOException In case of an I/O problem
      */
@@ -144,7 +138,8 @@ public class CopyUtils {
      * Copy and convert bytes from a <code>byte[]</code> to chars on a
      * <code>Writer</code>.
      * The platform's default encoding is used for the byte-to-char conversion.
-     * @param input the byte array to read from
+     *
+     * @param input  the byte array to read from
      * @param output the <code>Writer</code> to write to
      * @throws IOException In case of an I/O problem
      * @deprecated 2.5 use {@link #copy(byte[], Writer, String)} instead
@@ -160,18 +155,19 @@ public class CopyUtils {
     /**
      * Copy and convert bytes from a <code>byte[]</code> to chars on a
      * <code>Writer</code>, using the specified encoding.
-     * @param input the byte array to read from
-     * @param output the <code>Writer</code> to write to
+     *
+     * @param input    the byte array to read from
+     * @param output   the <code>Writer</code> to write to
      * @param encoding The name of a supported character encoding. See the
-     * <a href="http://www.iana.org/assignments/character-sets">IANA
-     * Charset Registry</a> for a list of valid encoding types.
+     *                 <a href="http://www.iana.org/assignments/character-sets">IANA
+     *                 Charset Registry</a> for a list of valid encoding types.
      * @throws IOException In case of an I/O problem
      */
     public static void copy(
             final byte[] input,
             final Writer output,
             final String encoding)
-                throws IOException {
+            throws IOException {
         final ByteArrayInputStream in = new ByteArrayInputStream(input);
         copy(in, output, encoding);
     }
@@ -184,7 +180,8 @@ public class CopyUtils {
     /**
      * Copy bytes from an <code>InputStream</code> to an
      * <code>OutputStream</code>.
-     * @param input the <code>InputStream</code> to read from
+     *
+     * @param input  the <code>InputStream</code> to read from
      * @param output the <code>OutputStream</code> to write to
      * @return the number of bytes copied
      * @throws IOException In case of an I/O problem
@@ -192,7 +189,7 @@ public class CopyUtils {
     public static int copy(
             final InputStream input,
             final OutputStream output)
-                throws IOException {
+            throws IOException {
         final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         int count = 0;
         int n = 0;
@@ -209,7 +206,8 @@ public class CopyUtils {
 
     /**
      * Copy chars from a <code>Reader</code> to a <code>Writer</code>.
-     * @param input the <code>Reader</code> to read from
+     *
+     * @param input  the <code>Reader</code> to read from
      * @param output the <code>Writer</code> to write to
      * @return the number of characters copied
      * @throws IOException In case of an I/O problem
@@ -217,7 +215,7 @@ public class CopyUtils {
     public static int copy(
             final Reader input,
             final Writer output)
-                throws IOException {
+            throws IOException {
         final char[] buffer = new char[DEFAULT_BUFFER_SIZE];
         int count = 0;
         int n = 0;
@@ -236,7 +234,8 @@ public class CopyUtils {
      * Copy and convert bytes from an <code>InputStream</code> to chars on a
      * <code>Writer</code>.
      * The platform's default encoding is used for the byte-to-char conversion.
-     * @param input the <code>InputStream</code> to read from
+     *
+     * @param input  the <code>InputStream</code> to read from
      * @param output the <code>Writer</code> to write to
      * @throws IOException In case of an I/O problem
      * @deprecated 2.5 use {@link #copy(InputStream, Writer, String)} instead
@@ -245,7 +244,7 @@ public class CopyUtils {
     public static void copy(
             final InputStream input,
             final Writer output)
-                throws IOException {
+            throws IOException {
         // make explicit the dependency on the default encoding
         final InputStreamReader in = new InputStreamReader(input, Charset.defaultCharset());
         copy(in, output);
@@ -254,18 +253,19 @@ public class CopyUtils {
     /**
      * Copy and convert bytes from an <code>InputStream</code> to chars on a
      * <code>Writer</code>, using the specified encoding.
-     * @param input the <code>InputStream</code> to read from
-     * @param output the <code>Writer</code> to write to
+     *
+     * @param input    the <code>InputStream</code> to read from
+     * @param output   the <code>Writer</code> to write to
      * @param encoding The name of a supported character encoding. See the
-     * <a href="http://www.iana.org/assignments/character-sets">IANA
-     * Charset Registry</a> for a list of valid encoding types.
+     *                 <a href="http://www.iana.org/assignments/character-sets">IANA
+     *                 Charset Registry</a> for a list of valid encoding types.
      * @throws IOException In case of an I/O problem
      */
     public static void copy(
             final InputStream input,
             final Writer output,
             final String encoding)
-                throws IOException {
+            throws IOException {
         final InputStreamReader in = new InputStreamReader(input, encoding);
         copy(in, output);
     }
@@ -279,7 +279,8 @@ public class CopyUtils {
      * Serialize chars from a <code>Reader</code> to bytes on an
      * <code>OutputStream</code>, and flush the <code>OutputStream</code>.
      * Uses the default platform encoding.
-     * @param input the <code>Reader</code> to read from
+     *
+     * @param input  the <code>Reader</code> to read from
      * @param output the <code>OutputStream</code> to write to
      * @throws IOException In case of an I/O problem
      * @deprecated 2.5 use {@link #copy(Reader, OutputStream, String)} instead
@@ -288,7 +289,7 @@ public class CopyUtils {
     public static void copy(
             final Reader input,
             final OutputStream output)
-                throws IOException {
+            throws IOException {
         // make explicit the dependency on the default encoding
         final OutputStreamWriter out = new OutputStreamWriter(output, Charset.defaultCharset());
         copy(input, out);
@@ -300,11 +301,12 @@ public class CopyUtils {
     /**
      * Serialize chars from a <code>Reader</code> to bytes on an
      * <code>OutputStream</code>, and flush the <code>OutputStream</code>.
-     * @param input the <code>Reader</code> to read from
-     * @param output the <code>OutputStream</code> to write to
+     *
+     * @param input    the <code>Reader</code> to read from
+     * @param output   the <code>OutputStream</code> to write to
      * @param encoding The name of a supported character encoding. See the
-     * <a href="http://www.iana.org/assignments/character-sets">IANA
-     * Charset Registry</a> for a list of valid encoding types.
+     *                 <a href="http://www.iana.org/assignments/character-sets">IANA
+     *                 Charset Registry</a> for a list of valid encoding types.
      * @throws IOException In case of an I/O problem
      * @since 2.5
      */
@@ -312,7 +314,7 @@ public class CopyUtils {
             final Reader input,
             final OutputStream output,
             final String encoding)
-                throws IOException {
+            throws IOException {
         final OutputStreamWriter out = new OutputStreamWriter(output, encoding);
         copy(input, out);
         // XXX Unless anyone is planning on rewriting OutputStreamWriter, we
@@ -329,7 +331,8 @@ public class CopyUtils {
      * <code>OutputStream</code>, and
      * flush the <code>OutputStream</code>.
      * Uses the platform default encoding.
-     * @param input the <code>String</code> to read from
+     *
+     * @param input  the <code>String</code> to read from
      * @param output the <code>OutputStream</code> to write to
      * @throws IOException In case of an I/O problem
      * @deprecated 2.5 use {@link #copy(String, OutputStream, String)} instead
@@ -338,7 +341,7 @@ public class CopyUtils {
     public static void copy(
             final String input,
             final OutputStream output)
-                throws IOException {
+            throws IOException {
         final StringReader in = new StringReader(input);
         // make explicit the dependency on the default encoding
         final OutputStreamWriter out = new OutputStreamWriter(output, Charset.defaultCharset());
@@ -352,11 +355,12 @@ public class CopyUtils {
      * Serialize chars from a <code>String</code> to bytes on an
      * <code>OutputStream</code>, and
      * flush the <code>OutputStream</code>.
-     * @param input the <code>String</code> to read from
-     * @param output the <code>OutputStream</code> to write to
+     *
+     * @param input    the <code>String</code> to read from
+     * @param output   the <code>OutputStream</code> to write to
      * @param encoding The name of a supported character encoding. See the
-     * <a href="http://www.iana.org/assignments/character-sets">IANA
-     * Charset Registry</a> for a list of valid encoding types.
+     *                 <a href="http://www.iana.org/assignments/character-sets">IANA
+     *                 Charset Registry</a> for a list of valid encoding types.
      * @throws IOException In case of an I/O problem
      * @since 2.5
      */
@@ -364,7 +368,7 @@ public class CopyUtils {
             final String input,
             final OutputStream output,
             final String encoding)
-                throws IOException {
+            throws IOException {
         final StringReader in = new StringReader(input);
         final OutputStreamWriter out = new OutputStreamWriter(output, encoding);
         copy(in, out);
@@ -379,12 +383,13 @@ public class CopyUtils {
 
     /**
      * Copy chars from a <code>String</code> to a <code>Writer</code>.
-     * @param input the <code>String</code> to read from
+     *
+     * @param input  the <code>String</code> to read from
      * @param output the <code>Writer</code> to write to
      * @throws IOException In case of an I/O problem
      */
     public static void copy(final String input, final Writer output)
-                throws IOException {
+            throws IOException {
         output.write(input);
     }
 

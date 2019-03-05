@@ -5,12 +5,12 @@ import java.util.HashMap;
 public class PeriodicTable {
 
     private HashMap<String, Double> table;
-    
+
     public PeriodicTable() {
         this.table = new HashMap<String, Double>();
         initTable(this.table);
     }
-    
+
     public void initTable(HashMap<String, Double> table) {
         //Load Periodic Table
         table.put("H", 1.0);
@@ -28,7 +28,7 @@ public class PeriodicTable {
         table.put("Al", 13.0);
         table.put("Si", 14.0);
         table.put("P", 15.0);
-        table.put("S", 16.0);        
+        table.put("S", 16.0);
         table.put("Cl", 17.0);
         table.put("Ar", 18.0);
         table.put("K", 19.0);
@@ -38,5 +38,5 @@ public class PeriodicTable {
         table.put("V", 23.0);
 
     }
-    
+
 }

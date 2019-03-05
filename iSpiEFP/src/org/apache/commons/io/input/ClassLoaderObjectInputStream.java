@@ -16,11 +16,7 @@
  */
 package org.apache.commons.io.input;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
-import java.io.StreamCorruptedException;
+import java.io.*;
 import java.lang.reflect.Proxy;
 
 /**
@@ -33,15 +29,17 @@ import java.lang.reflect.Proxy;
  */
 public class ClassLoaderObjectInputStream extends ObjectInputStream {
 
-    /** The class loader to use. */
+    /**
+     * The class loader to use.
+     */
     private final ClassLoader classLoader;
 
     /**
      * Constructs a new ClassLoaderObjectInputStream.
      *
-     * @param classLoader  the ClassLoader from which classes should be loaded
-     * @param inputStream  the InputStream to work on
-     * @throws IOException in case of an I/O error
+     * @param classLoader the ClassLoader from which classes should be loaded
+     * @param inputStream the InputStream to work on
+     * @throws IOException              in case of an I/O error
      * @throws StreamCorruptedException if the stream is corrupted
      */
     public ClassLoaderObjectInputStream(
@@ -55,9 +53,9 @@ public class ClassLoaderObjectInputStream extends ObjectInputStream {
      * Resolve a class specified by the descriptor using the
      * specified ClassLoader or the super ClassLoader.
      *
-     * @param objectStreamClass  descriptor of the class
+     * @param objectStreamClass descriptor of the class
      * @return the Class object described by the ObjectStreamClass
-     * @throws IOException in case of an I/O error
+     * @throws IOException            in case of an I/O error
      * @throws ClassNotFoundException if the Class cannot be found
      */
     @Override
@@ -78,7 +76,7 @@ public class ClassLoaderObjectInputStream extends ObjectInputStream {
      *
      * @param interfaces the interfaces to implement
      * @return a proxy class implementing the interfaces
-     * @throws IOException in case of an I/O error
+     * @throws IOException            in case of an I/O error
      * @throws ClassNotFoundException if the Class cannot be found
      * @see java.io.ObjectInputStream#resolveProxyClass(java.lang.String[])
      * @since 2.1

@@ -16,20 +16,15 @@
  */
 package org.apache.commons.io.output;
 
-import static org.apache.commons.io.IOUtils.EOF;
+import org.apache.commons.io.input.ClosedInputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.SequenceInputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.input.ClosedInputStream;
+import static org.apache.commons.io.IOUtils.EOF;
 
 /**
  * This class implements an output stream in which the data is
@@ -56,20 +51,34 @@ public class ByteArrayOutputStream extends OutputStream {
 
     static final int DEFAULT_SIZE = 1024;
 
-    /** A singleton empty byte array. */
+    /**
+     * A singleton empty byte array.
+     */
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-    /** The list of buffers, which grows and never reduces. */
+    /**
+     * The list of buffers, which grows and never reduces.
+     */
     private final List<byte[]> buffers = new ArrayList<>();
-    /** The index of the current buffer. */
+    /**
+     * The index of the current buffer.
+     */
     private int currentBufferIndex;
-    /** The total count of bytes in all the filled buffers. */
+    /**
+     * The total count of bytes in all the filled buffers.
+     */
     private int filledBufferSum;
-    /** The current buffer. */
+    /**
+     * The current buffer.
+     */
     private byte[] currentBuffer;
-    /** The total count of bytes written. */
+    /**
+     * The total count of bytes written.
+     */
     private int count;
-    /** Flag to indicate if the buffers can be reused after reset */
+    /**
+     * Flag to indicate if the buffers can be reused after reset
+     */
     private boolean reuseBuffers = true;
 
     /**
@@ -84,13 +93,13 @@ public class ByteArrayOutputStream extends OutputStream {
      * Creates a new byte array output stream, with a buffer capacity of
      * the specified size, in bytes.
      *
-     * @param size  the initial size
+     * @param size the initial size
      * @throws IllegalArgumentException if size is negative
      */
     public ByteArrayOutputStream(final int size) {
         if (size < 0) {
             throw new IllegalArgumentException(
-                "Negative initial size: " + size);
+                    "Negative initial size: " + size);
         }
         synchronized (this) {
             needNewBuffer(size);
@@ -101,7 +110,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * Makes a new buffer available either by allocating
      * a new one or re-cycling an existing one.
      *
-     * @param newcount  the size of the buffer if one is created
+     * @param newcount the size of the buffer if one is created
      */
     private void needNewBuffer(final int newcount) {
         if (currentBufferIndex < buffers.size() - 1) {
@@ -118,8 +127,8 @@ public class ByteArrayOutputStream extends OutputStream {
                 filledBufferSum = 0;
             } else {
                 newBufferSize = Math.max(
-                    currentBuffer.length << 1,
-                    newcount - filledBufferSum);
+                        currentBuffer.length << 1,
+                        newcount - filledBufferSum);
                 filledBufferSum += currentBuffer.length;
             }
 
@@ -131,7 +140,8 @@ public class ByteArrayOutputStream extends OutputStream {
 
     /**
      * Write the bytes to byte array.
-     * @param b the bytes to write
+     *
+     * @param b   the bytes to write
      * @param off The start offset
      * @param len The number of bytes to write
      */
@@ -165,6 +175,7 @@ public class ByteArrayOutputStream extends OutputStream {
 
     /**
      * Write a byte to byte array.
+     *
      * @param b the byte to write
      */
     @Override
@@ -185,7 +196,7 @@ public class ByteArrayOutputStream extends OutputStream {
      *
      * @param in the input stream to read from
      * @return total number of bytes read from the input stream
-     *         (and written to this stream)
+     * (and written to this stream)
      * @throws IOException if an I/O error occurs while reading the input stream
      * @since 1.4
      */
@@ -208,6 +219,7 @@ public class ByteArrayOutputStream extends OutputStream {
 
     /**
      * Return the current size of the byte array.
+     *
      * @return the current size of the byte array
      */
     public synchronized int size() {
@@ -220,7 +232,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * generating an {@code IOException}.
      *
      * @throws IOException never (this method should not declare this exception
-     * but it has to now due to backwards compatibility)
+     *                     but it has to now due to backwards compatibility)
      */
     @Override
     public void close() throws IOException {
@@ -250,7 +262,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * Writes the entire contents of this byte stream to the
      * specified output stream.
      *
-     * @param out  the output stream to write to
+     * @param out the output stream to write to
      * @throws IOException if an I/O error occurs, such as if the stream is closed
      * @see java.io.ByteArrayOutputStream#writeTo(OutputStream)
      */
@@ -309,7 +321,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * <code>BufferedInputStream</code>.
      *
      * @param input Stream to be fully buffered.
-     * @param size the initial buffer size
+     * @param size  the initial buffer size
      * @return A fully buffered stream.
      * @throws IOException if an I/O error occurs
      * @since 2.5
@@ -317,8 +329,7 @@ public class ByteArrayOutputStream extends OutputStream {
     public static InputStream toBufferedInputStream(final InputStream input, final int size)
             throws IOException {
         // It does not matter if a ByteArrayOutputStream is not closed as close() is a no-op
-        @SuppressWarnings("resource")
-        final ByteArrayOutputStream output = new ByteArrayOutputStream(size);
+        @SuppressWarnings("resource") final ByteArrayOutputStream output = new ByteArrayOutputStream(size);
         output.write(input);
         return output.toInputStream();
     }
@@ -380,6 +391,7 @@ public class ByteArrayOutputStream extends OutputStream {
     /**
      * Gets the current contents of this byte stream as a string
      * using the platform default charset.
+     *
      * @return the contents of the byte array as a String
      * @see java.io.ByteArrayOutputStream#toString()
      * @deprecated 2.5 use {@link #toString(String)} instead
@@ -395,7 +407,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * Gets the current contents of this byte stream as a string
      * using the specified encoding.
      *
-     * @param enc  the name of the character encoding
+     * @param enc the name of the character encoding
      * @return the string converted from the byte array
      * @throws UnsupportedEncodingException if the encoding is not supported
      * @see java.io.ByteArrayOutputStream#toString(String)
@@ -408,7 +420,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * Gets the current contents of this byte stream as a string
      * using the specified encoding.
      *
-     * @param charset  the character encoding
+     * @param charset the character encoding
      * @return the string converted from the byte array
      * @see java.io.ByteArrayOutputStream#toString(String)
      * @since 2.5

@@ -16,11 +16,11 @@
  */
 package org.apache.commons.io.comparator;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.Comparator;
-
-import org.apache.commons.io.FileUtils;
 
 /**
  * Compare the <b>length/size</b> of two files for order (see
@@ -52,10 +52,14 @@ public class SizeFileComparator extends AbstractFileComparator implements Serial
 
     private static final long serialVersionUID = -1201561106411416190L;
 
-    /** Size comparator instance - directories are treated as zero size */
+    /**
+     * Size comparator instance - directories are treated as zero size
+     */
     public static final Comparator<File> SIZE_COMPARATOR = new SizeFileComparator();
 
-    /** Reverse size comparator instance - directories are treated as zero size */
+    /**
+     * Reverse size comparator instance - directories are treated as zero size
+     */
     public static final Comparator<File> SIZE_REVERSE = new ReverseComparator(SIZE_COMPARATOR);
 
     /**
@@ -70,7 +74,9 @@ public class SizeFileComparator extends AbstractFileComparator implements Serial
      */
     public static final Comparator<File> SIZE_SUMDIR_REVERSE = new ReverseComparator(SIZE_SUMDIR_COMPARATOR);
 
-    /** Whether the sum of the directory's contents should be calculated. */
+    /**
+     * Whether the sum of the directory's contents should be calculated.
+     */
     private final boolean sumDirectoryContents;
 
     /**
@@ -88,8 +94,8 @@ public class SizeFileComparator extends AbstractFileComparator implements Serial
      * directories is calculated using  {@link FileUtils#sizeOfDirectory(File)}.
      *
      * @param sumDirectoryContents {@code true} if the sum of the directories' contents
-     *  should be calculated, otherwise {@code false} if directories should be treated
-     *  as size zero (see {@link FileUtils#sizeOfDirectory(File)}).
+     *                             should be calculated, otherwise {@code false} if directories should be treated
+     *                             as size zero (see {@link FileUtils#sizeOfDirectory(File)}).
      */
     public SizeFileComparator(final boolean sumDirectoryContents) {
         this.sumDirectoryContents = sumDirectoryContents;
@@ -104,7 +110,6 @@ public class SizeFileComparator extends AbstractFileComparator implements Serial
      * is less than the second, zero if the lengths are the
      * same and a positive value if the first files length
      * is greater than the second file.
-     *
      */
     @Override
     public int compare(final File file1, final File file2) {

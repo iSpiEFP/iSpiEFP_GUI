@@ -10,16 +10,14 @@ import java.io.IOException;
 /**
  * @version $Id: ChannelClosedException.java 3183 2007-07-30 19:22:34Z dkocher $
  */
-public class ChannelClosedException extends IOException
-{
+public class ChannelClosedException extends IOException {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	public ChannelClosedException(String s)
-	{
-		super(s);
-	}
+    public ChannelClosedException(String s) {
+        super(s);
+    }
 }

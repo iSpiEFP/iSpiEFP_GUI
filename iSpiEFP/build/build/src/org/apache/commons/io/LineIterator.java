@@ -51,11 +51,17 @@ public class LineIterator implements Iterator<String>, Closeable {
 
     // N.B. This class deliberately does not implement Iterable, see https://issues.apache.org/jira/browse/IO-181
 
-    /** The reader that is being read. */
+    /**
+     * The reader that is being read.
+     */
     private final BufferedReader bufferedReader;
-    /** The current line. */
+    /**
+     * The current line.
+     */
     private String cachedLine;
-    /** A flag indicating if the iterator has been fully read. */
+    /**
+     * A flag indicating if the iterator has been fully read.
+     */
     private boolean finished = false;
 
     /**
@@ -76,6 +82,7 @@ public class LineIterator implements Iterator<String>, Closeable {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Indicates whether the <code>Reader</code> has more lines.
      * If there is an <code>IOException</code> then {@link #close()} will
@@ -102,7 +109,7 @@ public class LineIterator implements Iterator<String>, Closeable {
                         return true;
                     }
                 }
-            } catch(final IOException ioe) {
+            } catch (final IOException ioe) {
                 try {
                     close();
                 } catch (final IOException e) {
@@ -116,7 +123,8 @@ public class LineIterator implements Iterator<String>, Closeable {
     /**
      * Overridable method to validate each line that is returned.
      * This implementation always returns true.
-     * @param line  the line that is to be validated
+     *
+     * @param line the line that is to be validated
      * @return true if valid, false to remove from the iterator
      */
     protected boolean isValidLine(final String line) {
@@ -178,13 +186,14 @@ public class LineIterator implements Iterator<String>, Closeable {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Closes a {@code LineIterator} quietly.
      *
      * @param iterator The iterator to close, or {@code null}.
+     * @see Throwable#addSuppressed(java.lang.Throwable)
      * @deprecated As of 2.6 removed without replacement. Please use the try-with-resources statement or handle
      * suppressed exceptions manually.
-     * @see Throwable#addSuppressed(java.lang.Throwable)
      */
     @Deprecated
     public static void closeQuietly(final LineIterator iterator) {
@@ -192,7 +201,7 @@ public class LineIterator implements Iterator<String>, Closeable {
             if (iterator != null) {
                 iterator.close();
             }
-        } catch(final IOException e) {
+        } catch (final IOException e) {
             // Suppressed.
         }
     }

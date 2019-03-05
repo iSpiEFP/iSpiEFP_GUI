@@ -48,17 +48,21 @@ import java.io.Serializable;
  * }
  * </pre>
  *
- * @since 1.3
  * @version $Id$
+ * @since 1.3
  */
 public class EmptyFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = 3631422087512832211L;
 
-    /** Singleton instance of <i>empty</i> filter */
+    /**
+     * Singleton instance of <i>empty</i> filter
+     */
     public static final IOFileFilter EMPTY = new EmptyFileFilter();
 
-    /** Singleton instance of <i>not-empty</i> filter */
+    /**
+     * Singleton instance of <i>not-empty</i> filter
+     */
     public static final IOFileFilter NOT_EMPTY = new NotFileFilter(EMPTY);
 
     /**
@@ -70,9 +74,9 @@ public class EmptyFileFilter extends AbstractFileFilter implements Serializable 
     /**
      * Checks to see if the file is empty.
      *
-     * @param file  the file or directory to check
+     * @param file the file or directory to check
      * @return {@code true} if the file or directory
-     *  is <i>empty</i>, otherwise {@code false}.
+     * is <i>empty</i>, otherwise {@code false}.
      */
     @Override
     public boolean accept(final File file) {

@@ -43,20 +43,24 @@ public class FileDeleteStrategy {
      */
     public static final FileDeleteStrategy FORCE = new ForceFileDeleteStrategy();
 
-    /** The name of the strategy. */
+    /**
+     * The name of the strategy.
+     */
     private final String name;
 
     //-----------------------------------------------------------------------
+
     /**
      * Restricted constructor.
      *
-     * @param name  the name by which the strategy is known
+     * @param name the name by which the strategy is known
      */
     protected FileDeleteStrategy(final String name) {
         this.name = name;
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Deletes the file object, which may be a file or a directory.
      * All <code>IOException</code>s are caught and false returned instead.
@@ -64,7 +68,7 @@ public class FileDeleteStrategy {
      * <p>
      * Subclass writers should override {@link #doDelete(File)}, not this method.
      *
-     * @param fileToDelete  the file to delete, null returns true
+     * @param fileToDelete the file to delete, null returns true
      * @return true if the file was deleted, or there was no such file
      */
     public boolean deleteQuietly(final File fileToDelete) {
@@ -84,9 +88,9 @@ public class FileDeleteStrategy {
      * <p>
      * Subclass writers should override {@link #doDelete(File)}, not this method.
      *
-     * @param fileToDelete  the file to delete, not null
+     * @param fileToDelete the file to delete, not null
      * @throws NullPointerException if the file is null
-     * @throws IOException if an error occurs during file deletion
+     * @throws IOException          if an error occurs during file deletion
      */
     public void delete(final File fileToDelete) throws IOException {
         if (fileToDelete.exists() && doDelete(fileToDelete) == false) {
@@ -105,16 +109,17 @@ public class FileDeleteStrategy {
      * <p>
      * This implementation uses {@link File#delete()}.
      *
-     * @param fileToDelete  the file to delete, exists, not null
+     * @param fileToDelete the file to delete, exists, not null
      * @return true if the file was deleted
      * @throws NullPointerException if the file is null
-     * @throws IOException if an error occurs during file deletion
+     * @throws IOException          if an error occurs during file deletion
      */
     protected boolean doDelete(final File fileToDelete) throws IOException {
         return fileToDelete.delete();
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Gets a string describing the delete strategy.
      *
@@ -126,11 +131,14 @@ public class FileDeleteStrategy {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Force file deletion strategy.
      */
     static class ForceFileDeleteStrategy extends FileDeleteStrategy {
-        /** Default Constructor */
+        /**
+         * Default Constructor
+         */
         ForceFileDeleteStrategy() {
             super("Force");
         }
@@ -141,10 +149,10 @@ public class FileDeleteStrategy {
          * This implementation uses <code>FileUtils.forceDelete()</code>
          * if the file exists.
          *
-         * @param fileToDelete  the file to delete, not null
+         * @param fileToDelete the file to delete, not null
          * @return Always returns {@code true}
          * @throws NullPointerException if the file is null
-         * @throws IOException if an error occurs during file deletion
+         * @throws IOException          if an error occurs during file deletion
          */
         @Override
         protected boolean doDelete(final File fileToDelete) throws IOException {

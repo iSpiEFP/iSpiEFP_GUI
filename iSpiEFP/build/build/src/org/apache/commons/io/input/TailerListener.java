@@ -26,6 +26,7 @@ public interface TailerListener {
     /**
      * The tailer will call this method during construction,
      * giving the listener a method of stopping the tailer.
+     *
      * @param tailer the tailer.
      */
     void init(Tailer tailer);
@@ -39,7 +40,7 @@ public interface TailerListener {
 
     /**
      * Called if a file rotation is detected.
-     *
+     * <p>
      * This method is called before the file is reopened, and fileNotFound may
      * be called if the new file has not yet been created.
      * <p>
@@ -51,6 +52,7 @@ public interface TailerListener {
      * Handles a line from a Tailer.
      * <p>
      * <b>Note:</b> this is called from the tailer thread.
+     *
      * @param line the line.
      */
     void handle(String line);
@@ -59,6 +61,7 @@ public interface TailerListener {
      * Handles an Exception .
      * <p>
      * <b>Note:</b> this is called from the tailer thread.
+     *
      * @param ex the exception.
      */
     void handle(Exception ex);

@@ -16,11 +16,11 @@
  */
 package org.apache.commons.io.input;
 
-import static org.apache.commons.io.IOUtils.EOF;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import static org.apache.commons.io.IOUtils.EOF;
 
 /**
  * InputStream proxy that transparently writes a copy of all bytes read
@@ -33,8 +33,8 @@ import java.io.OutputStream;
  * called on this proxy. It is configurable whether the associated output
  * stream will also closed.
  *
- * @since 1.4
  * @see ObservableInputStream
+ * @since 1.4
  */
 public class TeeInputStream extends ProxyInputStream {
 
@@ -55,7 +55,7 @@ public class TeeInputStream extends ProxyInputStream {
      * and copies all read bytes to the given {@link OutputStream}. The given
      * output stream will not be closed when this stream gets closed.
      *
-     * @param input input stream to be proxied
+     * @param input  input stream to be proxied
      * @param branch output stream that will receive a copy of all bytes read
      */
     public TeeInputStream(final InputStream input, final OutputStream branch) {
@@ -68,8 +68,8 @@ public class TeeInputStream extends ProxyInputStream {
      * output stream will be closed when this stream gets closed if the
      * closeBranch parameter is {@code true}.
      *
-     * @param input input stream to be proxied
-     * @param branch output stream that will receive a copy of all bytes read
+     * @param input       input stream to be proxied
+     * @param branch      output stream that will receive a copy of all bytes read
      * @param closeBranch flag for closing also the output stream when this
      *                    stream is closed
      */
@@ -119,7 +119,7 @@ public class TeeInputStream extends ProxyInputStream {
      * to the associated output stream.
      *
      * @param bts byte buffer
-     * @param st start offset within the buffer
+     * @param st  start offset within the buffer
      * @param end maximum number of bytes to read
      * @return number of bytes read, or -1 if the stream has ended
      * @throws IOException if the stream could not be read (or written)

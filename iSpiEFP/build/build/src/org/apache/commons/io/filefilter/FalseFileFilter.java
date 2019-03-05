@@ -22,16 +22,16 @@ import java.io.Serializable;
 /**
  * A file filter that always returns false.
  *
- * @since 1.0
  * @version $Id$
- *
  * @see FileFilterUtils#falseFileFilter()
+ * @since 1.0
  */
 public class FalseFileFilter implements IOFileFilter, Serializable {
 
     private static final long serialVersionUID = 6210271677940926200L;
     /**
      * Singleton instance of false filter.
+     *
      * @since 1.3
      */
     public static final IOFileFilter FALSE = new FalseFileFilter();
@@ -52,7 +52,7 @@ public class FalseFileFilter implements IOFileFilter, Serializable {
     /**
      * Returns false.
      *
-     * @param file  the file to check (ignored)
+     * @param file the file to check (ignored)
      * @return false
      */
     @Override
@@ -64,7 +64,7 @@ public class FalseFileFilter implements IOFileFilter, Serializable {
      * Returns false.
      *
      * @param dir  the directory to check (ignored)
-     * @param name  the filename (ignored)
+     * @param name the filename (ignored)
      * @return false
      */
     @Override

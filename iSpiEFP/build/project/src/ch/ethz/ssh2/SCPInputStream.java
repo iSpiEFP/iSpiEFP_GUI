@@ -12,122 +12,103 @@ import java.io.OutputStream;
 /**
  * @version $Id:$
  */
-public class SCPInputStream extends BufferedInputStream
-{
-	private Session session;
+public class SCPInputStream extends BufferedInputStream {
+    private Session session;
 
-	/**
-	 * Bytes remaining to be read from the stream
-	 */
-	private long remaining;
+    /**
+     * Bytes remaining to be read from the stream
+     */
+    private long remaining;
 
-	public SCPInputStream(SCPClient client, Session session) throws IOException
-	{
-		super(session.getStdout());
+    public SCPInputStream(SCPClient client, Session session) throws IOException {
+        super(session.getStdout());
 
-		this.session = session;
+        this.session = session;
 
-		OutputStream os = new BufferedOutputStream(session.getStdin(), 512);
+        OutputStream os = new BufferedOutputStream(session.getStdin(), 512);
 
-		os.write(0x0);
-		os.flush();
+        os.write(0x0);
+        os.flush();
 
-		final SCPClient.LenNamePair lnp;
+        final SCPClient.LenNamePair lnp;
 
-		while (true)
-		{
-			int c = session.getStdout().read();
-			if (c < 0)
-			{
-				throw new IOException("Remote scp terminated unexpectedly.");
-			}
+        while (true) {
+            int c = session.getStdout().read();
+            if (c < 0) {
+                throw new IOException("Remote scp terminated unexpectedly.");
+            }
 
-			String line = client.receiveLine(session.getStdout());
+            String line = client.receiveLine(session.getStdout());
 
-			if (c == 'T')
-			{
-				/* Ignore modification times */
-				continue;
-			}
+            if (c == 'T') {
+                /* Ignore modification times */
+                continue;
+            }
 
-			if ((c == 1) || (c == 2))
-			{
-				throw new IOException("Remote SCP error: " + line);
-			}
+            if ((c == 1) || (c == 2)) {
+                throw new IOException("Remote SCP error: " + line);
+            }
 
-			if (c == 'C')
-			{
-				lnp = client.parseCLine(line);
-				break;
+            if (c == 'C') {
+                lnp = client.parseCLine(line);
+                break;
 
-			}
-			throw new IOException("Remote SCP error: " + ((char) c) + line);
-		}
+            }
+            throw new IOException("Remote SCP error: " + ((char) c) + line);
+        }
 
-		os.write(0x0);
-		os.flush();
+        os.write(0x0);
+        os.flush();
 
-		this.remaining = lnp.length;
-	}
+        this.remaining = lnp.length;
+    }
 
-	@Override
-	public int read() throws IOException
-	{
-		if (!(remaining > 0))
-		{
-			return -1;
-		}
+    @Override
+    public int read() throws IOException {
+        if (!(remaining > 0)) {
+            return -1;
+        }
 
-		int read = super.read();
-		if (read < 0)
-		{
-			throw new IOException("Remote scp terminated connection unexpectedly");
-		}
+        int read = super.read();
+        if (read < 0) {
+            throw new IOException("Remote scp terminated connection unexpectedly");
+        }
 
-		remaining -= read;
+        remaining -= read;
 
-		return read;
-	}
+        return read;
+    }
 
-	@Override
-	public int read(byte b[], int off, int len) throws IOException
-	{
-		if (!(remaining > 0))
-		{
-			return -1;
-		}
+    @Override
+    public int read(byte b[], int off, int len) throws IOException {
+        if (!(remaining > 0)) {
+            return -1;
+        }
 
-		int trans = (int) remaining;
-		if (remaining > len)
-		{
-			trans = len;
-		}
+        int trans = (int) remaining;
+        if (remaining > len) {
+            trans = len;
+        }
 
-		int read = super.read(b, off, trans);
-		if (read < 0)
-		{
-			throw new IOException("Remote scp terminated connection unexpectedly");
-		}
+        int read = super.read(b, off, trans);
+        if (read < 0) {
+            throw new IOException("Remote scp terminated connection unexpectedly");
+        }
 
-		remaining -= read;
+        remaining -= read;
 
-		return read;
-	}
+        return read;
+    }
 
-	@Override
-	public void close() throws IOException
-	{
-		try
-		{
-			session.getStdin().write(0x0);
-			session.getStdin().flush();
-		}
-		finally
-		{
-			if (session != null)
-			{
-				session.close();
-			}
-		}
-	}
+    @Override
+    public void close() throws IOException {
+        try {
+            session.getStdin().write(0x0);
+            session.getStdin().flush();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
 }

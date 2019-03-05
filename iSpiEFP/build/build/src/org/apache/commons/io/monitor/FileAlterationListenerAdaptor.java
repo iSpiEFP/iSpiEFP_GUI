@@ -21,8 +21,8 @@ import java.io.File;
 /**
  * Convenience {@link FileAlterationListener} implementation that does nothing.
  *
- * @see FileAlterationObserver
  * @version $Id$
+ * @see FileAlterationObserver
  * @since 2.0
  */
 public class FileAlterationListenerAdaptor implements FileAlterationListener {

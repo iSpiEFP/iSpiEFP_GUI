@@ -12,48 +12,39 @@ import java.util.logging.Level;
  * @author Christian Plattner
  * @version $Id$
  */
-public class Logger
-{
+public class Logger {
 
-	private java.util.logging.Logger delegate;
+    private java.util.logging.Logger delegate;
 
-	public static Logger getLogger(Class x)
-	{
-		return new Logger(x);
-	}
+    public static Logger getLogger(Class x) {
+        return new Logger(x);
+    }
 
-	public Logger(Class x)
-	{
-		this.delegate = java.util.logging.Logger.getLogger(x.getName());
-	}
+    public Logger(Class x) {
+        this.delegate = java.util.logging.Logger.getLogger(x.getName());
+    }
 
-	public boolean isDebugEnabled()
-	{
-		return delegate.isLoggable(Level.FINER);
-	}
+    public boolean isDebugEnabled() {
+        return delegate.isLoggable(Level.FINER);
+    }
 
-	public void debug(String message)
-	{
-		delegate.fine(message);
-	}
+    public void debug(String message) {
+        delegate.fine(message);
+    }
 
-	public boolean isInfoEnabled()
-	{
-		return delegate.isLoggable(Level.FINE);
-	}
+    public boolean isInfoEnabled() {
+        return delegate.isLoggable(Level.FINE);
+    }
 
-	public void info(String message)
-	{
-		delegate.info(message);
-	}
+    public void info(String message) {
+        delegate.info(message);
+    }
 
-	public boolean isWarningEnabled()
-	{
-		return delegate.isLoggable(Level.WARNING);
-	}
+    public boolean isWarningEnabled() {
+        return delegate.isLoggable(Level.WARNING);
+    }
 
-	public void warning(String message)
-	{
-		delegate.warning(message);
-	}
+    public void warning(String message) {
+        delegate.warning(message);
+    }
 }

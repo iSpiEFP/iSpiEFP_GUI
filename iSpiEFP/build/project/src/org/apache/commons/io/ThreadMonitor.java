@@ -35,7 +35,6 @@ package org.apache.commons.io;
  *           // timed amount was reached
  *       }
  * </pre>
- *
  */
 class ThreadMonitor implements Runnable {
 
@@ -46,7 +45,7 @@ class ThreadMonitor implements Runnable {
      * Start monitoring the current thread.
      *
      * @param timeout The timeout amount in milliseconds
-     * or no timeout if the value is zero or less
+     *                or no timeout if the value is zero or less
      * @return The monitor thread or {@code null}
      * if the timeout amount is not greater than zero
      */
@@ -57,9 +56,9 @@ class ThreadMonitor implements Runnable {
     /**
      * Start monitoring the specified thread.
      *
-     * @param thread The thread The thread to monitor
+     * @param thread  The thread The thread to monitor
      * @param timeout The timeout amount in milliseconds
-     * or no timeout if the value is zero or less
+     *                or no timeout if the value is zero or less
      * @return The monitor thread or {@code null}
      * if the timeout amount is not greater than zero
      */
@@ -88,7 +87,7 @@ class ThreadMonitor implements Runnable {
     /**
      * Construct and new monitor.
      *
-     * @param thread The thread to monitor
+     * @param thread  The thread to monitor
      * @param timeout The timeout amount in milliseconds
      */
     private ThreadMonitor(final Thread thread, final long timeout) {
@@ -114,7 +113,7 @@ class ThreadMonitor implements Runnable {
 
     /**
      * Sleep for a guaranteed minimum number of milliseconds unless interrupted.
-     *
+     * <p>
      * This method exists because Thread.sleep(100) can sleep for 0, 70, 100 or 200ms or anything else
      * it deems appropriate. Read the docs on Thread.sleep for further interesting details.
      *

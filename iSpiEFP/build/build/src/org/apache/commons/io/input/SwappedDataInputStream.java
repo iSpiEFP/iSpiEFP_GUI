@@ -16,14 +16,14 @@
  */
 package org.apache.commons.io.input;
 
-import static org.apache.commons.io.IOUtils.EOF;
+import org.apache.commons.io.EndianUtils;
 
 import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.EndianUtils;
+import static org.apache.commons.io.IOUtils.EOF;
 
 /**
  * DataInput for systems relying on little endian data formats.
@@ -31,85 +31,82 @@ import org.apache.commons.io.EndianUtils;
  * endian formats for internal usage.
  * <p>
  * <b>Origin of code: </b>Avalon Excalibur (IO)
- *
  */
 public class SwappedDataInputStream extends ProxyInputStream
-    implements DataInput
-{
+        implements DataInput {
 
     /**
      * Constructs a SwappedDataInputStream.
      *
      * @param input InputStream to read from
      */
-    public SwappedDataInputStream( final InputStream input )
-    {
-        super( input );
+    public SwappedDataInputStream(final InputStream input) {
+        super(input);
     }
 
     /**
      * Return <code>{@link #readByte()} != 0</code>
+     *
      * @return false if the byte read is zero, otherwise true
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      * @throws EOFException if an end of file is reached unexpectedly
      */
     @Override
     public boolean readBoolean()
-        throws IOException, EOFException
-    {
+            throws IOException, EOFException {
         return 0 != readByte();
     }
 
     /**
      * Invokes the delegate's <code>read()</code> method.
+     *
      * @return the byte read or -1 if the end of stream
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      * @throws EOFException if an end of file is reached unexpectedly
      */
     @Override
     public byte readByte()
-        throws IOException, EOFException
-    {
-        return (byte)in.read();
+            throws IOException, EOFException {
+        return (byte) in.read();
     }
 
     /**
      * Reads a character delegating to {@link #readShort()}.
+     *
      * @return the byte read or -1 if the end of stream
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      * @throws EOFException if an end of file is reached unexpectedly
      */
     @Override
     public char readChar()
-        throws IOException, EOFException
-    {
-        return (char)readShort();
+            throws IOException, EOFException {
+        return (char) readShort();
     }
 
     /**
      * Delegates to {@link EndianUtils#readSwappedDouble(InputStream)}.
+     *
      * @return the read long
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      * @throws EOFException if an end of file is reached unexpectedly
      */
     @Override
     public double readDouble()
-        throws IOException, EOFException
-    {
-        return EndianUtils.readSwappedDouble( in );
+            throws IOException, EOFException {
+        return EndianUtils.readSwappedDouble(in);
     }
 
     /**
      * Delegates to {@link EndianUtils#readSwappedFloat(InputStream)}.
+     *
      * @return the read long
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      * @throws EOFException if an end of file is reached unexpectedly
      */
     @Override
     public float readFloat()
-        throws IOException, EOFException
-    {
-        return EndianUtils.readSwappedFloat( in );
+            throws IOException, EOFException {
+        return EndianUtils.readSwappedFloat(in);
     }
 
     /**
@@ -117,38 +114,34 @@ public class SwappedDataInputStream extends ProxyInputStream
      *
      * @param data the buffer to read the bytes into
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
-    public void readFully( final byte[] data )
-        throws IOException, EOFException
-    {
-        readFully( data, 0, data.length );
+    public void readFully(final byte[] data)
+            throws IOException, EOFException {
+        readFully(data, 0, data.length);
     }
 
 
     /**
      * Invokes the delegate's <code>read(byte[] data, int, int)</code> method.
      *
-     * @param data the buffer to read the bytes into
+     * @param data   the buffer to read the bytes into
      * @param offset The start offset
      * @param length The number of bytes to read
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
-    public void readFully( final byte[] data, final int offset, final int length )
-        throws IOException, EOFException
-    {
+    public void readFully(final byte[] data, final int offset, final int length)
+            throws IOException, EOFException {
         int remaining = length;
 
-        while( remaining > 0 )
-        {
+        while (remaining > 0) {
             final int location = offset + length - remaining;
-            final int count = read( data, location, remaining );
+            final int count = read(data, location, remaining);
 
-            if (EOF == count)
-            {
+            if (EOF == count) {
                 throw new EOFException();
             }
 
@@ -158,109 +151,109 @@ public class SwappedDataInputStream extends ProxyInputStream
 
     /**
      * Delegates to {@link EndianUtils#readSwappedInteger(InputStream)}.
+     *
      * @return the read long
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
     public int readInt()
-        throws IOException, EOFException
-    {
-        return EndianUtils.readSwappedInteger( in );
+            throws IOException, EOFException {
+        return EndianUtils.readSwappedInteger(in);
     }
 
     /**
      * Not currently supported - throws {@link UnsupportedOperationException}.
+     *
      * @return the line read
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
     public String readLine()
-        throws IOException, EOFException
-    {
+            throws IOException, EOFException {
         throw new UnsupportedOperationException(
-                "Operation not supported: readLine()" );
+                "Operation not supported: readLine()");
     }
 
     /**
      * Delegates to {@link EndianUtils#readSwappedLong(InputStream)}.
+     *
      * @return the read long
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
     public long readLong()
-        throws IOException, EOFException
-    {
-        return EndianUtils.readSwappedLong( in );
+            throws IOException, EOFException {
+        return EndianUtils.readSwappedLong(in);
     }
 
     /**
      * Delegates to {@link EndianUtils#readSwappedShort(InputStream)}.
+     *
      * @return the read long
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
     public short readShort()
-        throws IOException, EOFException
-    {
-        return EndianUtils.readSwappedShort( in );
+            throws IOException, EOFException {
+        return EndianUtils.readSwappedShort(in);
     }
 
     /**
      * Invokes the delegate's <code>read()</code> method.
+     *
      * @return the byte read or -1 if the end of stream
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
     public int readUnsignedByte()
-        throws IOException, EOFException
-    {
+            throws IOException, EOFException {
         return in.read();
     }
 
     /**
      * Delegates to {@link EndianUtils#readSwappedUnsignedShort(InputStream)}.
+     *
      * @return the read long
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
     public int readUnsignedShort()
-        throws IOException, EOFException
-    {
-        return EndianUtils.readSwappedUnsignedShort( in );
+            throws IOException, EOFException {
+        return EndianUtils.readSwappedUnsignedShort(in);
     }
 
     /**
      * Not currently supported - throws {@link UnsupportedOperationException}.
+     *
      * @return UTF String read
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
     public String readUTF()
-        throws IOException, EOFException
-    {
+            throws IOException, EOFException {
         throw new UnsupportedOperationException(
-                "Operation not supported: readUTF()" );
+                "Operation not supported: readUTF()");
     }
 
     /**
      * Invokes the delegate's <code>skip(int)</code> method.
+     *
      * @param count the number of bytes to skip
      * @return the number of bytes to skipped or -1 if the end of stream
      * @throws EOFException if an end of file is reached unexpectedly
-     * @throws IOException if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      */
     @Override
-    public int skipBytes( final int count )
-        throws IOException, EOFException
-    {
-        return (int)in.skip( count );
+    public int skipBytes(final int count)
+            throws IOException, EOFException {
+        return (int) in.skip(count);
     }
 
 }

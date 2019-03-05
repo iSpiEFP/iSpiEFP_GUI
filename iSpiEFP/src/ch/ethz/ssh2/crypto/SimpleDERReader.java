@@ -9,149 +9,135 @@ import java.math.BigInteger;
 
 /**
  * SimpleDERReader.
- * 
+ *
  * @author Christian Plattner
  * @version 2.50, 03/15/10
  */
-public class SimpleDERReader
-{
-	byte[] buffer;
-	int pos;
-	int count;
+public class SimpleDERReader {
+    byte[] buffer;
+    int pos;
+    int count;
 
-	public SimpleDERReader(byte[] b)
-	{
-		resetInput(b);
-	}
-	
-	public SimpleDERReader(byte[] b, int off, int len)
-	{
-		resetInput(b, off, len);
-	}
+    public SimpleDERReader(byte[] b) {
+        resetInput(b);
+    }
 
-	public void resetInput(byte[] b)
-	{
-		resetInput(b, 0, b.length);
-	}
-	
-	public void resetInput(byte[] b, int off, int len)
-	{
-		buffer = b;
-		pos = off;
-		count = len;
-	}
+    public SimpleDERReader(byte[] b, int off, int len) {
+        resetInput(b, off, len);
+    }
 
-	private byte readByte() throws IOException
-	{
-		if (count <= 0)
-			throw new IOException("DER byte array: out of data");
-		count--;
-		return buffer[pos++];
-	}
+    public void resetInput(byte[] b) {
+        resetInput(b, 0, b.length);
+    }
 
-	private byte[] readBytes(int len) throws IOException
-	{
-		if (len > count)
-			throw new IOException("DER byte array: out of data");
+    public void resetInput(byte[] b, int off, int len) {
+        buffer = b;
+        pos = off;
+        count = len;
+    }
 
-		byte[] b = new byte[len];
+    private byte readByte() throws IOException {
+        if (count <= 0)
+            throw new IOException("DER byte array: out of data");
+        count--;
+        return buffer[pos++];
+    }
 
-		System.arraycopy(buffer, pos, b, 0, len);
+    private byte[] readBytes(int len) throws IOException {
+        if (len > count)
+            throw new IOException("DER byte array: out of data");
 
-		pos += len;
-		count -= len;
+        byte[] b = new byte[len];
 
-		return b;
-	}
+        System.arraycopy(buffer, pos, b, 0, len);
 
-	public int available()
-	{
-		return count;
-	}
+        pos += len;
+        count -= len;
 
-	private int readLength() throws IOException
-	{
-		int len = readByte() & 0xff;
+        return b;
+    }
 
-		if ((len & 0x80) == 0)
-			return len;
+    public int available() {
+        return count;
+    }
 
-		int remain = len & 0x7F;
+    private int readLength() throws IOException {
+        int len = readByte() & 0xff;
 
-		if (remain == 0)
-			return -1;
+        if ((len & 0x80) == 0)
+            return len;
 
-		len = 0;
-		
-		while (remain > 0)
-		{
-			len = len << 8;
-			len = len | (readByte() & 0xff);
-			remain--;
-		}
+        int remain = len & 0x7F;
 
-		return len;
-	}
+        if (remain == 0)
+            return -1;
 
-	public int ignoreNextObject() throws IOException
-	{
-		int type = readByte() & 0xff;
+        len = 0;
 
-		int len = readLength();
+        while (remain > 0) {
+            len = len << 8;
+            len = len | (readByte() & 0xff);
+            remain--;
+        }
 
-		if ((len < 0) || len > available())
-			throw new IOException("Illegal len in DER object (" + len  + ")");
+        return len;
+    }
 
-		readBytes(len);
-		
-		return type;
-	}
-	
-	public BigInteger readInt() throws IOException
-	{
-		int type = readByte() & 0xff;
-		
-		if (type != 0x02)
-			throw new IOException("Expected DER Integer, but found type " + type);
-		
-		int len = readLength();
+    public int ignoreNextObject() throws IOException {
+        int type = readByte() & 0xff;
 
-		if ((len < 0) || len > available())
-			throw new IOException("Illegal len in DER object (" + len  + ")");
+        int len = readLength();
 
-		byte[] b = readBytes(len);
+        if ((len < 0) || len > available())
+            throw new IOException("Illegal len in DER object (" + len + ")");
 
-		return new BigInteger(b);
-	}
+        readBytes(len);
 
-	public byte[] readSequenceAsByteArray() throws IOException
-	{
-		int type = readByte() & 0xff;
-		
-		if (type != 0x30)
-			throw new IOException("Expected DER Sequence, but found type " + type);
-		
-		int len = readLength();
+        return type;
+    }
 
-		if ((len < 0) || len > available())
-			throw new IOException("Illegal len in DER object (" + len  + ")");
+    public BigInteger readInt() throws IOException {
+        int type = readByte() & 0xff;
 
-		return readBytes(len);
-	}
-	
-	public byte[] readOctetString() throws IOException
-	{
-		int type = readByte() & 0xff;
-		
-		if (type != 0x04)
-			throw new IOException("Expected DER Octetstring, but found type " + type);
-		
-		int len = readLength();
+        if (type != 0x02)
+            throw new IOException("Expected DER Integer, but found type " + type);
 
-		if ((len < 0) || len > available())
-			throw new IOException("Illegal len in DER object (" + len  + ")");
+        int len = readLength();
 
-		return readBytes(len);
-	}
+        if ((len < 0) || len > available())
+            throw new IOException("Illegal len in DER object (" + len + ")");
+
+        byte[] b = readBytes(len);
+
+        return new BigInteger(b);
+    }
+
+    public byte[] readSequenceAsByteArray() throws IOException {
+        int type = readByte() & 0xff;
+
+        if (type != 0x30)
+            throw new IOException("Expected DER Sequence, but found type " + type);
+
+        int len = readLength();
+
+        if ((len < 0) || len > available())
+            throw new IOException("Illegal len in DER object (" + len + ")");
+
+        return readBytes(len);
+    }
+
+    public byte[] readOctetString() throws IOException {
+        int type = readByte() & 0xff;
+
+        if (type != 0x04)
+            throw new IOException("Expected DER Octetstring, but found type " + type);
+
+        int len = readLength();
+
+        if ((len < 0) || len > available())
+            throw new IOException("Illegal len in DER object (" + len + ")");
+
+        return readBytes(len);
+    }
 
 }

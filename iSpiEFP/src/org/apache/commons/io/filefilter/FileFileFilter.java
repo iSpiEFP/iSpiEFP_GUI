@@ -33,14 +33,16 @@ import java.io.Serializable;
  * }
  * </pre>
  *
- * @since 1.3
  * @version $Id$
  * @see FileFilterUtils#fileFileFilter()
+ * @since 1.3
  */
 public class FileFileFilter extends AbstractFileFilter implements Serializable {
 
     private static final long serialVersionUID = 5345244090827540862L;
-    /** Singleton instance of file filter */
+    /**
+     * Singleton instance of file filter
+     */
     public static final IOFileFilter FILE = new FileFileFilter();
 
     /**
@@ -52,7 +54,7 @@ public class FileFileFilter extends AbstractFileFilter implements Serializable {
     /**
      * Checks to see if the file is a file.
      *
-     * @param file  the File to check
+     * @param file the File to check
      * @return true if the file is a file
      */
     @Override

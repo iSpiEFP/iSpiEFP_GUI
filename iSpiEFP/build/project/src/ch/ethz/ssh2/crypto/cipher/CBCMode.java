@@ -6,77 +6,70 @@ package ch.ethz.ssh2.crypto.cipher;
 
 /**
  * CBCMode.
- * 
+ *
  * @author Christian Plattner
  * @version 2.50, 03/15/10
  */
-public class CBCMode implements BlockCipher
-{
-	BlockCipher tc;
-	int blockSize;
-	boolean doEncrypt;
+public class CBCMode implements BlockCipher {
+    BlockCipher tc;
+    int blockSize;
+    boolean doEncrypt;
 
-	byte[] cbc_vector;
-	byte[] tmp_vector;
+    byte[] cbc_vector;
+    byte[] tmp_vector;
 
-	public void init(boolean forEncryption, byte[] key)
-	{
-	}
-	
-	public CBCMode(BlockCipher tc, byte[] iv, boolean doEncrypt)
-			throws IllegalArgumentException
-	{
-		this.tc = tc;
-		this.blockSize = tc.getBlockSize();
-		this.doEncrypt = doEncrypt;
+    public void init(boolean forEncryption, byte[] key) {
+    }
 
-		if (this.blockSize != iv.length)
-			throw new IllegalArgumentException("IV must be " + blockSize
-					+ " bytes long! (currently " + iv.length + ")");
+    public CBCMode(BlockCipher tc, byte[] iv, boolean doEncrypt)
+            throws IllegalArgumentException {
+        this.tc = tc;
+        this.blockSize = tc.getBlockSize();
+        this.doEncrypt = doEncrypt;
 
-		this.cbc_vector = new byte[blockSize];
-		this.tmp_vector = new byte[blockSize];
-		System.arraycopy(iv, 0, cbc_vector, 0, blockSize);
-	}
+        if (this.blockSize != iv.length)
+            throw new IllegalArgumentException("IV must be " + blockSize
+                    + " bytes long! (currently " + iv.length + ")");
 
-	public int getBlockSize()
-	{
-		return blockSize;
-	}
+        this.cbc_vector = new byte[blockSize];
+        this.tmp_vector = new byte[blockSize];
+        System.arraycopy(iv, 0, cbc_vector, 0, blockSize);
+    }
 
-	private void encryptBlock(byte[] src, int srcoff, byte[] dst, int dstoff)
-	{
-		for (int i = 0; i < blockSize; i++)
-			cbc_vector[i] ^= src[srcoff + i];
+    public int getBlockSize() {
+        return blockSize;
+    }
 
-		tc.transformBlock(cbc_vector, 0, dst, dstoff);
+    private void encryptBlock(byte[] src, int srcoff, byte[] dst, int dstoff) {
+        for (int i = 0; i < blockSize; i++)
+            cbc_vector[i] ^= src[srcoff + i];
 
-		System.arraycopy(dst, dstoff, cbc_vector, 0, blockSize);
-	}
+        tc.transformBlock(cbc_vector, 0, dst, dstoff);
 
-	private void decryptBlock(byte[] src, int srcoff, byte[] dst, int dstoff)
-	{
-		/* Assume the worst, src and dst are overlapping... */
-		
-		System.arraycopy(src, srcoff, tmp_vector, 0, blockSize);
-		
-		tc.transformBlock(src, srcoff, dst, dstoff);
-		
-		for (int i = 0; i < blockSize; i++)
-			dst[dstoff + i] ^= cbc_vector[i];
+        System.arraycopy(dst, dstoff, cbc_vector, 0, blockSize);
+    }
 
-		/* ...that is why we need a tmp buffer. */
-		
-		byte[] swap = cbc_vector;
-		cbc_vector = tmp_vector;
-		tmp_vector = swap;
-	}
+    private void decryptBlock(byte[] src, int srcoff, byte[] dst, int dstoff) {
+        /* Assume the worst, src and dst are overlapping... */
 
-	public void transformBlock(byte[] src, int srcoff, byte[] dst, int dstoff)
-	{
-		if (doEncrypt)
-			encryptBlock(src, srcoff, dst, dstoff);
-		else
-			decryptBlock(src, srcoff, dst, dstoff);
-	}
+        System.arraycopy(src, srcoff, tmp_vector, 0, blockSize);
+
+        tc.transformBlock(src, srcoff, dst, dstoff);
+
+        for (int i = 0; i < blockSize; i++)
+            dst[dstoff + i] ^= cbc_vector[i];
+
+        /* ...that is why we need a tmp buffer. */
+
+        byte[] swap = cbc_vector;
+        cbc_vector = tmp_vector;
+        tmp_vector = swap;
+    }
+
+    public void transformBlock(byte[] src, int srcoff, byte[] dst, int dstoff) {
+        if (doEncrypt)
+            encryptBlock(src, srcoff, dst, dstoff);
+        else
+            decryptBlock(src, srcoff, dst, dstoff);
+    }
 }

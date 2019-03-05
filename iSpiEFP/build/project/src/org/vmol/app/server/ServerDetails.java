@@ -3,169 +3,169 @@ package org.vmol.app.server;
 import java.io.Serializable;
 
 public class ServerDetails implements Serializable {
-	
-	private static final long serialVersionUID = -8906882033167247261L; // Check the importance of this again!
 
-	private String serverName = "";
-	
-	private String address = "";
-	
-	private String userName = "";
-	
-	private String serverType = "";
-	
-	private String workingDirectory = "";
-	
-	private String queueSystemType;
-	
-	private int port;
-	
-	private QueueOptions queueOptions;
-	
-	public ServerDetails () {
-	}
-	
-	public ServerDetails (String serverName, String address, String serverType, int port) {
-		this.serverName = serverName;
-		this.address = address;
-		this.serverType = serverType;
-		this.port = port;
-	}
+    private static final long serialVersionUID = -8906882033167247261L; // Check the importance of this again!
 
-	public String getServerName() {
-		return serverName;
-	}
+    private String serverName = "";
 
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
+    private String address = "";
 
-	public String getAddress() {
-		return address;
-	}
+    private String userName = "";
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
+    private String serverType = "";
 
-	public String getUserName() {
-		return userName;
-	}
+    private String workingDirectory = "";
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    private String queueSystemType;
 
-	public String getServerType() {
-		return serverType;
-	}
+    private int port;
 
-	public void setServerType(String serverType) {
-		this.serverType = serverType;
-	}
+    private QueueOptions queueOptions;
 
-	public String getWorkingDirectory() {
-		return workingDirectory;
-	}
+    public ServerDetails() {
+    }
 
-	public void setWorkingDirectory(String workingDirectory) {
-		this.workingDirectory = workingDirectory;
-	}
+    public ServerDetails(String serverName, String address, String serverType, int port) {
+        this.serverName = serverName;
+        this.address = address;
+        this.serverType = serverType;
+        this.port = port;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public String getServerName() {
+        return serverName;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
 
-	public String getQueueSystemType() {
-		return queueSystemType;
-	}
+    public String getAddress() {
+        return address;
+    }
 
-	public void setQueueSystemType(String queueSystemType) {
-		this.queueSystemType = queueSystemType;
-	}
-	
-	public QueueOptions getQueueOptions() {
-		return queueOptions;
-	}
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-	public void setQueueOptions(QueueOptions queueOptions) {
-		this.queueOptions = queueOptions;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public class QueueOptions implements Serializable {
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-		private static final long serialVersionUID = 8020104900103328295L;
-		private String submit;
-		private String query;
-		private String kill;
-		private String jobFileList;
-		private String queueInfo;
-		private String runFileTemplate;
-		private int updateIntervalSecs;
-		
-		public QueueOptions () {
-			
-		}
+    public String getServerType() {
+        return serverType;
+    }
 
-		public String getSubmit() {
-			return submit;
-		}
+    public void setServerType(String serverType) {
+        this.serverType = serverType;
+    }
 
-		public void setSubmit(String submit) {
-			this.submit = submit;
-		}
+    public String getWorkingDirectory() {
+        return workingDirectory;
+    }
 
-		public String getQuery() {
-			return query;
-		}
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory = workingDirectory;
+    }
 
-		public void setQuery(String query) {
-			this.query = query;
-		}
+    public int getPort() {
+        return port;
+    }
 
-		public String getKill() {
-			return kill;
-		}
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-		public void setKill(String kill) {
-			this.kill = kill;
-		}
+    public String getQueueSystemType() {
+        return queueSystemType;
+    }
 
-		public String getJobFileList() {
-			return jobFileList;
-		}
+    public void setQueueSystemType(String queueSystemType) {
+        this.queueSystemType = queueSystemType;
+    }
 
-		public void setJobFileList(String jobFileList) {
-			this.jobFileList = jobFileList;
-		}
+    public QueueOptions getQueueOptions() {
+        return queueOptions;
+    }
 
-		public String getQueueInfo() {
-			return queueInfo;
-		}
+    public void setQueueOptions(QueueOptions queueOptions) {
+        this.queueOptions = queueOptions;
+    }
 
-		public void setQueueInfo(String queueInfo) {
-			this.queueInfo = queueInfo;
-		}
+    public class QueueOptions implements Serializable {
 
-		public String getRunFileTemplate() {
-			return runFileTemplate;
-		}
+        private static final long serialVersionUID = 8020104900103328295L;
+        private String submit;
+        private String query;
+        private String kill;
+        private String jobFileList;
+        private String queueInfo;
+        private String runFileTemplate;
+        private int updateIntervalSecs;
 
-		public void setRunFileTemplate(String runFileTemplate) {
-			this.runFileTemplate = runFileTemplate;
-		}
+        public QueueOptions() {
 
-		public int getUpdateIntervalSecs() {
-			return updateIntervalSecs;
-		}
+        }
 
-		public void setUpdateIntervalSecs(int updateIntervalSecs) {
-			this.updateIntervalSecs = updateIntervalSecs;
-		}
-	}
-	
+        public String getSubmit() {
+            return submit;
+        }
+
+        public void setSubmit(String submit) {
+            this.submit = submit;
+        }
+
+        public String getQuery() {
+            return query;
+        }
+
+        public void setQuery(String query) {
+            this.query = query;
+        }
+
+        public String getKill() {
+            return kill;
+        }
+
+        public void setKill(String kill) {
+            this.kill = kill;
+        }
+
+        public String getJobFileList() {
+            return jobFileList;
+        }
+
+        public void setJobFileList(String jobFileList) {
+            this.jobFileList = jobFileList;
+        }
+
+        public String getQueueInfo() {
+            return queueInfo;
+        }
+
+        public void setQueueInfo(String queueInfo) {
+            this.queueInfo = queueInfo;
+        }
+
+        public String getRunFileTemplate() {
+            return runFileTemplate;
+        }
+
+        public void setRunFileTemplate(String runFileTemplate) {
+            this.runFileTemplate = runFileTemplate;
+        }
+
+        public int getUpdateIntervalSecs() {
+            return updateIntervalSecs;
+        }
+
+        public void setUpdateIntervalSecs(int updateIntervalSecs) {
+            this.updateIntervalSecs = updateIntervalSecs;
+        }
+    }
+
 }

@@ -16,10 +16,10 @@
  */
 package org.apache.commons.io.input;
 
-import static org.apache.commons.io.IOUtils.EOF;
-
 import java.io.IOException;
 import java.io.InputStream;
+
+import static org.apache.commons.io.IOUtils.EOF;
 
 /**
  * A decorating input stream that counts the number of bytes that have passed
@@ -27,17 +27,18 @@ import java.io.InputStream;
  * <p>
  * A typical use case would be during debugging, to ensure that data is being
  * read as expected.
- *
  */
 public class CountingInputStream extends ProxyInputStream {
 
-    /** The count of bytes that have passed. */
+    /**
+     * The count of bytes that have passed.
+     */
     private long count;
 
     /**
      * Constructs a new CountingInputStream.
      *
-     * @param in  the InputStream to delegate to
+     * @param in the InputStream to delegate to
      */
     public CountingInputStream(final InputStream in) {
         super(in);
@@ -49,7 +50,7 @@ public class CountingInputStream extends ProxyInputStream {
      * Skips the stream over the specified number of bytes, adding the skipped
      * amount to the count.
      *
-     * @param length  the number of bytes to skip
+     * @param length the number of bytes to skip
      * @return the actual number of bytes skipped
      * @throws IOException if an I/O error occurs
      * @see java.io.InputStream#skip(long)
@@ -75,6 +76,7 @@ public class CountingInputStream extends ProxyInputStream {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * The number of bytes that have passed through this stream.
      * <p>

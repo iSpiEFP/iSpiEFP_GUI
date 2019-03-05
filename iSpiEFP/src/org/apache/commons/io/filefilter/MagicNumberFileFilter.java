@@ -58,11 +58,11 @@ import java.util.Arrays;
  * }
  * </pre>
  *
- * @since 2.0
  * @see FileFilterUtils#magicNumberFileFilter(byte[])
  * @see FileFilterUtils#magicNumberFileFilter(String)
  * @see FileFilterUtils#magicNumberFileFilter(byte[], long)
  * @see FileFilterUtils#magicNumberFileFilter(String, long)
+ * @since 2.0
  */
 public class MagicNumberFileFilter extends AbstractFileFilter implements
         Serializable {
@@ -104,9 +104,8 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
      * </pre>
      *
      * @param magicNumber the magic number to look for in the file.
-     *
      * @throws IllegalArgumentException if <code>magicNumber</code> is
-     *         {@code null}, or contains no bytes.
+     *                                  {@code null}, or contains no bytes.
      */
     public MagicNumberFileFilter(final byte[] magicNumber) {
         this(magicNumber, 0);
@@ -118,7 +117,7 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
      * number to test for in files. This constructor assumes a starting offset
      * of <code>0</code>.
      * </p>
-     *
+     * <p>
      * Example usage:
      * <pre>
      * {@code
@@ -128,10 +127,9 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
      * </pre>
      *
      * @param magicNumber the magic number to look for in the file.
-     *        The string is converted to bytes using the platform default charset.
-     *
+     *                    The string is converted to bytes using the platform default charset.
      * @throws IllegalArgumentException if <code>magicNumber</code> is
-     *         {@code null} or the empty String.
+     *                                  {@code null} or the empty String.
      */
     public MagicNumberFileFilter(final String magicNumber) {
         this(magicNumber, 0);
@@ -150,12 +148,11 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
      * </pre>
      *
      * @param magicNumber the magic number to look for in the file.
-     *        The string is converted to bytes using the platform default charset.
-     * @param offset the byte offset in the file to start comparing bytes.
-     *
+     *                    The string is converted to bytes using the platform default charset.
+     * @param offset      the byte offset in the file to start comparing bytes.
      * @throws IllegalArgumentException if <code>magicNumber</code> is
-     *         {@code null} or the empty String, or <code>offset</code> is
-     *         a negative number.
+     *                                  {@code null} or the empty String, or <code>offset</code> is
+     *                                  a negative number.
      */
     public MagicNumberFileFilter(final String magicNumber, final long offset) {
         if (magicNumber == null) {
@@ -169,7 +166,7 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
         }
 
         this.magicNumbers = magicNumber.getBytes(Charset.defaultCharset()); // explicitly uses the platform default
-                                                                            // charset
+        // charset
         this.byteOffset = offset;
     }
 
@@ -191,11 +188,10 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
      * </pre>
      *
      * @param magicNumber the magic number to look for in the file.
-     * @param offset the byte offset in the file to start comparing bytes.
-     *
+     * @param offset      the byte offset in the file to start comparing bytes.
      * @throws IllegalArgumentException if <code>magicNumber</code> is
-     *         {@code null}, or contains no bytes, or <code>offset</code>
-     *         is a negative number.
+     *                                  {@code null}, or contains no bytes, or <code>offset</code>
+     *                                  is a negative number.
      */
     public MagicNumberFileFilter(final byte[] magicNumber, final long offset) {
         if (magicNumber == null) {
@@ -225,9 +221,8 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
      * </p>
      *
      * @param file the file to accept or reject.
-     *
      * @return {@code true} if the file contains the filter's magic number
-     *         at the specified offset, {@code false} otherwise.
+     * at the specified offset, {@code false} otherwise.
      */
     @Override
     public boolean accept(final File file) {
@@ -242,8 +237,7 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
                     }
                     return Arrays.equals(this.magicNumbers, fileBytes);
                 }
-            }
-            catch (final IOException ioe) {
+            } catch (final IOException ioe) {
                 // Do nothing, fall through and do not accept file
             }
         }
@@ -262,7 +256,7 @@ public class MagicNumberFileFilter extends AbstractFileFilter implements
         final StringBuilder builder = new StringBuilder(super.toString());
         builder.append("(");
         builder.append(new String(magicNumbers, Charset.defaultCharset()));// TODO perhaps use hex if value is not
-                                                                           // printable
+        // printable
         builder.append(",");
         builder.append(this.byteOffset);
         builder.append(")");

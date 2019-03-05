@@ -28,82 +28,67 @@ package ch.ethz.ssh2.crypto.cipher;
 
 /**
  * DESede.
- * 
+ *
  * @author See comments in the source file
  * @version 2.50, 03/15/10
- * 
  */
-public class DESede extends DES
-{
-	private int[] key1 = null;
-	private int[] key2 = null;
-	private int[] key3 = null;
+public class DESede extends DES {
+    private int[] key1 = null;
+    private int[] key2 = null;
+    private int[] key3 = null;
 
-	private boolean encrypt;
+    private boolean encrypt;
 
-	/**
-	 * standard constructor.
-	 */
-	public DESede()
-	{
-	}
+    /**
+     * standard constructor.
+     */
+    public DESede() {
+    }
 
-	/**
-	 * initialise a DES cipher.
-	 * 
-	 * @param encrypting
-	 *            whether or not we are for encryption.
-	 * @param key
-	 *            the parameters required to set up the cipher.
-	 * @exception IllegalArgumentException
-	 *                if the params argument is inappropriate.
-	 */
-	@Override
-	public void init(boolean encrypting, byte[] key)
-	{
-		key1 = generateWorkingKey(encrypting, key, 0);
-		key2 = generateWorkingKey(!encrypting, key, 8);
-		key3 = generateWorkingKey(encrypting, key, 16);
+    /**
+     * initialise a DES cipher.
+     *
+     * @param encrypting whether or not we are for encryption.
+     * @param key        the parameters required to set up the cipher.
+     * @throws IllegalArgumentException if the params argument is inappropriate.
+     */
+    @Override
+    public void init(boolean encrypting, byte[] key) {
+        key1 = generateWorkingKey(encrypting, key, 0);
+        key2 = generateWorkingKey(!encrypting, key, 8);
+        key3 = generateWorkingKey(encrypting, key, 16);
 
-		encrypt = encrypting;
-	}
+        encrypt = encrypting;
+    }
 
-	@Override
-	public String getAlgorithmName()
-	{
-		return "DESede";
-	}
+    @Override
+    public String getAlgorithmName() {
+        return "DESede";
+    }
 
-	@Override
-	public int getBlockSize()
-	{
-		return 8;
-	}
+    @Override
+    public int getBlockSize() {
+        return 8;
+    }
 
-	@Override
-	public void transformBlock(byte[] in, int inOff, byte[] out, int outOff)
-	{
-		if (key1 == null)
-		{
-			throw new IllegalStateException("DESede engine not initialised!");
-		}
+    @Override
+    public void transformBlock(byte[] in, int inOff, byte[] out, int outOff) {
+        if (key1 == null) {
+            throw new IllegalStateException("DESede engine not initialised!");
+        }
 
-		if (encrypt)
-		{
-			desFunc(key1, in, inOff, out, outOff);
-			desFunc(key2, out, outOff, out, outOff);
-			desFunc(key3, out, outOff, out, outOff);
-		}
-		else
-		{
-			desFunc(key3, in, inOff, out, outOff);
-			desFunc(key2, out, outOff, out, outOff);
-			desFunc(key1, out, outOff, out, outOff);
-		}
-	}
+        if (encrypt) {
+            desFunc(key1, in, inOff, out, outOff);
+            desFunc(key2, out, outOff, out, outOff);
+            desFunc(key3, out, outOff, out, outOff);
+        } else {
+            desFunc(key3, in, inOff, out, outOff);
+            desFunc(key2, out, outOff, out, outOff);
+            desFunc(key1, out, outOff, out, outOff);
+        }
+    }
 
-	@Override
-	public void reset()
-	{
-	}
+    @Override
+    public void reset() {
+    }
 }
