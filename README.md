@@ -1,4 +1,4 @@
-# iSpiEFP (I Spy  Effective Potential Fragments)
+# iSpiEFP (I Spy  Effective Fragment Potential)
 ___
 iSpiEFP is a tool for visualizing and describing molecular systems with the EFP method. iSpiEFP comes complete with a public database full of EFP Parameter files, and missing parameters can be calculated using Gamess. 
 This application serves as a job-workflow manager which binds different technologies into one single application that allows chemists to point and click while utilizing high performance computing. 
