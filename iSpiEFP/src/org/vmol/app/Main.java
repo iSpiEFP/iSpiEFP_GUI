@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
@@ -29,6 +30,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 public class Main extends Application {
@@ -40,8 +42,8 @@ public class Main extends Application {
      * Development Server: Server where developing takes place for development
      * Test Server: Server constantly running for current iSpiEFP(jar file release) for real users
      */
-    public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
-    //public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
+    //public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
+    public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
     public static final int iSpiEFP_PORT = 8080;
 
     private static Stage primaryStage;
@@ -79,7 +81,7 @@ public class Main extends Application {
         alert.setTitle("Terms of Agreement");
         alert.setHeaderText(null);
         alert.setContentText(msg);
-        //Optional<ButtonType> result = alert.showAndWait(); //Terms of Agreement
+        Optional<ButtonType> result = alert.showAndWait(); //Terms of Agreement
 
     }
 

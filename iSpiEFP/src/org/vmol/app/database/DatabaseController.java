@@ -93,7 +93,7 @@ public class DatabaseController {
             for (ArrayList<String[]> group : group_filenames) {
                 if (group.size() > 0) {
                     boolean groupFound = false;
-
+                    
                     for (String[] pair_name : group) {
                         String xyz_filename = pair_name[0];
                         String efp_filename = pair_name[1];
@@ -101,17 +101,19 @@ public class DatabaseController {
 
                         //files with rmsd 0.5 and under only
                         BigDecimal val = new BigDecimal(rmsd);
-                        if (!groupFound && val.doubleValue() > 0.5) {
-                            unknownGroups.add(groupNumber - 1);
-                            to_be_submitted.add(groupNumber - 1);
+                        if (val.doubleValue() < 0.5) {
+                            //unknownGroups.add(groupNumber - 1);
+                            //to_be_submitted.add(groupNumber - 1);
 
                             //enter this value so that the same group isnt pinged again in the not found list
                             //(only one molecule of this type needs to be calculated for Gamess, the one the user loaded)
                             groupFound = true;
-                        } else {
-                            groupFound = true;
                         }
                         filenames.add(xyz_filename);
+                    }
+                    if(!groupFound) {
+                        unknownGroups.add(groupNumber - 1);
+                        to_be_submitted.add(groupNumber - 1);
                     }
                     /*
                     if(!groupFound){
