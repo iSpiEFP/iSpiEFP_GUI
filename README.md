@@ -8,7 +8,7 @@ For patch notes on the latest release: iSpiEFP Version 1.05-Alpha
  - https://github.com/slipchenko/iSpiEFP_Dev_Scripts/releases/tag/v1.05-alpha
  
 ### Help
-For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>
+For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>. (Release Data: TBA)
 
 ---
  
