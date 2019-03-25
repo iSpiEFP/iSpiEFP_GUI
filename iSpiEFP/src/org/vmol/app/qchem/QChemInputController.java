@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.io.File;
 
 /**
  * Handle all job submission for Qchem (LIBEFP) package submission
@@ -499,7 +500,7 @@ public class QChemInputController implements Initializable {
     private boolean createInputFile(String inputFileName, String path) {
         BufferedWriter output = null;
         try {
-            File file = new File(path + "\\" + inputFileName);
+            File file = new File(path + LocalBundleManager.FILE_SEPERATOR + inputFileName);
             output = new BufferedWriter(new FileWriter(file));
             output.write(qChemInputTextArea.getText());
             output.close();

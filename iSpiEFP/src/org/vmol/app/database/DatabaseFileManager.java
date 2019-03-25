@@ -218,7 +218,7 @@ public class DatabaseFileManager {
     private void createFile(String path, String name, String content) {
         BufferedWriter bufferedWriter = null;
         try {
-            String filename = path + "\\" + name;
+            String filename = path + LocalBundleManager.FILE_SEPERATOR + name;
             File file = new File(filename);
             if (!file.exists()) {
                 file.createNewFile();
