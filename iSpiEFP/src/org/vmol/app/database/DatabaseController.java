@@ -337,7 +337,7 @@ public class DatabaseController {
         String path = LocalBundleManager.LIBEFP_COORDINATES;
         auxiliaryJmolViewer.setAutoBond(true);
 
-        auxiliaryJmolViewer.openFile("file:" + path + "\\" + filename);
+        auxiliaryJmolViewer.openFile("file:" + path + LocalBundleManager.FILE_SEPERATOR + filename);
         @SuppressWarnings("unchecked")
         ViewerHelper viewerHelper = new ViewerHelper(jmolViewer, auxiliaryJmolViewer, this.groups.get(this.viewerIndex));
         viewerHelper.ConnectXYZBonds();
