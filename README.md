@@ -76,7 +76,7 @@ iSpiEFP/resources/images
 
 ### Server Config
 iSpiEFP connects to the iSpiEFP Server. The iSpiEFP Server is powered by AWS and is configured to run from
-__port 8080__. There are currently two servers for iSpiEFP to use and they should be changed depending on the situation. (Test for a Release, Developer for developing work). The Configurations for the server can be found at the top of __iSpiEFP/src/org/vmol/app/Main.java__. For information of the iSpiEFP Server visit: https://github.com/addisonpolcyn/iSpiEFPServer/blob/master/README.md
+__port 8080__. There are currently two servers for iSpiEFP to use and they should be changed depending on the situation. (Test for a Release, Developer for developing work). The Configurations for the server can be found at the top of __iSpiEFP/src/org/vmol/app/Main.java__. For information of the iSpiEFP Server visit: https://github.com/iSpiEFP/iSpiEFPServer/blob/master/README.md
 #### Test Server
 1. The Test Server's primary purpose is to keep an instance of iSpiEFP running 24/7 so that users can connect and use the currently released iSpiEFP Client Applications.
 2. The test server address is to be used for a new release. 
