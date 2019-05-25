@@ -47,7 +47,7 @@ Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capabl
 Right-Click Project Folder -> Select Team -> commit OR push
 6. For __Exporting__ this project as a Jar file. From eclipse, click File -> Export -> Runnable Jar file. For the launch configuration, you need to run the Main.java for the first time and mention it in the configuration.
 #### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8) 
-1. **Java FX** - Fortunately, IDEA has a built-in plugin for JavaFX which should already be enabled. If you'd like to make sure however, follow the steps outlined (https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html#enable_plugin "here").
+1. **Java FX** - Fortunately, IDEA has a built-in plugin for JavaFX which should already be enabled. If you'd like to make sure however, follow the steps outlined [here](https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html#enable_plugin "here").
 
 ### Code Base
 Most of the Source Code that needs to be edited belongs in:
