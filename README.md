@@ -41,13 +41,18 @@ Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capabl
 #### Eclipse Setup (Eclipse IDE, Mars .2 Release (4.5.2))
 1. **Java FX** – Install this as a new software within eclipse – named “e(fx)clipse – IDE”. Link: https://www.eclipse.org/efxclipse/install.html#for-the-lazy
 2. **SceneBuilder**  - We can configure to open and edit the fxml files directly from Eclipse. After downloading the SceneBuilder set the path to its exe file at Window -> Preferences -> JavaFX -> Scenebuilder Executable in Eclipse.
-3. **Gson** - You may need to import Gson into Eclipse as it is not a default Java Library. For help importing Gson into eclipse go to: https://medium.com/programmers-blockchain/importing-gson-into-eclipse-ec8cf678ad52
+3. **GSON** - You may need to import GSON into Eclipse as it is not a default Java Library. For help importing Gson into eclipse go to: https://medium.com/programmers-blockchain/importing-gson-into-eclipse-ec8cf678ad52
 4. For **cloning** the repository into Eclipse visit: https://github.com/collab-uniba/socialcde4eclipse/wiki/How-to-import-a-GitHub-project-into-Eclipse for a tutorial.
 5. For **Commiting** and **Pushing**(Git Plug-in must be installed, likely to be installed by default):
 Right-Click Project Folder -> Select Team -> commit OR push
 6. For __Exporting__ this project as a Jar file. From eclipse, click File -> Export -> Runnable Jar file. For the launch configuration, you need to run the Main.java for the first time and mention it in the configuration.
 #### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8) 
 1. **Java FX** - Fortunately, IDEA has a built-in plugin for JavaFX which should already be enabled. If you'd like to make sure however, follow the steps outlined [here](https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html#enable_plugin "here").
+2. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately.
+3. **GSON** - GSON must be imported as a library. In IDEA, go to File -> Project Structure -> Libraries. To add the Gson library, click the Add icon and simply type "gson" into the search bar. Any recent version works fine (2.2.0 or above). 
+4. **Git**. IDEA has a built-in terminal that simplifies Git usage. Once you install Git, you can simply use the terminal for Git commands. 
+5. **Exporting as JAR** - To export your project as a JAR file, go to File -> Project Structure -> Project Settings -> Artifacts -> Click green plus sign -> Jar -> From modules with dependencies... From there, go to extract to the target JAR and press OK. Then to go Build on the main menu and select Build Artifact.
+
 
 ### Code Base
 Most of the Source Code that needs to be edited belongs in:
