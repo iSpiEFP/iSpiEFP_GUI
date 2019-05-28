@@ -49,7 +49,7 @@ Right-Click Project Folder -> Select Team -> commit OR push
 #### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8) 
 1. **Java FX** - Fortunately, IDEA has a built-in plugin for JavaFX which should already be enabled. If you'd like to make sure however, follow the steps outlined [here](https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html#enable_plugin "here").
 2. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately.
-3. **GSON** - GSON must be imported as a library. In IDEA, go to File -> Project Structure -> Libraries. To add the Gson library, click the Add icon and simply type "gson" into the search bar. Any recent version works fine (2.2.0 or above). 
+3. **GSON** - GSON must be imported as a library. In IDEA, go to File -> Project Structure -> Libraries. To add the Gson library, click the Add icon and simply type "gson" into the search bar. Any recent version works fine (2.2.0 or above). To download GSON library with command line in bash, visit https://stackoverflow.com/questions/37975605/how-do-i-download-the-gson-library.
 4. **Git**. IDEA has a built-in terminal that simplifies Git usage. Once you install Git, you can simply use the terminal for Git commands. 
 5. **Exporting as JAR** - To export your project as a JAR file, go to File -> Project Structure -> Project Settings -> Artifacts -> Click green plus sign -> Jar -> From modules with dependencies... From there, go to extract to the target JAR and press OK. Then to go Build on the main menu and select Build Artifact.
 
