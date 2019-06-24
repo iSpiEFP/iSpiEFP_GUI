@@ -190,6 +190,17 @@ public class MainViewController {
         stage.show();
     }
 
+	
+    @FXML
+    public void openAbout() throws IOException{    //Help -> About dialog
+        Alert a1 = new Alert(Alert.AlertType.CONFIRMATION,"hello");
+        a1.setTitle("About iSpiEFP");
+        a1.setHeaderText("Look, an Information Dialog");
+        a1.setContentText("I have a great message for you!");
+        a1.showAndWait();
+    }
+
+
     @FXML
     public void openAbout() throws IOException{    //Help -> About dialog, edited by Ellen Zhao
         Alert a1 = new Alert(Alert.AlertType.CONFIRMATION,"hello");

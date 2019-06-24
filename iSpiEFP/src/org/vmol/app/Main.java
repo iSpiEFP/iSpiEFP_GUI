@@ -102,8 +102,7 @@ public class Main extends Application {
                 System.exit(0);
             }
         });
-        //getPrimaryStage().setResizable(false);
-	getPrimaryStage().setResizable(true);  //changes to make window resizable by Ellen Zhao 
+        getPrimaryStage().setResizable(true);
         //primaryStage.initModality(Modality.WINDOW_MODAL);
         getPrimaryStage().setAlwaysOnTop(false);
         getPrimaryStage().setHeight(700);
