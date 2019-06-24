@@ -102,7 +102,8 @@ public class Main extends Application {
                 System.exit(0);
             }
         });
-        getPrimaryStage().setResizable(false);
+        //getPrimaryStage().setResizable(false);
+	getPrimaryStage().setResizable(true);  //changes to make window resizable by Ellen Zhao 
         //primaryStage.initModality(Modality.WINDOW_MODAL);
         getPrimaryStage().setAlwaysOnTop(false);
         getPrimaryStage().setHeight(700);
@@ -147,6 +148,13 @@ public class Main extends Application {
         Button button_libefp = (Button) buttonList.get(6);
         button_submit.setDisable(true);
         button_libefp.setDisable(true);
+
+	VBox.setVgrow(button_fragment,Priority.ALWAYS);  //changes for resizable window by Ellen Zhao
+        VBox.setVgrow(button_halo_on,Priority.ALWAYS);
+        VBox.setVgrow(button_play_pause,Priority.ALWAYS);
+        VBox.setVgrow(button_show_console,Priority.ALWAYS);
+        VBox.setVgrow(button_submit,Priority.ALWAYS);
+        VBox.setVgrow(button_libefp,Priority.ALWAYS);
 
         //set graphics
         button_halo_on.setText("");
