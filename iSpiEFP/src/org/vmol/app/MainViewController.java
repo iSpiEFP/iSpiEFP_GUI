@@ -172,11 +172,11 @@ public class MainViewController {
 
     @FXML
     public void openLibEFPWindow() throws IOException {
-        Parent qChemInput = FXMLLoader.load(getClass().getResource("qchem/QChemInput.fxml"));
+        Parent libEFPInput = FXMLLoader.load(getClass().getResource("libEFP/libEFP.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Libefp Input");
-        stage.setScene(new Scene(qChemInput));
+        stage.setScene(new Scene(libEFPInput));
         stage.show();
     }
 
@@ -201,6 +201,15 @@ public class MainViewController {
     }
 
 
+    @FXML
+    public void openAbout() throws IOException{    //Help -> About dialog, edited by Ellen Zhao
+        Alert a1 = new Alert(Alert.AlertType.CONFIRMATION,"hello");
+        a1.setTitle("About iSpiEFP");
+        a1.setHeaderText("Look, an Information Dialog");
+        a1.setContentText("I have a great message for you!");
+        a1.showAndWait();
+    }
+	
     @FXML
     public void openGamessWindow() throws IOException {
         Parent gamessInput = FXMLLoader.load(getClass().getResource("gamess/gamessInput.fxml"));

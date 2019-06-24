@@ -148,6 +148,13 @@ public class Main extends Application {
         button_submit.setDisable(true);
         button_libefp.setDisable(true);
 
+	VBox.setVgrow(button_fragment,Priority.ALWAYS);  //changes for resizable window by Ellen Zhao
+        VBox.setVgrow(button_halo_on,Priority.ALWAYS);
+        VBox.setVgrow(button_play_pause,Priority.ALWAYS);
+        VBox.setVgrow(button_show_console,Priority.ALWAYS);
+        VBox.setVgrow(button_submit,Priority.ALWAYS);
+        VBox.setVgrow(button_libefp,Priority.ALWAYS);
+
         //set graphics
         button_halo_on.setText("");
         button_halo_on.setGraphic(new ImageView(halo));
