@@ -21,7 +21,7 @@ import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
 import org.vmol.app.gamess.GamessFormController;
 import org.vmol.app.installer.LocalBundleManager;
-import org.vmol.app.qchem.QChemInputController;
+import org.vmol.app.libEFP.libEFPInputController;
 import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.visualizer.JmolVisualizer;
 import org.vmol.app.visualizer.ViewerHelper;
@@ -437,8 +437,8 @@ public class DatabaseController {
         //Get the libefp coords for the input file
         String coords = generateQchemInput(data, groups);
         final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
-        QChemInputController controller;
-        controller = new QChemInputController(coords, null, this.final_selections);
+        libEFPInputController controller;
+        controller = new libEFPInputController(coords, null, this.final_selections);
         loader.setController(controller);
         Platform.runLater(new Runnable() {
             @Override

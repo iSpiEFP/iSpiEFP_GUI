@@ -14,7 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
-import org.vmol.app.qchem.QChemInputController;
+import org.vmol.app.libEFP.libEFPInputController;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -204,8 +204,8 @@ public class localDataBaseController {
 
                 final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
 
-                QChemInputController controller;
-                controller = new QChemInputController(str);
+                libEFPInputController controller;
+                controller = new libEFPInputController(str);
                 loader.setController(controller);
                 Platform.runLater(new Runnable() {
                     @Override
@@ -245,8 +245,8 @@ public class localDataBaseController {
 
             final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
 
-            QChemInputController controller;
-            controller = new QChemInputController(str);
+            libEFPInputController controller;
+            controller = new libEFPInputController(str);
             loader.setController(controller);
             Platform.runLater(new Runnable() {
                 @Override

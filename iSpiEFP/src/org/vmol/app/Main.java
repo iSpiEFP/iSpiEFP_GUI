@@ -31,7 +31,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-
+import javafx.scene.layout.Priority;
 
 public class Main extends Application {
 
@@ -148,7 +148,7 @@ public class Main extends Application {
         button_submit.setDisable(true);
         button_libefp.setDisable(true);
 
-	VBox.setVgrow(button_fragment,Priority.ALWAYS);  //changes for resizable window by Ellen Zhao
+	    VBox.setVgrow(button_fragment,Priority.ALWAYS);  //changes for resizable window by Ellen Zhao
         VBox.setVgrow(button_halo_on,Priority.ALWAYS);
         VBox.setVgrow(button_play_pause,Priority.ALWAYS);
         VBox.setVgrow(button_show_console,Priority.ALWAYS);
