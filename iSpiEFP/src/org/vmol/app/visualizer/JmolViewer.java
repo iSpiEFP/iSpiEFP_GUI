@@ -25,7 +25,7 @@ public abstract class JmolViewer extends JmolPanel {
 
     public Viewer viewer;
     
-    private JmolPanel jmolPanel;
+    protected JmolPanel jmolPanel;
     
     public JmolViewer() {
         JmolPanel panel = new JmolPanel();
@@ -57,5 +57,5 @@ public abstract class JmolViewer extends JmolPanel {
             });
     }
     
-    private abstract void setSize();
+    protected abstract void setSize();
 }
