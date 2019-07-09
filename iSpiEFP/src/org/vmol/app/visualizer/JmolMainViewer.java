@@ -4,18 +4,23 @@ import java.awt.Dimension;
 
 import org.jmol.viewer.Viewer;
 
-public class MainJmolViewer extends JmolViewer {
-    /**
-     * Generate generic serial ID 
-     */
+/*
+ * The main panel jmol viewer for iSpiEFP
+ * This viewer object wraps jmols swing object and provides
+ * some additional features such as monitoring deleted bonds
+ * 
+ * Example Usage: JmolMainViewer mainJmolViewer = new JmolMainViewer();
+ */
+public class JmolMainViewer extends JmolViewer {
+    //Generate generic serial ID 
     private static final long serialVersionUID = 1L;
 
     /**
-     * MainJmolViewer inherits: viewer, jmolPanel
+     * JmolMainViewer inherits: viewer, jmolPanel
      * Viewer viewer : jmol viewer object
      * JmolPanel jmolPanel : jmol panel that holds viewer
      */
-    public MainJmolViewer() {
+    public JmolMainViewer() {
         super();
         setSize();
     }

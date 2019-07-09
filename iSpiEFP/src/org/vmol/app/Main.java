@@ -21,9 +21,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
+import org.jmol.api.JmolViewer;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.vmol.app.installer.BundleManager;
+import org.vmol.app.visualizer.JmolMainViewer;
 import org.vmol.app.visualizer.JmolVisualizer;
 
 import javax.swing.*;
@@ -65,8 +67,9 @@ public class Main extends Application {
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
-        showJmolViewer(true, null);
-
+        //showJmolViewer(true, null);
+        JmolMainViewer jmolMainViewer = new JmolMainViewer();
+        
         //optional terms of agreement for test jar files
         Alert alert = new Alert(AlertType.WARNING);
         String msg = "Welcome to iSpiEFP\n\n"
@@ -81,7 +84,7 @@ public class Main extends Application {
         alert.setTitle("Terms of Agreement");
         alert.setHeaderText(null);
         alert.setContentText(msg);
-        Optional<ButtonType> result = alert.showAndWait(); //Terms of Agreement
+        //Optional<ButtonType> result = alert.showAndWait(); //Terms of Agreement
 
     }
 
@@ -296,12 +299,12 @@ public class Main extends Application {
         public ArrayList<ArrayList> original_bonds = new ArrayList<ArrayList>();
         public ArrayList<ArrayList> deleted_bonds = new ArrayList<ArrayList>();
 
-        private final Dimension currentSize = new Dimension();
+        private final Dimension currentSize = new Dimension(940, 595);
 
-        //public int currentWidth = 940;
-        //public int currentHeight = 595;
-        public int currentWidth = currentSize.width;
-        public int currentHeight = currentSize.height;
+        public int currentWidth = 940;
+        public int currentHeight = 595;
+        //public int currentWidth = currentSize.width;
+        //public int currentHeight = currentSize.height;
 
         public JmolPanel() {
             viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
@@ -311,7 +314,7 @@ public class Main extends Application {
 
         @Override
         public void paint(Graphics g) {
-            getSize(currentSize);
+            //setSize(currentSize);
 
             //viewer.renderScreenImage(g, currentSize.width, currentSize.height);
             viewer.renderScreenImage(g, currentWidth, currentHeight);
