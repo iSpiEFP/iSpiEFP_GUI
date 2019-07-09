@@ -303,7 +303,7 @@ public class Main extends Application {
         public int currentWidth = currentSize.width;
         public int currentHeight = currentSize.height;
 
-        JmolPanel() {
+        public JmolPanel() {
             viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
                     null, null, null, null, null);
             viewer.setAnimationFps(60);

@@ -9,18 +9,24 @@ import javax.swing.JPanel;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.jmol.viewer.Viewer;
 
-public abstract class JmolPanel extends JPanel {
+public class JmolPanel extends JPanel {
 
     /**
      * Default Serial ID 
      */
     private static final long serialVersionUID = 1L;
     
-    public Viewer viewer;
+    private Viewer viewer;
    
-    JmolPanel() {
+    public JmolPanel() {
         viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
                 null, null, null, null, null);
         viewer.setAnimationFps(60);
     }
+    
+    public Viewer getViewer() {
+        return this.viewer;
+    }
+    
+    //abstract protected void showJmolViewer();
 }
