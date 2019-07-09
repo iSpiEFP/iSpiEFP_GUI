@@ -31,7 +31,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-import javafx.scene.layout.Priority;
+
 
 public class Main extends Application {
 
@@ -102,7 +102,7 @@ public class Main extends Application {
                 System.exit(0);
             }
         });
-        getPrimaryStage().setResizable(true);
+        getPrimaryStage().setResizable(false);
         //primaryStage.initModality(Modality.WINDOW_MODAL);
         getPrimaryStage().setAlwaysOnTop(false);
         getPrimaryStage().setHeight(700);
@@ -148,13 +148,6 @@ public class Main extends Application {
         button_submit.setDisable(true);
         button_libefp.setDisable(true);
 
-	    VBox.setVgrow(button_fragment,Priority.ALWAYS);  //changes for resizable window by Ellen Zhao
-        VBox.setVgrow(button_halo_on,Priority.ALWAYS);
-        VBox.setVgrow(button_play_pause,Priority.ALWAYS);
-        VBox.setVgrow(button_show_console,Priority.ALWAYS);
-        VBox.setVgrow(button_submit,Priority.ALWAYS);
-        VBox.setVgrow(button_libefp,Priority.ALWAYS);
-
         //set graphics
         button_halo_on.setText("");
         button_halo_on.setGraphic(new ImageView(halo));
@@ -188,7 +181,11 @@ public class Main extends Application {
         if (mainPanel) {
             splitpane.setDividerPositions(0.2f, 0.3f);
             nodepane.setDividerPositions(1, 0);
+           
             Pane pane = (Pane) sublist.get(0);
+            jmolPanel.setPreferredSize(new Dimension((int)nodepane.getWidth(), (int)nodepane.getHeight()));
+            System.out.println("nodepane width:"+pane.getWidth());
+            System.out.println("nodepane height:"+pane.getHeight());
             pane.getChildren().add(swingNode);
         } else {
             //aux panel
@@ -217,7 +214,7 @@ public class Main extends Application {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    jmolPanel.setPreferredSize(new Dimension(940, 595));
+                    //jmolPanel.setPreferredSize(new Dimension(940, 595));
                     // main panel -- Jmol panel on top
                     JPanel panel = new JPanel();
                     panel.setLayout(new BorderLayout());
@@ -301,8 +298,10 @@ public class Main extends Application {
 
         private final Dimension currentSize = new Dimension();
 
-        public int currentWidth = 940;
-        public int currentHeight = 595;
+        //public int currentWidth = 940;
+        //public int currentHeight = 595;
+        public int currentWidth = currentSize.width;
+        public int currentHeight = currentSize.height;
 
         JmolPanel() {
             viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
