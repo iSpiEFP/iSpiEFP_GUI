@@ -57,5 +57,5 @@ public abstract class JmolViewer extends JmolPanel {
             });
     }
     
-    private 
+    private abstract void setSize();
 }
