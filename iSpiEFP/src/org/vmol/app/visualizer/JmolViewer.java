@@ -22,25 +22,33 @@ public abstract class JmolViewer extends JmolPanel {
      * 
      */
     private static final long serialVersionUID = 1L;
-
-    public Viewer viewer;
     
     protected JmolPanel jmolPanel;
     
+    protected final SwingNode swingNode;
+    
     public JmolViewer() {
-        JmolPanel panel = new JmolPanel();
-        this.viewer = panel.viewer;
-        this.jmolPanel = panel;
+        this.swingNode = new SwingNode();
         
         showJmolViewer();
     }
     
+    public JmolPanel getJmolPanel() {
+        return this.jmolPanel;
+    }
+    
+    public SwingNode getSwingNode() {
+        return this.swingNode;
+    }
+    
     private void showJmolViewer() {  
         //init jmolPanel
-            final SwingNode swingNode = new SwingNode();
-
+            //final SwingNode swingNode = new SwingNode();
+            JmolPanel panel = new JmolPanel();
+            //this.viewer = panel.viewer;
+            this.jmolPanel = panel;
+            
             Platform.runLater(new Runnable() {
-                private Component jmolPanel;
 
                 @Override
                 public void run() {
@@ -48,7 +56,7 @@ public abstract class JmolViewer extends JmolPanel {
                     // main panel -- Jmol panel on top
                     JPanel panel = new JPanel();
                     panel.setLayout(new BorderLayout());
-                    panel.add("North", this.jmolPanel);
+                    panel.add("North", jmolPanel);
 
 
                     panel.setFocusable(true);
@@ -57,5 +65,5 @@ public abstract class JmolViewer extends JmolPanel {
             });
     }
     
-    protected abstract void setSize();
+    abstract public void setParentPane(Pane pane);
 }

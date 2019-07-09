@@ -16,17 +16,11 @@ public class JmolPanel extends JPanel {
      */
     private static final long serialVersionUID = 1L;
     
-    private Viewer viewer;
+    public Viewer viewer;
    
     public JmolPanel() {
         viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
                 null, null, null, null, null);
         viewer.setAnimationFps(60);
     }
-    
-    public Viewer getViewer() {
-        return this.viewer;
-    }
-    
-    //abstract protected void showJmolViewer();
 }

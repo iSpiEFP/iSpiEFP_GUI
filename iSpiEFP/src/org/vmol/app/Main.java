@@ -67,8 +67,9 @@ public class Main extends Application {
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
-        //showJmolViewer(true, null);
+        showJmolViewer(true, null);
         JmolMainViewer jmolMainViewer = new JmolMainViewer();
+        //jmolPanel = (org.vmol.app.Main.JmolPanel) jmolMainViewer.getJmolPanel();
         
         //optional terms of agreement for test jar files
         Alert alert = new Alert(AlertType.WARNING);
@@ -173,7 +174,7 @@ public class Main extends Application {
         final SwingNode swingNode = new SwingNode();
 
         createAndSetSwingContent(swingNode, filename, mainPanel);
-
+/*
         SplitPane splitpane = (SplitPane) getMainLayout().getChildren().get(2);
         ObservableList<Node> list = splitpane.getItems();
         SplitPane nodepane = (SplitPane) list.get(1);
@@ -197,7 +198,7 @@ public class Main extends Application {
             ObservableList<Node> vertlist = vertSplit.getItems();
             Pane pane = (Pane) vertlist.get(0);
             pane.getChildren().add(swingNode);
-        }
+        }*/
     }
 
     /**
@@ -214,6 +215,7 @@ public class Main extends Application {
         if (mainPanel) {
             jmolPanel = new JmolPanel();
 
+            /*
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -236,7 +238,7 @@ public class Main extends Application {
                     swingNode.setContent(panel);
 
                 }
-            });
+            });*/
         } else {
             auxiliaryJmolPanel = new JmolPanel();
 
