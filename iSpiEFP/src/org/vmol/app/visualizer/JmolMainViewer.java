@@ -1,6 +1,8 @@
 package org.vmol.app.visualizer;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.util.ArrayList;
 
 import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
@@ -21,10 +23,13 @@ public class JmolMainViewer extends JmolViewer {
     //Generate generic serial ID 
     private static final long serialVersionUID = 1L;
     
+    public int currentWidth = 69;
+    public int currentHeight = 69;
+    
     /**
      * JmolMainViewer inherits: viewer, jmolPanel
      * Viewer viewer : jmol viewer object
-     * JmolPanel jmolPanel : jmol panel that holds viewer
+     * JmolPanel2 jmolPanel : jmol panel that holds viewer
      */
     public JmolMainViewer() {
         super();
@@ -36,34 +41,35 @@ public class JmolMainViewer extends JmolViewer {
         ObservableList<Node> sublist = nodepane.getItems();
         Pane pane = (Pane) sublist.get(0);
         
-        //embed jmol
-        pane.getChildren().add(swingNode);
+        //embed jmol to javaFX application
+        setParentPane(pane);
         
         jmolPanel.setPreferredSize(new Dimension(69,69));
     }
     
+    /**
+     * Set the pane for the viewer to be placed
+     */
     public void setParentPane(Pane pane) {        
         pane.getChildren().add(swingNode);
     }
     
     /**
-     * Set the pane for the main viewer to be placed
+     * Override Paint method to track fragment changes
      */
-    
-    
-    protected void setSize() {
-        //if (mainPanel) {
-        //    splitpane.setDividerPositions(0.2f, 0.3f);
-          //  nodepane.setDividerPositions(1, 0);
-           /*
-        //    Pane pane = (Pane) sublist.get(0);
-            jmolPanel.setPreferredSize(new Dimension((int)nodepane.getWidth(), (int)nodepane.getHeight()));
-            System.out.println("nodepane width:"+pane.getWidth());
-            System.out.println("nodepane height:"+pane.getHeight());
-          //  pane.getChildren().add(swingNode);
-            */
-            //jmolPanel.setPreferredSize(new Dimension(69, 69));
-            
+    @Override
+    public void paint(Graphics g) {
+        //getSize(currentSize);
+
+        viewer.renderScreenImage(g, currentWidth, currentHeight);
+        /*ArrayList bond = JmolVisualizer.find_deleted_bonds(jmolPanel);
+        if (bond != null) {
+
+            System.out.println("bond between " + bond.get(0) + "  " + bond.get(1));
+            deleted_bonds.add(bond);
+            System.out.println("woah");
+            JmolVisualizer.displayFragments(jmolPanel);
+        }*/
     }
 
 }

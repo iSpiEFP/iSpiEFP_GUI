@@ -17,13 +17,13 @@ import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Pane;
 
-public abstract class JmolViewer extends JmolPanel {
+public abstract class JmolViewer extends JmolPanel2 {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
     
-    protected JmolPanel jmolPanel;
+    protected JmolPanel2 jmolPanel;
     
     protected final SwingNode swingNode;
     
@@ -33,7 +33,7 @@ public abstract class JmolViewer extends JmolPanel {
         showJmolViewer();
     }
     
-    public JmolPanel getJmolPanel() {
+    public JmolPanel2 getJmolPanel() {
         return this.jmolPanel;
     }
     
@@ -44,7 +44,7 @@ public abstract class JmolViewer extends JmolPanel {
     private void showJmolViewer() {  
         //init jmolPanel
             //final SwingNode swingNode = new SwingNode();
-            JmolPanel panel = new JmolPanel();
+            JmolPanel2 panel = new JmolPanel2();
             //this.viewer = panel.viewer;
             this.jmolPanel = panel;
             

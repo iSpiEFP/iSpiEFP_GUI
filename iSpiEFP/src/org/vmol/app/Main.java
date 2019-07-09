@@ -316,7 +316,7 @@ public class Main extends Application {
 
         @Override
         public void paint(Graphics g) {
-            //setSize(currentSize);
+            getSize(currentSize);
 
             //viewer.renderScreenImage(g, currentSize.width, currentSize.height);
             viewer.renderScreenImage(g, currentWidth, currentHeight);
