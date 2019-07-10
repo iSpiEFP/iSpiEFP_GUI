@@ -25,7 +25,8 @@ import org.jmol.api.JmolViewer;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.vmol.app.installer.BundleManager;
-import org.vmol.app.visualizer.JmolMainViewer;
+import org.vmol.app.visualizer.JmolMainPanel;
+import org.vmol.app.visualizer.JmolPanel2;
 import org.vmol.app.visualizer.JmolVisualizer;
 
 import javax.swing.*;
@@ -68,7 +69,15 @@ public class Main extends Application {
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
         showJmolViewer(true, null);
-        JmolMainViewer jmolMainViewer = new JmolMainViewer();
+        
+        SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
+        ObservableList<Node> list = splitpane.getItems();
+        SplitPane nodepane = (SplitPane) list.get(1);
+        ObservableList<Node> sublist = nodepane.getItems();
+        Pane pane = (Pane) sublist.get(0);
+        
+        JmolMainPanel jmolMainViewer = new JmolMainPanel(pane);
+        //JmolPanel2 jmol = new JmolPanel2(pane);
         //jmolPanel = (org.vmol.app.Main.JmolPanel) jmolMainViewer.getJmolPanel();
         
         //optional terms of agreement for test jar files

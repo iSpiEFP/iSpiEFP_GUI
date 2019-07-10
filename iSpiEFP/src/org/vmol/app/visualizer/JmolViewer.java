@@ -17,19 +17,35 @@ import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Pane;
 
-public abstract class JmolViewer extends JmolPanel2 {
+public class JmolViewer {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
     
+    public Viewer viewer;
     protected JmolPanel2 jmolPanel;
-    
     protected final SwingNode swingNode;
+    protected Pane parentPane;
     
-    public JmolViewer() {
-        this.swingNode = new SwingNode();
+    protected int currentWidth;
+    protected int currentHeight;
+    
+    public JmolViewer(Pane pane) {
+        JmolPanel2 panel = new JmolPanel2(pane);
+        this.jmolPanel = panel;
+        this.viewer = panel.viewer;
+        this.parentPane = pane;
+        this.swingNode = new SwingNode();        
+        this.currentWidth = (int) pane.getWidth();
+        this.currentHeight = (int) pane.getHeight();
         
+        currentWidth = 940;
+        currentHeight = 595;
+        
+        parentPane.getChildren().add(swingNode);
+        jmolPanel.setPreferredSize(new Dimension(currentWidth, currentHeight));
+
         showJmolViewer();
     }
     
@@ -41,29 +57,27 @@ public abstract class JmolViewer extends JmolPanel2 {
         return this.swingNode;
     }
     
-    private void showJmolViewer() {  
-        //init jmolPanel
-            //final SwingNode swingNode = new SwingNode();
-            JmolPanel2 panel = new JmolPanel2();
-            //this.viewer = panel.viewer;
-            this.jmolPanel = panel;
-            
-            Platform.runLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    //jmolPanel.setPreferredSize(new Dimension(940, 595));
-                    // main panel -- Jmol panel on top
-                    JPanel panel = new JPanel();
-                    panel.setLayout(new BorderLayout());
-                    panel.add("North", jmolPanel);
-
-
-                    panel.setFocusable(true);
-                    swingNode.setContent(panel);
-                }
-            });
+    public Pane getParentPane() {
+        return this.parentPane;
     }
     
-    abstract public void setParentPane(Pane pane);
+    /**
+     * Set the pane for the viewer to be placed
+     */
+    public void setParentPane(Pane pane) {        
+        pane.getChildren().add(swingNode);
+    }
+    
+    private void showJmolViewer() {  
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run(){
+                JPanel panel = new JPanel();
+                panel.setLayout(new BorderLayout());
+                panel.add("North", jmolPanel);
+                panel.setFocusable(true);
+                swingNode.setContent(panel);
+            }
+        });
+    }
 }
