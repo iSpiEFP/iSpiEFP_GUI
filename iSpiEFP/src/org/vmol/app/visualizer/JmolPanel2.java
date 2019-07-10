@@ -16,18 +16,17 @@ import javafx.embed.swing.SwingNode;
 import javafx.scene.layout.Pane;
 
 public class JmolPanel2 extends JPanel {
-
     /**
-     * Default Serial ID 
+     * Generate Serial UID Version
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2183410255641936515L;
     
     public Viewer viewer;
     protected Pane parentPane;
-    protected final SwingNode swingNode = new SwingNode();
     
-    public int currentWidth = 940;
-    public int currentHeight = 595;
+    protected final SwingNode swingNode = new SwingNode();
+    protected Dimension dimension = new Dimension(940, 595);
+
     public int test = 0;
    
     public JmolPanel2(Pane pane) {
@@ -36,16 +35,17 @@ public class JmolPanel2 extends JPanel {
         viewer.setAnimationFps(60);
         
         parentPane = pane;
+        System.out.println("id:"+pane.getId());
         parentPane.getChildren().add(swingNode);
-        this.setPreferredSize(new Dimension(currentWidth, currentHeight));
+        this.setPreferredSize(dimension);
         runJmolViewer();
     }
     
     @Override
     public void paint(Graphics g) {
-        getSize(new Dimension(currentWidth, currentHeight));
+        getSize(new Dimension(dimension));
 
-        viewer.renderScreenImage(g, currentWidth, currentHeight);
+        viewer.renderScreenImage(g, dimension.width, dimension.height);
         System.out.println(test);
         System.out.println("hello i am jmol panel");
         test++;
@@ -61,6 +61,16 @@ public class JmolPanel2 extends JPanel {
     
     public Pane getParentPane() {
         return this.parentPane;
+    }
+    
+    public Dimension getDimension() {
+        return dimension;
+    }
+    
+    public void setDimension(int width, int height) {
+        dimension = new Dimension(width, height);
+        this.setPreferredSize(dimension);
+        this.repaint();
     }
     
     /**

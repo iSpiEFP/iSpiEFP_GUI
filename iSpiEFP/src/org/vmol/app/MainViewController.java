@@ -13,19 +13,45 @@ import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.UnrecognizedAtomException;
+import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.JmolVisualizer;
 
 import java.io.File;
 import java.io.IOException;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
+import javafx.scene.layout.Pane;
 
 public class MainViewController {
 
     private static String lastOpenedFile;
     private static String lastOpenedFileName;
     private static boolean[] interested_parameters = {false, false, false};
+    
     @FXML
     private Parent root;
+    
+    @FXML
+    private SplitPane leftRightSplitPane;
+    
+    @FXML
+    private ListView leftListView;
+    
+    @FXML
+    private SplitPane middleRightSplitPane;
+    
+    @FXML
+    private Pane middlePane;
+    
+    @FXML
+    private SplitPane rightVerticalSplitPane;
+    
+    @FXML
+    private Pane upperRightPane;
+    
+    @FXML
+    private Pane bottomRightPane;
 
     public static String getLastOpenedFile() {
         return lastOpenedFile;
@@ -57,9 +83,9 @@ public class MainViewController {
                 new FileChooser.ExtensionFilter("PDB", "*.pdb")
         );
         Stage currStage = (Stage) root.getScene().getWindow();
-
-
+        
         File file = fileChooser.showOpenDialog(currStage);
+        
         if (file != null) {
             // Check if it's an xyz or pdb file
             lastOpenedFile = file.getAbsolutePath();

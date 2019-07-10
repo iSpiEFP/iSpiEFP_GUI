@@ -16,36 +16,42 @@ import javafx.scene.layout.Pane;
  * The main panel jmol viewer for iSpiEFP
  * This viewer object wraps jmols swing object and provides
  * some additional features such as monitoring deleted bonds
- * 
- * Example Usage: JmolMainPanel mainJmolViewer = new JmolMainPanel();
  */
 public class JmolMainPanel extends JmolPanel2 {
-    //Generate generic serial ID 
-    private static final long serialVersionUID = 1L;
-    
-    //inherits viewer, jmolPanel, swingNode, parentPane, currentWidth, currentHeight
-    
     /**
-     * JmolMainPanel inherits: viewer, jmolPanel
-     * Viewer viewer : jmol viewer object
-     * JmolPanel2 jmolPanel : jmol panel that holds viewer
+     * Generated Serial UID Version
+     */
+    private static final long serialVersionUID = -6927133884116203529L;
+
+    /**
+     * A Modified version of a JmolPanel specifically made for the main viewer panel for iSpiEFP
+     * 
+     * JmolMainPanel inherits: viewer, swingNode, parentPane, currentWidth, currentHeight
+     * Viewer viewer : Jmol viewer object
+     * SwingNode swingNode : JavaFX wrapper object for Java Swing Objects
+     * Pane parentPane : Component that holds the viewer object 
      */
     public JmolMainPanel(Pane pane) {
         super(pane);
-        //jmolPanel.setPreferredSize(new Dimension(currentWidth, currentHeight));
         initJmol();
     }
     
     @Override
+    /**
+     * JPanel Paint function overrode to accommodate the tracing of bonds, fragments and their components
+     */
     public void paint(Graphics g) {
-        getSize(new Dimension(currentWidth, currentHeight));
+        getSize(dimension);
 
-        viewer.renderScreenImage(g, currentWidth, currentHeight);
+        viewer.renderScreenImage(g, dimension.width, dimension.height);
         System.out.println(test);
         System.out.println("hello i am main panel");
         test++;
     }
     
+    /**
+     * Run Jmol JavaScript Commands for a default Main Panel Set-up
+     */
     private void initJmol() {
         //default settings
         viewer.runScript("select clear");
