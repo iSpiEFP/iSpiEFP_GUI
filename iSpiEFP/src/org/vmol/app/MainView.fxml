@@ -54,13 +54,13 @@
                 </MenuBar>
                 <Pane prefHeight="55.0" prefWidth="200.0">
                     <children>
-                        <ToggleButton layoutX="14.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="Halo On" />
-                        <ToggleButton layoutX="76.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="Fragmenation" />
-                        <Button layoutX="139.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="70.0" text="undo" />
-                        <ToggleButton layoutX="221.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="play_pause" />
-                        <Button layoutX="283.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="show_console" />
-                        <Button layoutX="343.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="120.0" text="Search Fragments" />
-                        <Button layoutX="473.0" layoutY="5.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="70.0" text="libefp" />
+                        <ToggleButton fx:id="haloButton" layoutX="14.0" layoutY="5.0" mnemonicParsing="false" onAction="#toggleHalo" prefHeight="45.0" prefWidth="45.0" text="Halo On" />
+                        <ToggleButton fx:id="snipButton" layoutX="76.0" layoutY="5.0" mnemonicParsing="false" onAction="#toggleSnip" prefHeight="45.0" prefWidth="45.0" text="Fragmenation" />
+                        <Button fx:id="undoButton" layoutX="139.0" layoutY="5.0" mnemonicParsing="false" onAction="#undo" prefHeight="45.0" prefWidth="70.0" text="undo" />
+                        <ToggleButton fx:id="playPauseButton" layoutX="221.0" layoutY="5.0" mnemonicParsing="false" onAction="#togglePlay" prefHeight="45.0" prefWidth="45.0" text="play_pause" />
+                        <Button fx:id="consoleButton" layoutX="283.0" layoutY="5.0" mnemonicParsing="false" onAction="#displayConsole" prefHeight="45.0" prefWidth="45.0" text="show_console" />
+                        <Button fx:id="searchFragmentsButton" layoutX="343.0" layoutY="5.0" mnemonicParsing="false" onAction="#searchFragments" prefHeight="45.0" prefWidth="120.0" text="Search Fragments" />
+                        <Button fx:id="libefpButton" layoutX="473.0" layoutY="5.0" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp" />
                     </children>
                 </Pane>
             </children>
@@ -84,10 +84,10 @@
         </HBox>
     </bottom>
     <center>
-        <SplitPane fx:id="leftRightSplitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <items>
                 <ListView fx:id="leftListView" prefHeight="200.0" prefWidth="200.0" />
-                <SplitPane fx:id="middleRightSplitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+                <SplitPane fx:id="leftRightSplitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
                     <items>
                         <Pane fx:id="middlePane" prefHeight="200.0" prefWidth="200.0" />
                         <SplitPane fx:id="rightVerticalSplitPane" dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">

@@ -1,13 +1,21 @@
 package org.vmol.app;
 
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import org.jmol.viewer.Viewer;
+import org.openscience.jmol.app.jmolpanel.console.AppConsole;
+import org.vmol.app.database.DatabaseController;
 import org.vmol.app.fileparser.FileParserController;
 import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
@@ -16,22 +24,47 @@ import org.vmol.app.util.UnrecognizedAtomException;
 import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.JmolVisualizer;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 public class MainViewController {
 
-    private static String lastOpenedFile;
-    private static String lastOpenedFileName;
+    private static final Image halo = new Image(Main.class.getResource("/images/halo.png").toString());
+    private static final Image scissors = new Image(Main.class.getResource("/images/scissors.png").toString());
+    private static final Image play = new Image(Main.class.getResource("/images/play.png").toString());
+    private static final Image pause = new Image(Main.class.getResource("/images/pause.png").toString());
+    private static final Image terminal = new Image(Main.class.getResource("/images/terminal.png").toString());
+    
+    private static String lastOpenedFile = new String();
+    private static String lastOpenedFileName = new String();
     private static boolean[] interested_parameters = {false, false, false};
+    
+    private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
+    private Viewer viewer;                  //Jmol Viewer Object, a member of JmolMainPanel, can be invoked by jmolMainPanel.viewer as well
     
     @FXML
     private Parent root;
     
+    /******************************************************************************************
+     *             PANES & LISTS SECTION BEGINS                                               *
+     ******************************************************************************************/
     @FXML
     private SplitPane leftRightSplitPane;
     
@@ -52,7 +85,62 @@ public class MainViewController {
     
     @FXML
     private Pane bottomRightPane;
-
+    
+    /******************************************************************************************
+     *             ICON BUTTON SECTION BEGINS                                         *
+     ******************************************************************************************/
+    @FXML
+    private ToggleButton haloButton;
+        
+    @FXML
+    private ToggleButton snipButton;
+    
+    @FXML
+    private Button undoButton;
+    
+    @FXML
+    private ToggleButton playPauseButton;
+    
+    @FXML
+    private Button consoleButton;
+    
+    @FXML
+    private Button searchFragmentsButton;
+    
+    @FXML
+    private Button libefpButton;
+    
+    /**
+     * initialize(); is called after @FXML parameters have been loaded in
+     * Loading order goes as: Constructor > @FXML > initialize();
+     */
+    @FXML
+    public void initialize() {
+        //set graphics
+        haloButton.setText("");
+        haloButton.setGraphic(new ImageView(halo));
+        snipButton.setText("");
+        snipButton.setGraphic(new ImageView(scissors));
+        playPauseButton.setText("");
+        playPauseButton.setGraphic(new ImageView(play));
+        consoleButton.setText("");
+        consoleButton.setGraphic(new ImageView(terminal));
+        
+        jmolMainPanel = new JmolMainPanel(middlePane);
+        this.viewer = jmolMainPanel.viewer;
+        
+        leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+        middleRightSplitPane.setDividerPositions(1, 0);
+    }
+    
+    /**
+     * Constructor for JavaFX main view controller. 
+     * Loading order goes as: Constructor > @FXML > initialize();
+     */
+    public MainViewController() {
+        
+    }
+    
     public static String getLastOpenedFile() {
         return lastOpenedFile;
     }
@@ -86,6 +174,23 @@ public class MainViewController {
         
         File file = fileChooser.showOpenDialog(currStage);
         
+        jmolMainPanel = new JmolMainPanel(middlePane);
+        this.viewer = jmolMainPanel.viewer;
+        if(jmolMainPanel.openFile(file)) {
+            lastOpenedFile = file.getAbsolutePath();
+            lastOpenedFileName = file.getName();
+            
+            leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+            middleRightSplitPane.setDividerPositions(1, 0);
+            
+            //reset buttons
+            haloButton.setSelected(false);
+            snipButton.setSelected(false);
+            playPauseButton.setText("");
+            playPauseButton.setGraphic(new ImageView(play));
+            playPauseButton.setSelected(false);
+        }
+        /*
         if (file != null) {
             // Check if it's an xyz or pdb file
             lastOpenedFile = file.getAbsolutePath();
@@ -120,7 +225,7 @@ public class MainViewController {
 				interested_parameters[1] = disp.isSelected();
 				interested_parameters[2] = exr.isSelected();
 				*/
-                boolean automaticFragmentation = false;
+          /*      boolean automaticFragmentation = false;
 
                 //file is valid, sending to visualizer
                 JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer(), automaticFragmentation);
@@ -128,7 +233,7 @@ public class MainViewController {
             } else {
                 openFileParserWindow(file);
             }
-        }
+        }*/
     }
 
     @FXML
@@ -286,4 +391,131 @@ public class MainViewController {
             stage.show();
         }
     }
+    
+    /******************************************************************************************
+     *             ICON BUTTON HANDLER SECTION BEGINS                                         *
+     ******************************************************************************************/
+    /**
+     * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
+     */
+    @FXML
+    public void toggleHalo() {
+        if(lastOpenedFile.isEmpty()) {
+            haloButton.setSelected(false);
+        } else if (haloButton.isSelected()) {
+            System.out.println("on");
+            viewer.clearSelection();
+            viewer.runScript("selectionHalos on");
+
+        } else {
+            System.out.println("off");
+            viewer.runScript("selectionHalos off");
+            viewer.runScript("select; halos off");
+            viewer.clearSelection();
+            jmolMainPanel.repaint();
+        }
+    }
+    
+    /**
+     * Handle Snip Button. Turn on and off ability to fragment molecules by clicking on bonds
+     */
+    @FXML
+    public void toggleSnip() {
+        if(lastOpenedFile.isEmpty()) {
+            snipButton.setSelected(false);
+        } else if (snipButton.isSelected()) {
+            viewer.runScript("set bondpicking true");
+            viewer.runScript("set picking deletebond");
+        } else {
+            viewer.runScript("set bondpicking false");
+        }
+    }
+    
+    /**
+     * Handle Undo Button. Reverse a snipping action on the molecule
+     */
+    @FXML
+    public void undo() {
+        //TODO
+        //call JmolMainPanel.undo()
+    }
+    
+    /**
+     * Handle Play Pause. Capture Molecule
+     */
+    @FXML
+    public void togglePlay() {
+        playPauseButton.setText("");
+        
+        if(lastOpenedFile.isEmpty()) {
+            playPauseButton.setSelected(false);
+            playPauseButton.setGraphic(new ImageView(play));
+        } else if (!lastOpenedFile.isEmpty() && playPauseButton.isSelected()) {
+            playPauseButton.setGraphic(new ImageView(pause));
+            viewer.runScript("frame play");
+        } else {
+            playPauseButton.setGraphic(new ImageView(play));
+            viewer.runScript("animation off");
+        }
+    }
+    
+    /**
+     * Handle display console button. Display the terminal for scripting with jmol viewer
+     */
+    @FXML
+    public void displayConsole() {
+        if (!lastOpenedFile.isEmpty()) {
+            //create window for console
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            JFrame consoleFrame = new JFrame();
+            consoleFrame.setSize(800, 400);
+            consoleFrame.setLocation(
+                    (screenSize.width - 500) / 2,
+                    (screenSize.height) / 2);
+            consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    
+            //create and connect panel with jmol console
+            JPanel console_panel = new JPanel();
+            console_panel.setLayout(new BorderLayout());
+            AppConsole console = new AppConsole(viewer, console_panel,
+                    "History State Clear");
+    
+            // Callback any scripts run in console to jmol viewer in main
+            viewer.setJmolCallbackListener(console);
+    
+            //show console
+            consoleFrame.getContentPane().add(console_panel);
+            consoleFrame.setVisible(true);
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    consoleFrame.toFront();
+                    consoleFrame.repaint();
+                }
+            });
+        }
+    }
+    
+    /**
+     * Handle Search Fragments button. Search the database for similar fragments to the current molecule
+     */
+    @FXML
+    public void searchFragments() {
+        if (!lastOpenedFile.isEmpty()) {
+            //TODO, invoke databse controller
+        }
+    }
+    
+    /**
+     * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
+     */
+    @FXML
+    public void libefp() {
+        System.out.println("libefp button");
+        //TODO need to call libefp constructor 
+    }
+    
+    /******************************************************************************************
+     *             ICON BUTTON HANDLER SECTION ENDS                                           *
+     ******************************************************************************************/
 }

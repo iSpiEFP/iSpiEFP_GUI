@@ -126,7 +126,7 @@ public class Main extends Application {
         getPrimaryStage().getIcons().add(new Image(url));
 
         //load buttons
-        initializeButtonIcons();
+       // initializeButtonIcons();
 
         //Manage Working Directory
         BundleManager bundleManager = new BundleManager("LOCAL");

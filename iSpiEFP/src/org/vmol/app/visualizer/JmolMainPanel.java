@@ -84,10 +84,10 @@ public class JmolMainPanel extends JmolPanel2 {
      * @throws IOException 
      */
     @Override
-    public void openFile(File file) throws IOException {
+    public boolean openFile(File file) throws IOException {
         if(file == null) {
             System.err.println("Jmol Viewer IO error: reading a null file.");
-            return;
+            return false;
         }
         
         String fileName = file.getName();
@@ -95,13 +95,14 @@ public class JmolMainPanel extends JmolPanel2 {
         if (fileName.contains("xyz") || fileName.contains("pdb")) {
             if ((strError = viewer.openFile(file.getAbsolutePath())) != null) {
                 Logger.error("Error while loading XYZ file. " + strError);
-                return;
+                return false;
             }
             getFragmentComponents();
-            
+            return true;
         } else {
             openFileParserWindow(file);
         }
+        return false;
     }
     
     /**
@@ -181,7 +182,7 @@ public class JmolMainPanel extends JmolPanel2 {
         ArrayList<ArrayList<Integer>> bondAdjList = new ArrayList<ArrayList<Integer>>();
         Bond[] bonds = viewer.ms.bo;
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < bonds.length; i++) {
             bondAdjList.add(new ArrayList<Integer>());
         }
         for (int i = 0; i < bonds.length; i++) {

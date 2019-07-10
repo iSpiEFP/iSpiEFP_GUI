@@ -126,10 +126,10 @@ public class JmolPanel2 extends JPanel {
      * A Safer way of opening a file than "viewer.openFile()"
      * @throws IOException 
      */
-    public void openFile(File file) throws IOException {
+    public boolean openFile(File file) throws IOException {
         if(file == null) {
             System.err.println("Jmol Viewer IO error: reading a null file.");
-            return;
+            return false;
         }
         
         String fileName = file.getName();
@@ -137,10 +137,13 @@ public class JmolPanel2 extends JPanel {
         if (fileName.contains("xyz") || fileName.contains("pdb")) {
             if ((strError = viewer.openFile(file.getAbsolutePath())) != null) {
                 Logger.error("Error while loading XYZ file. " + strError);
+                return false;
             }
+            return true;
         } else {
             openFileParserWindow(file);
         }
+        return false;
     }
     
     /**
