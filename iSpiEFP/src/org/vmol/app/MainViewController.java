@@ -129,8 +129,9 @@ public class MainViewController {
         jmolMainPanel = new JmolMainPanel(middlePane);
         this.viewer = jmolMainPanel.viewer;
         
-        leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
         middleRightSplitPane.setDividerPositions(1, 0);
+        leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+
     }
     
     /**

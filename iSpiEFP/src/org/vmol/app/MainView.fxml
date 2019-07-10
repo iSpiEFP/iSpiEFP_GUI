@@ -84,10 +84,10 @@
         </HBox>
     </bottom>
     <center>
-        <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <SplitPane fx:id="leftRightSplitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <items>
                 <ListView fx:id="leftListView" prefHeight="200.0" prefWidth="200.0" />
-                <SplitPane fx:id="leftRightSplitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+                <SplitPane fx:id="middleRightSplitPane" dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
                     <items>
                         <Pane fx:id="middlePane" prefHeight="200.0" prefWidth="200.0" />
                         <SplitPane fx:id="rightVerticalSplitPane" dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">

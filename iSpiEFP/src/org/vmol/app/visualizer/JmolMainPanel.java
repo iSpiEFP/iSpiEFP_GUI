@@ -33,6 +33,8 @@ public class JmolMainPanel extends JmolPanel2 {
 
     private Stack<ArrayList<ArrayList<Integer>>> fragmentListHistory = new Stack<ArrayList<ArrayList<Integer>>>();
     
+    private int bondCount = 0;
+    
     /**
      * A Modified version of a JmolPanel specifically made for the main viewer panel for iSpiEFP.
      * Initializes the JmolPanel, additionally calling some default init Jmol scripts
@@ -56,10 +58,10 @@ public class JmolMainPanel extends JmolPanel2 {
         getSize(dimension);
 
         viewer.renderScreenImage(g, dimension.width, dimension.height);
-        System.out.println("hello i am main panel");
         
-        if(getFragmentComponents() != null) {
-            //update listView
+        if(bondCount > viewer.ms.bondCount) {
+            //a bond was deleted
+            getFragmentComponents();
         }
     }
     
@@ -111,6 +113,7 @@ public class JmolMainPanel extends JmolPanel2 {
      * with a Depth first search to find fragment components.
      */
     private ArrayList<ArrayList<Integer>> getFragmentComponents() {
+        bondCount = viewer.ms.bondCount;
         int atomCount = viewer.ms.at.length;
         if(atomCount == 0) {
             return null;
@@ -182,10 +185,10 @@ public class JmolMainPanel extends JmolPanel2 {
         ArrayList<ArrayList<Integer>> bondAdjList = new ArrayList<ArrayList<Integer>>();
         Bond[] bonds = viewer.ms.bo;
 
-        for (int i = 0; i < bonds.length; i++) {
+        for (int i = 0; i < n; i++) {
             bondAdjList.add(new ArrayList<Integer>());
         }
-        for (int i = 0; i < bonds.length; i++) {
+        for (int i = 0; i < viewer.ms.bondCount; i++) {
             int atomNo1 = bonds[i].getAtomIndex1();
             int atomNo2 = bonds[i].getAtomIndex2();
             bondAdjList.get(atomNo1).add(atomNo2);
