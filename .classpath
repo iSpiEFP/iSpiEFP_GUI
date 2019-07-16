@@ -6,8 +6,8 @@
 	<classpathentry exported="true" kind="lib" path="iSpiEFP/lib/controlsfx-8.40.14.jar"/>
 	<classpathentry exported="true" kind="lib" path="iSpiEFP/lib/Jmol.jar"/>
 	<classpathentry exported="true" kind="lib" path="iSpiEFP/lib/log4j-1.2.17.jar"/>
-	<classpathentry kind="lib" path="iSpiEFP/Vmol.jar"/>
 	<classpathentry exported="true" kind="lib" path="iSpiEFP/lib/gson-2.6.2.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="iSpiEFP/Vmol.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -15,6 +15,7 @@ import org.vmol.app.Main;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Pane;
 
@@ -35,6 +36,10 @@ public class JmolMainPanel extends JmolPanel2 {
     
     private int bondCount = 0;
     
+    private FragmentListView fragmentListView;
+    
+    private ListView<String> listView;
+    
     /**
      * A Modified version of a JmolPanel specifically made for the main viewer panel for iSpiEFP.
      * Initializes the JmolPanel, additionally calling some default init Jmol scripts
@@ -44,10 +49,13 @@ public class JmolMainPanel extends JmolPanel2 {
      * SwingNode swingNode : JavaFX wrapper object for Java Swing Objects
      * Pane parentPane : Component that holds the viewer object 
      */
-    public JmolMainPanel(Pane pane) {
+    public JmolMainPanel(Pane pane, ListView<String> listView) {
         super(pane);
         
+        this.listView = listView;
+        
         initJmol();
+        
     }
     
     @Override
@@ -55,6 +63,8 @@ public class JmolMainPanel extends JmolPanel2 {
      * JPanel Paint function overrode to accommodate the tracing of bonds, fragments and their components
      */
     public void paint(Graphics g) {
+        
+        
         getSize(dimension);
 
         viewer.renderScreenImage(g, dimension.width, dimension.height);
@@ -91,7 +101,7 @@ public class JmolMainPanel extends JmolPanel2 {
             System.err.println("Jmol Viewer IO error: reading a null file.");
             return false;
         }
-        
+        System.out.println("QQQQQQQQQQQQQQQQQQQQ");
         String fileName = file.getName();
         String strError = new String();
         if (fileName.contains("xyz") || fileName.contains("pdb")) {
@@ -99,6 +109,7 @@ public class JmolMainPanel extends JmolPanel2 {
                 Logger.error("Error while loading XYZ file. " + strError);
                 return false;
             }
+            fragmentListView = new FragmentListView(listView, this);
             getFragmentComponents();
             return true;
         } else {
@@ -122,6 +133,9 @@ public class JmolMainPanel extends JmolPanel2 {
         ArrayList<ArrayList<Integer>> bondAdjList = buildBondAdjacencyList(atomCount);
         ArrayList<ArrayList<Integer>> fragmentList = depthFirstSearch(bondAdjList, atomCount);
         fragmentListHistory.push(fragmentList);
+        
+        //update framentlistView
+        fragmentListView.update(fragmentList);
         
         return fragmentList;
     }

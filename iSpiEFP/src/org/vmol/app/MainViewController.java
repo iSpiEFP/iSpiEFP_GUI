@@ -69,7 +69,7 @@ public class MainViewController {
     private SplitPane leftRightSplitPane;
     
     @FXML
-    private ListView leftListView;
+    private ListView<String> leftListView;
     
     @FXML
     private SplitPane middleRightSplitPane;
@@ -126,7 +126,7 @@ public class MainViewController {
         consoleButton.setText("");
         consoleButton.setGraphic(new ImageView(terminal));
         
-        jmolMainPanel = new JmolMainPanel(middlePane);
+        jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         this.viewer = jmolMainPanel.viewer;
         
         middleRightSplitPane.setDividerPositions(1, 0);
@@ -175,9 +175,11 @@ public class MainViewController {
         
         File file = fileChooser.showOpenDialog(currStage);
         
-        jmolMainPanel = new JmolMainPanel(middlePane);
+        jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         this.viewer = jmolMainPanel.viewer;
         if(jmolMainPanel.openFile(file)) {
+            System.out.println("1401409y08yf80fosbn");
+            
             lastOpenedFile = file.getAbsolutePath();
             lastOpenedFileName = file.getName();
             

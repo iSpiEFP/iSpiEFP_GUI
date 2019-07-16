@@ -76,7 +76,7 @@ public class Main extends Application {
         ObservableList<Node> sublist = nodepane.getItems();
         Pane pane = (Pane) sublist.get(0);
         
-        JmolMainPanel jmolMainViewer = new JmolMainPanel(pane);
+        JmolMainPanel jmolMainViewer = new JmolMainPanel(pane, null);
         //JmolPanel2 jmol = new JmolPanel2(pane);
         //jmolPanel = (org.vmol.app.Main.JmolPanel) jmolMainViewer.getJmolPanel();
         
