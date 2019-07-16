@@ -440,7 +440,7 @@ public class MainViewController {
     @FXML
     public void undo() {
         //TODO
-        //call JmolMainPanel.undo()
+        JmolMainPanel.undo();
     }
     
     /**

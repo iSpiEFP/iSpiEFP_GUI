@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 import org.jmol.modelset.Bond;
+import org.jmol.modelset.BondCollection;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.vmol.app.Main;
@@ -63,16 +64,20 @@ public class JmolMainPanel extends JmolPanel2 {
      * JPanel Paint function overrode to accommodate the tracing of bonds, fragments and their components
      */
     public void paint(Graphics g) {
+        if(bondCount > viewer.ms.bondCount) {
+            //a bond was deleted
+            getFragmentComponentsAndUpdateFragmentList();
+        }
         
+        Bond[] bondCollection = viewer.ms.bo;
+        
+        for(Bond bond: bondCollection) {
+            System.out.println(bond);
+        }
         
         getSize(dimension);
 
         viewer.renderScreenImage(g, dimension.width, dimension.height);
-        
-        if(bondCount > viewer.ms.bondCount) {
-            //a bond was deleted
-            getFragmentComponents();
-        }
     }
     
     /**
@@ -91,6 +96,21 @@ public class JmolMainPanel extends JmolPanel2 {
     }
     
     /**
+     * Undo a delete bond operation on the Main Jmol Viewer, and update the visualizer
+     * as well as update the fragment selection list.
+     */
+    public void undo() {
+        ArrayList<ArrayList<Integer>> fragmentList = fragmentListHistory.pop();
+        
+        for(ArrayList<Integer> group : fragmentList) {
+            
+        }
+      //  String script = "connect (atomno=" + ((Integer) (bond.get(0)) + 1) + ") (atomno=" + ((Integer) (bond.get(1)) + 1) + ")";
+     //   viewer.runScript(script);
+        this.repaint();
+    }
+    
+    /**
      * A Safer way of opening a file than "viewer.openFile()".
      * JmolMainPanel version is identical except that valid file IO also calls initial fragment list construction. 
      * @throws IOException 
@@ -101,7 +121,6 @@ public class JmolMainPanel extends JmolPanel2 {
             System.err.println("Jmol Viewer IO error: reading a null file.");
             return false;
         }
-        System.out.println("QQQQQQQQQQQQQQQQQQQQ");
         String fileName = file.getName();
         String strError = new String();
         if (fileName.contains("xyz") || fileName.contains("pdb")) {
@@ -110,7 +129,7 @@ public class JmolMainPanel extends JmolPanel2 {
                 return false;
             }
             fragmentListView = new FragmentListView(listView, this);
-            getFragmentComponents();
+            getFragmentComponentsAndUpdateFragmentList();
             return true;
         } else {
             openFileParserWindow(file);
@@ -123,7 +142,7 @@ public class JmolMainPanel extends JmolPanel2 {
      * This functions calls buildBondAdjacencyList() for utility, and then traverses the adjacency list
      * with a Depth first search to find fragment components.
      */
-    private ArrayList<ArrayList<Integer>> getFragmentComponents() {
+    private ArrayList<ArrayList<Integer>> getFragmentComponentsAndUpdateFragmentList() {
         bondCount = viewer.ms.bondCount;
         int atomCount = viewer.ms.at.length;
         if(atomCount == 0) {
