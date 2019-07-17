@@ -28,7 +28,7 @@ import javafx.scene.layout.Pane;
  * 
  * It is a special purpose JmolPanel and should only be used for the Main Panel.
  */
-public class JmolMainPanel extends JmolPanel2 {
+public class JmolMainPanel extends JmolPanel {
     /**
      * Generated Serial UID Version
      */

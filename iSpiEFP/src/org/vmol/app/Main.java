@@ -26,7 +26,7 @@ import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.vmol.app.installer.BundleManager;
 import org.vmol.app.visualizer.JmolMainPanel;
-import org.vmol.app.visualizer.JmolPanel2;
+import org.vmol.app.visualizer.JmolPanel;
 
 import javax.swing.*;
 import java.awt.*;

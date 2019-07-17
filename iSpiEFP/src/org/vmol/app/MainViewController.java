@@ -23,7 +23,7 @@ import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.UnrecognizedAtomException;
 import org.vmol.app.visualizer.DatabaseTableView;
 import org.vmol.app.visualizer.JmolMainPanel;
-import org.vmol.app.visualizer.JmolPanel2;
+import org.vmol.app.visualizer.JmolPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -454,7 +454,7 @@ public class MainViewController {
             bottomRightPane.getChildren().add(tableView);
             
             //Runs auxiliary JmolViewer
-            JmolPanel2 jmolPanel = new JmolPanel2(upperRightPane);
+            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
             jmolPanel.setDimension(370, 265);
 
             //load aux table list

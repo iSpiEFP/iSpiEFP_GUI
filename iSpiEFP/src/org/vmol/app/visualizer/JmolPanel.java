@@ -39,7 +39,7 @@ import javafx.stage.Stage;
  * @author addison
  *
  */
-public class JmolPanel2 extends JPanel {
+public class JmolPanel extends JPanel {
     /**
      * Generate Serial Version UID Version
      */
@@ -59,7 +59,7 @@ public class JmolPanel2 extends JPanel {
      * 
      * @param pane : container for Jmol Viewer Object
      */
-    public JmolPanel2(Pane pane) {
+    public JmolPanel(Pane pane) {
         viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
                 null, null, null, null, null);
         viewer.setAnimationFps(60);
@@ -77,7 +77,7 @@ public class JmolPanel2 extends JPanel {
     /**
      * @return this JmolPanel Object
      */
-    public JmolPanel2 getJmolPanel() {
+    public JmolPanel getJmolPanel() {
         return this;
     }
     
@@ -176,7 +176,7 @@ public class JmolPanel2 extends JPanel {
      * Run the Jmol Viewer Object on a separate thread
      */
     private void runJmolViewer() {  
-        JmolPanel2 jmolPanel = this;
+        JmolPanel jmolPanel = this;
         
         Platform.runLater(new Runnable() {
             @Override
