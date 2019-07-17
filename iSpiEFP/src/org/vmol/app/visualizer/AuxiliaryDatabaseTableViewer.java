@@ -47,6 +47,10 @@ public class AuxiliaryDatabaseTableViewer {
         return this.tableView;
     }
     
+    public List<ObservableList<DatabaseRecord>> getUserData() {
+        return this.userData;
+    }
+    
     /**
      * Initialize the tableView
      */
@@ -78,8 +82,8 @@ public class AuxiliaryDatabaseTableViewer {
         table.getColumns().addAll(column1, column2, column3);
         table.setEditable(true);
         
-        bottomRightPane.getChildren().add(tableView);
         this.tableView = table;
+        bottomRightPane.getChildren().add(tableView);
     }
     
     /**
