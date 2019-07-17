@@ -18,7 +18,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+
+import org.jmol.viewer.Viewer;
 import org.vmol.app.MainViewController;
+import org.vmol.app.visualizer.JmolMainPanel;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +42,8 @@ public class GamessFormController {
     private Scene scene;
     private Stage newStage;
     private TableView table;
+    private Viewer viewer;
+    private JmolMainPanel jmolMainPanel;
 
     /**
      * Constructor
@@ -46,11 +51,12 @@ public class GamessFormController {
      * @param groups        the total molecule groups
      * @param unknowngroups the unknown molecules
      */
-    public GamessFormController(ArrayList<ArrayList> groups, ArrayList<Integer> unknowngroups) {
+    public GamessFormController(ArrayList<ArrayList> groups, ArrayList<Integer> unknowngroups, JmolMainPanel jmolMainPanel) {
         this.to_be_submitted = new ArrayList<Integer>();
         this.unknownGroups = unknowngroups;
         this.groups = groups;
-
+        this.viewer = jmolMainPanel.viewer;
+        this.jmolMainPanel = jmolMainPanel;
     }
 
     /**
@@ -212,7 +218,7 @@ public class GamessFormController {
 
             final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/gamess/gamessInput.fxml"));
             gamessInputController gamess_controller;
-            gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), groups, to_be_submitted);
+            gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), groups, to_be_submitted, jmolMainPanel);
             gamess_loader.setController(gamess_controller);
             ArrayList<ArrayList> fragments = gamess_controller.get_fragments_with_h();
 

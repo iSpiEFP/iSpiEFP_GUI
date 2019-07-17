@@ -23,16 +23,17 @@ public class DatabaseFileManager {
     private String xyzDirectory;
     private String efpDirectory;
     private ArrayList<String> groupNames;
+    private Viewer viewer;
 
     public DatabaseFileManager() {
         groupNames = new ArrayList<String>();
     }
 
-    public DatabaseFileManager(String path) {
+    public DatabaseFileManager(String path, Viewer viewer) {
         this.workingDirectoryPath = path;
         initWorkingDir();
         groupNames = new ArrayList<String>();
-
+        this.viewer = viewer;
     }
 
     /**
@@ -243,7 +244,6 @@ public class DatabaseFileManager {
      */
     public String generateJsonQuery(ArrayList<ArrayList> groups) throws IOException {
         ViewerHelper viewerHelper = new ViewerHelper();
-        Viewer viewer = Main.jmolPanel.viewer;
         JsonFragment[] jsonFragments = new JsonFragment[groups.size()];
 
         for (int x = 0; x < groups.size(); x++) {

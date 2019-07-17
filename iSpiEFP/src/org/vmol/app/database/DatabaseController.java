@@ -14,6 +14,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -23,7 +26,7 @@ import org.vmol.app.gamess.GamessFormController;
 import org.vmol.app.installer.LocalBundleManager;
 import org.vmol.app.libEFP.libEFPInputController;
 import org.vmol.app.server.iSpiEFPServer;
-import org.vmol.app.visualizer.JmolVisualizer;
+import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.ViewerHelper;
 
 import java.io.*;
@@ -41,6 +44,7 @@ import java.util.List;
 public class DatabaseController {
 
     private Viewer jmolViewer;
+    private JmolMainPanel jmolMainPanel;
     private Viewer auxiliaryJmolViewer;
     @SuppressWarnings("rawtypes")
     private TableView auxiliary_list;
@@ -55,8 +59,9 @@ public class DatabaseController {
 
     private ListView listView;
 
-    public DatabaseController(Viewer jmolViewer, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
-        this.jmolViewer = jmolViewer;
+    public DatabaseController(JmolMainPanel jmolMainPanel, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
+        this.jmolViewer = jmolMainPanel.viewer;
+        this.jmolMainPanel = jmolMainPanel;
         this.auxiliaryJmolViewer = auxiliaryJmolViewer;
         this.auxiliary_list = auxiliary_list;
         this.fragment_list = fragment_list;
@@ -73,7 +78,7 @@ public class DatabaseController {
         this.groups = groups;
 
         String workingDirectory = System.getProperty("user.dir");
-        DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
+        DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory, jmolViewer);
 
         //query database for chemical formulas
         JsonFilePair[][] response = queryDatabase(groups, databaseFileManager);
@@ -134,7 +139,7 @@ public class DatabaseController {
 
             if (to_be_submitted.size() > 0) {
                 //there are unfound molecules, run the Games input controller form
-                GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups);
+                GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups, jmolMainPanel);
                 gamessFormController.run();
             }
 
@@ -154,7 +159,7 @@ public class DatabaseController {
                 to_be_submitted.add(i);
                 unknownGroups.add(i);
             }
-            GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups);
+            GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups, jmolMainPanel);
             gamessFormController.run();
         }
     }
@@ -165,7 +170,14 @@ public class DatabaseController {
      * @return
      */
     private Button getLibefpSubmitButton() {
-        ObservableList<Node> buttonList = new JmolVisualizer().getButtonList();
+        BorderPane borderPane = Main.getMainLayout();
+        ObservableList list = borderPane.getChildren();
+        VBox vbox = (VBox) list.get(0);
+        
+        ObservableList list2 = vbox.getChildren();
+        Pane buttonPane = (Pane) list2.get(1);
+        
+        ObservableList<Node> buttonList = buttonPane.getChildren();
         Button button_libefp = (Button) buttonList.get(6);
         button_libefp.setDisable(false);
         return button_libefp;
@@ -299,8 +311,8 @@ public class DatabaseController {
         String path = data.get(index).get(this.prev_selection_index).getChoice();
 
         if (path.equals("Not found")) {
-            Main.auxiliaryJmolPanel.viewer.runScript("delete;");
-            Main.auxiliaryJmolPanel.repaint();
+            auxiliaryJmolViewer.runScript("delete;");
+            //auxiliaryJmolViewer.repaint();
             loadAuxJmolViewer("Not found", index);
         } else {
             loadAuxJmolViewer(path, index);
@@ -436,7 +448,7 @@ public class DatabaseController {
 
         //Get the libefp coords for the input file
         String coords = generateQchemInput(data, groups);
-        final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
+        final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/libEFP/libEFP.fxml"));
         libEFPInputController controller;
         controller = new libEFPInputController(coords, null, this.final_selections);
         loader.setController(controller);
@@ -492,7 +504,7 @@ public class DatabaseController {
                             if (i == 3) {
                                 break;
                             }
-                            org.jmol.modelset.Atom current_atom = Main.jmolPanel.viewer.ms.at[atom_num];
+                            org.jmol.modelset.Atom current_atom = jmolViewer.ms.at[atom_num];
                             sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z + "\n");
                             i++;
                         }
