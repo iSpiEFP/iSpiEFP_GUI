@@ -24,7 +24,6 @@ import org.vmol.app.util.UnrecognizedAtomException;
 import org.vmol.app.visualizer.DatabaseTableView;
 import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.JmolPanel2;
-import org.vmol.app.visualizer.JmolVisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -199,50 +198,6 @@ public class MainViewController {
             //TODO refactor the libefp button
             libefpButton.setDisable(true);
         }
-        /*
-        if (file != null) {
-            // Check if it's an xyz or pdb file
-            lastOpenedFile = file.getAbsolutePath();
-            lastOpenedFileName = file.getName();
-            String fileName = file.getName();
-            System.out.println(fileName);
-            boolean isXyzorPDB = fileName.contains("xyz") || fileName.contains("pdb");
-            if (isXyzorPDB) {
-                // TODO: validate an xyz file if it is in correct format
-				/*
-			    Dialog dialog = new Dialog<>();
-				dialog.setTitle("Parameter Choices");
-				dialog.setHeaderText("Please pick the parameters for your system:");
-				ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
-				dialog.getDialogPane().getButtonTypes().addAll(ok);
-				GridPane grid = new GridPane();
-				grid.setHgap(10);
-				grid.setVgap(10);
-				grid.setPadding(new Insets(20, 150, 10, 10));
-				CheckBox pol = new CheckBox();
-				CheckBox disp = new CheckBox();
-				CheckBox exr = new CheckBox();
-				grid.add(new Label("Polarization"),0,0);
-				grid.add(new Label("Dispersion"), 0, 1);
-				grid.add(new Label("Exchange-Repulsion"), 0, 2);
-				grid.add(pol, 1, 0);
-				grid.add(disp, 1, 1);
-				grid.add(exr, 1, 2);
-				dialog.getDialogPane().setContent(grid);
-				dialog.showAndWait();
-				interested_parameters[0] = pol.isSelected();
-				interested_parameters[1] = disp.isSelected();
-				interested_parameters[2] = exr.isSelected();
-				*/
-          /*      boolean automaticFragmentation = false;
-
-                //file is valid, sending to visualizer
-                JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer(), automaticFragmentation);
-                jmolVisualizer.show(file);
-            } else {
-                openFileParserWindow(file);
-            }
-        }*/
     }
 
     @FXML
@@ -250,7 +205,7 @@ public class MainViewController {
      *  open a file with automatic fragmentation capabilities
      */
     public void autoFragOpenFile() throws IOException, UnrecognizedAtomException {
-        FileChooser fileChooser = new FileChooser();
+        /*FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Molecule");
         fileChooser.setInitialDirectory(
                 new File(System.getProperty("user.home"))
@@ -281,34 +236,9 @@ public class MainViewController {
             } else {
                 openFileParserWindow(file);
             }
-        }
-    }
-
-    /**
-     * Open the file parser window if a file fails
-     *
-     * @param file
-     * @throws IOException
-     */
-    private void openFileParserWindow(File file) throws IOException {
-
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("fileparser/FileParser.fxml"));
-
-        Parent fileParser = loader.load();
-
-        Stage stage = new Stage();
-        stage.setTitle(file.getName());
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initOwner(root.getScene().getWindow());
-        stage.setScene(new Scene(fileParser));
-
-        // Set the file into the controller
-        FileParserController controller = loader.getController();
-        controller.setFile(file);
-
-        stage.showAndWait();
-
+        }*/
+        
+        //TODO this method does not work as intended and needs to be fixed
     }
 
     @FXML
@@ -528,7 +458,7 @@ public class MainViewController {
             jmolPanel.setDimension(370, 265);
 
             //load aux table list
-            DatabaseController DBcontroller = new DatabaseController(jmolMainPanel.viewer, jmolPanel.viewer, tableView, jmolMainPanel.getFragmentComponents());
+            DatabaseController DBcontroller = new DatabaseController(jmolMainPanel, jmolPanel.viewer, tableView, jmolMainPanel.getFragmentComponents());
             try {
                 //start database controller actions
                 DBcontroller.run();

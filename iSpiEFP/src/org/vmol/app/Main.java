@@ -27,7 +27,6 @@ import org.jmol.viewer.Viewer;
 import org.vmol.app.installer.BundleManager;
 import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.JmolPanel2;
-import org.vmol.app.visualizer.JmolVisualizer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,8 +50,6 @@ public class Main extends Application {
 
     private static Stage primaryStage;
     private static BorderPane mainLayout;
-    public static JmolPanel jmolPanel;
-    public static JmolPanel auxiliaryJmolPanel;
 
     /**
      * The Main function which starts iSpiEFP
@@ -67,19 +64,16 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws IOException {
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
-        showMainView();
-        //showJmolViewer(true, null);
+        showMainView();        //showJmolViewer(true, null);
         
+        //Show JMOL Main Panel
         SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
         ObservableList<Node> list = splitpane.getItems();
         SplitPane nodepane = (SplitPane) list.get(1);
         ObservableList<Node> sublist = nodepane.getItems();
         Pane pane = (Pane) sublist.get(0);
-        
         JmolMainPanel jmolMainViewer = new JmolMainPanel(pane, null);
-        //JmolPanel2 jmol = new JmolPanel2(pane);
-        //jmolPanel = (org.vmol.app.Main.JmolPanel) jmolMainViewer.getJmolPanel();
-        
+
         //optional terms of agreement for test jar files
         Alert alert = new Alert(AlertType.WARNING);
         String msg = "Welcome to iSpiEFP\n\n"
@@ -95,7 +89,6 @@ public class Main extends Application {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         //Optional<ButtonType> result = alert.showAndWait(); //Terms of Agreement
-
     }
 
     /**
@@ -125,158 +118,12 @@ public class Main extends Application {
         String url = Main.class.getResource("/images/iSpiEFP_Logo.png").toString();
         getPrimaryStage().getIcons().add(new Image(url));
 
-        //load buttons
-       // initializeButtonIcons();
-
         //Manage Working Directory
         BundleManager bundleManager = new BundleManager("LOCAL");
         bundleManager.manageLocal();
 
         //launch stage
         getPrimaryStage().show();
-    }
-
-
-    /**
-     * Initialize button settings, and set icon graphics for buttons
-     */
-    private void initializeButtonIcons() {
-        Image halo = new Image(Main.class.getResource("/images/halo.png").toString());
-        Image scissors = new Image(Main.class.getResource("/images/scissors.png").toString());
-        Image play = new Image(Main.class.getResource("/images/play.png").toString());
-        Image terminal = new Image(Main.class.getResource("/images/terminal.png").toString());
-
-        //get button list
-        VBox vbox = (VBox) Main.getMainLayout().getChildren().get(0);
-        Pane buttonBar = (Pane) vbox.getChildren().get(1);
-
-        ObservableList<Node> buttonList = buttonBar.getChildren();
-
-        ToggleButton button_halo_on = (ToggleButton) buttonList.get(0);
-        ToggleButton button_fragment = (ToggleButton) buttonList.get(1);
-        ToggleButton button_play_pause = (ToggleButton) buttonList.get(3);
-        Button button_show_console = (Button) buttonList.get(4);
-        Button button_submit = (Button) buttonList.get(5);
-        Button button_libefp = (Button) buttonList.get(6);
-        button_submit.setDisable(true);
-        button_libefp.setDisable(true);
-
-        //set graphics
-        button_halo_on.setText("");
-        button_halo_on.setGraphic(new ImageView(halo));
-        button_fragment.setText("");
-        button_fragment.setGraphic(new ImageView(scissors));
-        button_play_pause.setText("");
-        button_play_pause.setGraphic(new ImageView(play));
-        button_show_console.setText("");
-        button_show_console.setGraphic(new ImageView(terminal));
-
-    }
-
-    /**
-     * Load the jmol viewer jar with the appropriate settings.
-     *
-     * @param mainPanel true(main jmolPanel), false(auxJmolPanel)
-     * @param filename  the pdb or xyz filename to be loaded
-     */
-    public static void showJmolViewer(boolean mainPanel, String filename) {
-        final SwingNode swingNode = new SwingNode();
-
-        createAndSetSwingContent(swingNode, filename, mainPanel);
-/*
-        SplitPane splitpane = (SplitPane) getMainLayout().getChildren().get(2);
-        ObservableList<Node> list = splitpane.getItems();
-        SplitPane nodepane = (SplitPane) list.get(1);
-
-        //add swingnode to left split pane
-        ObservableList<Node> sublist = nodepane.getItems();
-
-        if (mainPanel) {
-            splitpane.setDividerPositions(0.2f, 0.3f);
-            nodepane.setDividerPositions(1, 0);
-           
-            Pane pane = (Pane) sublist.get(0);
-            jmolPanel.setPreferredSize(new Dimension((int)nodepane.getWidth(), (int)nodepane.getHeight()));
-            System.out.println("nodepane width:"+pane.getWidth());
-            System.out.println("nodepane height:"+pane.getHeight());
-            pane.getChildren().add(swingNode);
-        } else {
-            //aux panel
-            nodepane.setDividerPositions(0.6f, 0.4f);
-            SplitPane vertSplit = (SplitPane) sublist.get(1);
-            ObservableList<Node> vertlist = vertSplit.getItems();
-            Pane pane = (Pane) vertlist.get(0);
-            pane.getChildren().add(swingNode);
-        }*/
-    }
-
-    /**
-     * Embed JavaSwing Content into JavaFX
-     * Jmol jar is natively javaSwing, yet since this application is javaFX we need to
-     * integrate it this way.
-     *
-     * @param swingNode the swingnode to be integrated
-     * @param fileName  the xyz or pdb filename to be openened
-     * @param mainPanel true denotes jmol jar panel, false denotes auxiliary jmol panel
-     */
-    private static void createAndSetSwingContent(final SwingNode swingNode, String fileName, boolean mainPanel) {
-        //init jmolPanel
-        if (mainPanel) {
-            jmolPanel = new JmolPanel();
-
-            /*
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    //jmolPanel.setPreferredSize(new Dimension(940, 595));
-                    // main panel -- Jmol panel on top
-                    JPanel panel = new JPanel();
-                    panel.setLayout(new BorderLayout());
-                    panel.add("North", jmolPanel);
-
-
-                    getMainLayout().setVisible(true);
-                    //frame.setVisible(true);
-                    String strError = null;
-                    if (fileName != null && !fileName.isEmpty())
-                        strError = jmolPanel.viewer.openFile(fileName);
-                    if (strError != null)
-                        Logger.error(strError);
-
-                    panel.setFocusable(true);
-                    swingNode.setContent(panel);
-
-                }
-            });*/
-        } else {
-            auxiliaryJmolPanel = new JmolPanel();
-
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    auxiliaryJmolPanel.setPreferredSize(new Dimension(370, 265));
-                    auxiliaryJmolPanel.currentWidth = 390;
-                    auxiliaryJmolPanel.currentHeight = 290;
-                    auxiliaryJmolPanel.repaint();
-
-                    // main panel -- Jmol panel on top
-                    JPanel panel = new JPanel();
-                    panel.setLayout(new BorderLayout());
-                    panel.add("North", auxiliaryJmolPanel);
-
-                    getMainLayout().setVisible(true);
-                    //frame.setVisible(true);
-                    String strError = null;
-                    if (fileName != null && !fileName.isEmpty())
-                        strError = auxiliaryJmolPanel.viewer.openFile(fileName);
-                    if (strError != null)
-                        Logger.error(strError);
-
-                    panel.setFocusable(true);
-                    swingNode.setContent(panel);
-                }
-            });
-        }
     }
 
     public static Stage getPrimaryStage() {
@@ -291,54 +138,7 @@ public class Main extends Application {
         return mainLayout;
     }
 
-    public static JmolPanel getJmolViewer() {
-        return Main.jmolPanel;
-    }
-
     public static void setMainLayout(BorderPane mainLayout) {
         Main.mainLayout = mainLayout;
     }
-
-    /**
-     * The Jmol Jar Class which handles modified viewer painting, and holds a
-     * list of bonds, and specified dimensions for it.
-     */
-    public static class JmolPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-
-        public Viewer viewer;
-        public ArrayList<ArrayList> original_bonds = new ArrayList<ArrayList>();
-        public ArrayList<ArrayList> deleted_bonds = new ArrayList<ArrayList>();
-
-        private final Dimension currentSize = new Dimension(940, 595);
-
-        public int currentWidth = 940;
-        public int currentHeight = 595;
-        //public int currentWidth = currentSize.width;
-        //public int currentHeight = currentSize.height;
-
-        public JmolPanel() {
-            viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
-                    null, null, null, null, null);
-            viewer.setAnimationFps(60);
-        }
-
-        @Override
-        public void paint(Graphics g) {
-            getSize(currentSize);
-
-            //viewer.renderScreenImage(g, currentSize.width, currentSize.height);
-            viewer.renderScreenImage(g, currentWidth, currentHeight);
-            ArrayList bond = JmolVisualizer.find_deleted_bonds(jmolPanel);
-            if (bond != null) {
-
-                System.out.println("bond between " + bond.get(0) + "  " + bond.get(1));
-                deleted_bonds.add(bond);
-                System.out.println("woah");
-                JmolVisualizer.displayFragments(jmolPanel);
-            }
-        }
-    }
-
-
 }

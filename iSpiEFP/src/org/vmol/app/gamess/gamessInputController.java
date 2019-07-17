@@ -24,7 +24,7 @@ import org.vmol.app.server.ServerConfigController;
 import org.vmol.app.server.ServerDetails;
 import org.vmol.app.server.iSpiEFPServer;
 import org.vmol.app.util.Atom;
-import org.vmol.app.visualizer.JmolVisualizer;
+import org.vmol.app.visualizer.JmolMainPanel;
 
 import java.io.*;
 import java.net.Socket;
@@ -67,12 +67,15 @@ public class gamessInputController implements Initializable {
 
     private ArrayList inputs;
     private ArrayList<Integer> fragmentNumbers;
+    private Viewer viewer;
+    private JmolMainPanel jmolMainPanel;
 
-    public gamessInputController(File file, ArrayList<ArrayList> groups, ArrayList to_be_submitted) {
+    public gamessInputController(File file, ArrayList<ArrayList> groups, ArrayList to_be_submitted, JmolMainPanel jmolMainPanel) {
         inputs = new ArrayList();
         fragmentNumbers = to_be_submitted;
 
-        Viewer viewer = Main.jmolPanel.viewer;
+        this.viewer = jmolMainPanel.viewer;
+        this.jmolMainPanel = jmolMainPanel;
 
         // get atoms from to be submitted atoms list
         for (int i = 0; i < to_be_submitted.size(); i++) {
@@ -147,8 +150,7 @@ public class gamessInputController implements Initializable {
      * @return
      */
     public ArrayList<Atom> addHydrogens(ArrayList frag) {
-        ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
-        Viewer viewer = Main.jmolPanel.viewer;
+        ArrayList<ArrayList<Integer>> originalBonds = jmolMainPanel.getFragmentComponents();
 
         ArrayList<Atom> hydrogens = new ArrayList<Atom>();
         for (int i = 0; i < frag.size(); i++) {
@@ -245,7 +247,6 @@ public class gamessInputController implements Initializable {
      * Generate Gamess input Form from selected Fragments
      */
     public void generateGamessInputFiles() {
-        Viewer viewer = Main.jmolPanel.viewer;
 
         for (int i = 0; i < final_lists.size(); i++) {
             StringBuilder sb = new StringBuilder();
