@@ -21,7 +21,7 @@ import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.UnrecognizedAtomException;
-import org.vmol.app.visualizer.DatabaseTableView;
+import org.vmol.app.visualizer.AuxiliaryDatabaseTableViewer;
 import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.JmolPanel;
 
@@ -450,15 +450,15 @@ public class MainViewController {
             jmolMainPanel.setSize((new Dimension(600, 595)));
             jmolMainPanel.repaint();
             
-            TableView tableView = (new DatabaseTableView()).getTable();
-            bottomRightPane.getChildren().add(tableView);
+      //      TableView tableView = (new AuxiliaryDatabaseTableViewer()).getTable();
+   //         bottomRightPane.getChildren().add(tableView);
             
             //Runs auxiliary JmolViewer
             JmolPanel jmolPanel = new JmolPanel(upperRightPane);
             jmolPanel.setDimension(370, 265);
 
             //load aux table list
-            DatabaseController DBcontroller = new DatabaseController(jmolMainPanel, jmolPanel.viewer, tableView, jmolMainPanel.getFragmentComponents());
+            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
             try {
                 //start database controller actions
                 DBcontroller.run();

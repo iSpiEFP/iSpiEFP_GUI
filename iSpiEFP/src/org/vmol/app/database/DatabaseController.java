@@ -26,6 +26,7 @@ import org.vmol.app.gamess.GamessFormController;
 import org.vmol.app.installer.LocalBundleManager;
 import org.vmol.app.libEFP.libEFPInputController;
 import org.vmol.app.server.iSpiEFPServer;
+import org.vmol.app.visualizer.AuxiliaryDatabaseTableViewer;
 import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.ViewerHelper;
 
@@ -46,25 +47,19 @@ public class DatabaseController {
     private Viewer jmolViewer;
     private JmolMainPanel jmolMainPanel;
     private Viewer auxiliaryJmolViewer;
-    @SuppressWarnings("rawtypes")
-    private TableView auxiliary_list;
     private List<ArrayList<Integer>> fragment_list;
-    private ArrayList<ArrayList> groups;
-
-    private int prev_selection_index = 0;
-    private List<ObservableList<DatabaseRecord>> userData;
+    private Pane bottomRightPane;
+    
+    private AuxiliaryDatabaseTableViewer dbTableViewer;
+    
     private ArrayList<String> final_selections;
 
-    private int viewerIndex; //index of selected fragment in main viewer
-
-    private ListView listView;
-
-    public DatabaseController(JmolMainPanel jmolMainPanel, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
+    public DatabaseController(Pane bottomRightPane, JmolMainPanel jmolMainPanel, Viewer auxiliaryJmolViewer, List<ArrayList<Integer>> fragment_list) {
         this.jmolViewer = jmolMainPanel.viewer;
         this.jmolMainPanel = jmolMainPanel;
         this.auxiliaryJmolViewer = auxiliaryJmolViewer;
-        this.auxiliary_list = auxiliary_list;
         this.fragment_list = fragment_list;
+        this.bottomRightPane = bottomRightPane;
     }
 
     /**
@@ -75,7 +70,6 @@ public class DatabaseController {
     public void run() throws IOException {
         @SuppressWarnings("rawtypes")
         ArrayList<ArrayList> groups = getGroups(this.fragment_list);
-        this.groups = groups;
 
         String workingDirectory = System.getProperty("user.dir");
         DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory, jmolViewer);
@@ -135,10 +129,13 @@ public class DatabaseController {
                 }
                 groupNumber++;
             }
-            runAuxiliaryList(group_filenames);
+            //run object which runs the aux jmolViewer and the tableView together to interact with the database files.
+            //users use this object to view and select which files they would like to include in the calculations based on RMSD values
+            dbTableViewer = new AuxiliaryDatabaseTableViewer(bottomRightPane, auxiliaryJmolViewer, jmolViewer, groups);
+            dbTableViewer.runAuxiliaryList(group_filenames);
 
             if (to_be_submitted.size() > 0) {
-                //there are unfound molecules, run the Games input controller form
+                //there are not found molecules, run the Games input controller form
                 GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups, jmolMainPanel);
                 gamessFormController.run();
             }
@@ -252,197 +249,10 @@ public class DatabaseController {
     }
 
     /**
-     * Runs the auxiliary List functions including loading data, loading lists, loading the viewer, and handling
-     * list selections and choices
-     *
-     * @param group_filenames
-     */
-    private void runAuxiliaryList(ArrayList<ArrayList<String[]>> group_filenames) {
-        try {
-            //wait for files to write
-            Thread.sleep(300);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        List<ObservableList<DatabaseRecord>> data = loadAuxListData(group_filenames);
-        this.userData = data;
-
-        ListView<String> listView = getFragmentListButtons();
-        listView.getSelectionModel().selectFirst();
-
-        this.listView = listView;
-        String path = data.get(0).get(this.prev_selection_index).getChoice();
-        if (path.equalsIgnoreCase("not found")) {
-            runTable(data, 0);
-        } else {
-            runTable(data, 0);
-        }
-
-        //set listener to items
-        //TRIGGER LIST LOAD WITH FRAGMENT CLICK
-        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                String[] arrOfStr = newValue.split(" ");
-                int index = Integer.parseInt(arrOfStr[1]) - 1;
-
-                //Left panel fragment was selected. Load the appropriate list
-                runTable(data, index);
-            }
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    /**
-     * Run the auxiliary List, load its data, and handle viewer loading
-     */
-    private void runTable(List<ObservableList<DatabaseRecord>> data, int index) {
-        //LOAD AUXILIARY LIST
-        @SuppressWarnings("rawtypes")
-        TableView table = this.auxiliary_list;
-
-        table.setItems(data.get(index));
-        allowOnlyOneCheck(data, index);
-        this.viewerIndex = index;
-
-        //Initialize first jmol viewer
-        String path = data.get(index).get(this.prev_selection_index).getChoice();
-
-        if (path.equals("Not found")) {
-            auxiliaryJmolViewer.runScript("delete;");
-            //auxiliaryJmolViewer.repaint();
-            loadAuxJmolViewer("Not found", index);
-        } else {
-            loadAuxJmolViewer(path, index);
-        }
-
-        //LOAD AUX JMOL VIEWER ON CLICK
-        table.setRowFactory(tv -> {
-            TableRow<DatabaseRecord> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-
-                if (event.getClickCount() == 1 && (!row.isEmpty())) {
-                    try {
-                        //Aux List Row was selected. Load the list with the correct data
-                        loadAuxJmolViewer(row.getItem().getChoice(), index);
-
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            });
-            return row;
-        });
-    }
-
-    /**
-     * Load the correct file into the auxJmolViewer
-     *
-     * @param filename xyz file to be read
-     * @param index    index of the xyz file
-     */
-    private void loadAuxJmolViewer(String filename, int index) {
-
-        String path = LocalBundleManager.LIBEFP_COORDINATES;
-        auxiliaryJmolViewer.setAutoBond(true);
-
-        auxiliaryJmolViewer.openFile("file:" + path + LocalBundleManager.FILE_SEPERATOR + filename);
-        @SuppressWarnings("unchecked")
-        ViewerHelper viewerHelper = new ViewerHelper(jmolViewer, auxiliaryJmolViewer, this.groups.get(this.viewerIndex));
-        viewerHelper.ConnectXYZBonds();
-
-    }
-
-    /**
-     * Allow only one check for a list of checkboxes
-     *
-     * @param data
-     * @param index
-     */
-    private void allowOnlyOneCheck(List<ObservableList<DatabaseRecord>> data, int index) {
-        this.prev_selection_index = 0;
-        ObservableList<DatabaseRecord> data_subset = data.get(index);
-        for (int i = 0; i < data_subset.size(); i++) {
-            DatabaseRecord d = data_subset.get(i);
-            d.checkProperty().addListener((o, oldV, newV) -> {
-                if (newV) {
-                    int curr = d.getIndex();
-                    if (prev_selection_index != curr) {
-                        data_subset.get(prev_selection_index).checkProperty().set(false);
-                    }
-                    this.prev_selection_index = curr;
-                }
-            });
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    /**
-     * Get the buttons from the main left panel fragment list
-     */
-    private ListView<String> getFragmentListButtons() {
-        SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
-        ObservableList<Node> list = splitpane.getItems();
-        @SuppressWarnings("rawtypes")
-        ListView<String> listView = (ListView) list.get(0);
-        return listView;
-    }
-
-    /**
-     * Load the auxiliary List with data
-     *
-     * @param group_filenames a list for each group containing array with xyz, rmsd, and efp file
-     * @return object containing all the database files
-     */
-    private List<ObservableList<DatabaseRecord>> loadAuxListData(ArrayList<ArrayList<String[]>> group_filenames) {
-        ArrayList<List<DatabaseRecord>> items = new ArrayList<List<DatabaseRecord>>();
-        for (ArrayList<String[]> group : group_filenames) {
-            ArrayList<DatabaseRecord> drs = new ArrayList<DatabaseRecord>();
-            if (group.size() > 0) {
-                int index = 0;
-                for (String[] pair_name : group) {
-                    String xyz_filename = pair_name[0];
-                    String rmsd = pair_name[2];
-                    if (rmsd.equals("0.0")) {
-                        rmsd = "Exact Match";
-                    }
-                    if (index == 0) {
-                        drs.add(new DatabaseRecord(xyz_filename, rmsd, true, index++));
-                    } else {
-                        drs.add(new DatabaseRecord(xyz_filename, rmsd, false, index++));
-                    }
-                }
-            } else {
-                //this particular fragment did not have any matches from the database
-                drs.add(new DatabaseRecord("Not found", "", true, 0));
-            }
-            items.add(drs);
-
-        }
-        //LOAD AUXILIARY LIST STRUCTURES
-        List<ObservableList<DatabaseRecord>> data = new ArrayList<ObservableList<DatabaseRecord>>();
-        for (int i = 0; i < items.size(); i++) {
-            data.add(FXCollections.observableArrayList(new Callback<DatabaseRecord, Observable[]>() {
-                @Override
-                public Observable[] call(DatabaseRecord param) {
-                    return new Observable[]{
-                            param.checkProperty()};
-
-                }
-            }));
-            data.get(i).addAll(items.get(i));
-        }
-        return data;
-    }
-
-    /**
      * Send the Qchem Submission form
      */
     private void sendQChemForm() {
-        List<ObservableList<DatabaseRecord>> data = this.userData;
+        List<ObservableList<DatabaseRecord>> data = this.dbTableViewer.getUserData();
         @SuppressWarnings("rawtypes")
         ArrayList<ArrayList> groups = getGroups(this.fragment_list);
 
