@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -32,9 +33,13 @@ public class JmolMainPanel extends JmolPanel2 {
      * Generated Serial UID Version
      */
     private static final long serialVersionUID = -6927133884116203529L;
-
-    private Stack<ArrayList<ArrayList<Integer>>> fragmentListHistory = new Stack<ArrayList<ArrayList<Integer>>>();
     
+    private Stack<int[]> bondHistory = new Stack<int[]>();
+    
+    private HashMap<int[], Boolean> bondMap;
+    
+    ArrayList<ArrayList<Integer>> bondAdjList;
+        
     private int bondCount = 0;
     
     private FragmentListView fragmentListView;
@@ -56,7 +61,6 @@ public class JmolMainPanel extends JmolPanel2 {
         this.listView = listView;
         
         initJmol();
-        
     }
     
     @Override
@@ -66,17 +70,20 @@ public class JmolMainPanel extends JmolPanel2 {
     public void paint(Graphics g) {
         if(bondCount > viewer.ms.bondCount) {
             //a bond was deleted
-            getFragmentComponentsAndUpdateFragmentList();
-        }
-        
-        Bond[] bondCollection = viewer.ms.bo;
-        
-        for(Bond bond: bondCollection) {
-            System.out.println(bond);
+            ArrayList<ArrayList<Integer>> fragmentList = getFragmentComponents();
+            fragmentListView.update(fragmentList);
+
+            //record deletion history
+            int[] deletedBond = getDeletedBond();
+            bondHistory.push(deletedBond);
+            
+            //update current bondCount
+            bondCount = viewer.ms.bondCount;
         }
         
         getSize(dimension);
-
+        
+        //render Jmol to current dimensions
         viewer.renderScreenImage(g, dimension.width, dimension.height);
     }
     
@@ -93,21 +100,47 @@ public class JmolMainPanel extends JmolPanel2 {
         viewer.runScript("selectionHalos off");
         viewer.runScript("set bondpicking true");
         viewer.runScript("color halos gold");
+        
+        //initialize utility containers
+        bondMap = getBondMap();
+        bondAdjList = getBondAdjacencyList(viewer.ms.at.length);
+        bondCount = viewer.ms.bondCount;
+        
+        //initialize fragmentListView
+        ArrayList<ArrayList<Integer>> fragmentList = getFragmentComponents();
+        fragmentListView = new FragmentListView(listView, this);
+        fragmentListView.update(fragmentList);
+        
+        this.repaint();
     }
     
     /**
      * Undo a delete bond operation on the Main Jmol Viewer, and update the visualizer
      * as well as update the fragment selection list.
      */
-    public void undo() {
-        ArrayList<ArrayList<Integer>> fragmentList = fragmentListHistory.pop();
-        
-        for(ArrayList<Integer> group : fragmentList) {
+    public void undoDeleteBond() {        
+        if(!bondHistory.isEmpty()) {
+            int[] bond = bondHistory.pop();
+            int atom1 = bond[0];
+            int atom2 = bond[1];
             
-        }
-      //  String script = "connect (atomno=" + ((Integer) (bond.get(0)) + 1) + ") (atomno=" + ((Integer) (bond.get(1)) + 1) + ")";
-     //   viewer.runScript(script);
-        this.repaint();
+            //update utility map
+            bondMap.put(bond, true);
+            
+            //reconnect deleted bond in viewer
+            String script = "connect (atomno=" + atom1 + ") (atomno=" + atom2 + ")";
+            viewer.runScript(script);
+            
+            //update bondCount
+            bondCount = viewer.ms.bondCount;
+            
+            //update fragment list view
+            ArrayList<ArrayList<Integer>> fragmentList = getFragmentComponents();
+            fragmentListView.update(fragmentList);
+      
+            //repaint viewer
+            this.repaint();
+        } 
     }
     
     /**
@@ -128,8 +161,8 @@ public class JmolMainPanel extends JmolPanel2 {
                 Logger.error("Error while loading XYZ file. " + strError);
                 return false;
             }
-            fragmentListView = new FragmentListView(listView, this);
-            getFragmentComponentsAndUpdateFragmentList();
+            initJmol();
+            
             return true;
         } else {
             openFileParserWindow(file);
@@ -142,20 +175,13 @@ public class JmolMainPanel extends JmolPanel2 {
      * This functions calls buildBondAdjacencyList() for utility, and then traverses the adjacency list
      * with a Depth first search to find fragment components.
      */
-    private ArrayList<ArrayList<Integer>> getFragmentComponentsAndUpdateFragmentList() {
-        bondCount = viewer.ms.bondCount;
+    public ArrayList<ArrayList<Integer>> getFragmentComponents() {
         int atomCount = viewer.ms.at.length;
         if(atomCount == 0) {
             return null;
         }
-        //TODO: check if adjList Changed at all
-        ArrayList<ArrayList<Integer>> bondAdjList = buildBondAdjacencyList(atomCount);
-        ArrayList<ArrayList<Integer>> fragmentList = depthFirstSearch(bondAdjList, atomCount);
-        fragmentListHistory.push(fragmentList);
-        
-        //update framentlistView
-        fragmentListView.update(fragmentList);
-        
+        bondAdjList = getBondAdjacencyList(atomCount);
+        ArrayList<ArrayList<Integer>> fragmentList = depthFirstSearch(bondAdjList, atomCount);        
         return fragmentList;
     }
     
@@ -209,12 +235,13 @@ public class JmolMainPanel extends JmolPanel2 {
         }
     }
     
-    /**
+    /*
      * Build an adjacency List from the jmol viewer bond list
+     * input: int n, number of atoms in molecule viewer
      * 
-     * @return ArrayList<ArrayList<Integer>> bondAdjList
+     * @return ArrayList<ArrayList<Integer>> bondAdjList 
      */
-    private ArrayList<ArrayList<Integer>> buildBondAdjacencyList(int n) {
+    private ArrayList<ArrayList<Integer>> getBondAdjacencyList(int n) {
         ArrayList<ArrayList<Integer>> bondAdjList = new ArrayList<ArrayList<Integer>>();
         Bond[] bonds = viewer.ms.bo;
 
@@ -229,5 +256,61 @@ public class JmolMainPanel extends JmolPanel2 {
         }
         return bondAdjList;
     }
-       
+    
+    /**
+     * Return an array containing the atom indexes of a bond that was just deleted.
+     * Returns int[], index 0 = atomno1 and index 1 = atomno2
+     */
+    private int[] getDeletedBond() {
+        Bond[] currBondCollection = viewer.ms.bo;
+        boolean match;
+                
+        //iterate over map and compare with current bonds to find missing bond
+        for (HashMap.Entry<int[], Boolean> entry : bondMap.entrySet()) {
+            if(entry.getValue()) {
+                int[] keyBond = entry.getKey();
+                match = false;
+                
+                for(Bond bond : currBondCollection) {
+                    if(bond == null) {
+                        continue;
+                    }
+                    int atom1 = bond.getAtomIndex1()+1;
+                    int atom2 = bond.getAtomIndex2()+1;
+                  
+                    if(atom1 == keyBond[0] && atom2 == keyBond[1]) {
+                        //bond still exists
+                        match = true;
+                        break;
+                    }
+                }
+                if(!match) {
+                    //bond doesn't exist anymore
+                    bondMap.put(keyBond, false);
+                    return keyBond;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Returns a Bond Map copy of the viewer.ms.bo BondCollection
+     * Key: int[], index 0 = atomno 1, index 1 = atomno 2
+     * Value: boolean true denotes existing bond, false denotes non-existing
+     */
+    private HashMap<int[], Boolean> getBondMap() {
+        HashMap<int[], Boolean> map = new HashMap<int[], Boolean>();
+        for(Bond bond: viewer.ms.bo) {
+            if(bond != null) {
+                int [] newBond = new int[2];
+                int atom1 = bond.getAtomIndex1()+1;
+                int atom2 = bond.getAtomIndex2()+1;
+                newBond[0] = atom1;
+                newBond[1] = atom2;
+                map.put(newBond, true);
+            }
+        }
+        return map;
+    }
 }

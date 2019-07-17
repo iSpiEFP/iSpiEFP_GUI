@@ -73,7 +73,7 @@ public class DatabaseController {
         this.groups = groups;
 
         String workingDirectory = System.getProperty("user.dir");
-        DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory);
+        DatabaseFileManager databaseFileManager = new DatabaseFileManager(workingDirectory, jmolViewer);
 
         //query database for chemical formulas
         JsonFilePair[][] response = queryDatabase(groups, databaseFileManager);
@@ -299,8 +299,8 @@ public class DatabaseController {
         String path = data.get(index).get(this.prev_selection_index).getChoice();
 
         if (path.equals("Not found")) {
-            Main.auxiliaryJmolPanel.viewer.runScript("delete;");
-            Main.auxiliaryJmolPanel.repaint();
+            auxiliaryJmolViewer.runScript("delete;");
+            //auxiliaryJmolViewer.repaint();
             loadAuxJmolViewer("Not found", index);
         } else {
             loadAuxJmolViewer(path, index);
@@ -436,7 +436,7 @@ public class DatabaseController {
 
         //Get the libefp coords for the input file
         String coords = generateQchemInput(data, groups);
-        final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/qchem/QChemInput.fxml"));
+        final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/vmol/app/libEFP/libEFP.fxml"));
         libEFPInputController controller;
         controller = new libEFPInputController(coords, null, this.final_selections);
         loader.setController(controller);
@@ -492,7 +492,7 @@ public class DatabaseController {
                             if (i == 3) {
                                 break;
                             }
-                            org.jmol.modelset.Atom current_atom = Main.jmolPanel.viewer.ms.at[atom_num];
+                            org.jmol.modelset.Atom current_atom = jmolViewer.ms.at[atom_num];
                             sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z + "\n");
                             i++;
                         }

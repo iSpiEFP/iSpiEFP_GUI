@@ -21,7 +21,9 @@ import org.vmol.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.vmol.app.loginPack.LoginForm;
 import org.vmol.app.submission.SubmissionHistoryController;
 import org.vmol.app.util.UnrecognizedAtomException;
+import org.vmol.app.visualizer.DatabaseTableView;
 import org.vmol.app.visualizer.JmolMainPanel;
+import org.vmol.app.visualizer.JmolPanel2;
 import org.vmol.app.visualizer.JmolVisualizer;
 
 import java.awt.BorderLayout;
@@ -178,7 +180,6 @@ public class MainViewController {
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         this.viewer = jmolMainPanel.viewer;
         if(jmolMainPanel.openFile(file)) {
-            System.out.println("1401409y08yf80fosbn");
             
             lastOpenedFile = file.getAbsolutePath();
             lastOpenedFileName = file.getName();
@@ -440,7 +441,7 @@ public class MainViewController {
     @FXML
     public void undo() {
         //TODO
-        JmolMainPanel.undo();
+        jmolMainPanel.undoDeleteBond();
     }
     
     /**
@@ -505,7 +506,33 @@ public class MainViewController {
     @FXML
     public void searchFragments() {
         if (!lastOpenedFile.isEmpty()) {
-            //TODO, invoke databse controller
+            //shift main pane divider
+            //  nodepane.setDividerPositions(0.6f, 0.4f);
+            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
+
+            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
+            
+            //reset size of main pane
+            jmolMainPanel.setDimension(600, 595);
+            //jmolPanel.setSize((new Dimension(600, 595)));
+           // jmolPanel.currentHeight = 595;
+          //  jmolPanel.currentWidth = 600;
+           // jmolPanel.repaint();
+            TableView tableView = (new DatabaseTableView()).getTable();
+            bottomRightPane.getChildren().add(tableView);
+            
+            //Runs auxiliary JmolViewer
+            JmolPanel2 jmolPanel = new JmolPanel2(upperRightPane);
+            jmolPanel.setDimension(370, 265);
+
+            //load aux table list
+            DatabaseController DBcontroller = new DatabaseController(jmolMainPanel.viewer, jmolPanel.viewer, tableView, jmolMainPanel.getFragmentComponents());
+            try {
+                //start database controller actions
+                DBcontroller.run();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
     

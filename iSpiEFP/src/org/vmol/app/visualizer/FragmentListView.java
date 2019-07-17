@@ -23,8 +23,9 @@ public class FragmentListView {
     }
     
     public void update(ArrayList<ArrayList<Integer>> fragment_list) {
-        //clean
-        listView = new ListView<String>();
+        if(fragment_list == null) {
+            return;
+        }
         
         //load up fragment list
         ObservableList<String> data = FXCollections.observableArrayList();
