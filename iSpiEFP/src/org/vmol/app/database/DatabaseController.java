@@ -26,6 +26,7 @@ import org.vmol.app.gamess.GamessFormController;
 import org.vmol.app.installer.LocalBundleManager;
 import org.vmol.app.libEFP.libEFPInputController;
 import org.vmol.app.server.iSpiEFPServer;
+import org.vmol.app.visualizer.AuxiliaryDatabaseTableViewer;
 import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.ViewerHelper;
 
@@ -47,10 +48,11 @@ public class DatabaseController {
     private JmolMainPanel jmolMainPanel;
     private Viewer auxiliaryJmolViewer;
     @SuppressWarnings("rawtypes")
-    private TableView auxiliary_list;
+    //private TableView auxiliary_list;
     private List<ArrayList<Integer>> fragment_list;
     private ArrayList<ArrayList> groups;
-
+    private Pane bottomRightPane;
+    
     private int prev_selection_index = 0;
     private List<ObservableList<DatabaseRecord>> userData;
     private ArrayList<String> final_selections;
@@ -59,12 +61,12 @@ public class DatabaseController {
 
     private ListView listView;
 
-    public DatabaseController(JmolMainPanel jmolMainPanel, Viewer auxiliaryJmolViewer, TableView auxiliary_list, List<ArrayList<Integer>> fragment_list) {
+    public DatabaseController(Pane bottomRightPane, JmolMainPanel jmolMainPanel, Viewer auxiliaryJmolViewer, List<ArrayList<Integer>> fragment_list) {
         this.jmolViewer = jmolMainPanel.viewer;
         this.jmolMainPanel = jmolMainPanel;
         this.auxiliaryJmolViewer = auxiliaryJmolViewer;
-        this.auxiliary_list = auxiliary_list;
         this.fragment_list = fragment_list;
+        this.bottomRightPane = bottomRightPane;
     }
 
     /**
@@ -135,10 +137,12 @@ public class DatabaseController {
                 }
                 groupNumber++;
             }
-            runAuxiliaryList(group_filenames);
+            AuxiliaryDatabaseTableViewer dbTableViewer = new AuxiliaryDatabaseTableViewer(bottomRightPane, auxiliaryJmolViewer, jmolViewer, groups);
+            dbTableViewer.runAuxiliaryList(group_filenames);
+            //runAuxiliaryList(group_filenames);
 
             if (to_be_submitted.size() > 0) {
-                //there are unfound molecules, run the Games input controller form
+                //there are not found molecules, run the Games input controller form
                 GamessFormController gamessFormController = new GamessFormController(groups, unknownGroups, jmolMainPanel);
                 gamessFormController.run();
             }
@@ -422,6 +426,7 @@ public class DatabaseController {
             items.add(drs);
 
         }
+        
         //LOAD AUXILIARY LIST STRUCTURES
         List<ObservableList<DatabaseRecord>> data = new ArrayList<ObservableList<DatabaseRecord>>();
         for (int i = 0; i < items.size(); i++) {
