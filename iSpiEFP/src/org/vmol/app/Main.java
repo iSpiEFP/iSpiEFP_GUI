@@ -68,7 +68,7 @@ public class Main extends Application {
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
-        showJmolViewer(true, null);
+        //showJmolViewer(true, null);
         
         SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
         ObservableList<Node> list = splitpane.getItems();

@@ -111,6 +111,7 @@ public class JmolPanel2 extends JPanel {
     public void setDimension(int width, int height) {
         dimension = new Dimension(width, height);
         this.setPreferredSize(dimension);
+        this.setSize(dimension);
         this.repaint();
     }
     
@@ -196,7 +197,7 @@ public class JmolPanel2 extends JPanel {
      */
     @Override
     public void paint(Graphics g) {
-        getSize(new Dimension(dimension));
+        getSize(dimension);
 
         viewer.renderScreenImage(g, dimension.width, dimension.height);
     }

@@ -139,6 +139,7 @@ public class DatabaseController {
             }
 
             Button button_libefp = getLibefpSubmitButton();
+            button_libefp.setDisable(false);
             button_libefp.setOnAction(new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent event) {
                     //handle action

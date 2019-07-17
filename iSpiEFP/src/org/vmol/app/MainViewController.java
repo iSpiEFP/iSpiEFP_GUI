@@ -131,9 +131,11 @@ public class MainViewController {
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         this.viewer = jmolMainPanel.viewer;
         
-        middleRightSplitPane.setDividerPositions(1, 0);
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+        middleRightSplitPane.setDividerPositions(1, 0);
 
+        //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
+        libefpButton.setDisable(true);
     }
     
     /**
@@ -193,6 +195,9 @@ public class MainViewController {
             playPauseButton.setText("");
             playPauseButton.setGraphic(new ImageView(play));
             playPauseButton.setSelected(false);
+            
+            //TODO refactor the libefp button
+            libefpButton.setDisable(true);
         }
         /*
         if (file != null) {
@@ -506,18 +511,15 @@ public class MainViewController {
     @FXML
     public void searchFragments() {
         if (!lastOpenedFile.isEmpty()) {
-            //shift main pane divider
-            //  nodepane.setDividerPositions(0.6f, 0.4f);
             middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
-
             rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
             
             //reset size of main pane
             jmolMainPanel.setDimension(600, 595);
-            //jmolPanel.setSize((new Dimension(600, 595)));
-           // jmolPanel.currentHeight = 595;
-          //  jmolPanel.currentWidth = 600;
-           // jmolPanel.repaint();
+            jmolMainPanel.setPreferredSize(new Dimension(600, 595));
+            jmolMainPanel.setSize((new Dimension(600, 595)));
+            jmolMainPanel.repaint();
+            
             TableView tableView = (new DatabaseTableView()).getTable();
             bottomRightPane.getChildren().add(tableView);
             

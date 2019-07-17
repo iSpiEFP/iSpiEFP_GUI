@@ -80,7 +80,6 @@ public class JmolMainPanel extends JmolPanel2 {
             //update current bondCount
             bondCount = viewer.ms.bondCount;
         }
-        
         getSize(dimension);
         
         //render Jmol to current dimensions
