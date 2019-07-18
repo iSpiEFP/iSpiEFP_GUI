@@ -89,6 +89,7 @@ public class Main extends Application {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         //Optional<ButtonType> result = alert.showAndWait(); //Terms of Agreement
+        System.out.println("33366running...");
     }
 
     /**
