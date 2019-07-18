@@ -38,7 +38,7 @@ ___
 5. Gson - Gson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java Object.
 ### Setup
 Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capable of integrating with javaFX, sceneBuilder, and github. So choose whichever you would like to use.
-#### Eclipse Setup (Eclipse IDE, Mars .2 Release (4.5.2))
+#### Eclipse Setup (Eclipse IDE, Mars .2 Release (4.5.2) OUTDATED (Some Sections may not work))
 1. **Java FX** – Install this as a new software within eclipse – named “e(fx)clipse – IDE”. Link: https://www.eclipse.org/efxclipse/install.html#for-the-lazy
 2. **SceneBuilder**  - We can configure to open and edit the fxml files directly from Eclipse. After downloading the SceneBuilder set the path to its exe file at Window -> Preferences -> JavaFX -> Scenebuilder Executable in Eclipse.
 3. **GSON** - You may need to import GSON into Eclipse as it is not a default Java Library. For help importing Gson into eclipse go to: https://medium.com/programmers-blockchain/importing-gson-into-eclipse-ec8cf678ad52
@@ -46,12 +46,24 @@ Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capabl
 5. For **Commiting** and **Pushing**(Git Plug-in must be installed, likely to be installed by default):
 Right-Click Project Folder -> Select Team -> commit OR push
 6. For __Exporting__ this project as a Jar file. From eclipse, click File -> Export -> Runnable Jar file. For the launch configuration, you need to run the Main.java for the first time and mention it in the configuration.
-#### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8) 
-1. **Java FX** - Fortunately, IDEA has a built-in plugin for JavaFX which should already be enabled. If you'd like to make sure however, follow the steps outlined [here](https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html#enable_plugin "here").
-2. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately.
-3. **GSON** - GSON must be imported as a library. In IDEA, go to File -> Project Structure -> Libraries. To add the Gson library, click the Add icon and simply type "gson" into the search bar. Any recent version works fine (2.2.0 or above). To download GSON library with command line in bash, visit https://stackoverflow.com/questions/37975605/how-do-i-download-the-gson-library.
-4. **Git**. IDEA has a built-in terminal that simplifies Git usage. Once you install Git, you can simply use the terminal for Git commands. 
-5. **Exporting as JAR** - To export your project as a JAR file, go to File -> Project Structure -> Project Settings -> Artifacts -> Click green plus sign -> Jar -> From modules with dependencies... From there, go to extract to the target JAR and press OK. Then to go Build on the main menu and select Build Artifact.
+#### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8 - this doc last updated: 7/18/19) 
+1. **Git Clone** - Clone the repository on your local machine to a directory of your choice
+```
+$ git clone https://github.com/iSpiEFP/iSpiEFP_GUI.git 
+```
+2. **Import into IntelliJ IDEA** - Select "File > New > Project from Existing Sources..." and navigate to the location of the git clone, and then select the directory "iSpiEFP". This will barebones import the project into IntelliJ (More configuration is needed).
+3. **Configure JDK** - Select "File > Project Structure > Project". Under Project SDK select "1.8" and under Project Language Level Select "8 - Lambdas, Type annotations etc."
+4. **Add External Jar Files** - All external jar files are located in "iSpiEFP_GUI/iSpiEFP/lib/". To add them to the project select "File > Project Structure > Modules". In the right hand side of the panel next to "scope" there will appear a "+" symbol. Select "+ > add library > java library", and select the directory "lib". After the panel updates with lib, select the checkbox next to lib, and click "apply". This will add all 3rd party jar files such as Jmol.
+5. **Add Resources** - In IntelliJ, navigate to the file: "iSpiEFP_GUI/iSpiEFP/resources", right click the resources folder, and select "Mark Directory as > Resources Root". This will add all the image/icon files needed for iSpiEFP.
+6. **Add Source Root** - Now, in Intellij, navigate to the file: "iSpiEFP_GUI/iSpiEFP/src", right click the src folder, and select "Mark Directory as > Sources Root". This will let IntelliJ know where your source code is.
+7. **Clean Project** - To assure a successful setup, select "File > Invalidate Caches / Restart > Invalidate Caches and Restart". This will restart IntelliJ with a clean cache to help assure the setup process went smoothly. 
+8. **Run iSpiEFP** - Select "Run > Edit Configurations", and for the Main Class field select the "..." button. "org.vmol.app.Main" should pop up in the menu. If it does, select it. Now you are ready to go! Hit the green arrow and have some fun!
+
+#### Using IntelliJ (IntelliJ IDE 2018.2.2, this doc last updated: 7/18/19)
+1. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately. To integrate it with IntelliJ use: https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html.
+After SceneBuilder has been integrated, you can use it by simply navigating to a ".fxml" file, right click, and at the very bottom select "Open in SceneBuilder". This will allow you to seamlessly edit the ".fxml" files without touching any ".fxml" source code (Very Helpful for UI Components).
+2. **Git**. IDEA has a built-in terminal that simplifies Git usage. Once you install Git, you can simply use the terminal for Git commands. 
+5. **Exporting as JAR** - To export iSpiEFP as a JAR file, go to File -> Project Structure -> Project Settings -> Artifacts -> Click green plus sign -> Jar -> From modules with dependencies... From there, go to extract to the target JAR and press OK. Then to go Build on the main menu and select Build Artifact.
 
 ### Git Workflow
 We are using the [GitHub flow branching model](https://guides.github.com/introduction/flow/). The cardinal rule of it is _"the `master` branch is always deployable"_.  In other words, for any new feature or fix, we would create a new branch, work in it until satisfied, then merge everything into master (and delete the no-longer-needed feature branch).
