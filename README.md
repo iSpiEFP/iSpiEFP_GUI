@@ -38,14 +38,7 @@ ___
 5. Gson - Gson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java Object.
 ### Setup
 Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capable of integrating with javaFX, sceneBuilder, and github. So choose whichever you would like to use.
-#### Eclipse Setup (Eclipse IDE, Mars .2 Release (4.5.2) OUTDATED (Some Sections may not work))
-1. **Java FX** – Install this as a new software within eclipse – named “e(fx)clipse – IDE”. Link: https://www.eclipse.org/efxclipse/install.html#for-the-lazy
-2. **SceneBuilder**  - We can configure to open and edit the fxml files directly from Eclipse. After downloading the SceneBuilder set the path to its exe file at Window -> Preferences -> JavaFX -> Scenebuilder Executable in Eclipse.
-3. **GSON** - You may need to import GSON into Eclipse as it is not a default Java Library. For help importing Gson into eclipse go to: https://medium.com/programmers-blockchain/importing-gson-into-eclipse-ec8cf678ad52
-4. For **cloning** the repository into Eclipse visit: https://github.com/collab-uniba/socialcde4eclipse/wiki/How-to-import-a-GitHub-project-into-Eclipse for a tutorial.
-5. For **Commiting** and **Pushing**(Git Plug-in must be installed, likely to be installed by default):
-Right-Click Project Folder -> Select Team -> commit OR push
-6. For __Exporting__ this project as a Jar file. From eclipse, click File -> Export -> Runnable Jar file. For the launch configuration, you need to run the Main.java for the first time and mention it in the configuration.
+
 #### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8 - this doc last updated: 7/18/19) 
 1. **Git Clone** - Clone the repository on your local machine to a directory of your choice
 ```
@@ -64,6 +57,15 @@ $ git clone https://github.com/iSpiEFP/iSpiEFP_GUI.git
 After SceneBuilder has been integrated, you can use it by simply navigating to a ".fxml" file, right click, and at the very bottom select "Open in SceneBuilder". This will allow you to seamlessly edit the ".fxml" files without touching any ".fxml" source code (Very Helpful for UI Components).
 2. **Git**. IDEA has a built-in terminal that simplifies Git usage. Once you install Git, you can simply use the terminal for Git commands. 
 5. **Exporting as JAR** - To export iSpiEFP as a JAR file, go to File -> Project Structure -> Project Settings -> Artifacts -> Click green plus sign -> Jar -> From modules with dependencies... From there, go to extract to the target JAR and press OK. Then to go Build on the main menu and select Build Artifact.
+
+#### Eclipse Setup (Eclipse IDE, Mars .2 Release (4.5.2) OUTDATED (Some Sections may not work))
+1. **Java FX** – Install this as a new software within eclipse – named “e(fx)clipse – IDE”. Link: https://www.eclipse.org/efxclipse/install.html#for-the-lazy
+2. **SceneBuilder**  - We can configure to open and edit the fxml files directly from Eclipse. After downloading the SceneBuilder set the path to its exe file at Window -> Preferences -> JavaFX -> Scenebuilder Executable in Eclipse.
+3. **GSON** - You may need to import GSON into Eclipse as it is not a default Java Library. For help importing Gson into eclipse go to: https://medium.com/programmers-blockchain/importing-gson-into-eclipse-ec8cf678ad52
+4. For **cloning** the repository into Eclipse visit: https://github.com/collab-uniba/socialcde4eclipse/wiki/How-to-import-a-GitHub-project-into-Eclipse for a tutorial.
+5. For **Commiting** and **Pushing**(Git Plug-in must be installed, likely to be installed by default):
+Right-Click Project Folder -> Select Team -> commit OR push
+6. For __Exporting__ this project as a Jar file. From eclipse, click File -> Export -> Runnable Jar file. For the launch configuration, you need to run the Main.java for the first time and mention it in the configuration.
 
 ### Git Workflow
 We are using the [GitHub flow branching model](https://guides.github.com/introduction/flow/). The cardinal rule of it is _"the `master` branch is always deployable"_.  In other words, for any new feature or fix, we would create a new branch, work in it until satisfied, then merge everything into master (and delete the no-longer-needed feature branch).
