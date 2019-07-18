@@ -66,14 +66,10 @@ public class Main extends Application {
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();        //showJmolViewer(true, null);
-        
-        //Show JMOL Main Panel
-        SplitPane splitpane = (SplitPane) Main.getMainLayout().getChildren().get(2);
-        ObservableList<Node> list = splitpane.getItems();
-        SplitPane nodepane = (SplitPane) list.get(1);
-        ObservableList<Node> sublist = nodepane.getItems();
-        Pane pane = (Pane) sublist.get(0);
-        JmolMainPanel jmolMainViewer = new JmolMainPanel(pane, null);
+
+        //Manage Working Directory
+        BundleManager bundleManager = new BundleManager("LOCAL");
+        bundleManager.manageLocal();
 
         TermsofAgreement terms = new TermsofAgreement();
         //terms.show();
@@ -107,10 +103,6 @@ public class Main extends Application {
         //add iSpiEFP Spider icon
         String url = Main.class.getResource("/images/iSpiEFP_Logo.png").toString();
         getPrimaryStage().getIcons().add(new Image(url));
-
-        //Manage Working Directory
-        BundleManager bundleManager = new BundleManager("LOCAL");
-        bundleManager.manageLocal();
 
         //launch stage
         getPrimaryStage().show();
