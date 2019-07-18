@@ -65,7 +65,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws IOException {
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
-        showMainView();        //showJmolViewer(true, null);
+        showMainView();
 
         //Manage Working Directory
         BundleManager bundleManager = new BundleManager("LOCAL");

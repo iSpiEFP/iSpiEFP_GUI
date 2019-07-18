@@ -197,8 +197,8 @@ public class JmolPanel extends JPanel {
      */
     @Override
     public void paint(Graphics g) {
-        getSize(dimension);
+        Dimension size = getSize();
 
-        viewer.renderScreenImage(g, dimension.width, dimension.height);
+        viewer.renderScreenImage(g, size.width, size.height);
     }
 }
