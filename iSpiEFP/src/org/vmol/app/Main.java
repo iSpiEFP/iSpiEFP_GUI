@@ -25,6 +25,7 @@ import org.jmol.api.JmolViewer;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
 import org.vmol.app.installer.BundleManager;
+import org.vmol.app.util.TermsofAgreement;
 import org.vmol.app.visualizer.JmolMainPanel;
 import org.vmol.app.visualizer.JmolPanel;
 
@@ -74,21 +75,9 @@ public class Main extends Application {
         Pane pane = (Pane) sublist.get(0);
         JmolMainPanel jmolMainViewer = new JmolMainPanel(pane, null);
 
-        //optional terms of agreement for test jar files
-        Alert alert = new Alert(AlertType.WARNING);
-        String msg = "Welcome to iSpiEFP\n\n"
-                + "I acknowledge that this is a Pre-Alpha Release which means my jobs and data can be damaged or lost.\n"
-                + "My credentials will be safe however.\n"
-                + "This application will install a directory: '/iSpiClient' on a remote machine and\n"
-                + "a working directory on the local machine in the app's current directory: '/iSpiWorkspace for storing data'\n\n"
-                + "This product is new and will have lots of bugs. There are no loading bars so please wait\n"
-                + "a few seconds while submitting jobs, searching for parameters, and configuring servers.\n"
-                + "If I encounter a freeze or serious issue I will shake the app or restart it.\n"
-                + "If I encounter an issue I will report it.\n";
-        alert.setTitle("Terms of Agreement");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        //Optional<ButtonType> result = alert.showAndWait(); //Terms of Agreement
+        TermsofAgreement terms = new TermsofAgreement();
+        //terms.show();
+
         System.out.println("33366running...");
     }
 
