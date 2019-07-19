@@ -4,8 +4,8 @@ iSpiEFP is a tool for visualizing and describing molecular systems with the EFP 
 This application serves as a job-workflow manager which binds different technologies into one single application that allows chemists to point and click while utilizing high performance computing. 
 
 ### Latest Release
-For patch notes on the latest release: iSpiEFP Version 1.06-Alpha
- - https://github.com/iSpiEFP/iSpiEFP_GUI/releases/tag/v1.06-alpha
+For patch notes on the latest release: iSpiEFP Version 0.5.6
+ - https://github.com/iSpiEFP/iSpiEFP_GUI/releases/tag/0.5.6
  
 ### Help
 For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>. (Release Data: TBA)
@@ -97,7 +97,7 @@ iSpiEFP/resources/images
 3. **util** - contains some helper functions for actions.
 4. **submission** - contains the controller for javaFX gui when a user asks for Libefp Job submission history.
 5. **server** - handles some server interactions and remote interactions.
-6. **qchem** - contains controller for editing and submitting LibEFP jobs.
+6. **libEFP** - contains controller for editing and submitting LibEFP jobs.
 7. **loginPack** - handles user login for SSH connections.
 8. **installer** - handles all bundleManagement for remote and local packages (GAMESS and LIBEFP). Makes sure correct directories are installed locally and remote. Makes sure correct packages are given on remote ends.
 9. **gamessSubmission** - contains controller when user wants to find Gamess jobs submission history.
