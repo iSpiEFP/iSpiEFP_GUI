@@ -50,7 +50,7 @@ $ git clone https://github.com/iSpiEFP/iSpiEFP_GUI.git
 5. **Add Resources** - In IntelliJ, navigate to the file: "iSpiEFP_GUI/iSpiEFP/resources", right click the resources folder, and select "Mark Directory as > Resources Root". This will add all the image/icon files needed for iSpiEFP.
 6. **Add Source Root** - Now, in Intellij, navigate to the file: "iSpiEFP_GUI/iSpiEFP/src", right click the src folder, and select "Mark Directory as > Sources Root". This will let IntelliJ know where your source code is.
 7. **Clean Project** - To assure a successful setup, select "File > Invalidate Caches / Restart > Invalidate Caches and Restart". This will restart IntelliJ with a clean cache to help assure the setup process went smoothly. 
-8. **Run iSpiEFP** - Select "Run > Edit Configurations", and for the Main Class field select the "..." button. "org.vmol.app.Main" should pop up in the menu. If it does, select it. Now you are ready to go! Hit the green arrow and have some fun!
+8. **Run iSpiEFP** - Select "Run > Edit Configurations", and for the Main Class field select the "..." button. "org.ispiefp.app.Main" should pop up in the menu. If it does, select it. Now you are ready to go! Hit the green arrow and have some fun!
 
 #### Using IntelliJ (IntelliJ IDE 2018.2.2, this doc last updated: 7/18/19)
 1. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately. To integrate it with IntelliJ use: https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html.
