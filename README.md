@@ -4,8 +4,8 @@ iSpiEFP is a tool for visualizing and describing molecular systems with the EFP 
 This application serves as a job-workflow manager which binds different technologies into one single application that allows chemists to point and click while utilizing high performance computing. 
 
 ### Latest Release
-For patch notes on the latest release: iSpiEFP Version 1.06-Alpha
- - https://github.com/iSpiEFP/iSpiEFP_GUI/releases/tag/v1.06-alpha
+For patch notes on the latest release: iSpiEFP Version 0.5.6
+ - https://github.com/iSpiEFP/iSpiEFP_GUI/releases/tag/0.5.6
  
 ### Help
 For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>. (Release Data: TBA)
