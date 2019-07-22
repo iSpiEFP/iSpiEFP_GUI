@@ -78,6 +78,8 @@ Let's say you want to add a new feature. This section will outline the Git struc
 5. TODO: describe pulling/rebasing/pushing of [now updated] `master`.
 6. TODO: describe deletion of completed feature branch (local and remote).
 
+Once you have safely and surely merged your code from your branch, the next thing to do is delete the branch. The process for this is simple and only requires one command. But first, make sure you're not on the branch you're attempting to delete (remember, you can switch using **git checkout other_branch_name**). Once you have navigated to a different branch, run **git branch -d branch_to_delete** in your terminal to delete the local version of your branch. 
+
 ### Code Base
 Most of the Source Code that needs to be edited belongs in:
 ```
