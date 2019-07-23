@@ -437,7 +437,7 @@ public class MainViewController {
             rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
             
             //reset size of main pane
-            jmolMainPanel.setDimension(600, 595);
+            //jmolMainPanel.setDimension(600, 595);
             jmolMainPanel.setPreferredSize(new Dimension(600, 595));
             jmolMainPanel.setSize((new Dimension(600, 595)));
             jmolMainPanel.repaint();
@@ -447,7 +447,7 @@ public class MainViewController {
             
             //Runs auxiliary JmolViewer
             JmolPanel jmolPanel = new JmolPanel(upperRightPane);
-            jmolPanel.setDimension(370, 265);
+            //jmolPanel.setDimension(370, 265);
 
             //load aux table list
             DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
