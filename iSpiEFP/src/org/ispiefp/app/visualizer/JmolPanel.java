@@ -204,8 +204,22 @@ public class JmolPanel extends JPanel {
      */
     @Override
     public void paint(Graphics g) {
-        Dimension size = getSize();
+        double parentPaneWidth = parentPane.getWidth();
+        double parentPaneHeight = parentPane.getHeight();
 
-        viewer.renderScreenImage(g, size.width, size.height);
+        //if Panel width or height changes update sizes so the viewer can render appropriately
+        if(width != parentPaneWidth || height != parentPaneHeight) {
+            System.out.println("RESIZE");
+            //update width and height
+            width = parentPaneWidth;
+            height = parentPaneHeight;
+
+            //update JPanel width and height preferences
+            this.setPreferredSize(new Dimension((int) width, (int) height));
+
+            //resize swingNode with new width and height
+            this.swingNode.resize(width, height);
+        }
+        viewer.renderScreenImage(g, (int)width, (int)height);
     }
 }
