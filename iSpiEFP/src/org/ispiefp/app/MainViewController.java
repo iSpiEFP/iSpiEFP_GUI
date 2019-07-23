@@ -433,21 +433,12 @@ public class MainViewController {
     @FXML
     public void searchFragments() {
         if (!lastOpenedFile.isEmpty()) {
+            //set divider positions
             middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
             rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
-            
-            //reset size of main pane
-            jmolMainPanel.setDimension(600, 595);
-            jmolMainPanel.setPreferredSize(new Dimension(600, 595));
-            jmolMainPanel.setSize((new Dimension(600, 595)));
-            jmolMainPanel.repaint();
-            
-      //      TableView tableView = (new AuxiliaryDatabaseTableViewer()).getTable();
-   //         bottomRightPane.getChildren().add(tableView);
-            
+
             //Runs auxiliary JmolViewer
             JmolPanel jmolPanel = new JmolPanel(upperRightPane);
-            jmolPanel.setDimension(370, 265);
 
             //load aux table list
             DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());

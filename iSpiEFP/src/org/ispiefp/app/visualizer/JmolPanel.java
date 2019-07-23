@@ -1,13 +1,13 @@
 package org.ispiefp.app.visualizer;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JPanel;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
@@ -45,9 +45,11 @@ public class JmolPanel extends JPanel {
     public Viewer viewer;       //jmol Viewer object
     protected Pane parentPane;  //pane which contains jmol viewer object
     
-    protected final SwingNode swingNode = new SwingNode();      //java swing node wrapper for javaFX
-    protected Dimension dimension = new Dimension(940, 595);    //JmolPanel dimensions
-   
+    protected final MySwingNode swingNode = new MySwingNode();      //java swing node wrapper for javaFX
+
+    protected double width;
+    protected double height;
+
     /**
      * Allocate a Jmol Viewer Object, 
      * place it in the pane location, 
@@ -57,18 +59,59 @@ public class JmolPanel extends JPanel {
      * @param pane : container for Jmol Viewer Object
      */
     public JmolPanel(Pane pane) {
+        //allocate a Jmol Viewer
         viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
                 null, null, null, null, null);
         viewer.setAnimationFps(60);
-        
+
         //place 
-        parentPane = pane;
-        parentPane.getChildren().add(swingNode);
-       
-        this.setPreferredSize(dimension);
+        this.parentPane = pane;
+        this.width = pane.getWidth();
+        this.height = pane.getHeight();
+
+        //set JPanel initial size
+        this.setPreferredSize(new Dimension((int)width, (int)height));
+
+        //set SwingNode initial size
+        this.swingNode.resize(width, height);
+        pane.getChildren().add(swingNode);
+
+        //add height listener to change size during height change
+        pane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldPaneHeight, Number newPaneHeight) {
+                //height changed
+                height = newPaneHeight.doubleValue();
+                updateJmolSize(width, height);
+            }
+        });
+        //add width listener to change size during width change
+        pane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldPaneWidth, Number newPaneWidth) {
+                //width changed
+                width = newPaneWidth.doubleValue();
+                updateJmolSize(width, height);
+            }
+        });
         
         //run on thread
         runJmolViewer();
+    }
+
+    private void updateJPanelSize() {
+        this.setPreferredSize(new Dimension((int) width, (int) height));
+
+    }
+
+    private void updateSwingNodeSize() {
+        this.swingNode.resize(width, height);
+        this.repaint();
+
+    }
+
+    private void updateJmolSize(double width, double height) {
+        this.setPreferredSize(new Dimension((int) width, (int) height));
+        this.swingNode.resize(width, height);
+        this.repaint();
     }
     
     /**
@@ -90,26 +133,6 @@ public class JmolPanel extends JPanel {
      */
     public Pane getParentPane() {
         return this.parentPane;
-    }
-    
-    /**
-     * @return the dimensions of this JmolPanel
-     */
-    public Dimension getDimension() {
-        return dimension;
-    }
-    
-    /**
-     * Set and update the dimensions of this JmolPanel
-     * 
-     * @param width : JmolPanel
-     * @param height : JmolPanel
-     */
-    public void setDimension(int width, int height) {
-        dimension = new Dimension(width, height);
-        this.setPreferredSize(dimension);
-        this.setSize(dimension);
-        this.repaint();
     }
     
     /**
@@ -194,8 +217,7 @@ public class JmolPanel extends JPanel {
      */
     @Override
     public void paint(Graphics g) {
-        Dimension size = getSize();
-
-        viewer.renderScreenImage(g, size.width, size.height);
+        //render Jmol Viewer with these dimensions
+        viewer.renderScreenImage(g, (int)width, (int)height);
     }
 }
