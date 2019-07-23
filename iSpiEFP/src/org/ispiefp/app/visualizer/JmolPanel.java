@@ -47,7 +47,10 @@ public class JmolPanel extends JPanel {
     
     protected final SwingNode2 swingNode = new SwingNode2();      //java swing node wrapper for javaFX
     protected Dimension dimension = new Dimension(940, 595);    //JmolPanel dimensions
-   
+
+    protected double width;
+    protected double height;
+
     /**
      * Allocate a Jmol Viewer Object, 
      * place it in the pane location, 
@@ -62,21 +65,17 @@ public class JmolPanel extends JPanel {
         viewer.setAnimationFps(60);
         
         //place 
-        parentPane = pane;
-        parentPane.getChildren().add(swingNode);
-       
-        //this.setPreferredSize(dimension);
+        this.parentPane = pane;
+        pane.getChildren().add(swingNode);
 
-        //this.setPreferredSize(dimension);
-        this.setPreferredSize(new Dimension((int)parentPane.getWidth(), (int)parentPane.getHeight()));
+        this.width = pane.getWidth();
+        this.height = pane.getHeight();
 
-        this.swingNode.resize(parentPane.getWidth(), parentPane.getHeight());
-        System.out.println("RESIZE"
-        );
-        //this.
+        //set JPanel initial size
+        this.setPreferredSize(new Dimension((int)width, (int)height));
 
-        //run on thread
-        //runJmolViewer();
+        //set SwingNode initial size
+        this.swingNode.resize(width, height);
         
         //run on thread
         runJmolViewer();

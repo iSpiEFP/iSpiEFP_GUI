@@ -44,7 +44,7 @@ public class JmolMainPanel extends JmolPanel {
      * A Modified version of a JmolPanel specifically made for the main viewer panel for iSpiEFP.
      * Initializes the JmolPanel, additionally calling some default init Jmol scripts
      * 
-     * JmolMainPanel inherits: viewer, swingNode, parentPane, currentWidth, currentHeight from JmolPanel
+     * JmolMainPanel inherits: viewer, swingNode, parentPane, width, height from JmolPanel
      * Viewer viewer : Jmol viewer object
      * SwingNode swingNode : JavaFX wrapper object for Java Swing Objects
      * Pane parentPane : Component that holds the viewer object 
@@ -74,31 +74,24 @@ public class JmolMainPanel extends JmolPanel {
             //update current bondCount
             bondCount = viewer.ms.bondCount;
         }
-        /*
-        Dimension size = getSize();
-        
-        //render Jmol to current dimensions
-        viewer.renderScreenImage(g, size.width, size.height);*/
+        double parentPaneWidth = parentPane.getWidth();
+        double parentPaneHeight = parentPane.getHeight();
 
-        double parentWidth = parentPane.getWidth();
-        double parentHeight = parentPane.getHeight();
+        //if Panel width or height changes update sizes so the viewer can render appropriately
+        if(width != parentPaneWidth || height != parentPaneHeight) {
+            System.out.println("RESIZE");
+            //update width and height
+            width = parentPaneWidth;
+            height = parentPaneHeight;
 
-        if(width != parentWidth || height != parentHeight)
-        {
-            width = parentWidth;
-            height = parentHeight;
-
+            //update JPanel width and height preferences
             this.setPreferredSize(new Dimension((int) width, (int) height));
-            this.swingNode.resize(parentPane.getWidth(), parentPane.getHeight());
-            System.out.println("RESIZE"
-            );
 
-            System.out.println(this.swingNode.isResizable());
+            //resize swingNode with new width and height
+            this.swingNode.resize(width, height);
         }
-        viewer.renderScreenImage(g, (int)parentWidth, (int)parentHeight);
+        viewer.renderScreenImage(g, (int)width, (int)height);
     }
-    private double width;
-    private double height;
     
     /**
      * Run Jmol JavaScript Commands for a default Main Panel Set-up
