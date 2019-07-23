@@ -74,11 +74,31 @@ public class JmolMainPanel extends JmolPanel {
             //update current bondCount
             bondCount = viewer.ms.bondCount;
         }
+        /*
         Dimension size = getSize();
         
         //render Jmol to current dimensions
-        viewer.renderScreenImage(g, size.width, size.height);
+        viewer.renderScreenImage(g, size.width, size.height);*/
+
+        double parentWidth = parentPane.getWidth();
+        double parentHeight = parentPane.getHeight();
+
+        if(width != parentWidth || height != parentHeight)
+        {
+            width = parentWidth;
+            height = parentHeight;
+
+            this.setPreferredSize(new Dimension((int) width, (int) height));
+            this.swingNode.resize(parentPane.getWidth(), parentPane.getHeight());
+            System.out.println("RESIZE"
+            );
+
+            System.out.println(this.swingNode.isResizable());
+        }
+        viewer.renderScreenImage(g, (int)parentWidth, (int)parentHeight);
     }
+    private double width;
+    private double height;
     
     /**
      * Run Jmol JavaScript Commands for a default Main Panel Set-up
