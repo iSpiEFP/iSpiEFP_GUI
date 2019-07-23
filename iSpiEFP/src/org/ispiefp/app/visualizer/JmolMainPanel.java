@@ -64,32 +64,15 @@ public class JmolMainPanel extends JmolPanel {
     public void paint(Graphics g) {
         if(bondCount > viewer.ms.bondCount) {
             //a bond was deleted
-            ArrayList<ArrayList<Integer>> fragmentList = getFragmentComponents();
-            fragmentListView.update(fragmentList);
+            fragmentListView.update(getFragmentComponents());
 
             //record deletion history
-            int[] deletedBond = getDeletedBond();
-            bondHistory.push(deletedBond);
+            bondHistory.push(getDeletedBond());
             
             //update current bondCount
             bondCount = viewer.ms.bondCount;
         }
-        double parentPaneWidth = parentPane.getWidth();
-        double parentPaneHeight = parentPane.getHeight();
-
-        //if Panel width or height changes update sizes so the viewer can render appropriately
-        if(width != parentPaneWidth || height != parentPaneHeight) {
-            System.out.println("RESIZE");
-            //update width and height
-            width = parentPaneWidth;
-            height = parentPaneHeight;
-
-            //update JPanel width and height preferences
-            this.setPreferredSize(new Dimension((int) width, (int) height));
-
-            //resize swingNode with new width and height
-            this.swingNode.resize(width, height);
-        }
+        //render Jmol Viewer with these dimensions
         viewer.renderScreenImage(g, (int)width, (int)height);
     }
     

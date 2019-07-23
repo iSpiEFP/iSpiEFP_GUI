@@ -59,14 +59,13 @@ public class JmolPanel extends JPanel {
      * @param pane : container for Jmol Viewer Object
      */
     public JmolPanel(Pane pane) {
+        //allocate a Jmol Viewer
         viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
                 null, null, null, null, null);
         viewer.setAnimationFps(60);
 
         //place 
         this.parentPane = pane;
-        pane.getChildren().add(swingNode);
-
         this.width = pane.getWidth();
         this.height = pane.getHeight();
 
@@ -75,34 +74,22 @@ public class JmolPanel extends JPanel {
 
         //set SwingNode initial size
         this.swingNode.resize(width, height);
+        pane.getChildren().add(swingNode);
 
+        //add height listener to change size during height change
         pane.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
-                System.out.println("Height Changed to: " + newSceneHeight);
-
-                height = newSceneHeight.doubleValue();
-
-                //update JPanel width and height preferences
-                updateJPanelSize();
-
-                //resize swingNode with new width and height
-                updateSwingNodeSize();
-
+            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldPaneHeight, Number newPaneHeight) {
+                //height changed
+                height = newPaneHeight.doubleValue();
+                updateJmolSize(width, height);
             }
         });
-
+        //add width listener to change size during width change
         pane.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
-                System.out.println("Height Changed to: " + newSceneHeight);
-
-                width = newSceneHeight.doubleValue();
-
-                //update JPanel width and height preferences
-                updateJPanelSize();
-
-                //resize swingNode with new width and height
-                updateSwingNodeSize();
-
+            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldPaneWidth, Number newPaneWidth) {
+                //width changed
+                width = newPaneWidth.doubleValue();
+                updateJmolSize(width, height);
             }
         });
         
@@ -119,6 +106,12 @@ public class JmolPanel extends JPanel {
         this.swingNode.resize(width, height);
         this.repaint();
 
+    }
+
+    private void updateJmolSize(double width, double height) {
+        this.setPreferredSize(new Dimension((int) width, (int) height));
+        this.swingNode.resize(width, height);
+        this.repaint();
     }
     
     /**
@@ -224,22 +217,7 @@ public class JmolPanel extends JPanel {
      */
     @Override
     public void paint(Graphics g) {
-        double parentPaneWidth = parentPane.getWidth();
-        double parentPaneHeight = parentPane.getHeight();
-
-        //if Panel width or height changes update sizes so the viewer can render appropriately
-        if(width != parentPaneWidth || height != parentPaneHeight) {
-            System.out.println("JMOL RESIZE");
-            //update width and height
-            width = parentPaneWidth;
-            height = parentPaneHeight;
-
-            //update JPanel width and height preferences
-            this.setPreferredSize(new Dimension((int) width, (int) height));
-
-            //resize swingNode with new width and height
-            this.swingNode.resize(width, height);
-        }
+        //render Jmol Viewer with these dimensions
         viewer.renderScreenImage(g, (int)width, (int)height);
     }
 }
