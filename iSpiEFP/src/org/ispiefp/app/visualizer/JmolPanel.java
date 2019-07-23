@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import javax.swing.JPanel;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.jmol.util.Logger;
 import org.jmol.viewer.Viewer;
@@ -73,9 +75,50 @@ public class JmolPanel extends JPanel {
 
         //set SwingNode initial size
         this.swingNode.resize(width, height);
+
+        pane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+                System.out.println("Height Changed to: " + newSceneHeight);
+
+                height = newSceneHeight.doubleValue();
+
+                //update JPanel width and height preferences
+                updateJPanelSize();
+
+                //resize swingNode with new width and height
+                updateSwingNodeSize();
+
+            }
+        });
+
+        pane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+                System.out.println("Height Changed to: " + newSceneHeight);
+
+                width = newSceneHeight.doubleValue();
+
+                //update JPanel width and height preferences
+                updateJPanelSize();
+
+                //resize swingNode with new width and height
+                updateSwingNodeSize();
+
+            }
+        });
         
         //run on thread
         runJmolViewer();
+    }
+
+    private void updateJPanelSize() {
+        this.setPreferredSize(new Dimension((int) width, (int) height));
+
+    }
+
+    private void updateSwingNodeSize() {
+        this.swingNode.resize(width, height);
+        this.repaint();
+
     }
     
     /**
