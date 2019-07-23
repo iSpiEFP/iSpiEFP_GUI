@@ -106,7 +106,7 @@ public class JmolMainPanel extends JmolPanel {
         viewer.runScript("selectionHalos off");
         viewer.runScript("set bondpicking true");
         viewer.runScript("color halos gold");
-        
+
         //initialize utility containers
         bondMap = getBondMap();
         bondAdjList = getBondAdjacencyList(viewer.ms.at.length);

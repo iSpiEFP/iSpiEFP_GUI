@@ -444,10 +444,15 @@ public class MainViewController {
             
       //      TableView tableView = (new AuxiliaryDatabaseTableViewer()).getTable();
    //         bottomRightPane.getChildren().add(tableView);
-            
+            upperRightPane.setPrefSize(370, 265);
+            upperRightPane.resize(370, 265);
+
             //Runs auxiliary JmolViewer
             JmolPanel jmolPanel = new JmolPanel(upperRightPane);
             //jmolPanel.setDimension(370, 265);
+            jmolPanel.setPreferredSize(new Dimension(370, 265));
+            jmolPanel.setSize((new Dimension(370, 265)));
+            jmolPanel.repaint();
 
             //load aux table list
             DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());

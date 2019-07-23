@@ -1,8 +1,6 @@
 package org.ispiefp.app.visualizer;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -62,7 +60,7 @@ public class JmolPanel extends JPanel {
         viewer = (Viewer) Viewer.allocateViewer(this, new SmarterJmolAdapter(),
                 null, null, null, null, null);
         viewer.setAnimationFps(60);
-        
+
         //place 
         this.parentPane = pane;
         pane.getChildren().add(swingNode);
@@ -188,7 +186,7 @@ public class JmolPanel extends JPanel {
 
         //if Panel width or height changes update sizes so the viewer can render appropriately
         if(width != parentPaneWidth || height != parentPaneHeight) {
-            System.out.println("RESIZE");
+            System.out.println("JMOL RESIZE");
             //update width and height
             width = parentPaneWidth;
             height = parentPaneHeight;
