@@ -23,40 +23,40 @@
                     <menus>
                         <Menu mnemonicParsing="false" text="File">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
+                                <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
                         <Menu mnemonicParsing="false" text="Open Recent" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Exit" />
+                        <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />
 
                             </items>
                         </Menu>
                   <Menu mnemonicParsing="false" text="Edit">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Undo Deletion" />
-                        <MenuItem mnemonicParsing="false" text="Redo Deletion" />
+                        <MenuItem mnemonicParsing="false" onAction="#editUndo" text="Undo Deletion" />
+                        <MenuItem mnemonicParsing="false" onAction="#editRedo" text="Redo Deletion" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Select All" />
+                        <MenuItem mnemonicParsing="false" onAction="#editSelectAll" text="Select All" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="View">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Full Screen" />
-                        <MenuItem mnemonicParsing="false" text="Windowed" />
+                      <MenuItem mnemonicParsing="false" onAction="#viewFullScreen" text="Full Screen" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewWindowed" text="Windowed" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Axis X" />
-                        <MenuItem mnemonicParsing="false" text="Axis Y" />
-                        <MenuItem mnemonicParsing="false" text="Axis Z" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewAxisX" text="Axis X" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewAxisY" text="Axis Y" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewAxisZ" text="Axis Z" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <Menu mnemonicParsing="false" text="Zoom">
                           <items>
-                            <MenuItem mnemonicParsing="false" text="Zoom In" />
-                              <MenuItem mnemonicParsing="false" text="Zoom Out" />
+                            <MenuItem mnemonicParsing="false" onAction="#viewZoomIn" text="Zoom In" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoomOut" text="Zoom Out" />
                               <SeparatorMenuItem mnemonicParsing="false" />
-                              <MenuItem mnemonicParsing="false" text="50%" />
-                              <MenuItem mnemonicParsing="false" text="75%" />
-                              <MenuItem mnemonicParsing="false" text="100%" />
-                              <MenuItem mnemonicParsing="false" text="150%" />
-                              <MenuItem mnemonicParsing="false" text="200%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom50" text="50%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom75" text="75%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom100" text="100%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom150" text="150%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom200" text="200%" />
                           </items>
                         </Menu>
                     </items>
@@ -65,22 +65,22 @@
                     <items>
                         <Menu mnemonicParsing="false" text="Find EFP Files ">
                           <items>
-                            <MenuItem mnemonicParsing="false" text="Search Public Database" />
+                            <MenuItem mnemonicParsing="false" onAction="#searchFindEFPPublicDatabase" text="Search Public Database" />
                           </items>
                         </Menu>
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Calculate">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Libefp Setup" />
-                        <MenuItem mnemonicParsing="false" text="Gamess Setup" />
+                      <MenuItem mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
+                        <MenuItem mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
                         <Menu mnemonicParsing="false" text="Monitor Jobs">
                           <items>
-                            <MenuItem mnemonicParsing="false" text="Libefp History" />
-                              <MenuItem mnemonicParsing="false" text="Gamess History" />
+                            <MenuItem mnemonicParsing="false" onAction="#calculateLibefpHistory" text="Libefp History" />
+                              <MenuItem mnemonicParsing="false" onAction="#calculateGamessHistory" text="Gamess History" />
                           </items>
                         </Menu>
-                        <MenuItem mnemonicParsing="false" text="Edit Servers" />
+                        <MenuItem mnemonicParsing="false" onAction="#calculateEditServers" text="Edit Servers" />
                     </items>
                   </Menu>
                         <Menu mnemonicParsing="false" text="Gamess">
@@ -103,13 +103,13 @@
 
                         <Menu mnemonicParsing="false" text="Help">
                             <items>
-                        <MenuItem mnemonicParsing="false" text="Check for Updates..." />
-                                <MenuItem mnemonicParsing="false" onAction="#openAbout" text="About" />
+                        <MenuItem mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
+                                <MenuItem mnemonicParsing="false" onAction="#helpAbout" text="About" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="About Jmol" />
-                        <MenuItem mnemonicParsing="false" text="Jmol Wiki" />
+                        <MenuItem mnemonicParsing="false" onAction="#helpAboutJmol" text="About Jmol" />
+                        <MenuItem mnemonicParsing="false" onAction="#helpJmolWiki" text="Jmol Wiki" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Jmol Console" />
+                        <MenuItem mnemonicParsing="false" onAction="#helpJmolConsole" text="Jmol Console" />
                             </items>
                         </Menu>
                     </menus>

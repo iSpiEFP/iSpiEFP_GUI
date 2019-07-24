@@ -149,13 +149,18 @@ public class MainViewController {
         return interested_parameters;
     }
 
+
+    /******************************************************************************************
+     *             FILE MENU BEGINS                                                           *
+     ******************************************************************************************/
+
     @FXML
     /**
      * parse a pdb or xyz file and load the main jmolPanel
      * @throws IOException
      * @throws UnrecognizedAtomException
      */
-    public void openFile() throws IOException, UnrecognizedAtomException {
+    public void fileOpen() throws IOException, UnrecognizedAtomException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Molecule");
         fileChooser.setInitialDirectory(
@@ -192,45 +197,159 @@ public class MainViewController {
         }
     }
 
-    @FXML
     /**
-     *  open a file with automatic fragmentation capabilities
+     * TODO: fileOpenRecent
+     * @throws IOException
      */
-    public void autoFragOpenFile() throws IOException, UnrecognizedAtomException {
-        /*FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Molecule");
-        fileChooser.setInitialDirectory(
-                new File(System.getProperty("user.home"))
-        );
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.*"),
-                new FileChooser.ExtensionFilter("XYZ", "*.xyz"),
-                new FileChooser.ExtensionFilter("PDB", "*.pdb")
-        );
-        Stage currStage = (Stage) root.getScene().getWindow();
 
+    @FXML
+    public void fileExit() throws IOException {
+        //TODO
+    }
 
-        File file = fileChooser.showOpenDialog(currStage);
-        if (file != null) {
-            // Check if it's an xyz or pdb file
-            lastOpenedFile = file.getAbsolutePath();
-            lastOpenedFileName = file.getName();
-            String fileName = file.getName();
-            System.out.println(fileName);
-            boolean isXyzorPDB = fileName.contains("xyz") || fileName.contains("pdb");
-            if (isXyzorPDB) {
-                // TODO: validate an xyz file if it is in correct format
+    /******************************************************************************************
+     *             EDITS MENU BEGINS                                                          *
+     ******************************************************************************************/
+    @FXML
+    public void editUndo() throws IOException {
+        //TODO
+    }
 
-                boolean automaticFragmentation = true;
-                //file is valid, sending to visualizer
-                JmolVisualizer jmolVisualizer = new JmolVisualizer(Main.getJmolViewer(), automaticFragmentation);
-                jmolVisualizer.show(file);
-            } else {
-                openFileParserWindow(file);
-            }
-        }*/
-        
-        //TODO this method does not work as intended and needs to be fixed
+    @FXML
+    public void editRedo() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void editSelectAll() throws IOException {
+        //TODO
+    }
+
+    /******************************************************************************************
+     *             VIEW MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void viewFullScreen() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewWindowed() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewAxisX() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewAxisY() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewAxisZ() throws IOException {
+        //TODO
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //             ZOOM SUB MENU BEGINS                                                      //
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    @FXML
+    public void viewZoomIn() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewZoomOut() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewZoom50() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewZoom75() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewZoom100() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewZoom150() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void viewZoom200() throws IOException {
+        //TODO
+    }
+
+    /******************************************************************************************
+     *             SEARCH MENU BEGINS                                                         *
+     ******************************************************************************************/
+    @FXML
+    public void searchFindEFPPublicDatabase() throws IOException {
+        //TODO
+    }
+    /******************************************************************************************
+     *             CALCULATE MENU BEGINS                                                      *
+     ******************************************************************************************/
+    @FXML
+    public void calculateLibefpSetup() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void calculateLibefpHistory() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void calculateGamessSetup() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void calculateGamessHistory() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void calculateEditServers() throws IOException {
+        //TODO
+    }
+
+    /******************************************************************************************
+     *             HELP MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void helpCheckForUpdates() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void helpAbout() throws IOException {
+        //TODO
+    }
+
+    @FXML
+    public void helpAboutJmol() throws IOException {
+        //TODO
+    }
+    @FXML
+    public void helpJmolWiki() throws IOException {
+        //TODO
+    }
+    @FXML
+    public void helpJmolConsole() throws IOException {
+        //TODO
     }
 
     @FXML
@@ -324,7 +443,12 @@ public class MainViewController {
     }
     
     /******************************************************************************************
-     *             ICON BUTTON HANDLER SECTION BEGINS                                         *
+     *             ICON BUTTON HANDLER SECTION BEGINS
+     *
+     *             The following section is for the Button Pane below the Menu Bar
+     *             containing all of the icon buttons. These buttons interact with the
+     *             Jmol Viewer object, and provide some default tools found in Jmol, as
+     *             well as some custom buttons.
      ******************************************************************************************/
     /**
      * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
