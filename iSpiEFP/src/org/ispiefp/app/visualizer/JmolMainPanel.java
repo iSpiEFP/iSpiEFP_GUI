@@ -83,12 +83,12 @@ public class JmolMainPanel extends JmolPanel {
         //default settings
         viewer.runScript("select clear");
         viewer.clearSelection();
-        viewer.runScript("set pickingstyle SELECT DRAG");
+        //viewer.runScript("set pickingstyle SELECT DRAG");
         viewer.runScript("set picking atom");
         viewer.runScript("animation fps 10");
-        viewer.runScript("selectionHalos off");
-        viewer.runScript("set bondpicking true");
-        viewer.runScript("color halos gold");
+        viewer.runScript("selectionHalos on");
+        //viewer.runScript("set bondpicking true");
+        //viewer.runScript("color halos gold");
 
         //initialize utility containers
         bondMap = getBondMap();
