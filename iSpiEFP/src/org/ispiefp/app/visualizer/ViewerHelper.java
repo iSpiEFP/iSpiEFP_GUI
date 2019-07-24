@@ -64,7 +64,7 @@ public class ViewerHelper {
      * this uses Hill's method for generating a formula
      * First count occurences of 'C' then 'H' then the rest in sorted order
      */
-    public String getChemicalFormula2(TreeMap<String, Integer> symbolMap) {
+    public static String getChemicalFormula2(TreeMap<String, Integer> symbolMap) {
         StringBuilder chemicalFormula = new StringBuilder();
         Integer count;
 
