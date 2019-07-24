@@ -4,12 +4,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import org.jmol.viewer.Viewer;
+import org.openscience.jmol.app.Jmol;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
@@ -240,27 +242,43 @@ public class MainViewController {
      ******************************************************************************************/
     @FXML
     public void viewFullScreen() throws IOException {
-        //TODO
+        Main.getPrimaryStage().setFullScreen(true);
+        Main.getPrimaryStage().setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     }
 
     @FXML
     public void viewWindowed() throws IOException {
-        //TODO
+        Main.getPrimaryStage().setFullScreen(false);
     }
 
     @FXML
-    public void viewAxisX() throws IOException {
-        //TODO
+    public void viewTop() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 1 0 0 -90");
+        jmolMainPanel.repaint();
     }
 
     @FXML
-    public void viewAxisY() throws IOException {
-        //TODO
+    public void viewLeft() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 0 1 0 -90");
+        jmolMainPanel.repaint();
     }
 
     @FXML
-    public void viewAxisZ() throws IOException {
-        //TODO
+    public void viewRight() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 0 1 0 90");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewBottom() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 1 0 0 90");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewCenter() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+        jmolMainPanel.repaint();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////

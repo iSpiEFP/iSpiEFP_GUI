@@ -44,9 +44,11 @@
                       <MenuItem mnemonicParsing="false" onAction="#viewFullScreen" text="Full Screen" />
                         <MenuItem mnemonicParsing="false" onAction="#viewWindowed" text="Windowed" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#viewAxisX" text="Axis X" />
-                        <MenuItem mnemonicParsing="false" onAction="#viewAxisY" text="Axis Y" />
-                        <MenuItem mnemonicParsing="false" onAction="#viewAxisZ" text="Axis Z" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewTop" text="Top" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewLeft" text="Left" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewRight" text="Right" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewBottom" text="Bottom" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewCenter" text="Center" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <Menu mnemonicParsing="false" text="Zoom">
                           <items>
