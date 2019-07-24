@@ -50,8 +50,7 @@ public class MainViewController {
     private static boolean[] interested_parameters = {false, false, false};
     
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
-    private Viewer viewer;                  //Jmol Viewer Object, a member of JmolMainPanel, can be invoked by jmolMainPanel.viewer as well
-    
+
     @FXML
     private Parent root;
     
@@ -120,8 +119,7 @@ public class MainViewController {
         consoleButton.setGraphic(new ImageView(terminal));
         
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
-        this.viewer = jmolMainPanel.viewer;
-        
+
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
         middleRightSplitPane.setDividerPositions(1, 0);
 
@@ -176,7 +174,6 @@ public class MainViewController {
         File file = fileChooser.showOpenDialog(currStage);
         
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
-        this.viewer = jmolMainPanel.viewer;
         if(jmolMainPanel.openFile(file)) {
             
             lastOpenedFile = file.getAbsolutePath();
@@ -200,7 +197,9 @@ public class MainViewController {
     /**
      * TODO: fileOpenRecent this button does not exist in the fxml doc and needs to be added
      * @throws IOException
+     *  This is currently disabled in the fxml doc since it is not currently operational
      */
+
 
     @FXML
     public void fileExit() throws IOException {
@@ -215,17 +214,25 @@ public class MainViewController {
      ******************************************************************************************/
     @FXML
     public void editUndo() throws IOException {
-        //TODO
+        jmolMainPanel.undoDeleteBond();
     }
 
     @FXML
     public void editRedo() throws IOException {
-        //TODO
+        //TODO JmolMainPanel history is current kept in a stack which pops only allowing an undo.
+        /* to implement undo change the stack to an arraylist and keep an index of the current */
+
+        //This is currently disabled in the fxml doc since it is not currently operational
     }
 
     @FXML
     public void editSelectAll() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("select all");
+    }
+
+    @FXML
+    public void editSelectNone() throws IOException {
+        jmolMainPanel.viewer.runScript("select none");
     }
 
     /******************************************************************************************
@@ -335,6 +342,7 @@ public class MainViewController {
     @FXML
     public void helpCheckForUpdates() throws IOException {
         //TODO
+        //This is currently disabled in the fxml doc since it is not currently operational
     }
 
     @FXML
@@ -462,14 +470,14 @@ public class MainViewController {
             haloButton.setSelected(false);
         } else if (haloButton.isSelected()) {
             System.out.println("on");
-            viewer.clearSelection();
-            viewer.runScript("selectionHalos on");
+            jmolMainPanel.viewer.clearSelection();
+            jmolMainPanel.viewer.runScript("selectionHalos on");
 
         } else {
             System.out.println("off");
-            viewer.runScript("selectionHalos off");
-            viewer.runScript("select; halos off");
-            viewer.clearSelection();
+            jmolMainPanel.viewer.runScript("selectionHalos off");
+            jmolMainPanel.viewer.runScript("select; halos off");
+            jmolMainPanel.viewer.clearSelection();
             jmolMainPanel.repaint();
         }
     }
@@ -482,10 +490,10 @@ public class MainViewController {
         if(lastOpenedFile.isEmpty()) {
             snipButton.setSelected(false);
         } else if (snipButton.isSelected()) {
-            viewer.runScript("set bondpicking true");
-            viewer.runScript("set picking deletebond");
+            jmolMainPanel.viewer.runScript("set bondpicking true");
+            jmolMainPanel.viewer.runScript("set picking deletebond");
         } else {
-            viewer.runScript("set bondpicking false");
+            jmolMainPanel.viewer.runScript("set bondpicking false");
         }
     }
     
@@ -510,10 +518,10 @@ public class MainViewController {
             playPauseButton.setGraphic(new ImageView(play));
         } else if (!lastOpenedFile.isEmpty() && playPauseButton.isSelected()) {
             playPauseButton.setGraphic(new ImageView(pause));
-            viewer.runScript("frame play");
+            jmolMainPanel.viewer.runScript("frame play");
         } else {
             playPauseButton.setGraphic(new ImageView(play));
-            viewer.runScript("animation off");
+            jmolMainPanel.viewer.runScript("animation off");
         }
     }
     
@@ -535,11 +543,11 @@ public class MainViewController {
             //create and connect panel with jmol console
             JPanel console_panel = new JPanel();
             console_panel.setLayout(new BorderLayout());
-            AppConsole console = new AppConsole(viewer, console_panel,
+            AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
                     "History State Clear");
     
             // Callback any scripts run in console to jmol viewer in main
-            viewer.setJmolCallbackListener(console);
+            jmolMainPanel.viewer.setJmolCallbackListener(console);
     
             //show console
             consoleFrame.getContentPane().add(console_panel);

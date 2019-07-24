@@ -24,7 +24,7 @@
                         <Menu mnemonicParsing="false" text="File">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
-                        <Menu mnemonicParsing="false" text="Open Recent" />
+                        <Menu disable="true" mnemonicParsing="false" text="Open Recent" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />
 
@@ -33,9 +33,10 @@
                   <Menu mnemonicParsing="false" text="Edit">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#editUndo" text="Undo Deletion" />
-                        <MenuItem mnemonicParsing="false" onAction="#editRedo" text="Redo Deletion" />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#editRedo" text="Redo Deletion" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#editSelectAll" text="Select All" />
+                        <MenuItem mnemonicParsing="false" onAction="#editSelectNone" text="Select None" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="View">
@@ -103,7 +104,7 @@
 
                         <Menu mnemonicParsing="false" text="Help">
                             <items>
-                        <MenuItem mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
                                 <MenuItem mnemonicParsing="false" onAction="#helpAbout" text="About" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#helpAboutJmol" text="About Jmol" />
