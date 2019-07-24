@@ -101,13 +101,14 @@
                 </MenuBar>
                 <Pane prefHeight="55.0" prefWidth="200.0">
                     <children>
-                        <ToggleButton fx:id="haloButton" layoutX="14.0" layoutY="5.0" mnemonicParsing="false" onAction="#toggleHalo" prefHeight="45.0" prefWidth="45.0" text="Halo On" />
-                        <ToggleButton fx:id="snipButton" layoutX="76.0" layoutY="5.0" mnemonicParsing="false" onAction="#toggleSnip" prefHeight="45.0" prefWidth="45.0" text="Fragmenation" />
-                        <Button fx:id="undoButton" layoutX="139.0" layoutY="5.0" mnemonicParsing="false" onAction="#undo" prefHeight="45.0" prefWidth="70.0" text="undo" />
-                        <ToggleButton fx:id="playPauseButton" layoutX="221.0" layoutY="5.0" mnemonicParsing="false" onAction="#togglePlay" prefHeight="45.0" prefWidth="45.0" text="play_pause" />
-                        <Button fx:id="consoleButton" layoutX="283.0" layoutY="5.0" mnemonicParsing="false" onAction="#displayConsole" prefHeight="45.0" prefWidth="45.0" text="show_console" />
-                        <Button fx:id="searchFragmentsButton" layoutX="343.0" layoutY="5.0" mnemonicParsing="false" onAction="#searchFragments" prefHeight="45.0" prefWidth="120.0" text="Search Fragments" />
-                        <Button fx:id="libefpButton" layoutX="473.0" layoutY="5.0" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp" />
+                  <ToggleButton fx:id="selectionButton" layoutX="14.0" layoutY="5.0" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleSelection" prefHeight="45.0" prefWidth="45.0" text="select" />
+                        <ToggleButton fx:id="haloButton" layoutX="70.0" layoutY="5.0" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleHalo" prefHeight="45.0" prefWidth="45.0" text="Halo On" />
+                        <ToggleButton fx:id="snipButton" layoutX="126.0" layoutY="5.0" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleSnip" prefHeight="45.0" prefWidth="45.0" text="Fragmenation" />
+                  <ToggleButton fx:id="measureButton" layoutX="185.0" layoutY="5.0" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleMeasure" prefHeight="45.0" prefWidth="45.0" text="measure" />
+                  <ToggleButton fx:id="pickCenterButton" layoutX="242.0" layoutY="5.0" mnemonicParsing="false" onAction="#handlePickCenter" prefHeight="45.0" prefWidth="45.0" text="center" />
+                        <ToggleButton fx:id="playPauseButton" layoutX="298.0" layoutY="5.0" lineSpacing="5.0" mnemonicParsing="false" onAction="#togglePlay" prefHeight="45.0" prefWidth="45.0" text="play_pause" />
+                        <Button fx:id="consoleButton" layoutX="356.0" layoutY="5.0" mnemonicParsing="false" onAction="#displayConsole" prefHeight="45.0" prefWidth="45.0" text="show_console" />
+                        <Button fx:id="libefpButton" layoutX="416.0" layoutY="5.0" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp" />
                     </children>
                 </Pane>
             </children>

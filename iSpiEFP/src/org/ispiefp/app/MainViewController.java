@@ -84,22 +84,25 @@ public class MainViewController {
      *             ICON BUTTON SECTION BEGINS                                         *
      ******************************************************************************************/
     @FXML
+    private ToggleButton selectionButton;
+
+    @FXML
     private ToggleButton haloButton;
         
     @FXML
     private ToggleButton snipButton;
     
     @FXML
-    private Button undoButton;
+    private ToggleButton measureButton;
+
+    @FXML
+    private ToggleButton pickCenterButton;
     
     @FXML
     private ToggleButton playPauseButton;
     
     @FXML
     private Button consoleButton;
-    
-    @FXML
-    private Button searchFragmentsButton;
     
     @FXML
     private Button libefpButton;
@@ -510,6 +513,22 @@ public class MainViewController {
      *             well as some custom buttons.
      ******************************************************************************************/
     /**
+     * Handle Selection Toggle Button. Select all atoms and highlight
+     */
+    @FXML
+    public void toggleSelection() {
+        if(selectionButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("selectionHalos on");
+            jmolMainPanel.viewer.runScript("select all");
+            jmolMainPanel.repaint();
+        } else {
+            jmolMainPanel.viewer.runScript("selectionHalos off");
+            jmolMainPanel.viewer.runScript("select none");
+            jmolMainPanel.repaint();
+        }
+    }
+
+    /**
      * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
      */
     @FXML
@@ -518,14 +537,11 @@ public class MainViewController {
             haloButton.setSelected(false);
         } else if (haloButton.isSelected()) {
             System.out.println("on");
-            jmolMainPanel.viewer.clearSelection();
             jmolMainPanel.viewer.runScript("selectionHalos on");
-
+            jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
         } else {
             System.out.println("off");
             jmolMainPanel.viewer.runScript("selectionHalos off");
-            jmolMainPanel.viewer.runScript("select; halos off");
-            jmolMainPanel.viewer.clearSelection();
             jmolMainPanel.repaint();
         }
     }
@@ -544,14 +560,31 @@ public class MainViewController {
             jmolMainPanel.viewer.runScript("set bondpicking false");
         }
     }
-    
+
     /**
-     * Handle Undo Button. Reverse a snipping action on the molecule
+     * Handle toggle measure button. Clicking on two seperate atoms measures distance
      */
     @FXML
-    public void undo() {
-        //TODO
-        jmolMainPanel.undoDeleteBond();
+    public void toggleMeasure() {
+        if (measureButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set picking MEASURE DISTANCE");
+            jmolMainPanel.viewer.runScript("set pickingStyle MEASURE ON");
+        } else {
+            jmolMainPanel.viewer.runScript("set pickingStyle MEASURE OFF");
+            jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
+        }
+    }
+
+    /**
+     * Handle Pick Center Button. Centers a atom on selection
+     */
+    @FXML
+    public void handlePickCenter() {
+        if(pickCenterButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set picking CENTER");
+        } else {
+            jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
+        }
     }
     
     /**
@@ -607,30 +640,6 @@ public class MainViewController {
                     consoleFrame.repaint();
                 }
             });
-        }
-    }
-    
-    /**
-     * Handle Search Fragments button. Search the database for similar fragments to the current molecule
-     */
-    @FXML
-    public void searchFragments() {
-        if (!lastOpenedFile.isEmpty()) {
-            //set divider positions
-            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
-            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
-
-            //Runs auxiliary JmolViewer
-            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
-
-            //load aux table list
-            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
-            try {
-                //start database controller actions
-                DBcontroller.run();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
     
