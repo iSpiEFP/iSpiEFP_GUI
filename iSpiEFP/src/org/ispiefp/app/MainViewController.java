@@ -49,6 +49,7 @@ public class MainViewController {
     private static final Image ruler = new Image(Main.class.getResource("/images/ruler.png").toString());
     private static final Image center = new Image(Main.class.getResource("/images/center.png").toString());
     private static final Image selectAll = new Image(Main.class.getResource("/images/select_all.png").toString());
+    private static final Image build = new Image(Main.class.getResource("/images/build.png").toString());
 
     private static String lastOpenedFile = new String();
     private static String lastOpenedFileName = new String();
@@ -103,6 +104,9 @@ public class MainViewController {
     
     @FXML
     private ToggleButton playPauseButton;
+
+    @FXML
+    private ToggleButton modelKitButton;
     
     @FXML
     private Button consoleButton;
@@ -129,6 +133,8 @@ public class MainViewController {
         pickCenterButton.setGraphic(new ImageView(center));
         playPauseButton.setText("");
         playPauseButton.setGraphic(new ImageView(play));
+        modelKitButton.setText("");
+        modelKitButton.setGraphic(new ImageView(build));
         consoleButton.setText("");
         consoleButton.setGraphic(new ImageView(terminal));
         
@@ -542,9 +548,7 @@ public class MainViewController {
      */
     @FXML
     public void toggleHalo() {
-        if(lastOpenedFile.isEmpty()) {
-            haloButton.setSelected(false);
-        } else if (haloButton.isSelected()) {
+        if (haloButton.isSelected()) {
             System.out.println("on");
             jmolMainPanel.viewer.runScript("selectionHalos on");
             jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
@@ -560,9 +564,7 @@ public class MainViewController {
      */
     @FXML
     public void toggleSnip() {
-        if(lastOpenedFile.isEmpty()) {
-            snipButton.setSelected(false);
-        } else if (snipButton.isSelected()) {
+        if (snipButton.isSelected()) {
             jmolMainPanel.viewer.runScript("set bondpicking true");
             jmolMainPanel.viewer.runScript("set picking deletebond");
         } else {
@@ -602,11 +604,9 @@ public class MainViewController {
     @FXML
     public void togglePlay() {
         playPauseButton.setText("");
-        
-        if(lastOpenedFile.isEmpty()) {
-            playPauseButton.setSelected(false);
-            playPauseButton.setGraphic(new ImageView(play));
-        } else if (!lastOpenedFile.isEmpty() && playPauseButton.isSelected()) {
+        playPauseButton.setSelected(false);
+        playPauseButton.setGraphic(new ImageView(play));
+        if (playPauseButton.isSelected()) {
             playPauseButton.setGraphic(new ImageView(pause));
             jmolMainPanel.viewer.runScript("frame play");
         } else {
@@ -620,35 +620,47 @@ public class MainViewController {
      */
     @FXML
     public void displayConsole() {
-        if (!lastOpenedFile.isEmpty()) {
-            //create window for console
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            JFrame consoleFrame = new JFrame();
-            consoleFrame.setSize(800, 400);
-            consoleFrame.setLocation(
-                    (screenSize.width - 500) / 2,
-                    (screenSize.height) / 2);
-            consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        //create window for console
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame consoleFrame = new JFrame();
+        consoleFrame.setSize(800, 400);
+        consoleFrame.setLocation(
+                (screenSize.width - 500) / 2,
+                (screenSize.height) / 2);
+        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     
-            //create and connect panel with jmol console
-            JPanel console_panel = new JPanel();
-            console_panel.setLayout(new BorderLayout());
-            AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
-                    "Editor Font Variables History State Clear Help");
+        //create and connect panel with jmol console
+        JPanel console_panel = new JPanel();
+        console_panel.setLayout(new BorderLayout());
+        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
+                "Editor Font Variables History State Clear Help");
     
-            // Callback any scripts run in console to jmol viewer in main
-            jmolMainPanel.viewer.setJmolCallbackListener(console);
+        // Callback any scripts run in console to jmol viewer in main
+        jmolMainPanel.viewer.setJmolCallbackListener(console);
     
-            //show console
-            consoleFrame.getContentPane().add(console_panel);
-            consoleFrame.setVisible(true);
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    consoleFrame.toFront();
-                    consoleFrame.repaint();
-                }
-            });
+        //show console
+        consoleFrame.getContentPane().add(console_panel);
+        consoleFrame.setVisible(true);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                consoleFrame.toFront();
+                consoleFrame.repaint();
+            }
+        });
+    }
+
+    /**
+     * Handle the model kit button for making custom molecules
+     */
+    @FXML
+    public void toggleModelKit() {
+        if(modelKitButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set modelKitMode true");
+            jmolMainPanel.repaint();
+        } else {
+            jmolMainPanel.viewer.runScript("set modelKitMode false");
+            jmolMainPanel.repaint();
         }
     }
     

@@ -86,7 +86,7 @@ public class JmolMainPanel extends JmolPanel {
         //viewer.runScript("set pickingstyle SELECT DRAG");
         viewer.runScript("set picking atom");
         viewer.runScript("animation fps 10");
-        viewer.runScript("selectionHalos off");
+        viewer.runScript("selectionHalos on");
         //viewer.runScript("set bondpicking true");
         //viewer.runScript("color halos gold");
 

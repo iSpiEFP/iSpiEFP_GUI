@@ -130,11 +130,16 @@
                         <Tooltip text="Capture" />
                      </tooltip>
                   </ToggleButton>
-                        <Button fx:id="consoleButton" layoutX="356.0" layoutY="5.0" mnemonicParsing="false" onAction="#displayConsole" prefHeight="45.0" prefWidth="45.0" text="show_console">
+                  <ToggleButton fx:id="modelKitButton" layoutX="355.0" layoutY="5.0" mnemonicParsing="false" onAction="#toggleModelKit" prefHeight="45.0" prefWidth="45.0" text="modelKit">
+                     <tooltip>
+                        <Tooltip text="Build a custom model" />
+                     </tooltip>
+                  </ToggleButton>
+                        <Button fx:id="consoleButton" layoutX="413.0" layoutY="5.0" mnemonicParsing="false" onAction="#displayConsole" prefHeight="45.0" prefWidth="45.0" text="show_console">
                      <tooltip>
                         <Tooltip text="Use Jmol Java console" />
                      </tooltip></Button>
-                        <Button fx:id="libefpButton" layoutX="416.0" layoutY="5.0" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp">
+                        <Button fx:id="libefpButton" layoutX="1116.0" layoutY="5.0" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp">
                      <tooltip>
                         <Tooltip text="Calculate Libefp" />
                      </tooltip></Button>
