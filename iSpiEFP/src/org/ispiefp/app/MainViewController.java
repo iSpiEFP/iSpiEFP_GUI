@@ -198,13 +198,16 @@ public class MainViewController {
     }
 
     /**
-     * TODO: fileOpenRecent
+     * TODO: fileOpenRecent this button does not exist in the fxml doc and needs to be added
      * @throws IOException
      */
 
     @FXML
     public void fileExit() throws IOException {
-        //TODO
+        System.out.println("Stage is closing");
+        Main.getPrimaryStage().close();
+        System.exit(0);
+        //TODO: add pop-up message, "Are you sure?"
     }
 
     /******************************************************************************************
