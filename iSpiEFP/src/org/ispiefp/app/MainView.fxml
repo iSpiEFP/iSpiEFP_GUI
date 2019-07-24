@@ -75,8 +75,8 @@
                   </Menu>
                   <Menu mnemonicParsing="false" text="Calculate">
                     <items>
-                      <MenuItem mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
-                        <MenuItem mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
+                      <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
                         <Menu mnemonicParsing="false" text="Monitor Jobs">
                           <items>
                             <MenuItem mnemonicParsing="false" onAction="#calculateLibefpHistory" text="Libefp History" />
@@ -86,30 +86,12 @@
                         <MenuItem mnemonicParsing="false" onAction="#calculateEditServers" text="Edit Servers" />
                     </items>
                   </Menu>
-                        <Menu mnemonicParsing="false" text="Gamess">
-                            <items>
-
-                                <MenuItem mnemonicParsing="false" onAction="#openGamessSubmissionHistoryWindow" text="Submission History.." />
-                            </items>
-                        </Menu>
-                        <Menu mnemonicParsing="false" text="Libefp">
-                            <items>
-
-                                <MenuItem mnemonicParsing="false" onAction="#openSubmissionHistoryWindow" text="Submission History.." />
-                            </items>
-                        </Menu>
-                        <Menu mnemonicParsing="false" text="Server">
-                            <items>
-                                <MenuItem mnemonicParsing="false" onAction="#openServersListWindow" text="Edit Servers.." />
-                            </items>
-                        </Menu>
 
                         <Menu mnemonicParsing="false" text="Help">
                             <items>
                         <MenuItem disable="true" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
                                 <MenuItem mnemonicParsing="false" onAction="#helpAbout" text="About" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#helpAboutJmol" text="About Jmol" />
                         <MenuItem mnemonicParsing="false" onAction="#helpJmolWiki" text="Jmol Wiki" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#helpJmolConsole" text="Jmol Console" />

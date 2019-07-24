@@ -1,6 +1,7 @@
 package org.ispiefp.app;
 
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -29,6 +30,8 @@ public class Main extends Application {
     private static Stage primaryStage;
     private static BorderPane mainLayout;
 
+    public static HostServices hostServices;
+
     /**
      * The Main function which starts iSpiEFP
      *
@@ -47,6 +50,9 @@ public class Main extends Application {
         //Manage Working Directory
         BundleManager bundleManager = new BundleManager("LOCAL");
         bundleManager.manageLocal();
+
+        //get User Default Browser
+        hostServices = getHostServices();
 
         TermsofAgreement terms = new TermsofAgreement();
         //terms.show();

@@ -357,98 +357,13 @@ public class MainViewController {
      ******************************************************************************************/
     @FXML
     public void calculateLibefpSetup() throws IOException {
-        //TODO
+        //TODO This should open up the libefp setup page
+        //This is currently disabled in the fxml doc since it is not currently operational
+
     }
 
     @FXML
     public void calculateLibefpHistory() throws IOException {
-        //TODO
-    }
-
-    @FXML
-    public void calculateGamessSetup() throws IOException {
-        //TODO
-    }
-
-    @FXML
-    public void calculateGamessHistory() throws IOException {
-        //TODO
-    }
-
-    @FXML
-    public void calculateEditServers() throws IOException {
-        //TODO
-    }
-
-    /******************************************************************************************
-     *             HELP MENU BEGINS                                                           *
-     ******************************************************************************************/
-    @FXML
-    public void helpCheckForUpdates() throws IOException {
-        //TODO
-        //This is currently disabled in the fxml doc since it is not currently operational
-    }
-
-    @FXML
-    public void helpAbout() throws IOException {
-        //TODO
-    }
-
-    @FXML
-    public void helpAboutJmol() throws IOException {
-        //TODO
-    }
-    @FXML
-    public void helpJmolWiki() throws IOException {
-        //TODO
-    }
-    @FXML
-    public void helpJmolConsole() throws IOException {
-        //TODO
-    }
-
-    @FXML
-    public void openLibEFPWindow() throws IOException {
-        Parent libEFPInput = FXMLLoader.load(getClass().getResource("libEFP/libEFP.fxml"));
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.setTitle("Libefp Input");
-        stage.setScene(new Scene(libEFPInput));
-        stage.show();
-    }
-
-    @FXML
-    public void openServersListWindow() throws IOException {
-        Parent serversList = FXMLLoader.load(getClass().getResource("server/ServersList.fxml"));
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.setTitle("Servers list");
-        stage.setScene(new Scene(serversList));
-        stage.show();
-    }
-
-	
-    @FXML
-    public void openAbout() throws IOException{    //Help -> About dialog
-        Alert a1 = new Alert(Alert.AlertType.CONFIRMATION,"hello");
-        a1.setTitle("About iSpiEFP");
-        a1.setHeaderText("Look, an Information Dialog");
-        a1.setContentText("I have a great message for you!");
-        a1.showAndWait();
-    }
-	
-    @FXML
-    public void openGamessWindow() throws IOException {
-        Parent gamessInput = FXMLLoader.load(getClass().getResource("gamess/gamessInput.fxml"));
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.setTitle("Gamess Input");
-        stage.setScene(new Scene(gamessInput));
-        stage.show();
-    }
-
-    @FXML
-    public void openSubmissionHistoryWindow() throws IOException {
         LoginForm loginForm = new LoginForm("LIBEFP");
         boolean authorized = loginForm.authenticate();
         if (authorized) {
@@ -459,7 +374,6 @@ public class MainViewController {
                     )
             );
             loader.setController(controller);
-
             Stage stage = new Stage(StageStyle.DECORATED);
             stage.setScene(
                     new Scene(
@@ -473,7 +387,14 @@ public class MainViewController {
     }
 
     @FXML
-    public void openGamessSubmissionHistoryWindow() throws IOException {
+    public void calculateGamessSetup() throws IOException {
+        //TODO this should open the gamess setup page
+        //This is currently disabled in the fxml doc since it is not currently operational
+
+    }
+
+    @FXML
+    public void calculateGamessHistory() throws IOException {
         LoginForm loginForm = new LoginForm("GAMESS");
         boolean authorized = loginForm.authenticate();
         if (authorized) {
@@ -496,6 +417,89 @@ public class MainViewController {
             stage.show();
         }
     }
+
+    @FXML
+    public void calculateEditServers() throws IOException {
+        Parent serversList = FXMLLoader.load(getClass().getResource("server/ServersList.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Servers list");
+        stage.setScene(new Scene(serversList));
+        stage.show();
+    }
+
+    /******************************************************************************************
+     *             HELP MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void helpCheckForUpdates() throws IOException {
+        //TODO
+        //This is currently disabled in the fxml doc since it is not currently operational
+    }
+
+    @FXML
+    public void helpAbout() throws IOException {
+        Main.hostServices.showDocument("https://www.chem.purdue.edu/Slipchenko/");
+    }
+
+    @FXML
+    public void helpJmolWiki() throws IOException {
+        Main.hostServices.showDocument("http://jmol.sourceforge.net/");
+    }
+
+    @FXML
+    public void helpJmolConsole() throws IOException {
+        //create window for console
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame consoleFrame = new JFrame();
+        consoleFrame.setSize(800, 400);
+        consoleFrame.setLocation(
+                (screenSize.width - 500) / 2,
+                (screenSize.height) / 2);
+        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        //create and connect panel with jmol console
+        JPanel console_panel = new JPanel();
+        console_panel.setLayout(new BorderLayout());
+        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
+                "Editor Font Variables History State Clear Help");
+
+        // Callback any scripts run in console to jmol viewer in main
+        jmolMainPanel.viewer.setJmolCallbackListener(console);
+
+        //show console
+        consoleFrame.getContentPane().add(console_panel);
+        consoleFrame.setVisible(true);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                consoleFrame.toFront();
+                consoleFrame.repaint();
+            }
+        });
+    }
+
+    /*
+    @FXML
+    public void openLibEFPWindow() throws IOException {
+        Parent libEFPInput = FXMLLoader.load(getClass().getResource("libEFP/libEFP.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Libefp Input");
+        stage.setScene(new Scene(libEFPInput));
+        stage.show();
+    }*/
+
+    /*
+    @FXML
+    public void openGamessWindow() throws IOException {
+        Parent gamessInput = FXMLLoader.load(getClass().getResource("gamess/gamessInput.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Gamess Input");
+        stage.setScene(new Scene(gamessInput));
+        stage.show();
+    }*/
     
     /******************************************************************************************
      *             ICON BUTTON HANDLER SECTION BEGINS
@@ -588,7 +592,7 @@ public class MainViewController {
             JPanel console_panel = new JPanel();
             console_panel.setLayout(new BorderLayout());
             AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
-                    "History State Clear");
+                    "Editor Font Variables History State Clear Help");
     
             // Callback any scripts run in console to jmol viewer in main
             jmolMainPanel.viewer.setJmolCallbackListener(console);
