@@ -330,8 +330,27 @@ public class MainViewController {
      *             SEARCH MENU BEGINS                                                         *
      ******************************************************************************************/
     @FXML
+    /**
+     * Handle Search Fragments button. Search the database for similar fragments to the current molecule
+     */
     public void searchFindEFPPublicDatabase() throws IOException {
-        //TODO
+        if (!lastOpenedFile.isEmpty()) {
+            //set divider positions
+            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
+            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
+
+            //Runs auxiliary JmolViewer
+            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
+
+            //load aux table list
+            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
+            try {
+                //start database controller actions
+                DBcontroller.run();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
     /******************************************************************************************
      *             CALCULATE MENU BEGINS                                                      *
