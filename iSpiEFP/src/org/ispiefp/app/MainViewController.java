@@ -41,12 +41,15 @@ import javafx.scene.layout.Pane;
 
 public class MainViewController {
 
-    private static final Image halo = new Image(Main.class.getResource("/images/halo.png").toString());
+    private static final Image halo = new Image(Main.class.getResource("/images/select.png").toString());
     private static final Image scissors = new Image(Main.class.getResource("/images/scissors.png").toString());
     private static final Image play = new Image(Main.class.getResource("/images/play.png").toString());
     private static final Image pause = new Image(Main.class.getResource("/images/pause.png").toString());
     private static final Image terminal = new Image(Main.class.getResource("/images/terminal.png").toString());
-    
+    private static final Image ruler = new Image(Main.class.getResource("/images/ruler.png").toString());
+    private static final Image center = new Image(Main.class.getResource("/images/center.png").toString());
+    private static final Image selectAll = new Image(Main.class.getResource("/images/select_all.png").toString());
+
     private static String lastOpenedFile = new String();
     private static String lastOpenedFileName = new String();
     private static boolean[] interested_parameters = {false, false, false};
@@ -114,10 +117,16 @@ public class MainViewController {
     @FXML
     public void initialize() {
         //set graphics
+        selectionButton.setText("");
+        selectionButton.setGraphic(new ImageView(selectAll));
         haloButton.setText("");
         haloButton.setGraphic(new ImageView(halo));
         snipButton.setText("");
         snipButton.setGraphic(new ImageView(scissors));
+        measureButton.setText("");
+        measureButton.setGraphic(new ImageView(ruler));
+        pickCenterButton.setText("");
+        pickCenterButton.setGraphic(new ImageView(center));
         playPauseButton.setText("");
         playPauseButton.setGraphic(new ImageView(play));
         consoleButton.setText("");
