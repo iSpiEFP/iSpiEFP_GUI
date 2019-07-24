@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.BorderPane?>
@@ -14,40 +15,86 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="root" prefHeight="550.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.MainViewController">
+<BorderPane fx:id="root" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.MainViewController">
     <top>
         <VBox BorderPane.alignment="CENTER">
             <children>
                 <MenuBar>
                     <menus>
-                        <Menu mnemonicParsing="false" text="Viewer">
+                        <Menu mnemonicParsing="false" text="File">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
-                                <MenuItem mnemonicParsing="false" onAction="#autoFragOpenFile" text="Open(Auto Fragmentation)" />
+                                <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
+                        <Menu disable="true" mnemonicParsing="false" text="Open Recent" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />
 
                             </items>
                         </Menu>
-                        <Menu mnemonicParsing="false" text="Gamess">
-                            <items>
-
-                                <MenuItem mnemonicParsing="false" onAction="#openGamessSubmissionHistoryWindow" text="Submission History.." />
-                            </items>
+                  <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#editUndo" text="Undo Deletion" />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#editRedo" text="Redo Deletion" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#editSelectAll" text="Select All" />
+                        <MenuItem mnemonicParsing="false" onAction="#editSelectNone" text="Select None" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="View">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#viewFullScreen" text="Full Screen" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewWindowed" text="Windowed" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewTop" text="Top" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewLeft" text="Left" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewRight" text="Right" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewBottom" text="Bottom" />
+                        <MenuItem mnemonicParsing="false" onAction="#viewCenter" text="Center" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <Menu mnemonicParsing="false" text="Zoom">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#viewZoomIn" text="Zoom In" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoomOut" text="Zoom Out" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom50" text="50%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom75" text="75%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom100" text="100%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom150" text="150%" />
+                              <MenuItem mnemonicParsing="false" onAction="#viewZoom200" text="200%" />
+                          </items>
                         </Menu>
-                        <Menu mnemonicParsing="false" text="Libefp">
-                            <items>
-
-                                <MenuItem mnemonicParsing="false" onAction="#openSubmissionHistoryWindow" text="Submission History.." />
-                            </items>
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Search">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Find EFP Files ">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#searchFindEFPPublicDatabase" text="Search Public Database" />
+                          </items>
                         </Menu>
-                        <Menu mnemonicParsing="false" text="Server">
-                            <items>
-                                <MenuItem mnemonicParsing="false" onAction="#openServersListWindow" text="Edit Servers.." />
-                            </items>
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Calculate">
+                    <items>
+                      <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
+                        <Menu mnemonicParsing="false" text="Monitor Jobs">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#calculateLibefpHistory" text="Libefp History" />
+                              <MenuItem mnemonicParsing="false" onAction="#calculateGamessHistory" text="Gamess History" />
+                          </items>
                         </Menu>
+                        <MenuItem mnemonicParsing="false" onAction="#calculateEditServers" text="Edit Servers" />
+                    </items>
+                  </Menu>
 
                         <Menu mnemonicParsing="false" text="Help">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#openAbout" text="About" />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
+                                <MenuItem mnemonicParsing="false" onAction="#helpAbout" text="About" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#helpJmolWiki" text="Jmol Wiki" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#helpJmolConsole" text="Jmol Console" />
                             </items>
                         </Menu>
                     </menus>
