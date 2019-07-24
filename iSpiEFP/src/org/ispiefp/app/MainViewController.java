@@ -286,37 +286,44 @@ public class MainViewController {
     ///////////////////////////////////////////////////////////////////////////////////////////
     @FXML
     public void viewZoomIn() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("zoom in");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void viewZoomOut() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("zoom out");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void viewZoom50() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("zoom 50");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void viewZoom75() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("zoom 75");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void viewZoom100() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("zoom 100");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void viewZoom150() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("zoom 150");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void viewZoom200() throws IOException {
-        //TODO
+        jmolMainPanel.viewer.runScript("zoom 200");
+        jmolMainPanel.repaint();
     }
 
     /******************************************************************************************
