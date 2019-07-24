@@ -72,10 +72,7 @@ public class Main extends Application {
             }
         });
         getPrimaryStage().setResizable(true);
-        //primaryStage.initModality(Modality.WINDOW_MODAL);
         getPrimaryStage().setAlwaysOnTop(false);
-        getPrimaryStage().setHeight(700);
-        getPrimaryStage().setWidth(1200);
 
         //add iSpiEFP Spider icon
         String url = Main.class.getResource("/images/iSpiEFP_Logo.png").toString();
