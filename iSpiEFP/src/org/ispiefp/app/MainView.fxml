@@ -42,7 +42,11 @@
                         <Menu mnemonicParsing="false" text="Server">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#openServersListWindow" text="Edit Servers.." />
+                                <MenuItem mnemonicParsing="false" onAction="#openLibEFPWindow"
+                                          text="LibEFP Server"/>
                             </items>
+
+
                         </Menu>
 
                         <Menu mnemonicParsing="false" text="Help">
