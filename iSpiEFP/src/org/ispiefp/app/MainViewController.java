@@ -4,11 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import org.ispiefp.app.util.ProgressIndicatorTest;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
@@ -28,11 +30,6 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -48,6 +45,8 @@ public class MainViewController {
     private static String lastOpenedFile = new String();
     private static String lastOpenedFileName = new String();
     private static boolean[] interested_parameters = {false, false, false};
+
+    private ProgressIndicatorTest pit;
     
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
     private Viewer viewer;                  //Jmol Viewer Object, a member of JmolMainPanel, can be invoked by jmolMainPanel.viewer as well
@@ -240,7 +239,9 @@ public class MainViewController {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Libefp Input");
         stage.setScene(new Scene(libEFPInput));
+        pit.fire();
         stage.show();
+
     }
 
     @FXML

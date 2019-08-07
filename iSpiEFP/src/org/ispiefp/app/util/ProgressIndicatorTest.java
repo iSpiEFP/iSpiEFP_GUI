@@ -40,5 +40,10 @@ public class ProgressIndicatorTest {
         primaryStage.toFront();
     }
 
+    public void kill() {
+        pit.setProgress(0.0);
+
+    }
+
 
 }
