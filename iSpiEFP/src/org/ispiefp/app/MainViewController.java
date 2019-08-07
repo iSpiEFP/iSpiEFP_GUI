@@ -273,6 +273,15 @@ public class MainViewController {
         stage.show();
     }
 
+    public void openLibEFPServers() throws IOException {
+        Parent serversList = FXMLLoader.load(getClass().getResource("server/LibEFPServers.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("LibEFP Servers");
+        stage.setScene(new Scene(serversList));
+        stage.show();
+    }
+
     @FXML
     public void openSubmissionHistoryWindow() throws IOException {
         LoginForm loginForm = new LoginForm("LIBEFP");
