@@ -3,7 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane fx:id="root" prefHeight="550.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/10.0.1"
+<BorderPane fx:id="root" prefHeight="550.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/9.0.4"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vmol.app.MainViewController">
     <top>
         <VBox BorderPane.alignment="CENTER">
