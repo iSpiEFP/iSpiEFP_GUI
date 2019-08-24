@@ -52,7 +52,17 @@ public class MetaHandler {
             }
 
             if (metaDataFileString != null) {
-                gson.fromJson(metaDataFileString, MetaData.class);
+                MetaData inferredClass = gson.fromJson(metaDataFileString, MetaData.class);
+                this.fromFile = inferredClass.fromFile;
+                this.fragmentName = inferredClass.fragmentName;
+                this.scf_type = inferredClass.scf_type;
+                this.basis_set = inferredClass.basis_set;
+                this.coordinates = inferredClass.coordinates;
+                this.bitmap = inferredClass.bitmap;
+            }
+            if (this.fromFile == null || this.fragmentName == null || this.scf_type == null
+                || this.basis_set == null || this.coordinates.length == 0 || this.bitmap == 0){
+                System.err.println("Malformed meta data file");
             }
         }
 
