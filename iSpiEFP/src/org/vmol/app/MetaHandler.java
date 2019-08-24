@@ -1,6 +1,7 @@
 package org.vmol.app;
 
 import com.google.gson.Gson;
+import jdk.jshell.spi.ExecutionControl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,6 +55,65 @@ public class MetaHandler {
                 gson.fromJson(metaDataFileString, MetaData.class);
             }
         }
+
+        /**
+         * Returns bitmap encoding of contained fields
+         * @return int value of bitmap
+         */
+        public int getBitmap() {
+            return bitmap;
+        }
+
+        /**
+         * Returns the basis set the parameter generation was performed in
+         * @return the basis set as a String
+         */
+        public String getBasis_set() {
+            return basis_set;
+        }
+
+        /**
+         * Returns the name of the fragment
+         * @return the fragment as a String
+         */
+        public String getFragmentName() {
+            return fragmentName;
+        }
+
+        /**
+         * Returns the file from which this meta data was extracted
+         * @return the file name as a String
+         */
+        public String getFromFile() {
+            return fromFile;
+        }
+
+        /**
+         * Returns the self-conistent field method used to generate these parameters
+         * @return the self-consistent field method as a String
+         */
+        public String getScf_type() {
+            return scf_type;
+        }
+
+        /**
+         * Returns the coordinates of every atom in the fragment as a String in the following representation:
+         *
+         * <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
+         *
+         *                     Field       Type
+         *                     ------------------
+         *                     atomId:     String
+         *                     x_coord:    double
+         *                     y_coord:    double
+         *                     z_coord:    double
+         *                     mass:       double
+         *                     charge:     double
+         * @return an array of Strings of size number of coordinates
+         */
+        public String[] getCoordinates() {
+            return coordinates;
+        }
     }
 
     /**
@@ -63,6 +123,14 @@ public class MetaHandler {
      */
     public void setCurrentMetaData(String metaDataFile) {
         this.currentMetaData = new MetaData(metaDataFile);
+    }
+
+    /**
+     * Returns the current MetaData object that the handler is looking at
+     * @return the MetaData object that the handler is looking at
+     */
+    public MetaData getCurrentMetaData() {
+        return currentMetaData;
     }
 
     /**
@@ -225,4 +293,33 @@ public class MetaHandler {
         return containsMonopoles() && containsDipoles() && containsQuadrupoles() && containsOctupoles();
     }
 
+    /**
+     * Returns true iff original efp file contained all of the information for Polarization
+     * A file has all of the Exchange Repulsion information if it has TODO: get necessary fields from Dr. Slipchenko
+     *
+     * @return true iff original efp file contained all of the information for Polarization
+     */
+    public boolean containsPolarization() throws ExecutionControl.NotImplementedException {
+        throw new ExecutionControl.NotImplementedException("not implemented");
+    }
+
+    /**
+     * Returns true iff original efp file contained all of the information for Exchange Repulsion
+     * A file has all of the Exchange Repulsion information if it has TODO: get necessary fields from Dr. Slipchenko
+     *
+     * @return true iff original efp file contained all of the information for Exchange Repulsion
+     */
+    public boolean containsExchangeRepulsion() throws ExecutionControl.NotImplementedException {
+        throw new ExecutionControl.NotImplementedException("not implemented");
+    }
+
+    /**
+     * Returns true iff original efp file contained all of the information for Dispersion
+     * A file has all of the Exchange Repulsion information if it has TODO: get necessary fields from Dr. Slipchenko
+     *
+     * @return true iff original efp file contained all of the information for Dispersion
+     */
+    public boolean containsDispersion() throws ExecutionControl.NotImplementedException {
+        throw new ExecutionControl.NotImplementedException("not implemented");
+    }
 }
