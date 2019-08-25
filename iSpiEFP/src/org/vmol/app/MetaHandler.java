@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 public class MetaHandler {
 
-    private Gson gson;                      /* Instance of gson used to parse a MetaData object    */
+
     private MetaData currentMetaData;       /* The MetaData Object for the current fragment        */
 
     /* This class is essentially a wrapper for extracting all of the fields from a JSON String     */
