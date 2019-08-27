@@ -36,6 +36,7 @@ public class MetaHandlerTest {
         Assert.assertTrue(metaHandler.containsExchangeRepulsion());
     }
 
+    @Test
     //TODO Fix c6h6_mal_xr_l.json to be missing one of the xr fields
     public void testExchangeRepulsion() throws ExecutionControl.NotImplementedException {
         MetaHandler metaHandler = new MetaHandler();
@@ -51,6 +52,7 @@ public class MetaHandlerTest {
         Assert.assertFalse(metaHandler.containsExchangeRepulsion());
     }
 
+    @Test
     //TODO Fix ccl4_mal_dis_l.json to be missing one of the dispersion fields
     public void testDispersion() throws ExecutionControl.NotImplementedException {
         MetaHandler metaHandler = new MetaHandler();
@@ -66,12 +68,13 @@ public class MetaHandlerTest {
         Assert.assertFalse(metaHandler.containsExchangeRepulsion());
     }
 
+    @Test
     public void testFields1(){
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ch3oh_mal_bit1_l.json");
-        Assert.assertTrue(metaHandler.containsCoordinates());
+        Assert.assertFalse(metaHandler.containsCoordinates());
         Assert.assertTrue(metaHandler.containsMonopoles());
-        Assert.assertTrue(metaHandler.containsDipoles());
+        Assert.assertFalse(metaHandler.containsDipoles());
         Assert.assertTrue(metaHandler.containsQuadrupoles());
         Assert.assertFalse(metaHandler.containsOctupoles());
         Assert.assertTrue(metaHandler.containsPolarizablePts());
@@ -83,6 +86,28 @@ public class MetaHandlerTest {
         Assert.assertTrue(metaHandler.containsCanonVec());
         Assert.assertTrue(metaHandler.containsCanonFock());
         Assert.assertTrue(metaHandler.containsScreen2());
-        Assert.assertTrue(metaHandler.containsScreen());
+        Assert.assertFalse(metaHandler.containsScreen());
+    }
+    //TODO MESSED UP FIELD TESTS
+
+    @Test
+    public void testFields2(){
+        MetaHandler metaHandler = new MetaHandler();
+        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
+        Assert.assertFalse(metaHandler.containsCoordinates());
+        Assert.assertFalse(metaHandler.containsMonopoles());
+        Assert.assertFalse(metaHandler.containsDipoles());
+        Assert.assertTrue(metaHandler.containsQuadrupoles());
+        Assert.assertFalse(metaHandler.containsOctupoles());
+        Assert.assertFalse(metaHandler.containsPolarizablePts());
+        Assert.assertTrue(metaHandler.containsDynPolarizablePts());
+        Assert.assertFalse(metaHandler.containsProjectionBasis());
+        Assert.assertFalse(metaHandler.containsMultiplicity());
+        Assert.assertTrue(metaHandler.containsProjectionWavefunction());
+        Assert.assertFalse(metaHandler.containsFockMatrixElements());
+        Assert.assertTrue(metaHandler.containsCanonVec());
+        Assert.assertTrue(metaHandler.containsCanonFock());
+        Assert.assertTrue(metaHandler.containsScreen2());
+        Assert.assertFalse(metaHandler.containsScreen());
     }
 }
