@@ -21,15 +21,15 @@ public class MetaHandler {
         private String scf_type;       /* The type of self-consistent field method used            */
         private String basisSet;      /* The basisSet in which this calculations was performed   */
         private Coordinates[] coordinates;  /* A list of coordinates strings                            */
-        /* Coordinate String format:
+        /* Coordinate Object format:
                 <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
 
                     Field       Type
                     ------------------
-                    atomId:     String
-                    x_coord:    double
-                    y_coord:    double
-                    z_coord:    double
+                    atomID:     String
+                    x:          double
+                    y:          double
+                    z:          double
                     mass:       double
                     charge:     double
                                                                                                    */
@@ -59,7 +59,6 @@ public class MetaHandler {
                 this.coordinates = inferredClass.coordinates;
                 this.bitmap = inferredClass.bitmap;
             }
-            System.out.println(metaDataFileString);
             if (this.fromFile == null || this.fragmentName == null || this.scf_type == null
                 || this.basisSet == null || this.coordinates.length == 0 || this.bitmap == 0){
                 System.err.println("Malformed meta data file");
@@ -126,18 +125,6 @@ public class MetaHandler {
         }
 
         class Coordinates{
-            /* Coordinate String format:
-                <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
-
-                    Field       Type
-                    ------------------
-                    atomId:     String
-                    x:    double
-                    y:    double
-                    z:    double
-                    mass:       double
-                    charge:     double
-                                                                                                   */
             String atomID;
             double x;
             double y;
@@ -221,7 +208,6 @@ public class MetaHandler {
      */
     public boolean containsPolarizablePts() {
         int bitmask = 32;    /* bitmask = 0000 0000 0000 0000 0000 0000 0010 0000 */
-        System.out.println(currentMetaData.bitmap & bitmask);
         return (currentMetaData.bitmap & bitmask) == 32;
     }
 
@@ -276,13 +262,23 @@ public class MetaHandler {
     }
 
     /**
+     * Returns true iff original efp file contained LMO Centroids
+     *
+     * @return true iff original efp file contained LMO Centroids
+     */
+    public boolean containsLMOCentroids() {
+        int bitmask = 2048;    /* bitmask = 0000 0000 0000 0000 0000 1000 0000 0000 */
+        return (currentMetaData.bitmap & bitmask) == 2048;
+    }
+
+    /**
      * Returns true iff original efp file contained canonical vectors
      *
      * @return true iff original efp file contained canonical vectors
      */
     public boolean containsCanonVec() {
-        int bitmask = 2048;    /* bitmask = 0000 0000 0000 0000 0000 1000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 2048;
+        int bitmask = 4096;    /* bitmask = 0000 0000 0000 0000 0001 0000 0000 0000 */
+        return (currentMetaData.bitmap & bitmask) == 4096;
     }
 
     /**
@@ -291,8 +287,8 @@ public class MetaHandler {
      * @return true iff original efp file contained canonical Fock Matrix
      */
     public boolean containsCanonFock() {
-        int bitmask = 4096;    /* bitmask = 0000 0000 0000 0000 0001 0000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 4096;
+        int bitmask = 8192;    /* bitmask = 0000 0000 0000 0000 0010 0000 0000 0000 */
+        return (currentMetaData.bitmap & bitmask) == 8192;
     }
 
     /**
@@ -301,8 +297,8 @@ public class MetaHandler {
      * @return true iff original efp file contained screen2
      */
     public boolean containsScreen2() {
-        int bitmask = 8192;    /* bitmask = 0000 0000 0000 0000 0010 0000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 8192;
+        int bitmask = 16384;    /* bitmask = 0000 0000 0000 0000 0100 0000 0000 0000 */
+        return (currentMetaData.bitmap & bitmask) == 16384;
     }
 
     /**
@@ -311,8 +307,8 @@ public class MetaHandler {
      * @return true iff original efp file contained screen
      */
     public boolean containsScreen() {
-        int bitmask = 16384;    /* bitmask = 0000 0000 0000 0000 0100 0000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 16384;
+        int bitmask = 32768;    /* bitmask = 0000 0000 0000 0000 1000 0000 0000 0000 */
+        return (currentMetaData.bitmap & bitmask) == 32768;
     }
 
     /**
@@ -340,13 +336,12 @@ public class MetaHandler {
      * Returns true iff original efp file contained all of the information for Exchange Repulsion
      * A file has all of the Exchange Repulsion information if it has Projection Basis Set, Multiplicity,
      * Projection Wave Function, Fock Matrix Elements, LMO Centroids
-     * TODO: Need to figure out where in .efp file LMO Centroids are located
      *
      * @return true iff original efp file contained all of the information for Exchange Repulsion
      */
     public boolean containsExchangeRepulsion() {
         return containsProjectionBasis() && containsMultiplicity() && containsProjectionWavefunction()
-                && containsFockMatrixElements();
+                && containsFockMatrixElements() && containsLMOCentroids();
     }
 
     /**
@@ -357,10 +352,5 @@ public class MetaHandler {
      */
     public boolean containsDispersion() {
         return containsDynPolarizablePts();
-    }
-
-    private void printMetaHandler(){
-        System.out.printf("From File: %s\nFragmentName: %s\nScf_type: %s\nBasis Set: %s\n", currentMetaData.fromFile,
-                currentMetaData.fragmentName, currentMetaData.scf_type, currentMetaData.basisSet);
     }
 }

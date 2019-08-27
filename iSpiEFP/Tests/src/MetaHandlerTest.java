@@ -1,7 +1,6 @@
-package org.vmol.app;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.vmol.app.MetaHandler;
 
 public class MetaHandlerTest {
 
@@ -9,7 +8,6 @@ public class MetaHandlerTest {
     public void testElectrostatics()  {
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/acetone_l.json");
-        System.out.println(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
@@ -37,7 +35,6 @@ public class MetaHandlerTest {
     }
 
     @Test
-    //TODO Fix c6h6_mal_xr_l.json to be missing one of the xr fields
     public void testExchangeRepulsion() {
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/c6h6_l.json");
@@ -53,7 +50,6 @@ public class MetaHandlerTest {
     }
 
     @Test
-    //TODO Fix ccl4_mal_dis_l.json to be missing one of the dispersion fields
     public void testDispersion() {
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ccl4_l.json");
@@ -64,8 +60,8 @@ public class MetaHandlerTest {
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ccl4_mal_dis_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
-        Assert.assertTrue(metaHandler.containsDispersion());
-        Assert.assertFalse(metaHandler.containsExchangeRepulsion());
+        Assert.assertFalse(metaHandler.containsDispersion());
+        Assert.assertTrue(metaHandler.containsExchangeRepulsion());
     }
 
     @Test
@@ -88,7 +84,6 @@ public class MetaHandlerTest {
         Assert.assertTrue(metaHandler.containsScreen2());
         Assert.assertFalse(metaHandler.containsScreen());
     }
-    //TODO MESSED UP FIELD TESTS
 
     @Test
     public void testFields2(){
