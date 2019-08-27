@@ -1,15 +1,15 @@
 package org.vmol.app;
 
-import jdk.jshell.spi.ExecutionControl;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MetaHandlerTest {
 
     @Test
-    public void testElectrostatics() throws ExecutionControl.NotImplementedException {
+    public void testElectrostatics()  {
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/acetone_l.json");
+        System.out.println(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
@@ -22,7 +22,7 @@ public class MetaHandlerTest {
     }
 
     @Test
-    public void testPolarization() throws ExecutionControl.NotImplementedException {
+    public void testPolarization() {
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/c2h5oh_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
@@ -38,7 +38,7 @@ public class MetaHandlerTest {
 
     @Test
     //TODO Fix c6h6_mal_xr_l.json to be missing one of the xr fields
-    public void testExchangeRepulsion() throws ExecutionControl.NotImplementedException {
+    public void testExchangeRepulsion() {
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/c6h6_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
@@ -54,7 +54,7 @@ public class MetaHandlerTest {
 
     @Test
     //TODO Fix ccl4_mal_dis_l.json to be missing one of the dispersion fields
-    public void testDispersion() throws ExecutionControl.NotImplementedException {
+    public void testDispersion() {
         MetaHandler metaHandler = new MetaHandler();
         metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ccl4_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());

@@ -1,7 +1,6 @@
 package org.vmol.app;
 
 import com.google.gson.Gson;
-import jdk.jshell.spi.ExecutionControl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,8 +19,8 @@ public class MetaHandler {
         private String fromFile;       /* The file from which this metadata was extracted          */
         private String fragmentName;   /* The name of the fragment from the file                   */
         private String scf_type;       /* The type of self-consistent field method used            */
-        private String basis_set;      /* The basis_set in which this calculations was performed   */
-        private String[] coordinates;  /* A list of coordinates strings                            */
+        private String basisSet;      /* The basisSet in which this calculations was performed   */
+        private Coordinates[] coordinates;  /* A list of coordinates strings                            */
         /* Coordinate String format:
                 <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
 
@@ -56,12 +55,13 @@ public class MetaHandler {
                 this.fromFile = inferredClass.fromFile;
                 this.fragmentName = inferredClass.fragmentName;
                 this.scf_type = inferredClass.scf_type;
-                this.basis_set = inferredClass.basis_set;
+                this.basisSet = inferredClass.basisSet;
                 this.coordinates = inferredClass.coordinates;
                 this.bitmap = inferredClass.bitmap;
             }
+            System.out.println(metaDataFileString);
             if (this.fromFile == null || this.fragmentName == null || this.scf_type == null
-                || this.basis_set == null || this.coordinates.length == 0 || this.bitmap == 0){
+                || this.basisSet == null || this.coordinates.length == 0 || this.bitmap == 0){
                 System.err.println("Malformed meta data file");
             }
         }
@@ -78,8 +78,8 @@ public class MetaHandler {
          * Returns the basis set the parameter generation was performed in
          * @return the basis set as a String
          */
-        public String getBasis_set() {
-            return basis_set;
+        public String getbasisSet() {
+            return basisSet;
         }
 
         /**
@@ -121,8 +121,29 @@ public class MetaHandler {
          *                     charge:     double
          * @return an array of Strings of size number of coordinates
          */
-        public String[] getCoordinates() {
+        public Coordinates[] getCoordinates() {
             return coordinates;
+        }
+
+        class Coordinates{
+            /* Coordinate String format:
+                <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
+
+                    Field       Type
+                    ------------------
+                    atomId:     String
+                    x:    double
+                    y:    double
+                    z:    double
+                    mass:       double
+                    charge:     double
+                                                                                                   */
+            String atomID;
+            double x;
+            double y;
+            double z;
+            double mass;
+            double charge;
         }
     }
 
@@ -200,6 +221,7 @@ public class MetaHandler {
      */
     public boolean containsPolarizablePts() {
         int bitmask = 32;    /* bitmask = 0000 0000 0000 0000 0000 0000 0010 0000 */
+        System.out.println(currentMetaData.bitmap & bitmask);
         return (currentMetaData.bitmap & bitmask) == 32;
     }
 
@@ -300,36 +322,45 @@ public class MetaHandler {
      * @return true iff original efp file contained all of the information for electrostatics
      */
     public boolean containsElectrostatics() {
-        return containsMonopoles() && containsDipoles() && containsQuadrupoles() && containsOctupoles();
+        return containsCoordinates() && containsMonopoles() && containsDipoles()
+                && containsQuadrupoles() && containsOctupoles() && containsScreen2();
     }
 
     /**
      * Returns true iff original efp file contained all of the information for Polarization
-     * A file has all of the Exchange Repulsion information if it has TODO: get necessary fields from Dr. Slipchenko
+     * A file has all of the Exchange Repulsion information if it has Polarizable Points
      *
      * @return true iff original efp file contained all of the information for Polarization
      */
-    public boolean containsPolarization() throws ExecutionControl.NotImplementedException {
-        throw new ExecutionControl.NotImplementedException("not implemented");
+    public boolean containsPolarization() {
+        return containsPolarizablePts();
     }
 
     /**
      * Returns true iff original efp file contained all of the information for Exchange Repulsion
-     * A file has all of the Exchange Repulsion information if it has TODO: get necessary fields from Dr. Slipchenko
+     * A file has all of the Exchange Repulsion information if it has Projection Basis Set, Multiplicity,
+     * Projection Wave Function, Fock Matrix Elements, LMO Centroids
+     * TODO: Need to figure out where in .efp file LMO Centroids are located
      *
      * @return true iff original efp file contained all of the information for Exchange Repulsion
      */
-    public boolean containsExchangeRepulsion() throws ExecutionControl.NotImplementedException {
-        throw new ExecutionControl.NotImplementedException("not implemented");
+    public boolean containsExchangeRepulsion() {
+        return containsProjectionBasis() && containsMultiplicity() && containsProjectionWavefunction()
+                && containsFockMatrixElements();
     }
 
     /**
      * Returns true iff original efp file contained all of the information for Dispersion
-     * A file has all of the Exchange Repulsion information if it has TODO: get necessary fields from Dr. Slipchenko
+     * A file has all of the Exchange Repulsion information if it has Dynamic Polarizable Points
      *
      * @return true iff original efp file contained all of the information for Dispersion
      */
-    public boolean containsDispersion() throws ExecutionControl.NotImplementedException {
-        throw new ExecutionControl.NotImplementedException("not implemented");
+    public boolean containsDispersion() {
+        return containsDynPolarizablePts();
+    }
+
+    private void printMetaHandler(){
+        System.out.printf("From File: %s\nFragmentName: %s\nScf_type: %s\nBasis Set: %s\n", currentMetaData.fromFile,
+                currentMetaData.fragmentName, currentMetaData.scf_type, currentMetaData.basisSet);
     }
 }
