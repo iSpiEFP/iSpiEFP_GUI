@@ -1,5 +1,5 @@
 {
-    "fromFile": "acetone.efp",
+    "fromFile": "acetone_malformed.efp",
     "fragmentName": "acetone_l",
     "scf_type": "RHF",
     "basisSet": "XXX",
@@ -24,5 +24,5 @@
         {"atomID": "BO93", "x": 2.4668028915, "y": -1.9086279421, "z": -0.8248936565, "mass": 0.0, "charge": 0.0},
         {"atomID": "BO103", "x": 2.4673068214, "y": -1.9078489943, "z": 0.8253919992, "mass": 0.0, "charge": 0.0}
     ],
-    "bitmap": 65535
+    "bitmap": 65531
 }

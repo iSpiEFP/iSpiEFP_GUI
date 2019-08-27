@@ -4,8 +4,8 @@
     "scf_type": "RHF",
     "basisSet": "XXX",
     "coordinates": [
-        "{"atomID": "A01H1", "x": -0.693741214, "y": 0.0, "z": 0.0, "mass": 1.007825, "charge": 1.0}",
-        "{"atomID": "A02H2", "x": 0.693741214, "y": 0.0, "z": 0.0, "mass": 1.007825, "charge": 1.0}"
+        {"atomID": "A01H1", "x": -0.693741214, "y": 0.0, "z": 0.0, "mass": 1.007825, "charge": 1.0},
+        {"atomID": "A02H2", "x": 0.693741214, "y": 0.0, "z": 0.0, "mass": 1.007825, "charge": 1.0}
     ],
-    "bitmap": 27615
+    "bitmap": 65535
 }
