@@ -10,6 +10,7 @@ import javafx.stage.StageStyle;
 
 public class ProgressIndicatorTest {
 
+    ProgressIndicator pit;
     public ProgressIndicatorTest() {
 
     }
@@ -42,6 +43,7 @@ public class ProgressIndicatorTest {
 
     public void kill() {
         pit.setProgress(0.0);
+        pit = null;
 
     }
 

@@ -52,6 +52,7 @@
                         <Menu mnemonicParsing="false" text="Help">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#openAbout" text="About" />
+                                <MenuItem mnemonicParsing="false" text="Check for updates" />
                             </items>
                         </Menu>
                     </menus>

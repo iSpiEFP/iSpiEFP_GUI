@@ -12,7 +12,7 @@ import org.ispiefp.app.util.TermsofAgreement;
 
 import java.io.IOException;
 
-
+//TODO: Include file
 public class Main extends Application {
 
     /**

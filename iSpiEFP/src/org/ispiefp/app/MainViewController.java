@@ -259,8 +259,12 @@ public class MainViewController {
     public void openAbout() throws IOException{    //Help -> About dialog
         Alert a1 = new Alert(Alert.AlertType.CONFIRMATION,"hello");
         a1.setTitle("About iSpiEFP");
-        a1.setHeaderText("Look, an Information Dialog");
-        a1.setContentText("I have a great message for you!");
+        a1.setHeaderText("About Us");
+        a1.setContentText("iSpiEFP is a tool for visualizing and describing molecular systems with the EFP method created and managed " +
+                "by the Slipchenko Research Group at Purdue University. iSpiEFP comes complete with a public database full of " +
+                "EFP Parameter files, and missing parameters can be calculated using Gamess. This application serves as a " +
+                "job-workflow manager which binds different technologies into one single application that allows chemists " +
+                "to point and click while utilizing high performance computing.");
         a1.showAndWait();
     }
 	
