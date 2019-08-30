@@ -1,12 +1,15 @@
 package org.ispiefp.app.visualizer;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
+import org.jmol.modelset.Atom;
+import org.jmol.viewer.Viewer;
 
 public class FragmentListView {
     private ListView<String> listView;
@@ -27,7 +30,8 @@ public class FragmentListView {
         int fragmentCounter = 1;
         for (ArrayList<Integer> frag : fragment_list) {
             if (frag.size() > 0) {
-                data.add("Fragment " + fragmentCounter++);
+                String chemicalFormula = ViewerHelper.getChemicalFormula2(buildSymbolMap(frag));
+                data.add("Fragment " + fragmentCounter++ + " - " + chemicalFormula);
             }
         }
         listView.setItems(data);
@@ -64,6 +68,23 @@ public class FragmentListView {
                 
             }
         });
+    }
+
+    private TreeMap<String, Integer> buildSymbolMap(ArrayList<Integer> group) {
+        TreeMap<String, Integer> symbolMap = new TreeMap<String, Integer>();
+        Atom [] atoms = jmolMainPanel.viewer.ms.at;
+        for(Integer i : group) {
+            Atom atom = atoms[i];
+            String symbol = atom.getElementSymbol();
+
+            Integer value = symbolMap.get(symbol);
+            if (value == null) {
+                symbolMap.put(symbol, 1);
+            } else {
+                symbolMap.put(symbol, value + 1);
+            }
+        }
+        return symbolMap;
     }
     
 }

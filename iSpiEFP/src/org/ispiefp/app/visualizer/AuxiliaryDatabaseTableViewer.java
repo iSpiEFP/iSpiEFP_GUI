@@ -64,19 +64,23 @@ public class AuxiliaryDatabaseTableViewer {
         //Init column 1 of table (choice)
         TableColumn<DatabaseRecord, String> index = column1;
         index.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("choice"));
-        index.setPrefWidth(200.0);
+        index.prefWidthProperty().bind(table.widthProperty().divide(2)); // 50% of table width
 
         //Init column 2 of table (rmsd)
         TableColumn<DatabaseRecord, String> rmsd = column2;
         rmsd.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, String>("rmsd"));
-        rmsd.setPrefWidth(100);
+        rmsd.prefWidthProperty().bind(table.widthProperty().divide(4)); // 25% of table width
 
         //Init column 3 of table (check)
         TableColumn<DatabaseRecord, Boolean> check = column3;
         check.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Boolean>("check"));
         check.setCellFactory(column -> new CheckBoxTableCell());
         check.setEditable(true);
-        check.setPrefWidth(75);
+        check.prefWidthProperty().bind(table.widthProperty().divide(4)); // 25% of table width
+
+        //bind table size to parent pane
+        table.prefHeightProperty().bind(bottomRightPane.heightProperty());
+        table.prefWidthProperty().bind(bottomRightPane.widthProperty());
 
         //add columns to table
         table.getColumns().addAll(column1, column2, column3);

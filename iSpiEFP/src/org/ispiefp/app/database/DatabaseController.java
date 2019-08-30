@@ -168,7 +168,7 @@ public class DatabaseController {
         Pane buttonPane = (Pane) list2.get(1);
         
         ObservableList<Node> buttonList = buttonPane.getChildren();
-        Button button_libefp = (Button) buttonList.get(6);
+        Button button_libefp = (Button) buttonList.get(8);
         button_libefp.setDisable(false);
         return button_libefp;
     }

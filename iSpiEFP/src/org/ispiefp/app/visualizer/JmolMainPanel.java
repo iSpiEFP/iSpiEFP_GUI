@@ -44,7 +44,7 @@ public class JmolMainPanel extends JmolPanel {
      * A Modified version of a JmolPanel specifically made for the main viewer panel for iSpiEFP.
      * Initializes the JmolPanel, additionally calling some default init Jmol scripts
      * 
-     * JmolMainPanel inherits: viewer, swingNode, parentPane, currentWidth, currentHeight from JmolPanel
+     * JmolMainPanel inherits: viewer, swingNode, parentPane, width, height from JmolPanel
      * Viewer viewer : Jmol viewer object
      * SwingNode swingNode : JavaFX wrapper object for Java Swing Objects
      * Pane parentPane : Component that holds the viewer object 
@@ -64,20 +64,16 @@ public class JmolMainPanel extends JmolPanel {
     public void paint(Graphics g) {
         if(bondCount > viewer.ms.bondCount) {
             //a bond was deleted
-            ArrayList<ArrayList<Integer>> fragmentList = getFragmentComponents();
-            fragmentListView.update(fragmentList);
+            fragmentListView.update(getFragmentComponents());
 
             //record deletion history
-            int[] deletedBond = getDeletedBond();
-            bondHistory.push(deletedBond);
+            bondHistory.push(getDeletedBond());
             
             //update current bondCount
             bondCount = viewer.ms.bondCount;
         }
-        Dimension size = getSize();
-        
-        //render Jmol to current dimensions
-        viewer.renderScreenImage(g, size.width, size.height);
+        //render Jmol Viewer with these dimensions
+        viewer.renderScreenImage(g, (int)width, (int)height);
     }
     
     /**
@@ -87,13 +83,13 @@ public class JmolMainPanel extends JmolPanel {
         //default settings
         viewer.runScript("select clear");
         viewer.clearSelection();
-        viewer.runScript("set pickingstyle SELECT DRAG");
+        //viewer.runScript("set pickingstyle SELECT DRAG");
         viewer.runScript("set picking atom");
         viewer.runScript("animation fps 10");
-        viewer.runScript("selectionHalos off");
-        viewer.runScript("set bondpicking true");
-        viewer.runScript("color halos gold");
-        
+        viewer.runScript("selectionHalos on");
+        //viewer.runScript("set bondpicking true");
+        //viewer.runScript("color halos gold");
+
         //initialize utility containers
         bondMap = getBondMap();
         bondAdjList = getBondAdjacencyList(viewer.ms.at.length);
