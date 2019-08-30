@@ -149,38 +149,6 @@ public class gamessInputController implements Initializable {
      * @param frag list of fragments
      * @return
      */
-    /*public ArrayList<Atom> addHydrogens(ArrayList frag) {
-        ArrayList<ArrayList<Integer>> originalBonds = jmolMainPanel.getFragmentComponents();
-
-        ArrayList<Atom> hydrogens = new ArrayList<Atom>();
-        for (int i = 0; i < frag.size(); i++) {
-            int atomIndex = (int) frag.get(i);
-            org.jmol.modelset.Atom atom1 = viewer.ms.at[atomIndex];
-
-            ArrayList<Integer> cutOffAtoms = missingAtom(atomIndex, frag, originalBonds);
-
-            for (Integer atomNum : cutOffAtoms) {
-                org.jmol.modelset.Atom atom2 = viewer.ms.at[atomNum];
-
-                String a_type = atom1.getAtomName();
-                String b_type = atom2.getAtomName();
-                int index = searchArray(bonds, a_type + b_type);
-                double desired_length = lengths[index];
-                double x1 = atom1.x;
-                double y1 = atom1.y;
-                double z1 = atom1.z;
-                double x2 = atom2.x;
-                double y2 = atom2.y;
-                double z2 = atom2.z;
-                double actual_length = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
-                double x3 = ((x2 - x1) * desired_length / actual_length) + x1;
-                double y3 = ((y2 - y1) * desired_length / actual_length) + y1;
-                double z3 = ((z2 - z1) * desired_length / actual_length) + z1;
-                hydrogens.add(new Atom("H000", -1, 1, x3, y3, z3));
-            }
-        }
-        return hydrogens;
-    }*/
 
     public ArrayList<Atom> addHydrogens(ArrayList frag) {
         ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
@@ -234,17 +202,10 @@ public class gamessInputController implements Initializable {
                 point2.y=y2_new;
                 point2.z=z2_new;
 
-
-                double actual_length = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
-                //viewer.ms.addHydrogens(atom_list,points);
-
                 int[] nTotal = {2};
 
                 P3[][] result = viewer.ms.calculateHydrogens(null,nTotal,false,false,atom_list);
 
-                double x3 = ((x2 - x1) * desired_length / actual_length) + x1;
-                double y3 = ((y2 - y1) * desired_length / actual_length) + y1;
-                double z3 = ((z2 - z1) * desired_length / actual_length) + z1;
 
                 ArrayList<Float> dimension = new ArrayList<>();
 
