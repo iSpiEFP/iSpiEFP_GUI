@@ -116,10 +116,6 @@ public class ServerConfigController implements Initializable {
         queueOptions.setQueueInfo("/usr/pbs/bin/qstat -fQ");
         queueOptions.setSubmit("/usr/pbs/bin/qsub ${JOB_NAME}.run");
         queueOptions.setUpdateIntervalSecs(5);
-        queueOptions.setRunFileTemplate(" #!/bin/bash \n #PBS -r n \n #PBS -q scholar \n #PBS -l nodes=1:ppn=${NCPUS}"
-                + "	\n #PBS -l walltime=${WALLTIME} \n #QCHEM VARIABLES  \n QC=/group/lslipche/apps/qchem/QCHEM_4.2.1; export QC"
-                + " \n QCAUX=/group/lslipche/apps/qchem/QCHEM_4.2.1/qcaux; export QCAUX \n QCRSH=ssh; export QCRSH \n source ${QC}/qcenv.sh"
-                + " \n #END QCHEM VARIABLES \n cd ${PBS_O_WORKDIR} \n export QCSCRATCH=${RCAC_SCRATCH} \n qchem ${JOB_NAME}.inp ${JOB_NAME}.out");
         return queueOptions;
     }
 
