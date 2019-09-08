@@ -60,9 +60,9 @@ public class ServerEditViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // Initializing queue ComboBox
         List<String> queueSystemTypes = new ArrayList<String>();
-        queueSystemTypes.add("Basic");
+        //queueSystemTypes.add("Basic");
         queueSystemTypes.add("PBS");
-        queueSystemTypes.add("SGE");
+        //queueSystemTypes.add("SGE");
 
         queueSystem.setItems(FXCollections.observableList(queueSystemTypes));
         queueSystem.setValue("PBS");
