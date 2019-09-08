@@ -54,7 +54,24 @@ public class ServerEditConfigViewController implements Initializable {
         killField.setText(queueOptions.getKill());
         jobFileListField.setText(queueOptions.getJobFileList());
         queueInfoField.setText(queueOptions.getQueueInfo());
-        runFileTemplateField.setText(queueOptions.getRunFileTemplate());
+	runFileTemplateField.setText("#!/bin/bash\n" +
+            "# --------------------------------\n" +
+            "# iSpiEFP Gamess job template\n" +
+            "# --------------------------------\n" +
+            "#PBS -q lslipche\n" +
+            "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
+            "#PBS -l walltime=${WALLTIME} \n" +
+            "#PBS -r n\n" +
+            "#PBS -S /bin/bash\n" +
+            "\n" +
+            "# Set up environment for Gamess\n" +
+            "module load gamess\n" +
+            "\n" +
+            "# And run Gamess\n" +
+            "cd \"${PBS_O_WORKDIR}\" \n" +
+            "run_gms ${JOB_NAME}.inp");    
+
+        //runFileTemplateField.setText(queueOptions.getRunFileTemplate());
         updateIntervalField.setText(Integer.toString(queueOptions.getUpdateIntervalSecs()));
         if (serverType.equals("Local")) {
             queryField.setDisable(true);
