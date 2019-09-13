@@ -13,6 +13,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javajs.util.P3;
+import org.jmol.modelset.Bond;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.MainViewController;
 import org.ispiefp.app.util.Atom;
@@ -143,6 +145,31 @@ public class gamessInputController implements Initializable {
         return final_lists;
     }
 
+    private ArrayList<ArrayList<Integer>> buildOriginalBondMap(Viewer viewer) {
+	int atomCount = viewer.ms.at.length;
+    	ArrayList<ArrayList<Integer>> bondMap = new ArrayList<ArrayList<Integer>>();
+    	Bond[] bonds = viewer.ms.bo;
+
+    	//init bondMap
+    	for (int i = 0; i < atomCount; i++) {
+        	bondMap.add(new ArrayList<Integer>());
+    	}
+
+    	for (int i = 0; i < bonds.length; i++) {
+        	int atomIndex1 = bonds[i].getAtomIndex1();
+        	int atomIndex2 = bonds[i].getAtomIndex2();
+
+        	//update lists
+        	bondMap.get(atomIndex1).add(atomIndex2);
+        	bondMap.get(atomIndex2).add(atomIndex1);
+   	}
+    	return bondMap;
+    } 
+
+
+
+
+
     /**
      * Add dummy hydrogens where bonds were sliced
      *
@@ -151,8 +178,9 @@ public class gamessInputController implements Initializable {
      */
 
     public ArrayList<Atom> addHydrogens(ArrayList frag) {
-        ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
-        Viewer viewer = Main.jmolPanel.viewer;
+        ArrayList<ArrayList<Integer>> originalBonds = buildOriginalBondMap(viewer); 
+	//ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
+        //Viewer viewer = Main.jmolPanel.viewer;
 
         ArrayList<Atom> hydrogens = new ArrayList<Atom>();
         for (int i = 0; i < frag.size(); i++) {
