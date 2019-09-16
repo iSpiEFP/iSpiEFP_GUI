@@ -4,8 +4,8 @@ iSpiEFP is a tool for visualizing and describing molecular systems with the EFP 
 This application serves as a job-workflow manager which binds different technologies into one single application that allows chemists to point and click while utilizing high performance computing. 
 
 ### Latest Release
-For patch notes on the latest release: iSpiEFP Version 1.06-Alpha
- - https://github.com/iSpiEFP/iSpiEFP_GUI/releases/tag/v1.06-alpha
+For patch notes on the latest release: iSpiEFP Version 0.5.6
+ - https://github.com/iSpiEFP/iSpiEFP_GUI/releases/tag/0.5.6
  
 ### Help
 For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>. (Release Data: TBA)
@@ -39,7 +39,28 @@ ___
 6. JUnit4 - JUnit is a widely used library for creating unit tests for Java programs. Unit tests are intended to test the functionality of individual classes rather than test their interaction. It is expected that if you create a new class, you also implement unit tests for that class. To learn how to write unit tests visit this page: https://www.vogella.com/tutorials/JUnit/article.html
 ### Setup
 Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capable of integrating with javaFX, sceneBuilder, and github. So choose whichever you would like to use.
-#### Eclipse Setup (Eclipse IDE, Mars .2 Release (4.5.2))
+
+#### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8 - this doc last updated: 7/18/19) 
+1. **Git Clone** - Clone the repository on your local machine to a directory of your choice
+```
+$ git clone https://github.com/iSpiEFP/iSpiEFP_GUI.git 
+```
+2. **Import into IntelliJ IDEA** - Select "File > New > Project from Existing Sources..." and navigate to the location of the git clone, and then select the directory "iSpiEFP". This will barebones import the project into IntelliJ (More configuration is needed).
+3. **Configure JDK** - Select "File > Project Structure > Project". Under Project SDK select "1.8" and under Project Language Level Select "8 - Lambdas, Type annotations etc."
+4. **Add External Jar Files** - All external jar files are located in "iSpiEFP_GUI/iSpiEFP/lib/". To add them to the project select "File > Project Structure > Modules". In the right hand side of the panel next to "scope" there will appear a "+" symbol. Select "+ > add library > java library", and select the directory "lib". After the panel updates with lib, select the checkbox next to lib, and click "apply". This will add all 3rd party jar files such as Jmol.
+5. **JUnit** - JUnit4 is the library that we use for unit tests. Fortunately, installations of IntelliJ come with JUnit4. Navigate to the iSpiEFP/Tests/src folder and select any of the testing class files. Hover over the errors that are underlined in red, and IntelliJ will ask if you'd like to add JUnit4 to the classpath. Select yes. 
+6. **Add Resources** - In IntelliJ, navigate to the file: "iSpiEFP_GUI/iSpiEFP/resources", right click the resources folder, and select "Mark Directory as > Resources Root". This will add all the image/icon files needed for iSpiEFP.
+7. **Add Source Root** - Now, in Intellij, navigate to the file: "iSpiEFP_GUI/iSpiEFP/src", right click the src folder, and select "Mark Directory as > Sources Root". This will let IntelliJ know where your source code is.
+8. **Clean Project** - To assure a successful setup, select "File > Invalidate Caches / Restart > Invalidate Caches and Restart". This will restart IntelliJ with a clean cache to help assure the setup process went smoothly. 
+9. **Run iSpiEFP** - Select "Run > Edit Configurations", and for the Main Class field select the "..." button. "org.ispiefp.app.Main" should pop up in the menu. If it does, select it. Now you are ready to go! Hit the green arrow and have some fun!
+
+#### Using IntelliJ (IntelliJ IDE 2018.2.2, this doc last updated: 7/18/19)
+1. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately. To integrate it with IntelliJ use: https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html.
+After SceneBuilder has been integrated, you can use it by simply navigating to a ".fxml" file, right click, and at the very bottom select "Open in SceneBuilder". This will allow you to seamlessly edit the ".fxml" files without touching any ".fxml" source code (Very Helpful for UI Components).
+2. **Git**. IDEA has a built-in terminal that simplifies Git usage. Once you install Git, you can simply use the terminal for Git commands. 
+5. **Exporting as JAR** - To export iSpiEFP as a JAR file, go to File -> Project Structure -> Project Settings -> Artifacts -> Click green plus sign -> Jar -> From modules with dependencies... From there, go to extract to the target JAR and press OK. Then to go Build on the main menu and select Build Artifact.
+
+#### Eclipse Setup (Eclipse IDE, Mars .2 Release (4.5.2) OUTDATED (Some Sections may not work))
 1. **Java FX** – Install this as a new software within eclipse – named “e(fx)clipse – IDE”. Link: https://www.eclipse.org/efxclipse/install.html#for-the-lazy
 2. **SceneBuilder**  - We can configure to open and edit the fxml files directly from Eclipse. After downloading the SceneBuilder set the path to its exe file at Window -> Preferences -> JavaFX -> Scenebuilder Executable in Eclipse.
 3. **GSON** - You may need to import GSON into Eclipse as it is not a default Java Library. For help importing Gson into eclipse go to: https://medium.com/programmers-blockchain/importing-gson-into-eclipse-ec8cf678ad52
@@ -47,20 +68,17 @@ Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capabl
 5. For **Commiting** and **Pushing**(Git Plug-in must be installed, likely to be installed by default):
 Right-Click Project Folder -> Select Team -> commit OR push
 6. For __Exporting__ this project as a Jar file. From eclipse, click File -> Export -> Runnable Jar file. For the launch configuration, you need to run the Main.java for the first time and mention it in the configuration.
-#### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8) 
-1. **Java FX** - Fortunately, IDEA has a built-in plugin for JavaFX which should already be enabled. If you'd like to make sure however, follow the steps outlined [here](https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html#enable_plugin "here").
-2. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately.
-3. **GSON** - GSON must be imported as a library. In IDEA, go to File -> Project Structure -> Libraries. To add the Gson library, click the Add icon and simply type "gson" into the search bar. Any recent version works fine (2.2.0 or above). To download GSON library with command line in bash, visit https://stackoverflow.com/questions/37975605/how-do-i-download-the-gson-library.
-4. **Git** - IDEA has a built-in terminal that simplifies Git usage. Once you install Git, you can simply use the terminal for Git commands. 
-5. **JUnit** - JUnit4 is the library that we use for unit tests. Fortunately, installations of IntelliJ come with JUnit4. Navigate to the iSpiEFP/Tests/src folder and select any of the testing class files. Hover over the errors that are underlined in red, and IntelliJ will ask if you'd like to add JUnit4 to the classpath. Select yes. Alternatively you can add it to your project structure the same way you did with GSON.
-6. **Exporting as JAR** - To export your project as a JAR file, go to File -> Project Structure -> Project Settings -> Artifacts -> Click green plus sign -> Jar -> From modules with dependencies... From there, go to extract to the target JAR and press OK. Then to go Build on the main menu and select Build Artifact.
 
 ### Git Workflow
+We are using the [GitHub flow branching model](https://guides.github.com/introduction/flow/). The cardinal rule of it is _"the `master` branch is always deployable"_.  In other words, for any new feature or fix, we would create a new branch, work in it until satisfied, then merge everything into master (and delete the no-longer-needed feature branch).
+
 Let's say you want to add a new feature. This section will outline the Git structure with which we create and add new features. 
 1. **Creating and switching to a branch** - To make a new branch, we use the **checkout** command. **Checkout** will switch your current branch to the one specified after the command. To create a new branch, type **git checkout -b new_branch_name** (**-b** specifies a new branch, only use this flag when checking out a not yet created branch). After running this command, you can use **git branch** to check to see if you had switched to **new_branch_name**. You could also use **git branch new_branch_name** followed by **git checkout new_branch_name** to do the same thing, it's just an extra step. 
-2. **Adding and committing to your branch** - Once you are finished developing and testing your feature, you first want to add those changes to your local. Do this using the **git add** command. If you only changed one or two files, you can use **git add filename_1 filename_2**; to "add" all your files, even those you didn't work on, simply type **git add .**. Then, you want to commit those changes, which will record your changes on your local repository. Ideally, you should have a short commit message as well, detailing what you've changed. Do this using **git commit -m "Your message"**. It's good practice to commit small but substantial changes and to do it often.
+2. **Adding and committing to your branch** - Once you are finished developing and testing your feature, you first want to add those changes to your local. Do this using the **git add** command. If you only changed one or two files, you can use **git add filename_1 filename_2**; to "add" all your files, even those you didn't work on, simply type **git add .**. Then, you want to commit those changes, which will record your changes on your local repository. Ideally, you should have a short commit message as well, detailing what you've changed. Do this using **git commit -m "Your message"**. It's good practice to commit small but substantial changes and to do it often. Sensible commit messages are also a virtue.
 3. **Pushing to the remote** - In order to add your changes to the iSpiEFP Github, we will use the **git push** command. But we will have to specify an "origin" argument, i.e. where the code will be pushed to. **Never commit to the master branch directly.** Instead, set the origin to be your branch name. The full command should be **git push origin/your_branch_name**.
-4. **Merging your code with the master** - Once your branch's code is on Github, you'll want to merge your branch with the master in order to get your changes on the actual project. But to merge changes *into* a desired branch, you first have to make sure you're on that desired branch, in this case master. First, run **git branch** to see if you're already on master. If not, run **git checkout master** (notice there's no **-b** flag since master is not a new branch). Once you're on master, run **git merge your_branch_name** in order to add your changes. Chances are, things didn't go smoothly and you have what are called merge conflicts. While these can sometimes get tricky, the main thing you have to do is remove the code that you want to get rid of and keep your changes (the conflicts will be between Git markers <<<<<<< and >>>>>>>>). You then remove any Git markers (like **HEAD**, **<<<<<<**, etc.). 
+4. **Merging your code with the master** - Once your branch's code is on Github, you'll want to merge your branch with the master in order to get your changes on the actual project. But to merge changes *into* a desired branch, you first have to make sure you're on that desired branch, in this case master. First, run **git branch** to see if you're already on `master`. If not, run **git checkout master** (notice there's no **-b** flag since `master` is not a new branch). Once you're on `master`, run **git merge your_branch_name** in order to add your changes. Chances are, things didn't go smoothly and you have what are called merge conflicts. While these can sometimes get tricky, the main thing you have to do is remove the code that you want to get rid of and keep your changes (the conflicts will be between Git markers <<<<<<< and >>>>>>>>). You then remove any Git markers (like **HEAD**, **<<<<<<**, etc.). The other option is **git rebase**, which is usually the preferred option for developers. This is like **git merge** except it allows for a more linear commit history. Then, to add your own changes to the remote repo, use the **git push** command to do so. Rebasing is the preferred option for developers and it is probably what you will find most useful. As an example, suppose you'd like to put your feature/changes into the master branch. Once you are on that branch, you can do **git rebase master**, which will cause the feature branch to begin on the tip of master. So all your changes are implemented onto master. But the key difference is that Git will rewrite the project history and create brand new commits for each of the previous commits. Which results in a much cleaner project history. 
+5. To update your local repo to be in tune with the master branch, the main option is doing **git pull**.  This will essentially **fetch** the changes from Git and **merge** them with your local,  and the developer can settle merge conflicts from there. 
+6. Once you have safely and surely merged your code from your branch, the next thing to do is delete the branch. The process for this is simple and only requires one command. But first, make sure you're not on the branch you're attempting to delete (remember, you can switch using **git checkout other_branch_name**). Once you have navigated to a different branch, run **git branch -d branch_to_delete** in your terminal to delete the local version of your branch. To delete your branch on Github,  navigate to the overhead bar containing repository activity information (commits, branches, etc.) and click on branches. This will take you to all the branches that have been pushed to the Github repo, and next to each one is a trash icon, which you simply click to delete the branch. 
 
 ### Code Base
 Most of the Source Code that needs to be edited belongs in:
@@ -81,7 +99,7 @@ iSpiEFP/resources/images
 3. **util** - contains some helper functions for actions.
 4. **submission** - contains the controller for javaFX gui when a user asks for Libefp Job submission history.
 5. **server** - handles some server interactions and remote interactions.
-6. **qchem** - contains controller for editing and submitting LibEFP jobs.
+6. **libEFP** - contains controller for editing and submitting LibEFP jobs.
 7. **loginPack** - handles user login for SSH connections.
 8. **installer** - handles all bundleManagement for remote and local packages (GAMESS and LIBEFP). Makes sure correct directories are installed locally and remote. Makes sure correct packages are given on remote ends.
 9. **gamessSubmission** - contains controller when user wants to find Gamess jobs submission history.
@@ -113,6 +131,5 @@ __port 8080__. There are currently two servers for iSpiEFP to use and they shoul
     ```
      ec2-18-220-105-41.us-east-2.compute.amazonaws.com
     ```
-
 
 
