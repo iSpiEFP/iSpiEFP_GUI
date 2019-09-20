@@ -19,6 +19,9 @@ public class LocalBundleManager {
 
     public static String workingDirectory;
     public static String WORKSPACE;
+    public static String PARAMETERS;  /* Contains EFP Parameter Directories */
+    public static String USER_PARAMETERS; /* Contains user-generated EFP Parameters */
+    public static String LIBRARY_PARAMETERS; /* Contains non-user-generated EFP Parameters */
 
     public static String GAMESS;
     public static String GAMESS_SRC;
@@ -36,6 +39,9 @@ public class LocalBundleManager {
         try {
             workingDirectory = getJarPath();
             WORKSPACE = workingDirectory + FILE_SEPERATOR + "iSpiWorkSpace";
+            PARAMETERS = workingDirectory + FILE_SEPERATOR + "parameters";
+            USER_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "user_parameters";
+            LIBRARY_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "library_paramters";
 
             GAMESS = WORKSPACE + FILE_SEPERATOR + "Gamess";
             GAMESS_SRC = GAMESS + FILE_SEPERATOR + "src";
@@ -79,6 +85,17 @@ public class LocalBundleManager {
         //main directory
         if (!(new File(WORKSPACE)).exists()) {
             missingFiles.add(WORKSPACE);
+        }
+
+        //parameter directory
+        if (!(new File(PARAMETERS)).exists()) {
+            missingFiles.add(PARAMETERS);
+        }
+        if (!(new File(USER_PARAMETERS)).exists()) {
+            missingFiles.add(USER_PARAMETERS);
+        }
+        if (!(new File(LIBRARY_PARAMETERS)).exists()) {
+            missingFiles.add(LIBRARY_PARAMETERS);
         }
 
         //Gamess Files
@@ -125,6 +142,7 @@ public class LocalBundleManager {
      * @param bundleType   the type of missing package
      */
     public void installMissingFiles(ArrayList<String> missingFiles, String bundleType) {
+        //TODO If User parameters directory is missing then should check a config file to see if it's elsewhere before creating one
         for (String filename : missingFiles) {
             if (filename.equals(GAMESS_SRC_EXE)) {
                 if (bundleType.equals("GAMESS")) {
