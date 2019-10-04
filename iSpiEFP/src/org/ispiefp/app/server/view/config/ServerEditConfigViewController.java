@@ -37,6 +37,9 @@ public class ServerEditConfigViewController implements Initializable {
     private TextArea runFileTemplateField;
 
     @FXML
+    private TextArea runFileTemplateField2;
+
+    @FXML
     private TextField updateIntervalField;
 
     private boolean okClicked;
@@ -70,7 +73,22 @@ public class ServerEditConfigViewController implements Initializable {
             "# And run Gamess\n" +
             "cd \"${PBS_O_WORKDIR}\" \n" +
             "run_gms ${JOB_NAME}.inp");    
-
+	runFileTemplateField2.setText("#!/bin/bash\n" +
+                "# ------------------------------\n" +
+                "# iSpiEFP LibEFP job template\n" +
+                "# ------------------------------\n" +
+                "#PBS -q lslipche\n" +
+                "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
+                "#PBS -l walltime=${WALLTIME} \n" +
+                "#PBS -r n\n" +
+                "#PBS -S /bin/bash\n" +
+                "\n" +
+                "# Set up environment for LibEFP\n" +
+                "# TODO: Ask a chemist!\n" +
+                "\n" +
+                "# And run LibEFP\n" +
+                "cd \"${PBS_O_WORKDIR}\" \n" +
+                "# TODO: Ask a chemist!");
         //runFileTemplateField.setText(queueOptions.getRunFileTemplate());
         updateIntervalField.setText(Integer.toString(queueOptions.getUpdateIntervalSecs()));
         if (serverType.equals("Local")) {
