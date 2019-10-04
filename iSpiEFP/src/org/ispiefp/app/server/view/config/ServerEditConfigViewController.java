@@ -98,6 +98,14 @@ public class ServerEditConfigViewController implements Initializable {
             queueInfoField.setDisable(true);
             // runFileTemplateField.setDisable(true);
         }
+	Preferences node = Preferences.userNodeForPackage(this.getClass());
+        node.put("user_input_for_template_1",runFileTemplateField.getText());
+        node.put("user_input_for_template_2",runFileTemplateField2.getText());
+        try{
+            node.flush();
+        }catch (BackingStoreException e){
+            e.printStackTrace();
+        }
     }
 
     /**
