@@ -1,4 +1,4 @@
-# iSpiEFP (I Spy  Effective Fragment Potential)
+﻿# iSpiEFP (I Spy  Effective Fragment Potential)
 ___
 iSpiEFP is a tool for visualizing and describing molecular systems with the EFP method. iSpiEFP comes complete with a public database full of EFP Parameter files, and missing parameters can be calculated using Gamess. 
 This application serves as a job-workflow manager which binds different technologies into one single application that allows chemists to point and click while utilizing high performance computing. 
@@ -8,7 +8,7 @@ For patch notes on the latest release: iSpiEFP Version 0.5.6
  - https://github.com/iSpiEFP/iSpiEFP_GUI/releases/tag/0.5.6
  
 ### Help
-For help on using iSpiEFP visit the website that Yen has made. <sorry I am missing that right now>. (Release Data: TBA)
+For help on using iSpiEFP visit the website that Yen has made.<sorry I am missing that right now> (Release Data: TBA)
 
 ---
  
@@ -26,7 +26,7 @@ LibEFP is a full implementation of the Effective Fragment Potential (EFP method)
 
 
 ### The Slipchenko Group
-iSpiEFP is brought to you by the Slipchenko Theory Group at Purdue University. For more information on what we are up to visit: https://www.chem.purdue.edu/slipchenko/
+iSpiEFP is brought to you by the Slipchenko Theory Group at Purdue University. For more information on what we are up to visit: https://www.chem.purdue.edu/Slipchenko/
 ___
 
 ## Developer Notes
@@ -40,19 +40,20 @@ ___
 ### Setup
 Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capable of integrating with javaFX, sceneBuilder, and github. So choose whichever you would like to use.
 
-#### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8 - this doc last updated: 7/18/19) 
+#### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8 - this doc last updated: 10/1/19) 
 1. **Git Clone** - Clone the repository on your local machine to a directory of your choice
 ```
 $ git clone https://github.com/iSpiEFP/iSpiEFP_GUI.git 
 ```
-2. **Import into IntelliJ IDEA** - Select "File > New > Project from Existing Sources..." and navigate to the location of the git clone, and then select the directory "iSpiEFP". This will barebones import the project into IntelliJ (More configuration is needed).
-3. **Configure JDK** - Select "File > Project Structure > Project". Under Project SDK select "1.8" and under Project Language Level Select "8 - Lambdas, Type annotations etc."
-4. **Add External Jar Files** - All external jar files are located in "iSpiEFP_GUI/iSpiEFP/lib/". To add them to the project select "File > Project Structure > Modules". In the right hand side of the panel next to "scope" there will appear a "+" symbol. Select "+ > add library > java library", and select the directory "lib". After the panel updates with lib, select the checkbox next to lib, and click "apply". This will add all 3rd party jar files such as Jmol.
-5. **JUnit** - JUnit4 is the library that we use for unit tests. Fortunately, installations of IntelliJ come with JUnit4. Navigate to the iSpiEFP/Tests/src folder and select any of the testing class files. Hover over the errors that are underlined in red, and IntelliJ will ask if you'd like to add JUnit4 to the classpath. Select yes. 
-6. **Add Resources** - In IntelliJ, navigate to the file: "iSpiEFP_GUI/iSpiEFP/resources", right click the resources folder, and select "Mark Directory as > Resources Root". This will add all the image/icon files needed for iSpiEFP.
-7. **Add Source Root** - Now, in Intellij, navigate to the file: "iSpiEFP_GUI/iSpiEFP/src", right click the src folder, and select "Mark Directory as > Sources Root". This will let IntelliJ know where your source code is.
+2. **Import into IntelliJ IDEA** - Select "File > New > Project from Existing Sources..." and navigate to the location of the git clone, and then select the directory "iSpiEFP_GUI". This will barebones import the project into IntelliJ (More configuration is needed). Alternatively, if this is your first time using IntelliJ - click "Open" and select the directory "iSpiEFP_GUI".
+3. **Configure JDK** - Select "File > Project Structure > Project". Under Project SDK select "1.8" and under Project Language Level Select "8 - Lambdas, Type annotations etc." Note: Having a more recent SDK version will work, as long as you select the correct Project Language Level.
+4. **Add External Jar Files** - All external jar files are located in "iSpiEFP_GUI/iSpiEFP/lib/". To add them to the project select "File > Project Structure > Modules > Dependencies". In the right hand side of the panel next to "scope" there will appear a "+" symbol. Select "+ > add library > java library", and select the directory "lib". After the panel updates with lib, select the checkbox next to lib, and click "apply". This will add all 3rd party jar files such as Jmol.
+5. **JUnit** - JUnit4 is the library that we use for unit tests. Fortunately, installations of IntelliJ come with JUnit4. Navigate to the iSpiEFP/Tests/src folder and select any of the testing class files. Hover over the errors that are underlined in red, and IntelliJ will ask if you'd like to add JUnit4 to the classpath. Select yes. Note: If this does not work, you may need to go to "File > Project Structure > Libraries", click the "+" near the top left, and select the "lib" folder; then, navigate to "Modules" in the sidebar on the left, hit the checkbox next to "lib" and "JUnit4," and hit "Ok."
+6. **Add Resources** - In IntelliJ, navigate to the file: "iSpiEFP_GUI/iSpiEFP/resources", right click the resources folder, and select "Mark Directory as > Resources Root". This will add all the image/icon files needed for iSpiEFP. Note: If "Mark Directory as > Unmark as Resources Root" already exists as an option, skip this step.
+7. **Add Source Root** - Now, in Intellij, navigate to the file: "iSpiEFP_GUI/iSpiEFP/src", right click the src folder, and select "Mark Directory as > Sources Root". This will let IntelliJ know where your source code is. Note: If "Mark Directory as > Unmark as Sources Root" already exists as an option, skip this step.
 8. **Clean Project** - To assure a successful setup, select "File > Invalidate Caches / Restart > Invalidate Caches and Restart". This will restart IntelliJ with a clean cache to help assure the setup process went smoothly. 
-9. **Run iSpiEFP** - Select "Run > Edit Configurations", and for the Main Class field select the "..." button. "org.ispiefp.app.Main" should pop up in the menu. If it does, select it. Now you are ready to go! Hit the green arrow and have some fun!
+9. **Compiler Output** - To specify where IntelliJ should direct compiler output to, in the Project explorer sidebar, right click on the "iSpiEFP/out" folder and select "Copy path." Then, go to "File > Project Structure > Project," and under the "Project compiler output" section, paste the filepath that was copied (ctrl+v).
+10. **Run iSpiEFP** - Select "Run > Edit Configurations", and for the Main Class field select the "..." button. "org.ispiefp.app.Main" should pop up in the menu. If it does, select it. Now you are ready to go! Hit the green arrow and have some fun!
 
 #### Using IntelliJ (IntelliJ IDE 2018.2.2, this doc last updated: 7/18/19)
 1. **SceneBuilder** - SceneBuilder  can be downloaded [here](https://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html "here") and can be used immediately. To integrate it with IntelliJ use: https://www.jetbrains.com/help/idea/preparing-for-javafx-application-development.html.
