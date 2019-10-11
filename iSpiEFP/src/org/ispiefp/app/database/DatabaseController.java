@@ -251,7 +251,7 @@ public class DatabaseController {
 
         //Get the libefp coords for the input file
         String coords = generateQchemInput(data, groups);
-        final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/ispiefp/app/libEFP/libEFP.fxml"));
+        final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/libEFP.fxml"));
         libEFPInputController controller;
         controller = new libEFPInputController(coords, null, this.final_selections);
         loader.setController(controller);

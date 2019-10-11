@@ -232,7 +232,7 @@ public class MainViewController {
     @FXML
 
     public void openLibEFPWindow() throws IOException {
-        Parent libEFPInput = FXMLLoader.load(getClass().getResource("libEFP/libEFP.fxml"));
+        Parent libEFPInput = FXMLLoader.load(getClass().getResource("views/libEFP.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Libefp Input");
@@ -337,7 +337,7 @@ public class MainViewController {
             }
 
             public void openLibEFPServers() throws IOException {
-                Parent serversList = FXMLLoader.load(getClass().getResource("server/LibEFPServers.fxml"));
+                Parent serversList = FXMLLoader.load(getClass().getResource("views/LibEFPServers.fxml"));
                 Stage stage = new Stage();
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.setTitle("LibEFP Servers");
@@ -419,7 +419,7 @@ public class MainViewController {
                     SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource(
-                                    "submission/submissionHistory.fxml"
+                                    "views/submissionHistory.fxml"
                             )
                     );
                     loader.setController(controller);
@@ -450,7 +450,7 @@ public class MainViewController {
                     gamessSubmissionHistoryController controller = new gamessSubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource(
-                                    "submission/submissionHistory.fxml"
+                                    "views/submissionHistory.fxml"
                             )
                     );
                     loader.setController(controller);
@@ -469,7 +469,7 @@ public class MainViewController {
 
             @FXML
             public void calculateEditServers () throws IOException {
-                Parent serversList = FXMLLoader.load(getClass().getResource("server/ServersList.fxml"));
+                Parent serversList = FXMLLoader.load(getClass().getResource("views/ServersList.fxml"));
                 Stage stage = new Stage();
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.setTitle("Servers list");
@@ -531,7 +531,7 @@ public class MainViewController {
     /*
     @FXML
     public void openLibEFPWindow() throws IOException {
-        Parent libEFPInput = FXMLLoader.load(getClass().getResource("libEFP/libEFP.fxml"));
+        Parent libEFPInput = FXMLLoader.load(getClass().getResource("views/libEFP.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Libefp Input");
@@ -542,7 +542,7 @@ public class MainViewController {
     /*
     @FXML
     public void openGamessWindow() throws IOException {
-        Parent gamessInput = FXMLLoader.load(getClass().getResource("gamess/gamessInput.fxml"));
+        Parent gamessInput = FXMLLoader.load(getClass().getResource("views/gamessInput.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Gamess Input");

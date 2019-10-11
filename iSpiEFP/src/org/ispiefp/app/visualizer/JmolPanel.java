@@ -175,7 +175,7 @@ public class JmolPanel extends JPanel {
      */
     protected void openFileParserWindow(File file) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("fileparser/FileParser.fxml"));
+        loader.setLocation(getClass().getResource("/views/FileParser.fxml"));
         Parent fileParser = loader.load();
         Parent root = new StackPane();
 

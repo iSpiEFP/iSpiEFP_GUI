@@ -150,7 +150,7 @@ public class ServerConfigController implements Initializable {
 
     private boolean showServerEditView(ServerDetails serverDetails, String title) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("view/ServerEditView.fxml"));
+        loader.setLocation(getClass().getResource("views/ServerEditView.fxml"));
         Parent serverEditView = loader.load();
 
         Stage stage = new Stage();
