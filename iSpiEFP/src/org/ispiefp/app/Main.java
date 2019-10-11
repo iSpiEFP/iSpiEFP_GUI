@@ -67,7 +67,7 @@ public class Main extends Application {
      * @throws IOException when a resource or logo is failed to be found
      */
     private void showMainView() throws IOException {
-        setMainLayout(FXMLLoader.load(getClass().getResource("MainView.fxml")));
+        setMainLayout(FXMLLoader.load(getClass().getResource("/views/MainView.fxml")));
 
         getMainLayout().setScaleShape(true);
         getPrimaryStage().setScene(new Scene(getMainLayout()));

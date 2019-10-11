@@ -202,8 +202,8 @@ public class localDataBaseController {
                     str += line + "\n";
                 }
 
-                final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/ispiefp/app/qchem/QChemInput.fxml"));
-
+                // guessing this should be libefp final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/ispiefp/app/qchem/QChemInput.fxml"));
+                final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/libEFP.fxml"));
                 libEFPInputController controller;
                 controller = new libEFPInputController(str);
                 loader.setController(controller);
@@ -243,7 +243,8 @@ public class localDataBaseController {
                 str += line + "\n";
             }
 
-            final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/ispiefp/app/qchem/QChemInput.fxml"));
+            // guessing this should be libefp final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/org/ispiefp/app/qchem/QChemInput.fxml"));
+            final FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/libEFP.fxml"));
 
             libEFPInputController controller;
             controller = new libEFPInputController(str);

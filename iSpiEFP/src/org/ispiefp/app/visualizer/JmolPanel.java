@@ -175,10 +175,7 @@ public class JmolPanel extends JPanel {
      */
     protected void openFileParserWindow(File file) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        System.out.println(System.getProperty("user.dir"));
-        //org/ispiefp/app/fileparser/FileParser.fxml
-        //loader.setLocation(getClass().getResource("fileparser" + System.getProperty("file.separator") + "FileParser.fxml"));
-        loader.setLocation(getClass().getResource("C:\\Users\\ryand\\IdeaProjects\\iSpiEFP_GUI_EFPPARAM\\iSpiEFP\\src\\org\\ispiefp\\app\\fileparser\\FileParser.fxml"));
+        loader.setLocation(getClass().getResource("/views/FileParser.fxml"));
         Parent fileParser = loader.load();
         Parent root = new StackPane();
 

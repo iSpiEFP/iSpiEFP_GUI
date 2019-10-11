@@ -216,7 +216,7 @@ public class GamessFormController {
 
             StringBuilder sb = new StringBuilder();
 
-            final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/org/ispiefp/app/gamess/gamessInput.fxml"));
+            final FXMLLoader gamess_loader = new FXMLLoader(this.getClass().getResource("/views/gamessInput.fxml"));
             gamessInputController gamess_controller;
             gamess_controller = new gamessInputController(new File(MainViewController.getLastOpenedFile()), groups, to_be_submitted, jmolMainPanel);
             gamess_loader.setController(gamess_controller);
