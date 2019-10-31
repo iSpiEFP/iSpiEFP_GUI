@@ -487,7 +487,7 @@ public class MainViewController {
             }
 
             @FXML
-            public void helpAbout () throws IOException {
+            public void helpAbout() throws IOException {
                 Main.hostServices.showDocument("https://www.chem.purdue.edu/Slipchenko/");
             }
 

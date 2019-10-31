@@ -176,17 +176,19 @@ public class gamessInputController implements Initializable {
      * @param frag list of fragments
      * @return
      */
-
     public ArrayList<Atom> addHydrogens(ArrayList frag) {
+<<<<<<< Updated upstream
         ArrayList<ArrayList<Integer>> originalBonds = buildOriginalBondMap(viewer); 
 	//ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
         //Viewer viewer = Main.jmolPanel.viewer;
+=======
+        ArrayList<ArrayList<Integer>> originalBonds = jmolMainPanel.getFragmentComponents();
+>>>>>>> Stashed changes
 
         ArrayList<Atom> hydrogens = new ArrayList<Atom>();
         for (int i = 0; i < frag.size(); i++) {
             int atomIndex = (int) frag.get(i);
             org.jmol.modelset.Atom atom1 = viewer.ms.at[atomIndex];
-
 
             ArrayList<Integer> cutOffAtoms = missingAtom(atomIndex, frag, originalBonds);
 
@@ -195,12 +197,6 @@ public class gamessInputController implements Initializable {
 
                 String a_type = atom1.getAtomName();
                 String b_type = atom2.getAtomName();
-
-                javajs.util.Lst <org.jmol.modelset.Atom> atom_list = new javajs.util.Lst <>();
-                atom_list.add(0, atom1);
-                atom_list.add(0, atom2);
-
-
                 int index = searchArray(bonds, a_type + b_type);
                 double desired_length = lengths[index];
                 double x1 = atom1.x;
@@ -209,39 +205,11 @@ public class gamessInputController implements Initializable {
                 double x2 = atom2.x;
                 double y2 = atom2.y;
                 double z2 = atom2.z;
-
-
-                javajs.util.P3 [] points = new javajs.util.P3 [2];
-                javajs.util.P3 point1 = new javajs.util.P3();
-                float x1_new =(float)x1;
-                float y1_new = (float)y1;
-                float z1_new = (float)z1;
-
-                point1.x=x1_new;
-                point1.y=y1_new;
-                point1.z=z1_new;
-
-                javajs.util.P3 point2 = new javajs.util.P3();
-                float x2_new =(float)x2;
-                float y2_new = (float)y2;
-                float z2_new = (float)z2;
-
-                point2.x=x2_new;
-                point2.y=y2_new;
-                point2.z=z2_new;
-
-                int[] nTotal = {2};
-
-                P3[][] result = viewer.ms.calculateHydrogens(null,nTotal,false,false,atom_list);
-
-
-                ArrayList<Float> dimension = new ArrayList<>();
-
-                dimension.add(result[0][0].x);
-                dimension.add(result[0][0].y);
-                dimension.add(result[0][0].z);
-
-                hydrogens.add(new Atom("H000", -1, 1, dimension.get(0), dimension.get(1), dimension.get(2)));
+                double actual_length = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
+                double x3 = ((x2 - x1) * desired_length / actual_length) + x1;
+                double y3 = ((y2 - y1) * desired_length / actual_length) + y1;
+                double z3 = ((z2 - z1) * desired_length / actual_length) + z1;
+                hydrogens.add(new Atom("H000", -1, 1, x3, y3, z3));
             }
         }
         return hydrogens;

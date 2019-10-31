@@ -26,10 +26,8 @@ public class Main extends Application {
     //public static final String iSpiEFP_SERVER = "ec2-18-220-105-41.us-east-2.compute.amazonaws.com"; //This is the Development Server
     public static final String iSpiEFP_SERVER = "ec2-3-16-11-177.us-east-2.compute.amazonaws.com"; //This is the Test Server
     public static final int iSpiEFP_PORT = 8080;
-
     private static Stage primaryStage;
     private static BorderPane mainLayout;
-
     public static HostServices hostServices;
 
     /**
