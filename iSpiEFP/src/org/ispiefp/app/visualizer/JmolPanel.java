@@ -166,7 +166,7 @@ public class JmolPanel extends JPanel {
         }
         return false;
     }
-    
+
     /**
      * Open the file parser window if a file fails
      *
@@ -174,16 +174,21 @@ public class JmolPanel extends JPanel {
      * @throws IOException
      */
     protected void openFileParserWindow(File file) throws IOException {
+        System.out.println("OPEN FILEPARSER CALLED");
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/views/FileParser.fxml"));
+//        loader.setLocation(getClass().getResource("/Users/shaadhussain/Desktop/NewiSpiEFP/iSpiEFP_GUI/iSpiEFP/resources/views/FileParser.fxml"));
         Parent fileParser = loader.load();
         Parent root = new StackPane();
 
         Stage stage = new Stage();
         stage.setTitle(file.getName());
         stage.initModality(Modality.WINDOW_MODAL);
-        stage.initOwner(root.getScene().getWindow());
+        System.out.println("Root" + root);
+        System.out.println("Scene" + root.getScene());
         stage.setScene(new Scene(fileParser));
+        stage.initOwner(root.getScene().getWindow());
+//        stage.setScene(new Scene(fileParser));
 
         // Set the file into the controller
         FileParserController controller = loader.getController();

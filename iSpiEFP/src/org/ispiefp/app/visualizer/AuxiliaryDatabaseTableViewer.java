@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.control.*;
+import org.ispiefp.app.MetaHandler;
 import org.jmol.viewer.Viewer;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.database.DatabaseRecord;
@@ -58,7 +59,15 @@ public class AuxiliaryDatabaseTableViewer {
         TableColumn column1 = new TableColumn("Choice");
         TableColumn column2 = new TableColumn("RMSD");
         TableColumn column3 = new TableColumn("Select");
-        TableColumn column4 = new TableColumn();
+        TableColumn estaticCol = new TableColumn();
+        TableColumn exchRepulCol = new TableColumn();
+        TableColumn polarCol = new TableColumn();
+        TableColumn dispersCol = new TableColumn();
+
+
+        MetaHandler metaHandler = new MetaHandler();
+        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/acetone_l.json");
+
 
         //Init column 1 of table (choice)
         TableColumn<DatabaseRecord, String> index = column1;
@@ -78,19 +87,62 @@ public class AuxiliaryDatabaseTableViewer {
         check.setPrefWidth(75);
 
         //Init column 4 of table (electrostatic)
-        TableColumn<DatabaseRecord, Double> expd = column4;
-        Tooltip expdTip = new Tooltip("Electrostatic, eXchange repulsion, Polarization, Dispersion");
+        TableColumn<DatabaseRecord, Double> estatic = estaticCol;
+        Tooltip expdTip = new Tooltip("Electrostatic");
         expdTip.getStyleClass().add("greentip");
-        expd.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Double>("EXPD"));
-        expd.setPrefWidth(50);
-        Label expdLabel = new Label("EXPD");
-        expdLabel.setTooltip(new Tooltip("Electrostatic, eXchange repulsion, Polarization, Dispersion"));
-        expd.setGraphic(expdLabel);
+        estatic.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Double>("E"));
+        estatic.setPrefWidth(50);
+        Label expdLabel = new Label("E");
+        expdLabel.setTooltip(new Tooltip("Electrostatic"));
+        estatic.setGraphic(expdLabel);
+
+        if (metaHandler.containsElectrostatics()) {
+            estatic.setStyle("f");
+        }
 
 
+        TableColumn<DatabaseRecord, Double> exchRepuls = exchRepulCol;
+        Tooltip exchRepulsTip = new Tooltip("Exchange repulsion");
+        exchRepulsTip.getStyleClass().add("greentip");
+        exchRepuls.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Double>("X"));
+        exchRepuls.setPrefWidth(50);
+        Label exchRepulLabel = new Label("X");
+        expdLabel.setTooltip(new Tooltip("Exchange repulsion"));
+        exchRepuls.setGraphic(exchRepulLabel);
+
+        if (metaHandler.containsExchangeRepulsion()) {
+            exchRepuls.setStyle("css for exch repuls");
+        }
+
+
+        TableColumn<DatabaseRecord, Double> polar = polarCol;
+        Tooltip polarTip = new Tooltip("Polarization");
+        polarTip.getStyleClass().add("greentip");
+        polar.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Double>("P"));
+        polar.setPrefWidth(50);
+        Label polarLabel = new Label("P");
+        expdLabel.setTooltip(new Tooltip("Polarization"));
+        polar.setGraphic(polarLabel);
+
+        if (metaHandler.containsPolarization()) {
+            polar.setStyle("css for polar");
+        }
+
+        TableColumn<DatabaseRecord, Double> dispers = dispersCol;
+        Tooltip disperTip = new Tooltip("Dispersion");
+        disperTip.getStyleClass().add("greentip");
+        dispers.setCellValueFactory(new PropertyValueFactory<DatabaseRecord, Double>("D"));
+        dispers.setPrefWidth(50);
+        Label disperLabel = new Label("D");
+        expdLabel.setTooltip(new Tooltip("Dispersion"));
+        dispers.setGraphic(disperLabel);
+
+        if (metaHandler.containsDispersion()) {
+            dispers.setStyle("CSS for dispersion");
+        }
 
         //add columns to table
-        table.getColumns().addAll(column1, column2, column3, expd);
+        table.getColumns().addAll(column1, column2, column3, estaticCol, exchRepulCol, polarCol, dispersCol);
         table.setEditable(true);
         
         this.tableView = table;

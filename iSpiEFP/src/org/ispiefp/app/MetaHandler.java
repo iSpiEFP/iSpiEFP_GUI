@@ -1,4 +1,4 @@
-package org.vmol.app;
+package org.ispiefp.app;
 
 import com.google.gson.Gson;
 
@@ -77,7 +77,7 @@ public class MetaHandler {
          * Returns the basis set the parameter generation was performed in
          * @return the basis set as a String
          */
-        public String getbasisSet() {
+        public String getBasisSet() {
             return basisSet;
         }
 

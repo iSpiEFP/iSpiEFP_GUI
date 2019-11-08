@@ -26,6 +26,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -222,7 +223,19 @@ public class MainViewController {
     public void fileExit() throws IOException {
         System.out.println("Stage is closing");
         Main.getPrimaryStage().close();
-        System.exit(0);
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Dialog");
+        alert.setHeaderText("Leave iSpiEFP");
+        alert.setContentText("Are you sure you want to leave iSpiEFP?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            System.exit(0);
+        } else {
+            return;
+        }
+
         //TODO: add pop-up message, "Are you sure?"
     }
 
