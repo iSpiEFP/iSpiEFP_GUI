@@ -400,6 +400,9 @@ public class MainViewController {
                         e.printStackTrace();
                     }
                 }
+                else {
+                    System.out.println("No file was opened");
+                }
             }
             /******************************************************************************************
              *             CALCULATE MENU BEGINS                                                      *

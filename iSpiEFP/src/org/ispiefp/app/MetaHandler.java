@@ -1,17 +1,60 @@
-package org.vmol.app;
+package org.ispiefp.app;
 
 import com.google.gson.Gson;
+import org.ispiefp.app.installer.LocalBundleManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 /* The purpose of this class is to decode the information about which fields are contained in a metadata JSON bitmap */
 
 public class MetaHandler {
 
+    private MetaData currentMetaData;           /* The MetaData Object for the current fragment         */
+    private MetaDataFile metaFile;              /* Used when all MetaDataObjects are in the same file   */
 
-    private MetaData currentMetaData;       /* The MetaData Object for the current fragment        */
+    /**
+     * Constructor used when parsing individual JSON files
+     */
+    public MetaHandler(){
+
+    }
+    /**
+     * Constructor used when all meta JSONs are in the same file
+     * note: Expects the file passed to be in the library_parameters workspace
+     * @param fileName name of the file
+     */
+    public MetaHandler(String fileName){
+        metaFile = new MetaDataFile(fileName);
+    }
+    class MetaDataFile {
+        private MetaData[] metaDataObjects;     /* All of the MetaData Objects in  the file             */
+
+        /**
+         * Constructor for the MetaDataFile which contains all the MetaData objects
+         * note: Expects the file passed to be in the library_parameters workspace
+         *
+         * @param fileName name of the file
+         */
+
+        public MetaDataFile(String fileName) {
+            String metaDataFileString;
+            String pathToFile = fileName; //LocalBundleManager.LIBEFP_PARAMETERS + LocalBundleManager.FILE_SEPERATOR + fileName;
+            Gson gson = new Gson();         /* Instance of Gson used to parse the string to an object                 */
+            try {
+                metaDataFileString = new String(Files.readAllBytes(Paths.get(pathToFile)));
+            } catch (IOException e) {
+                System.err.println("The MetaDataFile was not in the expected directory: " + pathToFile);
+                metaDataFileString = null;
+            }
+            if (metaDataFileString != null) {
+                MetaDataFile inferredClass = gson.fromJson(metaDataFileString, MetaDataFile.class);
+                this.metaDataObjects = inferredClass.metaDataObjects;
+            }
+        }
+    }
 
     /* This class is essentially a wrapper for extracting all of the fields from a JSON String     */
     class MetaData {
@@ -34,7 +77,7 @@ public class MetaHandler {
                     charge:     double
                                                                                                    */
         private int bitmap;         /* Integer from which fields present in original
-                                               file will be extracted                              */
+                                                   file will be extracted                              */
 
         /**
          * Constructor for a MetaData object
@@ -60,13 +103,14 @@ public class MetaHandler {
                 this.bitmap = inferredClass.bitmap;
             }
             if (this.fromFile == null || this.fragmentName == null || this.scf_type == null
-                || this.basisSet == null || this.coordinates.length == 0 || this.bitmap == 0){
+                    || this.basisSet == null || this.coordinates.length == 0 || this.bitmap == 0) {
                 System.err.println("Malformed meta data file");
             }
         }
 
         /**
          * Returns bitmap encoding of contained fields
+         *
          * @return int value of bitmap
          */
         public int getBitmap() {
@@ -75,6 +119,7 @@ public class MetaHandler {
 
         /**
          * Returns the basis set the parameter generation was performed in
+         *
          * @return the basis set as a String
          */
         public String getbasisSet() {
@@ -83,6 +128,7 @@ public class MetaHandler {
 
         /**
          * Returns the name of the fragment
+         *
          * @return the fragment as a String
          */
         public String getFragmentName() {
@@ -91,6 +137,7 @@ public class MetaHandler {
 
         /**
          * Returns the file from which this meta data was extracted
+         *
          * @return the file name as a String
          */
         public String getFromFile() {
@@ -99,6 +146,7 @@ public class MetaHandler {
 
         /**
          * Returns the self-conistent field method used to generate these parameters
+         *
          * @return the self-consistent field method as a String
          */
         public String getScf_type() {
@@ -107,24 +155,25 @@ public class MetaHandler {
 
         /**
          * Returns the coordinates of every atom in the fragment as a String in the following representation:
-         *
+         * <p>
          * <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
+         * <p>
+         * Field       Type
+         * ------------------
+         * atomId:     String
+         * x_coord:    double
+         * y_coord:    double
+         * z_coord:    double
+         * mass:       double
+         * charge:     double
          *
-         *                     Field       Type
-         *                     ------------------
-         *                     atomId:     String
-         *                     x_coord:    double
-         *                     y_coord:    double
-         *                     z_coord:    double
-         *                     mass:       double
-         *                     charge:     double
          * @return an array of Strings of size number of coordinates
          */
         public Coordinates[] getCoordinates() {
             return coordinates;
         }
 
-        class Coordinates{
+        class Coordinates {
             String atomID;
             double x;
             double y;
@@ -145,12 +194,16 @@ public class MetaHandler {
 
     /**
      * Returns the current MetaData object that the handler is looking at
+     *
      * @return the MetaData object that the handler is looking at
      */
     public MetaData getCurrentMetaData() {
         return currentMetaData;
     }
 
+    public void examineMetaData(int i){
+        this.currentMetaData = metaFile.metaDataObjects[i];
+    }
     /**
      * Returns true iff original efp file contained coordinates
      *

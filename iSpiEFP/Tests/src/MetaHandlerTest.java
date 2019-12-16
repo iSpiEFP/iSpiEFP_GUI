@@ -1,6 +1,6 @@
+import org.ispiefp.app.MetaHandler;
 import org.junit.Assert;
 import org.junit.Test;
-import org.vmol.app.MetaHandler;
 
 public class MetaHandlerTest {
 
@@ -104,5 +104,26 @@ public class MetaHandlerTest {
         Assert.assertTrue(metaHandler.containsCanonFock());
         Assert.assertTrue(metaHandler.containsScreen2());
         Assert.assertFalse(metaHandler.containsScreen());
+    }
+
+    @Test
+    public void testSingleFile(){
+        MetaHandler metaHandler = new MetaHandler("iSpiEFP/Tests/TestResources/validMetaDataFile.json");
+        metaHandler.examineMetaData(2);
+        Assert.assertTrue(metaHandler.containsCoordinates());
+        Assert.assertTrue(metaHandler.containsMonopoles());
+        Assert.assertTrue(metaHandler.containsDipoles());
+        Assert.assertTrue(metaHandler.containsQuadrupoles());
+        Assert.assertTrue(metaHandler.containsOctupoles());
+        Assert.assertTrue(metaHandler.containsPolarizablePts());
+        Assert.assertTrue(metaHandler.containsDynPolarizablePts());
+        Assert.assertTrue(metaHandler.containsProjectionBasis());
+        Assert.assertTrue(metaHandler.containsMultiplicity());
+        Assert.assertTrue(metaHandler.containsProjectionWavefunction());
+        Assert.assertTrue(metaHandler.containsFockMatrixElements());
+        Assert.assertTrue(metaHandler.containsCanonVec());
+        Assert.assertTrue(metaHandler.containsCanonFock());
+        Assert.assertTrue(metaHandler.containsScreen2());
+        Assert.assertTrue(metaHandler.containsScreen());
     }
 }
