@@ -47,9 +47,7 @@ public class Main extends Application {
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
 
-        //Manage Working Directory
-        BundleManager bundleManager = new BundleManager("LOCAL");
-        bundleManager.manageLocal();
+
 
         //get User Default Browser
         hostServices = getHostServices();

@@ -29,6 +29,15 @@ public class MetaHandler {
     public MetaHandler(String fileName){
         metaFile = new MetaDataFile(fileName);
     }
+
+    /**
+     * Returns the underlying MetaDataFile object containing each of the metaData instances
+     * @return MetaDataFile object
+     */
+    public MetaDataFile getMetaFile() {
+        return metaFile;
+    }
+
     class MetaDataFile {
         private MetaData[] metaDataObjects;     /* All of the MetaData Objects in  the file             */
 
@@ -53,6 +62,15 @@ public class MetaHandler {
                 MetaDataFile inferredClass = gson.fromJson(metaDataFileString, MetaDataFile.class);
                 this.metaDataObjects = inferredClass.metaDataObjects;
             }
+        }
+
+        /**
+         * Getter function for all of the metaData Objects inferred from the constructor
+         * @return Array of MetaData Objects
+         */
+
+        public MetaData[] getMetaDataObjects() {
+            return metaDataObjects;
         }
     }
 
@@ -180,6 +198,22 @@ public class MetaHandler {
             double z;
             double mass;
             double charge;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof MetaData)) return false;
+            for (int i = 0; i < this.coordinates.length; i++){
+                try {
+                    if (this.coordinates[i] != ((MetaData) obj).coordinates[i]) return false;
+                } catch(ArrayIndexOutOfBoundsException e){
+                    return false;
+                }
+            }
+            return ((MetaData) obj).basisSet.equals(this.basisSet) &&
+                    ((MetaData) obj).bitmap == this.bitmap &&
+                    ((MetaData) obj).fragmentName.equals(this.fragmentName) &&
+                    ((MetaData) obj).scf_type.equals(this.scf_type);
         }
     }
 
