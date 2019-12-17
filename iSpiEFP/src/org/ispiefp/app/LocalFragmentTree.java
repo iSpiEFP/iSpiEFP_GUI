@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.TreeMap;
 
 public class LocalFragmentTree {
-    private TreeMap<String, MetaHandler.MetaData> frag_tree;
+    private TreeMap<String, MetaData> frag_tree;
     MetaHandler metaHandler;
 
     public LocalFragmentTree() {
         frag_tree = new TreeMap<>();
         metaHandler = new MetaHandler(LocalBundleManager.MASTER_META_FILE);
-        MetaHandler.MetaData[] metaDataArray = metaHandler.getMetaFile().getMetaDataObjects();
+        MetaData[] metaDataArray = metaHandler.getMetaFile().getMetaDataObjects();
         for (int i = 0; i < metaDataArray.length; i++){
             frag_tree.putIfAbsent(metaDataArray[i].getFromFile(), metaDataArray[i]);
         }
@@ -38,7 +38,7 @@ public class LocalFragmentTree {
      * @param key The name of the file from which the metaData was extracted
      * @return The metaData instance associated with the key
      */
-    public MetaHandler.MetaData getMetaData(String key){
+    public MetaData getMetaData(String key){
         return frag_tree.get(key);
     }
 
@@ -48,7 +48,7 @@ public class LocalFragmentTree {
      *
      * @return every MetaData contained within the tree
      */
-    public Collection<MetaHandler.MetaData> getMetaDataIterator(){
+    public Collection<MetaData> getMetaDataIterator(){
         return frag_tree.values();
     }
 }

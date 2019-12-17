@@ -1,5 +1,6 @@
 import org.ispiefp.app.Initializer;
 import org.ispiefp.app.LocalFragmentTree;
+import org.ispiefp.app.MetaData;
 import org.ispiefp.app.MetaHandler;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.junit.Assert;
@@ -135,9 +136,8 @@ public class MetaHandlerTest {
         Initializer initializer = new Initializer();
         initializer.init();
         LocalFragmentTree lft = new LocalFragmentTree();
-        MetaHandler mh = new MetaHandler("iSpiEFP/out/production/parameters/libraryMeta.json");
-        mh.setCurrentMetaData("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
+        MetaData metaData = new MetaData("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
         lft.addFragment("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
-        Assert.assertTrue(lft.getMetaData("ch4.efp").equals(mh.getCurrentMetaData()));
+        Assert.assertTrue(metaData.equals(lft.getMetaData("ch4.efp")));
     }
 }

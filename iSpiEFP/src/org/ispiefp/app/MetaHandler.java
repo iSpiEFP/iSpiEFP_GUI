@@ -74,149 +74,6 @@ public class MetaHandler {
         }
     }
 
-    /* This class is essentially a wrapper for extracting all of the fields from a JSON String     */
-    class MetaData {
-
-        private String fromFile;       /* The file from which this metadata was extracted          */
-        private String fragmentName;   /* The name of the fragment from the file                   */
-        private String scf_type;       /* The type of self-consistent field method used            */
-        private String basisSet;      /* The basisSet in which this calculations was performed   */
-        private Coordinates[] coordinates;  /* A list of coordinates strings                            */
-        /* Coordinate Object format:
-                <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
-
-                    Field       Type
-                    ------------------
-                    atomID:     String
-                    x:          double
-                    y:          double
-                    z:          double
-                    mass:       double
-                    charge:     double
-                                                                                                   */
-        private int bitmap;         /* Integer from which fields present in original
-                                                   file will be extracted                              */
-
-        /**
-         * Constructor for a MetaData object
-         *
-         * @param metaDataFilePath The path of the file containing the meta data JSON
-         */
-        private MetaData(String metaDataFilePath) {
-            String metaDataFileString;      /* The content of the metDataFile as a JSON string or null if IOException */
-            Gson gson = new Gson();         /* Instance of Gson used to parse the string to an object                 */
-            try {
-                metaDataFileString = new String(Files.readAllBytes(Paths.get(metaDataFilePath)));
-            } catch (IOException e) {
-                metaDataFileString = null;
-            }
-
-            if (metaDataFileString != null) {
-                MetaData inferredClass = gson.fromJson(metaDataFileString, MetaData.class);
-                this.fromFile = inferredClass.fromFile;
-                this.fragmentName = inferredClass.fragmentName;
-                this.scf_type = inferredClass.scf_type;
-                this.basisSet = inferredClass.basisSet;
-                this.coordinates = inferredClass.coordinates;
-                this.bitmap = inferredClass.bitmap;
-            }
-            if (this.fromFile == null || this.fragmentName == null || this.scf_type == null
-                    || this.basisSet == null || this.coordinates.length == 0 || this.bitmap == 0) {
-                System.err.println("Malformed meta data file");
-            }
-        }
-
-        /**
-         * Returns bitmap encoding of contained fields
-         *
-         * @return int value of bitmap
-         */
-        public int getBitmap() {
-            return bitmap;
-        }
-
-        /**
-         * Returns the basis set the parameter generation was performed in
-         *
-         * @return the basis set as a String
-         */
-        public String getbasisSet() {
-            return basisSet;
-        }
-
-        /**
-         * Returns the name of the fragment
-         *
-         * @return the fragment as a String
-         */
-        public String getFragmentName() {
-            return fragmentName;
-        }
-
-        /**
-         * Returns the file from which this meta data was extracted
-         *
-         * @return the file name as a String
-         */
-        public String getFromFile() {
-            return fromFile;
-        }
-
-        /**
-         * Returns the self-conistent field method used to generate these parameters
-         *
-         * @return the self-consistent field method as a String
-         */
-        public String getScf_type() {
-            return scf_type;
-        }
-
-        /**
-         * Returns the coordinates of every atom in the fragment as a String in the following representation:
-         * <p>
-         * <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
-         * <p>
-         * Field       Type
-         * ------------------
-         * atomId:     String
-         * x_coord:    double
-         * y_coord:    double
-         * z_coord:    double
-         * mass:       double
-         * charge:     double
-         *
-         * @return an array of Strings of size number of coordinates
-         */
-        public Coordinates[] getCoordinates() {
-            return coordinates;
-        }
-
-        class Coordinates {
-            String atomID;
-            double x;
-            double y;
-            double z;
-            double mass;
-            double charge;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof MetaData)) return false;
-            for (int i = 0; i < this.coordinates.length; i++){
-                try {
-                    if (this.coordinates[i] != ((MetaData) obj).coordinates[i]) return false;
-                } catch(ArrayIndexOutOfBoundsException e){
-                    return false;
-                }
-            }
-            return ((MetaData) obj).basisSet.equals(this.basisSet) &&
-                    ((MetaData) obj).bitmap == this.bitmap &&
-                    ((MetaData) obj).fragmentName.equals(this.fragmentName) &&
-                    ((MetaData) obj).scf_type.equals(this.scf_type);
-        }
-    }
-
     /**
      * Sets the MetaDataHandler's currentMetaData to be that which is contained in the passed file
      *
@@ -245,7 +102,7 @@ public class MetaHandler {
      */
     public boolean containsCoordinates() {
         int bitmask = 1;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 0001 */
-        return (currentMetaData.bitmap & bitmask) == 1;
+        return (currentMetaData.getBitmap() & bitmask) == 1;
     }
 
     /**
@@ -255,7 +112,7 @@ public class MetaHandler {
      */
     public boolean containsMonopoles() {
         int bitmask = 2;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 0010 */
-        return (currentMetaData.bitmap & bitmask) == 2;
+        return (currentMetaData.getBitmap() & bitmask) == 2;
     }
 
     /**
@@ -265,7 +122,7 @@ public class MetaHandler {
      */
     public boolean containsDipoles() {
         int bitmask = 4;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 0100 */
-        return (currentMetaData.bitmap & bitmask) == 4;
+        return (currentMetaData.getBitmap() & bitmask) == 4;
     }
 
     /**
@@ -275,7 +132,7 @@ public class MetaHandler {
      */
     public boolean containsQuadrupoles() {
         int bitmask = 8;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 1000 */
-        return (currentMetaData.bitmap & bitmask) == 8;
+        return (currentMetaData.getBitmap() & bitmask) == 8;
     }
 
     /**
@@ -285,7 +142,7 @@ public class MetaHandler {
      */
     public boolean containsOctupoles() {
         int bitmask = 16;    /* bitmask = 0000 0000 0000 0000 0000 0000 0001 0000 */
-        return (currentMetaData.bitmap & bitmask) == 16;
+        return (currentMetaData.getBitmap() & bitmask) == 16;
     }
 
     /**
@@ -295,7 +152,7 @@ public class MetaHandler {
      */
     public boolean containsPolarizablePts() {
         int bitmask = 32;    /* bitmask = 0000 0000 0000 0000 0000 0000 0010 0000 */
-        return (currentMetaData.bitmap & bitmask) == 32;
+        return (currentMetaData.getBitmap() & bitmask) == 32;
     }
 
     /**
@@ -305,7 +162,7 @@ public class MetaHandler {
      */
     public boolean containsDynPolarizablePts() {
         int bitmask = 64;    /* bitmask = 0000 0000 0000 0000 0000 0000 0100 0000 */
-        return (currentMetaData.bitmap & bitmask) == 64;
+        return (currentMetaData.getBitmap() & bitmask) == 64;
     }
 
     /**
@@ -315,7 +172,7 @@ public class MetaHandler {
      */
     public boolean containsProjectionBasis() {
         int bitmask = 128;    /* bitmask = 0000 0000 0000 0000 0000 0000 1000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 128;
+        return (currentMetaData.getBitmap() & bitmask) == 128;
     }
 
     /**
@@ -325,7 +182,7 @@ public class MetaHandler {
      */
     public boolean containsMultiplicity() {
         int bitmask = 256;    /* bitmask = 0000 0000 0000 0000 0000 0001 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 256;
+        return (currentMetaData.getBitmap() & bitmask) == 256;
     }
 
     /**
@@ -335,7 +192,7 @@ public class MetaHandler {
      */
     public boolean containsProjectionWavefunction() {
         int bitmask = 512;    /* bitmask = 0000 0000 0000 0000 0000 0010 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 512;
+        return (currentMetaData.getBitmap() & bitmask) == 512;
     }
 
     /**
@@ -345,7 +202,7 @@ public class MetaHandler {
      */
     public boolean containsFockMatrixElements() {
         int bitmask = 1024;    /* bitmask = 0000 0000 0000 0000 0000 0100 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 1024;
+        return (currentMetaData.getBitmap() & bitmask) == 1024;
     }
 
     /**
@@ -355,7 +212,7 @@ public class MetaHandler {
      */
     public boolean containsLMOCentroids() {
         int bitmask = 2048;    /* bitmask = 0000 0000 0000 0000 0000 1000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 2048;
+        return (currentMetaData.getBitmap() & bitmask) == 2048;
     }
 
     /**
@@ -365,7 +222,7 @@ public class MetaHandler {
      */
     public boolean containsCanonVec() {
         int bitmask = 4096;    /* bitmask = 0000 0000 0000 0000 0001 0000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 4096;
+        return (currentMetaData.getBitmap() & bitmask) == 4096;
     }
 
     /**
@@ -375,7 +232,7 @@ public class MetaHandler {
      */
     public boolean containsCanonFock() {
         int bitmask = 8192;    /* bitmask = 0000 0000 0000 0000 0010 0000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 8192;
+        return (currentMetaData.getBitmap() & bitmask) == 8192;
     }
 
     /**
@@ -385,7 +242,7 @@ public class MetaHandler {
      */
     public boolean containsScreen2() {
         int bitmask = 16384;    /* bitmask = 0000 0000 0000 0000 0100 0000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 16384;
+        return (currentMetaData.getBitmap() & bitmask) == 16384;
     }
 
     /**
@@ -395,7 +252,7 @@ public class MetaHandler {
      */
     public boolean containsScreen() {
         int bitmask = 32768;    /* bitmask = 0000 0000 0000 0000 1000 0000 0000 0000 */
-        return (currentMetaData.bitmap & bitmask) == 32768;
+        return (currentMetaData.getBitmap() & bitmask) == 32768;
     }
 
     /**
