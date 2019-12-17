@@ -43,7 +43,7 @@ public class LocalBundleManager {
             PARAMETERS = workingDirectory + FILE_SEPERATOR + "parameters";
             USER_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "user_parameters";
             LIBRARY_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "library_parameters";
-            MASTER_META_FILE = PARAMETERS + "libraryMeta.json";
+            MASTER_META_FILE = PARAMETERS + FILE_SEPERATOR + "libraryMeta.json";
 
             GAMESS = WORKSPACE + FILE_SEPERATOR + "Gamess";
             GAMESS_SRC = GAMESS + FILE_SEPERATOR + "src";

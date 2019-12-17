@@ -47,7 +47,8 @@ public class Main extends Application {
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
 
-
+        Initializer initializer = new Initializer();
+        initializer.init();
 
         //get User Default Browser
         hostServices = getHostServices();
