@@ -3,8 +3,8 @@ package org.ispiefp.app;
 import org.ispiefp.app.installer.BundleManager;
 
 public class Initializer {
-    BundleManager bundleManager;
-    LocalFragmentTree localFragmentTree;
+    private BundleManager bundleManager;
+    private LocalFragmentTree localFragmentTree;
 
     public Initializer(){
         bundleManager = new BundleManager("LOCAL");
@@ -12,7 +12,7 @@ public class Initializer {
 
     public void init(){
         bundleManager.manageLocal();
-        localFragmentTree = new LocalFragmentTree();
+        Main.fragmentTree= new LocalFragmentTree();
     }
 
 }

@@ -32,6 +32,8 @@ public class Main extends Application {
 
     public static HostServices hostServices;
 
+    public static LocalFragmentTree fragmentTree; /* Contains all currently available metaData */
+
     /**
      * The Main function which starts iSpiEFP
      *

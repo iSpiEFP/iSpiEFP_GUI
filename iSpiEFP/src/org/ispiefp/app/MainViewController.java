@@ -211,6 +211,21 @@ public class MainViewController {
         }
     }
 
+    @FXML
+    /**
+     * Opens a new stage for selecting a fragment from those contained within the fragmentTree
+     * which has been built. Then hands off control to the MetaDataSelectorController
+     */
+    public void fragmentOpen() throws IOException{
+        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/metaDataSelector.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Select Fragment");
+        stage.setScene(new Scene(fragmentSelector));
+        //pit.fire();
+        stage.show();
+    }
+
     /**
      * TODO: fileOpenRecent this button does not exist in the fxml doc and needs to be added
      * @throws IOException
