@@ -1,4 +1,4 @@
-package org.ispiefp.app;
+package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
 

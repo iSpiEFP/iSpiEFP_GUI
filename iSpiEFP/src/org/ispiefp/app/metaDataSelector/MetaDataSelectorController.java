@@ -1,20 +1,15 @@
 package org.ispiefp.app.metaDataSelector;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
 import org.ispiefp.app.Main;
-import org.ispiefp.app.MetaData;
-
-import javax.xml.soap.Text;
+import org.ispiefp.app.MetaData.MetaData;
 import java.util.ArrayList;
 import java.util.List;
 

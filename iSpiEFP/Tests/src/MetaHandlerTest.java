@@ -1,8 +1,7 @@
 import org.ispiefp.app.Initializer;
-import org.ispiefp.app.LocalFragmentTree;
-import org.ispiefp.app.MetaData;
-import org.ispiefp.app.MetaHandler;
-import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.MetaData.LocalFragmentTree;
+import org.ispiefp.app.MetaData.MetaData;
+import org.ispiefp.app.MetaData.MetaHandler;
 import org.junit.Assert;
 import org.junit.Test;
 

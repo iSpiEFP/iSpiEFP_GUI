@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.ispiefp.app.installer.BundleManager;
+import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.util.TermsofAgreement;
 
 import java.io.IOException;

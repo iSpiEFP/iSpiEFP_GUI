@@ -1,5 +1,6 @@
 package org.ispiefp.app;
 
+import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.installer.BundleManager;
 
 public class Initializer {

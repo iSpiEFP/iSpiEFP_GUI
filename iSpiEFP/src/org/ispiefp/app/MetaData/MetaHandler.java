@@ -1,12 +1,11 @@
-package org.ispiefp.app;
+package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
-import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.MetaData.MetaData;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 /* The purpose of this class is to decode the information about which fields are contained in a metadata JSON bitmap */
 
