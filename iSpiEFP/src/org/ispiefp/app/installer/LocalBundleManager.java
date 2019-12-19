@@ -31,11 +31,19 @@ public class LocalBundleManager {
     public static String LIBEFP_INPUTS;
     public static String LIBEFP_PARAMETERS;
     public static String LIBEFP_COORDINATES;
+    public static String PARAMETERS;            /* Parameter subdirectories and permanent single JSON file      */
+    public static String USER_PARAMETERS;       /* For user-generated EFP parameters                            */
+    public static String LIBRARY_PARAMETERS;    /* For local copies of the default library parameters           */
+    public static String MASTER_META_FILE;      /* Contains the meta data of library parameters from start-up   */
 
     public LocalBundleManager() {
         try {
             workingDirectory = getJarPath();
             WORKSPACE = workingDirectory + FILE_SEPERATOR + "iSpiWorkSpace";
+            PARAMETERS = workingDirectory + FILE_SEPERATOR + "parameters";
+            USER_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "user_parameters";
+            LIBRARY_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "library_parameters";
+            MASTER_META_FILE = PARAMETERS + FILE_SEPERATOR + "libraryMeta.json";
 
             GAMESS = WORKSPACE + FILE_SEPERATOR + "Gamess";
             GAMESS_SRC = GAMESS + FILE_SEPERATOR + "src";
