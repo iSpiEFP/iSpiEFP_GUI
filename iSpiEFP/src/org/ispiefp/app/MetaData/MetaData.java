@@ -2,7 +2,7 @@ package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -151,5 +151,51 @@ public class MetaData {
                 ((MetaData) obj).bitmap == this.bitmap &&
                 ((MetaData) obj).fragmentName.equals(this.fragmentName) &&
                 ((MetaData) obj).scf_type.equals(this.scf_type);
+    }
+
+    /**
+     * This method creates an xyz file from the MetaData's coordinate field. The file will automatically be deleted
+     * upon exiting iSpiEFP, so it will not take up system resources permanently. These files are to be used for
+     * rendering fragments through the file->select fragment option. I suppose a user could use up all their system
+     * resources by selecting fragments all day and never closing iSpiEFP, but this seems unlikely.
+     * @return
+     * @throws IOException
+     */
+    public File createTempXYZ() throws IOException {
+        BufferedWriter bw = null;
+        File xyzFile = null;
+        try{
+            //Create a temp xyz file
+            xyzFile = File.createTempFile(fromFile, "xyz");
+            xyzFile.deleteOnExit();
+            bw = new BufferedWriter(new FileWriter(xyzFile));
+
+            //Write number of atoms in XYZ file
+            bw.write(coordinates.length);
+            //Blank line
+            bw.write(System.getProperty("line.separator"));
+            //Write the coordinates of each atom to the file
+            for (int i = 0; i < coordinates.length; i++){
+                //Don't include dummy atoms
+                if (coordinates[i].atomID.startsWith("B")){
+                    continue;
+                }
+                //Get the atom type by stripping all numbers from the atomID and removing the leading A
+                String atomType = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
+                atomType = atomType.substring(1);
+                //Follow XYZ file format for each atom
+                bw.write(String.format("%s\t%.5f\t%.5f\t%.5f%n",
+                        atomType,
+                        coordinates[i].x,
+                        coordinates[i].y,
+                        coordinates[i].z));
+            }
+        } catch(IOException e){
+            System.err.println("Unable to create a temporary file.");
+        }
+        finally {
+            if (bw != null) bw.close();
+        }
+        return xyzFile;
     }
 }
