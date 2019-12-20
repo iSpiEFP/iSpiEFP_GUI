@@ -8,14 +8,20 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.MetaData;
+import org.ispiefp.app.MetaData.MetaHandler;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MetaDataSelectorController{
     private List<String> fragments;
+    private List<String> fragmentFromFiles;
     private ObservableList<MetaData> fragmentObservableList = FXCollections.observableArrayList();
+    private MetaData selectedFragment;
 
     @FXML
     private Parent root;
@@ -32,12 +38,19 @@ public class MetaDataSelectorController{
     @FXML
     private TextField fragmentSearchField;
 
+    @FXML
+    private Button selectButton;
+
     public MetaDataSelectorController(){
         fragments = new ArrayList<>();
+        fragmentFromFiles = new ArrayList<>();
+        selectedFragment = null;
         for (MetaData md : Main.fragmentTree.getMetaDataIterator()) {
             fragments.add(md.getFragmentName());
+            fragmentFromFiles.add(md.getFromFile());
             fragmentObservableList.add(md);
         }
+
     }
 
     /**
@@ -80,8 +93,9 @@ public class MetaDataSelectorController{
 
     public void handleSelection(){
         MetaData selectedFragment = Main.fragmentTree.getMetaData(
-                fragments.get(fragmentList.getSelectionModel().getSelectedIndex()));
-        System.out.println("Selected: " + selectedFragment);
-
+                fragmentFromFiles.get(fragmentList.getSelectionModel().getSelectedIndex()));
+        Main.fragmentTree.setSelectedFragment(selectedFragment);
+        Stage stage = (Stage) selectButton.getScene().getWindow();
+        stage.close();
     }
 }

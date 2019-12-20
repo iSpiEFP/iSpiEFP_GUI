@@ -166,14 +166,21 @@ public class MetaData {
         File xyzFile = null;
         try{
             //Create a temp xyz file
-            xyzFile = File.createTempFile(fromFile, "xyz");
+            xyzFile = File.createTempFile(fromFile, ".xyz");
             xyzFile.deleteOnExit();
             bw = new BufferedWriter(new FileWriter(xyzFile));
 
-            //Write number of atoms in XYZ file
-            bw.write(coordinates.length);
+            //Write number of atoms not including dummy atoms in XYZ file
+            int count = 0;
+            for (int i = 0; i < coordinates.length; i++){
+                if (coordinates[i].atomID.startsWith("B")) continue;
+                count++;
+            }
+            bw.write(String.valueOf(count));
             //Blank line
             bw.write(System.getProperty("line.separator"));
+            bw.write(System.getProperty("line.separator"));
+
             //Write the coordinates of each atom to the file
             for (int i = 0; i < coordinates.length; i++){
                 //Don't include dummy atoms

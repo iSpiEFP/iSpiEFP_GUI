@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -12,7 +13,7 @@
     <top>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="659.0">
             <children>
-                <TableView fx:id="fragmentList" layoutX="0.0" layoutY="52.0" prefHeight="450.0" prefWidth="660.0">
+                <TableView fx:id="fragmentList" layoutX="0.0" layoutY="52.0" prefHeight="396.0" prefWidth="660.0">
                     <columns>
                         <TableColumn fx:id="fragmentName" maxWidth="5000" minWidth="10" prefWidth="160" text="Fragment Name" />
                         <TableColumn fx:id="fragmentFile" maxWidth="5000" minWidth="10" prefWidth="160" text="Contained In" />
@@ -27,6 +28,7 @@
                         <TextField fx:id="fragmentSearchField" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
+                <Button fx:id="selectButton" layoutX="520.0" layoutY="459.0" mnemonicParsing="false" text="Select Fragment" onAction="#handleSelection" />
             </children>
         </AnchorPane>
     </top>
