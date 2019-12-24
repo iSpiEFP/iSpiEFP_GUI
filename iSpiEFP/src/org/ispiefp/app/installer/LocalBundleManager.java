@@ -1,5 +1,7 @@
 package org.ispiefp.app.installer;
 
+import org.jmol.c.FIL;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -35,6 +37,7 @@ public class LocalBundleManager {
     public static String USER_PARAMETERS;       /* For user-generated EFP parameters                            */
     public static String LIBRARY_PARAMETERS;    /* For local copies of the default library parameters           */
     public static String MASTER_META_FILE;      /* Contains the meta data of library parameters from start-up   */
+    public static String META_DATA_GENERATION;  /* Contains all of the generated MetaDatas at runtime           */
 
     public LocalBundleManager() {
         try {
@@ -45,6 +48,7 @@ public class LocalBundleManager {
             LIBRARY_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "library_parameters";
             MASTER_META_FILE = PARAMETERS + FILE_SEPERATOR + "libraryMeta.json";
 
+            META_DATA_GENERATION = WORKSPACE + FILE_SEPERATOR + "MetaDataGeneration" + FILE_SEPERATOR;
             GAMESS = WORKSPACE + FILE_SEPERATOR + "Gamess";
             GAMESS_SRC = GAMESS + FILE_SEPERATOR + "src";
             GAMESS_INPUTS = GAMESS + FILE_SEPERATOR + "Inputs";
