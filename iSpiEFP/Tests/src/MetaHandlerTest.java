@@ -1,9 +1,14 @@
 import org.ispiefp.app.Initializer;
+import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.LocalFragmentTree;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.MetaData.MetaHandler;
+import org.ispiefp.app.installer.LocalBundleManager;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MetaHandlerTest {
 
@@ -128,6 +133,21 @@ public class MetaHandlerTest {
         Assert.assertTrue(metaHandler.containsCanonFock());
         Assert.assertTrue(metaHandler.containsScreen2());
         Assert.assertTrue(metaHandler.containsScreen());
+    }
+
+    @Test
+    public void testCreateXYZ(){
+        Initializer initializer = new Initializer();
+        initializer.init();
+        MetaData methaneData = Main.fragmentTree.getMetaData("ch4.efp");
+        File testFile = null;
+        try{
+            testFile = methaneData.createTempXYZ();
+        }
+        catch (IOException e){
+            Assert.assertTrue(false);
+        }
+        Assert.assertTrue(testFile.exists());
     }
 
     @Test

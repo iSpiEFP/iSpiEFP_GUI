@@ -6,10 +6,12 @@ import java.util.TreeMap;
 
 public class LocalFragmentTree {
     private TreeMap<String, MetaData> frag_tree;
+    private MetaData selectedFragment;
     MetaHandler metaHandler;
 
     public LocalFragmentTree() {
         frag_tree = new TreeMap<>();
+        selectedFragment = null;
         metaHandler = new MetaHandler(LocalBundleManager.MASTER_META_FILE);
         MetaData[] metaDataArray = metaHandler.getMetaFile().getMetaDataObjects();
         for (int i = 0; i < metaDataArray.length; i++){
@@ -50,5 +52,13 @@ public class LocalFragmentTree {
      */
     public Collection<MetaData> getMetaDataIterator(){
         return frag_tree.values();
+    }
+
+    public void setSelectedFragment(MetaData selectedFragment) {
+        this.selectedFragment = selectedFragment;
+    }
+
+    public MetaData getSelectedFragment() {
+        return selectedFragment;
     }
 }

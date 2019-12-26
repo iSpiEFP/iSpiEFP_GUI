@@ -216,14 +216,31 @@ public class MainViewController {
      * Opens a new stage for selecting a fragment from those contained within the fragmentTree
      * which has been built. Then hands off control to the MetaDataSelectorController
      */
-    public void fragmentOpen() throws IOException{
+    public void fragmentOpen() throws IOException {
+
         Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/metaDataSelector.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
-        //pit.fire();
-        stage.show();
+        stage.showAndWait();
+        File xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+        jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+        if (jmolMainPanel.openFile(xyzFile)) {
+
+            lastOpenedFile = xyzFile.getAbsolutePath();
+            lastOpenedFileName = xyzFile.getName();
+
+            leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+            middleRightSplitPane.setDividerPositions(1, 0);
+
+            //reset buttons
+            haloButton.setSelected(false);
+            snipButton.setSelected(false);
+            playPauseButton.setText("");
+            playPauseButton.setGraphic(new ImageView(play));
+            playPauseButton.setSelected(false);
+        }
     }
 
     /**
