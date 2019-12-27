@@ -16,16 +16,17 @@ import java.util.Map;
 // are the ones controlling the URL (by owning the repository)
 
 public class GithubRequester {
-    private final String GITHUB_FRAGMENT_REPO = "https://github.com/iSpiEFP/EFP_parameters/";   /* Prefix to URL    */
+    private final String GITHUB_FRAGMENT_REPO = "https://raw.githubusercontent.com/rderue/efp_parameters/master/";    /* Prefix to URL    */
     private String fileName = null;                             /* Filename to append to the prefix to complete URL */
     private URL gitURL = null;                                  /* URL created w/ the conjunction of above Strings  */
     private HttpURLConnection gitConnection = null;             /* Connection opened using the above URL            */
     private Map<String, List<String>> gitHeaders = null;        /* Used for examining headers like 404              */
     private InputStream gitStream = null;                       /* Stream obtained from the HTTP connection         */
     private String fileContents = null;                         /* The string obtained from the above stream        */
+    private BufferedReader gitReader = null;                    /* The reader which reads from gitStream            */
 
     public GithubRequester(String fileName){
-        fileName = fileName;
+        this.fileName = fileName;
         try{
             gitURL = new URL(GITHUB_FRAGMENT_REPO + fileName);
         } catch (MalformedURLException e){
@@ -55,28 +56,20 @@ public class GithubRequester {
             System.err.println("Stream never opened");
             return "null";
         } else {
-            Writer writer = new StringWriter();
-            char[] buffer = new char[4096];
+            StringBuilder builder = new StringBuilder();
+            String output = "";
             try {
-                Reader reader = new BufferedReader(new InputStreamReader(gitStream, "UTF-8"));
-                int counter;
-                while ((counter = reader.read(buffer)) != -1) {
-                    writer.write(buffer, 0, counter);
+                gitReader = new BufferedReader(new InputStreamReader(gitStream, "UTF-8"));
+                String temp;
+                while ((temp = gitReader.readLine()) != null) {
+                    builder.append(String.format("%s%n",temp));
                 }
+                output = builder.toString();
             } catch (Exception e) {
                 System.err.println("Error occurred while reading from stream");
                 e.printStackTrace();
-                return "null";
-            } finally {
-                try {
-                    gitStream.close();
-                } catch (IOException e) {
-                    System.err.println("IOException while closing stream");
-                    e.printStackTrace();
-                }
-
             }
-            return writer.toString();
+                return output;
         }
     }
 
@@ -96,8 +89,11 @@ public class GithubRequester {
             try {
                 returnFile = File.createTempFile(fileName, ".efp");
                 returnFile.deleteOnExit();
+                String fileContents = getFileContents();
+                System.out.printf("Temp file name is %s%n", returnFile.getName());
                 PrintWriter printWriter = new PrintWriter(returnFile);
-                printWriter.print(getFileContents());
+                printWriter.print(fileContents);
+                printWriter.flush();
             } catch (IOException e) {
                 System.err.println("Unable to create a temp file to copy the EFP file into");
                 e.printStackTrace();
@@ -109,4 +105,14 @@ public class GithubRequester {
         return returnFile;
     }
 
+    /**
+     * Frees system resources associated with buffered reader when no longer needed. Primarily frees file descriptors
+     **/
+    public void cleanUp(){
+        try {
+            if (gitReader != null) gitReader.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 }

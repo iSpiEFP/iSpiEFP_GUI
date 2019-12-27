@@ -225,6 +225,7 @@ public class MetaData {
         }
         GithubRequester requester = new GithubRequester(fromFile);
         efpFile = requester.getEFPFile();
+        requester.cleanUp();
     }
 
     /**
