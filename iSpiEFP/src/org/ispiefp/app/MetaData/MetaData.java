@@ -1,19 +1,22 @@
 package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
+import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/* This class is essentially a wrapper for extracting all of the fields from a JSON String     */
+/* This class is essentially a wrapper for extracting all of the fields from a JSON String          */
 public class MetaData {
 
-    private String fromFile;       /* The file from which this metadata was extracted          */
-    private String fragmentName;   /* The name of the fragment from the file                   */
-    private String scf_type;       /* The type of self-consistent field method used            */
-    private String basisSet;      /* The basisSet in which this calculations was performed   */
+    private String fromFile;            /* The file from which this metadata was extracted          */
+    private String fragmentName;        /* The name of the fragment from the file                   */
+    private String scf_type;            /* The type of self-consistent field method used            */
+    private String basisSet;            /* The basisSet in which this calculations was performed    */
     private Coordinates[] coordinates;  /* A list of coordinates strings                            */
+    private File efpFile;               /* The .efp file for this fragment. Only populated after
+                                           selecting the fragment from file->Select Fragment        */
     /* Coordinate Object format:
             <atomId> <x_coord> <y_coord> <z_coord> <mass> <charge>
 
@@ -204,5 +207,33 @@ public class MetaData {
             if (bw != null) bw.close();
         }
         return xyzFile;
+    }
+
+    /**
+     * Sets the .efp file for this fragment. In order to conserve disk space, this method is only ran when a fragment
+     * is selected from File->Select Fragment. If the file is not already local (the case if it is a user-generated
+     * parameter), it will be deleted upon system exit because it can be obtained again in the next session as long
+     * as the user is connected to the internet. As of 12/26/2019 this does not handle the case that the fragment is
+     * neither located in the Github repo or on the local system todo: Prompt the user to generate a custom EFP file
+     * through GAMESS and save the file to the user-generated parameters directory.
+     */
+    public void setEfpFile() {
+        File checkLocalFile = new File(fromFile);
+        if (new File(fromFile).exists()){
+            efpFile = checkLocalFile;
+            return;
+        }
+        GithubRequester requester = new GithubRequester(fromFile);
+        efpFile = requester.getEFPFile();
+        requester.cleanUp();
+    }
+
+    /**
+     * Getter for the .efp File for this fragment.
+     * @return the File which is set after selecting this fragment form File->Select Fragment. Note: will be null
+     * if it was never set.
+     */
+    public File getEfpFile() {
+        return efpFile;
     }
 }
