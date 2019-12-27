@@ -95,6 +95,7 @@ public class MetaDataSelectorController{
         MetaData selectedFragment = Main.fragmentTree.getMetaData(
                 fragmentFromFiles.get(fragmentList.getSelectionModel().getSelectedIndex()));
         Main.fragmentTree.setSelectedFragment(selectedFragment);
+        selectedFragment.setEfpFile();
         Stage stage = (Stage) selectButton.getScene().getWindow();
         stage.close();
     }

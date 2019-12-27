@@ -4,6 +4,7 @@ import org.ispiefp.app.MetaData.LocalFragmentTree;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.MetaData.MetaHandler;
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.util.CheckInternetConnection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -158,5 +159,10 @@ public class MetaHandlerTest {
         MetaData metaData = new MetaData("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
         lft.addFragment("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
         Assert.assertTrue(metaData.equals(lft.getMetaData("ch4.efp")));
+    }
+
+    @Test
+    public void testInternetConnection(){
+        Assert.assertTrue(CheckInternetConnection.checkInternetConnection());
     }
 }
