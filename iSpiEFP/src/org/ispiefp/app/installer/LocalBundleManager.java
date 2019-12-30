@@ -93,6 +93,15 @@ public class LocalBundleManager {
             missingFiles.add(WORKSPACE);
         }
 
+        //Create MetaData generation directory
+        if (!(new File(META_DATA_GENERATION)).exists()) {
+            missingFiles.add(META_DATA_GENERATION);
+        }
+
+        if (!(new File(USER_PARAMETERS).exists())){
+            missingFiles.add(USER_PARAMETERS);
+        }
+
         //Gamess Files
         if (!(new File(GAMESS)).exists()) {
             missingFiles.add(GAMESS);
