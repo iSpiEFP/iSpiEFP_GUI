@@ -63,10 +63,12 @@ public class UserPreferences {
 
     public static void setUserParameterPath(String value){
         userPrefs.put(USER_PARAMETER_PATH_KEY, value);
+        userParameterPath = userPrefs.get(USER_PARAMETER_PATH_KEY, "check");
     }
 
     public static void setPythonPath(String value){
         userPrefs.put(PYTHON_PATH_KEY, value);
         pythonPathExists = true;
+        pythonPath = userPrefs.get(PYTHON_PATH_KEY, "check");
     }
 }

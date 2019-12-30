@@ -7,7 +7,7 @@ import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.util.UserPreferences;
 
 import java.io.*;
-import java.util.prefs.BackingStoreException;
+
 
 public class Initializer {
     private BundleManager bundleManager;
@@ -31,7 +31,7 @@ public class Initializer {
         Runtime.getRuntime().addShutdownHook(new Thread(){
           @Override
           public void run(){
-              deleteDirectory(new File(LocalBundleManager.USER_PARAMETERS));
+              deleteDirectory(new File(LocalBundleManager.META_DATA_GENERATION));
           }
         });
     }
@@ -72,7 +72,6 @@ public class Initializer {
         if (dirFiles != null) {
             for (File child : dirFiles) {
                 Main.fragmentTree.addFragment(child.getPath());
-                //child.delete();
             }
         }
     }
@@ -86,4 +85,6 @@ public class Initializer {
         }
         return directory.delete();
     }
+
+
 }

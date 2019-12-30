@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.ispiefp.app.Initializer;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.util.UserPreferences;
 
@@ -127,17 +128,26 @@ public class SettingsViewController {
 
     @FXML
     private void pathsSave(){
-        if (!pythonPathField.getText().equals("")) UserPreferences.setPythonPath(pythonPathField.getText());
+        if (!pythonPathField.getText().equals("")){
+            UserPreferences.setPythonPath(pythonPathField.getText());
+            Initializer init = new Initializer();
+            init.generateMetas(UserPreferences.getUserParameterPath());
+            init.addMetasToTree();
+        }
         if (!parameterPathField.getText().equals("")) UserPreferences.setUserParameterPath(parameterPathField.getText());
+
     }
 
     @FXML
     private void pathsRestoreDefaults(){
         UserPreferences.setUserParameterPath(LocalBundleManager.USER_PARAMETERS);
+        Initializer init = new Initializer();
+        init.generateMetas(UserPreferences.getUserParameterPath());
+        init.addMetasToTree();
         parameterPathField.setText(UserPreferences.getUserParameterPath());
-        if (System.getenv("PYTHONHOME") != null){
-            UserPreferences.setPythonPath(System.getenv("PYTHONHOME"));
-            pythonPathField.setText(UserPreferences.getPythonPath());
+        if (System.getenv("PYTHONPATH") != null) {
+            UserPreferences.setPythonPath(System.getenv("PYTHONPATH"));
+            pythonPathField.setText(System.getenv("PYTHONPATH"));
         } else {
             UserPreferences.setPythonPath("check");
             pythonPathField.clear();
