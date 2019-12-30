@@ -13,7 +13,6 @@ import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.MetaData.MetaHandler;
 import org.ispiefp.app.util.CheckInternetConnection;
-import org.ispiefp.app.util.UnescapeString;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +49,7 @@ public class MetaDataSelectorController{
         selectedFragment = null;
         for (MetaData md : Main.fragmentTree.getMetaDataIterator()) {
             // If there is no internet connection and the efp file for the fragment is not local, skip it.
-            if (!CheckInternetConnection.checkInternetConnection()){
+            if (!CheckInternetConnection.checkInternetConnection()) {
                 File checkIfLocal = new File(md.getFromFile());
                 if (!checkIfLocal.exists()) continue;
             }

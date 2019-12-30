@@ -47,6 +47,9 @@ public class UserPreferences {
                 pythonPath = "Could not automatically find python interpreter";
             }
         }
+        else{
+            pythonPathExists = true;
+        }
     }
 
     public static String getUserParameterPath() {
