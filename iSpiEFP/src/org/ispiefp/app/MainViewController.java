@@ -218,14 +218,19 @@ public class MainViewController {
      * which has been built. Then hands off control to the MetaDataSelectorController
      */
     public void fragmentOpen() throws IOException {
-
+        File xyzFile;
         Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/metaDataSelector.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
         stage.showAndWait();
-        File xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+        try {
+            xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+        } catch (NullPointerException e){
+            System.out.println("User closed window without selecting a fragment");
+            return;
+        }
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         if (jmolMainPanel.openFile(xyzFile)) {
 

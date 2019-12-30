@@ -108,7 +108,11 @@ public class SettingsViewController {
         dc.setTitle("Select the Directory Containing your EFP files");
         dc.setInitialDirectory(new File(UserPreferences.getUserParameterPath()));
         Stage currStage = (Stage) anchor.getScene().getWindow();
-        parameterPathField.setText(dc.showDialog(currStage).getAbsolutePath());
+        try {
+            parameterPathField.setText(dc.showDialog(currStage).getAbsolutePath());
+        } catch (NullPointerException e){
+            System.out.println("User closed dialog without selecting a file");;
+        }
     }
 
     @FXML
@@ -123,7 +127,11 @@ public class SettingsViewController {
             fc.setInitialDirectory(new File(System.getProperty("user.home")));
         }
         Stage currStage = (Stage) anchor.getScene().getWindow();
-        pythonPathField.setText(fc.showOpenDialog(currStage).getAbsolutePath());
+        try{
+            pythonPathField.setText(fc.showOpenDialog(currStage).getAbsolutePath());
+        } catch(NullPointerException e){
+            System.out.println("User closed dialog without selecting a file");;
+        }
     }
 
     @FXML
