@@ -1,4 +1,5 @@
 from enum import IntEnum
+from pathlib import Path
 import math
 import json
 import re
@@ -70,7 +71,7 @@ class Coordinate_Line:
         self.charge = float (tokens[5])
 
     def getJSONString(self) -> str:
-        return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__).replace("\\", "")
        
         
 
@@ -118,7 +119,7 @@ class Metadata:
     def __init__(self, fileName):
         self.bitmap = 0
         self.state = CurrentField.INITIAL
-        self.fromFile = fileName.encode('unicode_escape')
+        self.fromFile = fileName
         self.scftype = ""
         self.basisSet = ""
         self.coordinates = []
@@ -241,7 +242,8 @@ class Metadata:
             "coordinates": self.coordinates,
             "bitmap": int(self.bitmap)
         }
-        jsonString = json.dumps(json_data, indent=4).replace("\\", "")
+        jsonString = json.dumps(json_data, indent=4).replace("\\\"", "\"")
+        #jsonString = json.dumps(json_data, indent=4)
         jsonString.replace("\"{", "{")
         jsonString.replace("}\"", "}")
         jsonString = re.sub("\"{", "{", jsonString)
@@ -250,7 +252,9 @@ class Metadata:
             print(jsonString, file=outFile)
 
 def main():
-    meta = Metadata(sys.argv[1])
+    fromFilePathObject = Path(sys.argv[1])
+    fromFile = str(fromFilePathObject.resolve())
+    meta = Metadata(fromFile)
     meta.toJSON()
 
 if __name__ == '__main__':

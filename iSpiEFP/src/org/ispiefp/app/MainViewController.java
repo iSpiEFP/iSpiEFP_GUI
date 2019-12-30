@@ -244,6 +244,15 @@ public class MainViewController {
         }
     }
 
+    public void openSettings() throws IOException{
+        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Settings");
+        stage.setScene(new Scene(fragmentSelector));
+        stage.showAndWait();
+    }
+
     /**
      * TODO: fileOpenRecent this button does not exist in the fxml doc and needs to be added
      *

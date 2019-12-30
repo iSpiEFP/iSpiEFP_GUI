@@ -2,6 +2,7 @@ package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
 import org.ispiefp.app.EFPFileRetriever.GithubRequester;
+import org.ispiefp.app.util.UnescapeString;
 
 import java.io.*;
 import java.nio.file.Files;
