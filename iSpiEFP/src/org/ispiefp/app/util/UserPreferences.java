@@ -1,15 +1,17 @@
 package org.ispiefp.app.util;
 import org.ispiefp.app.installer.LocalBundleManager;
+
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 public class UserPreferences {
     /* Keys for user preferences */
     private static final String USER_PARAMETER_PATH_KEY = "userParameterDirectory";
     private static final String PYTHON_PATH_KEY = "pythonInterpreterPath";
-    private String userParameterPath = null;
-    private String pythonPath = null;
-    private boolean pythonPathExists = false;
-    private Preferences userPrefs;
+    private static String userParameterPath = null;
+    private static String pythonPath = null;
+    private static boolean pythonPathExists = false;
+    private static Preferences userPrefs;
 
     public UserPreferences(){
         userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
@@ -30,14 +32,14 @@ public class UserPreferences {
      *  Key - PYTHON_PATH_KEY
      *  Default Value - The path returned by the environment variable PYTHONPATH or an error message if DNE
      */
-    public void initializePreferences(){
+    public void initializePreferences() {
         if ((userParameterPath = userPrefs.get(USER_PARAMETER_PATH_KEY, "check")).equals("check")){
             userPrefs.put(USER_PARAMETER_PATH_KEY, LocalBundleManager.USER_PARAMETERS);
             userParameterPath = LocalBundleManager.USER_PARAMETERS;
         }
         if ((pythonPath = userPrefs.get(PYTHON_PATH_KEY, "check")).equals("check")) {
             if (System.getenv("PYTHONPATH") != null) {
-                userPrefs.put(USER_PARAMETER_PATH_KEY, System.getenv("PYTHONPATH"));
+                userPrefs.put(PYTHON_PATH_KEY, System.getenv("PYTHONPATH"));
                 pythonPath = System.getenv("PYTHONPATH");
                 pythonPathExists = true;
             }
@@ -47,23 +49,23 @@ public class UserPreferences {
         }
     }
 
-    public String getUserParameterPath() {
+    public static String getUserParameterPath() {
         return userParameterPath;
     }
 
-    public String getPythonPath() {
+    public static String getPythonPath() {
         return pythonPath;
     }
 
-    public boolean pythonPathExists() {
+    public static boolean pythonPathExists() {
         return pythonPathExists;
     }
 
-    public void setUserParameterPath(String value){
+    public static void setUserParameterPath(String value){
         userPrefs.put(USER_PARAMETER_PATH_KEY, value);
     }
 
-    public void setPythonPath(String value){
+    public static void setPythonPath(String value){
         userPrefs.put(PYTHON_PATH_KEY, value);
         pythonPathExists = true;
     }

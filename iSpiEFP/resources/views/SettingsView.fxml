@@ -32,15 +32,15 @@
             <VBox fx:id="pathsBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" visible="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <Label fx:id="parameterPathFieldLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Directory containing user generated parameters" textAlignment="CENTER" />
                 <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
-                <Button fx:id="diretorySelectButton" text="Find" />
+                <Button fx:id="diretorySelectButton" text="Find" onAction="#selectDirectory" />
                 <Separator />
                 <Label fx:id="pythonPathFieldLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path to Python interpreter" textAlignment="CENTER" />
                 <TextField fx:id="pythonPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
-                <Button fx:id="pythonSelectButton" text="Find" />
+                <Button fx:id="pythonSelectButton" text="Find" onAction="#selectPythonPath"/>
                 <Separator />
                 <HBox fx:id="pathsConfirmBox" spacing="10.0" alignment="BOTTOM_RIGHT">
-                    <Button fx:id="pathsSave" text="Save"/>
-                    <Button fx:id="pathsDefault" text="Restore Defaults"/>
+                    <Button fx:id="pathsSave" text="Save" onAction="#pathsSave"/>
+                    <Button fx:id="pathsDefault" text="Restore Defaults" onAction="#pathsRestoreDefaults"/>
                 </HBox>
             </VBox>
             <VBox fx:id="gamessBox" prefHeight="655.0" prefWidth="624.0" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
