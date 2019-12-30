@@ -61,7 +61,8 @@ public class Initializer {
             for (File child : dirFiles) {
                 try {
                     if (!FilenameUtils.getExtension(child.getName()).equals("efp")) continue;
-                    String commandInput = String.format("python %s %s %s", extractMetaScriptPath,
+                    String commandInput = String.format("%s %s %s %s",UserPreferences.getPythonPath(),
+                            extractMetaScriptPath,
                             child.getCanonicalPath(),
                             LocalBundleManager.META_DATA_GENERATION);
                     Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */

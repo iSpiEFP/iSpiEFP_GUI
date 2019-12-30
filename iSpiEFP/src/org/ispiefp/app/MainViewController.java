@@ -11,7 +11,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.ispiefp.app.EFPFileRetriever.GithubRequester;
-import org.ispiefp.app.util.ProgressIndicatorTest;
+import org.ispiefp.app.util.*;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.Jmol;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
@@ -19,7 +19,6 @@ import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.submission.SubmissionHistoryController;
-import org.ispiefp.app.util.UnrecognizedAtomException;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 import org.ispiefp.app.visualizer.JmolPanel;
 import java.awt.BorderLayout;
@@ -256,6 +255,24 @@ public class MainViewController {
         stage.setTitle("Settings");
         stage.setScene(new Scene(fragmentSelector));
         stage.showAndWait();
+    }
+
+    public void selectFragment() throws IOException{
+        String noInternetWarning = "You are not currently connected to the internet.\n\n" +
+                "You will only be able to select from " +
+                "fragments whose parameters are contained within your user parameters directory.";
+        if (!VerifyPython.isValidPython()){
+            VerifyPython.raisePythonError();
+            return;
+        }
+        if (!CheckInternetConnection.checkInternetConnection()){
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noInternetWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+            fragmentOpen();
+        }
+        else fragmentOpen();
     }
 
     /**

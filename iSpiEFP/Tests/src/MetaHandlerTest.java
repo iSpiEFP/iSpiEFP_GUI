@@ -5,6 +5,7 @@ import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.MetaData.MetaHandler;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.util.CheckInternetConnection;
+import org.ispiefp.app.util.VerifyPython;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -164,5 +165,12 @@ public class MetaHandlerTest {
     @Test
     public void testInternetConnection(){
         Assert.assertTrue(CheckInternetConnection.checkInternetConnection());
+    }
+
+    @Test
+    public void testPythonInterpreter(){
+        Initializer init = new Initializer();
+        init.init();
+        Assert.assertTrue(VerifyPython.isValidPython());
     }
 }
