@@ -7,6 +7,9 @@ import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.util.UserPreferences;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 
 
 public class Initializer {
@@ -43,17 +46,24 @@ public class Initializer {
      * @param directoryPath the directory containing all of the .efp files as a String
      */
     public void generateMetas(String directoryPath) {
-        String extractMetaScriptPath = getClass().getResource("/scripts/extractMeta.py").getPath();
+        //String extractMetaScriptPath = getClass().getResource("/scripts/extractMeta.py").getPath();
+        String extractMetaScriptPath = null;
+        try {
+            URL resource = getClass().getResource("/scripts/extractMeta.py");
+            File file = Paths.get(resource.toURI()).toFile();
+            extractMetaScriptPath = file.getAbsolutePath();
+        } catch (URISyntaxException e){
+            e.printStackTrace();
+        }
         File dir = new File(directoryPath);
         File[] dirFiles = dir.listFiles();
         if (dirFiles != null) {
             for (File child : dirFiles) {
                 try {
-                    if (!FilenameUtils.getExtension(child.getName()).equals(".efp")) continue;
+                    if (!FilenameUtils.getExtension(child.getName()).equals("efp")) continue;
                     String commandInput = String.format("python %s %s %s", extractMetaScriptPath,
                             child.getCanonicalPath(),
                             LocalBundleManager.META_DATA_GENERATION);
-                    System.out.println(commandInput);
                     Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                     String s;

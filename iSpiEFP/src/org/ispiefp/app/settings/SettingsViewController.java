@@ -130,11 +130,13 @@ public class SettingsViewController {
     private void pathsSave(){
         if (!pythonPathField.getText().equals("")){
             UserPreferences.setPythonPath(pythonPathField.getText());
+        }
+        if (!parameterPathField.getText().equals("")){
+            UserPreferences.setUserParameterPath(parameterPathField.getText());
             Initializer init = new Initializer();
             init.generateMetas(UserPreferences.getUserParameterPath());
             init.addMetasToTree();
         }
-        if (!parameterPathField.getText().equals("")) UserPreferences.setUserParameterPath(parameterPathField.getText());
 
     }
 

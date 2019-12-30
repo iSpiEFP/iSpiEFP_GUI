@@ -514,7 +514,7 @@ public class MainViewController {
 
             @FXML
             public void calculateEditServers () throws IOException {
-                Parent serversList = FXMLLoader.load(getClass().getResource("views/ServersList.fxml"));
+                Parent serversList = FXMLLoader.load(getClass().getResource("/views/ServersList.fxml"));
                 Stage stage = new Stage();
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.setTitle("Servers list");
