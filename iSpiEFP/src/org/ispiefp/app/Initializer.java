@@ -3,6 +3,7 @@ package org.ispiefp.app;
 import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.installer.BundleManager;
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.util.UserPreferences;
 
 import java.io.*;
 
@@ -20,6 +21,8 @@ public class Initializer {
         generateMetas(LocalBundleManager.USER_PARAMETERS);
         generateMetas(LocalBundleManager.LIBRARY_PARAMETERS);
         addMetasToTree();
+        UserPreferences preferences = new UserPreferences();
+        preferences.initializePreferences();
     }
 
     /**

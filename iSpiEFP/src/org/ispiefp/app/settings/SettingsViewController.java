@@ -9,8 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import javax.xml.soap.Text;
+import java.util.prefs.Preferences;
 
 public class SettingsViewController {
     /* Overarching Class Fields */
@@ -94,7 +93,7 @@ public class SettingsViewController {
     }
 
     private void initializePaths(){
-
+        parameterPathField.setPromptText(Preferences);
     }
 
     private void openPathsSettings(){
