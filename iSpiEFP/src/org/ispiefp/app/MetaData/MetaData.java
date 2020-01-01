@@ -76,7 +76,7 @@ public class MetaData {
      *
      * @return the basis set as a String
      */
-    public String getbasisSet() {
+    public String getBasisSet() {
         return basisSet;
     }
 
@@ -156,6 +156,223 @@ public class MetaData {
                 ((MetaData) obj).fragmentName.equals(this.fragmentName) &&
                 ((MetaData) obj).scf_type.equals(this.scf_type);
     }
+
+    /**
+     * Returns true iff original efp file contained coordinates
+     *
+     * @return Returns true iff original efp file contained coordinates
+     */
+    public boolean containsCoordinates() {
+        int bitmask = 1;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 0001 */
+        return (bitmap & bitmask) == 1;
+    }
+
+    /**
+     * Returns true iff original efp file contained monopoles
+     *
+     * @return true iff original efp file contained monopoles
+     */
+    public boolean containsMonopoles() {
+        int bitmask = 2;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 0010 */
+        return (bitmap & bitmask) == 2;
+    }
+
+    /**
+     * Returns true iff original efp file contained dipoles
+     *
+     * @return true iff original efp file contained dipoles
+     */
+    public boolean containsDipoles() {
+        int bitmask = 4;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 0100 */
+        return (bitmap & bitmask) == 4;
+    }
+
+    /**
+     * Returns true iff original efp file contained quadrupoles
+     *
+     * @return true iff original efp file contained quadrupoles
+     */
+    public boolean containsQuadrupoles() {
+        int bitmask = 8;    /* bitmask = 0000 0000 0000 0000 0000 0000 0000 1000 */
+        return (bitmap & bitmask) == 8;
+    }
+
+    /**
+     * Returns true iff original efp file contained octupoles
+     *
+     * @return true iff original efp file contained octupoles
+     */
+    public boolean containsOctupoles() {
+        int bitmask = 16;    /* bitmask = 0000 0000 0000 0000 0000 0000 0001 0000 */
+        return (bitmap & bitmask) == 16;
+    }
+
+    /**
+     * Returns true iff original efp file contained Polarizable Points
+     *
+     * @return true iff original efp file contained Polarizable Points
+     */
+    public boolean containsPolarizablePts() {
+        int bitmask = 32;    /* bitmask = 0000 0000 0000 0000 0000 0000 0010 0000 */
+        return (bitmap & bitmask) == 32;
+    }
+
+    /**
+     * Returns true iff original efp file contained Dynamic Polarizable Points
+     *
+     * @return true iff original efp file contained Dynamic Polarizable Points
+     */
+    public boolean containsDynPolarizablePts() {
+        int bitmask = 64;    /* bitmask = 0000 0000 0000 0000 0000 0000 0100 0000 */
+        return (bitmap & bitmask) == 64;
+    }
+
+    /**
+     * Returns true iff original efp file contained projection basis
+     *
+     * @return true iff original efp file contained projection basis
+     */
+    public boolean containsProjectionBasis() {
+        int bitmask = 128;    /* bitmask = 0000 0000 0000 0000 0000 0000 1000 0000 */
+        return (bitmap & bitmask) == 128;
+    }
+
+    /**
+     * Returns true iff original efp file contained multiplicity
+     *
+     * @return true iff original efp file contained multiplicity
+     */
+    public boolean containsMultiplicity() {
+        int bitmask = 256;    /* bitmask = 0000 0000 0000 0000 0000 0001 0000 0000 */
+        return (bitmap & bitmask) == 256;
+    }
+
+    /**
+     * Returns true iff original efp file contained projection wavefunction
+     *
+     * @return true iff original efp file contained projection wavefunction
+     */
+    public boolean containsProjectionWavefunction() {
+        int bitmask = 512;    /* bitmask = 0000 0000 0000 0000 0000 0010 0000 0000 */
+        return (bitmap & bitmask) == 512;
+    }
+
+    /**
+     * Returns true iff original efp file contained Fock matrix elements
+     *
+     * @return true iff original efp file contained Fock matrix elements
+     */
+    public boolean containsFockMatrixElements() {
+        int bitmask = 1024;    /* bitmask = 0000 0000 0000 0000 0000 0100 0000 0000 */
+        return (bitmap & bitmask) == 1024;
+    }
+
+    /**
+     * Returns true iff original efp file contained LMO Centroids
+     *
+     * @return true iff original efp file contained LMO Centroids
+     */
+    public boolean containsLMOCentroids() {
+        int bitmask = 2048;    /* bitmask = 0000 0000 0000 0000 0000 1000 0000 0000 */
+        return (bitmap & bitmask) == 2048;
+    }
+
+    /**
+     * Returns true iff original efp file contained canonical vectors
+     *
+     * @return true iff original efp file contained canonical vectors
+     */
+    public boolean containsCanonVec() {
+        int bitmask = 4096;    /* bitmask = 0000 0000 0000 0000 0001 0000 0000 0000 */
+        return (bitmap & bitmask) == 4096;
+    }
+
+    /**
+     * Returns true iff original efp file contained canonical Fock Matrix
+     *
+     * @return true iff original efp file contained canonical Fock Matrix
+     */
+    public boolean containsCanonFock() {
+        int bitmask = 8192;    /* bitmask = 0000 0000 0000 0000 0010 0000 0000 0000 */
+        return (bitmap & bitmask) == 8192;
+    }
+
+    /**
+     * Returns true iff original efp file contained screen2
+     *
+     * @return true iff original efp file contained screen2
+     */
+    public boolean containsScreen2() {
+        int bitmask = 16384;    /* bitmask = 0000 0000 0000 0000 0100 0000 0000 0000 */
+        return (bitmap & bitmask) == 16384;
+    }
+
+    /**
+     * Returns true iff original efp file contained screen
+     *
+     * @return true iff original efp file contained screen
+     */
+    public boolean containsScreen() {
+        int bitmask = 32768;    /* bitmask = 0000 0000 0000 0000 1000 0000 0000 0000 */
+        return (bitmap & bitmask) == 32768;
+    }
+
+    /**
+     * Returns true iff original efp file contained all of the information for electrostatics
+     * A file has all of the electrostatic information if it has monopoles, dipoles, quadrupoles, and octupoles
+     *
+     * @return true iff original efp file contained all of the information for electrostatics
+     */
+    public boolean containsElectrostatics() {
+        return containsCoordinates() && containsMonopoles() && containsDipoles()
+                && containsQuadrupoles() && containsOctupoles() && containsScreen2();
+    }
+
+    /**
+     * Returns true iff original efp file contained all of the information for Polarization
+     * A file has all of the Exchange Repulsion information if it has Polarizable Points
+     *
+     * @return true iff original efp file contained all of the information for Polarization
+     */
+    public boolean containsPolarization() {
+        return containsPolarizablePts();
+    }
+
+    /**
+     * Returns true iff original efp file contained all of the information for Exchange Repulsion
+     * A file has all of the Exchange Repulsion information if it has Projection Basis Set, Multiplicity,
+     * Projection Wave Function, Fock Matrix Elements, LMO Centroids
+     *
+     * @return true iff original efp file contained all of the information for Exchange Repulsion
+     */
+    public boolean containsExchangeRepulsion() {
+        return containsProjectionBasis() && containsMultiplicity() && containsProjectionWavefunction()
+                && containsFockMatrixElements() && containsLMOCentroids();
+    }
+
+    /**
+     * Returns true iff original efp file contained all of the information for Dispersion
+     * A file has all of the Exchange Repulsion information if it has Dynamic Polarizable Points
+     *
+     * @return true iff original efp file contained all of the information for Dispersion
+     */
+    public boolean containsDispersion() {
+        return containsDynPolarizablePts();
+    }
+
+    /**
+     * The next four methods are just wrappers for the contains methods because JavaFX requires these naming
+     * conventions in order to automatically find the properties for the TableView. Therefore the metaDataSelector
+     * controller is dependent on these next 4 methods
+     * @return The respective boolean values for each
+     */
+    public boolean getElectrostatics(){ return containsElectrostatics(); }
+
+    public boolean getExchangeRepulsion(){ return containsExchangeRepulsion(); }
+
+    public boolean getPolarization(){ return containsPolarization(); }
+
+    public boolean getDispersion(){ return containsDispersion(); }
 
     /**
      * This method creates an xyz file from the MetaData's coordinate field. The file will automatically be deleted
