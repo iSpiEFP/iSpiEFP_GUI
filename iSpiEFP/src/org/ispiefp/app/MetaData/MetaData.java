@@ -385,6 +385,7 @@ public class MetaData {
     public File createTempXYZ() throws IOException {
         BufferedWriter bw = null;
         File xyzFile = null;
+        double numAngstromsInBohr = 0.52918;
         try{
             //Create a temp xyz file
             xyzFile = File.createTempFile(fromFile, ".xyz");
@@ -414,9 +415,9 @@ public class MetaData {
                 //Follow XYZ file format for each atom
                 bw.write(String.format("%s\t%.5f\t%.5f\t%.5f%n",
                         atomType,
-                        coordinates[i].x,
-                        coordinates[i].y,
-                        coordinates[i].z));
+                        coordinates[i].x * numAngstromsInBohr,
+                        coordinates[i].y * numAngstromsInBohr,
+                        coordinates[i].z * numAngstromsInBohr));
             }
         } catch(IOException e){
             System.err.println("Unable to create a temporary file.");
