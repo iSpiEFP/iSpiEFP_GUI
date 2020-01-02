@@ -16,11 +16,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.MetaData;
-import org.ispiefp.app.MetaData.MetaHandler;
 import org.ispiefp.app.util.CheckInternetConnection;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,8 +105,10 @@ public class MetaDataSelectorController{
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 setText("");
-                if (empty) return;
-                if (item)
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
                     this.setBackground(new Background(
                             new BackgroundFill(
                                     Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
@@ -118,14 +118,17 @@ public class MetaDataSelectorController{
                                     Color.RED, CornerRadii.EMPTY, new Insets(1,1,1,1))));
             }
         });
+
 
         XRIndicator.setCellFactory(col -> new TableCell<MetaData, Boolean>(){
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 setText("");
-                if (empty) return;
-                if (item)
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
                     this.setBackground(new Background(
                             new BackgroundFill(
                                     Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
@@ -136,13 +139,16 @@ public class MetaDataSelectorController{
             }
         });
 
+
         polarizationIndicator.setCellFactory(col -> new TableCell<MetaData, Boolean>(){
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 setText("");
-                if (empty) return;
-                if (item)
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
                     this.setBackground(new Background(
                             new BackgroundFill(
                                     Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
@@ -158,8 +164,10 @@ public class MetaDataSelectorController{
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 setText("");
-                if (empty) return;
-                if (item)
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
                     this.setBackground(new Background(
                             new BackgroundFill(
                                     Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
@@ -169,6 +177,7 @@ public class MetaDataSelectorController{
                                     Color.RED, CornerRadii.EMPTY, new Insets(1,1,1,1))));
             }
         });
+
 
         //Wrap the observables in a FilteredList
         FilteredList<MetaData> filteredData = new FilteredList<>(fragmentObservableList, p -> true);
