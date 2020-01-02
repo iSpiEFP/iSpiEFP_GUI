@@ -27,27 +27,19 @@ public class SettingsViewController {
     @FXML
     private VBox pathsBox;
     @FXML
-    private Label parameterPathFieldLabel;
-    @FXML
     private TextField parameterPathField;
     @FXML
-    private DirectoryChooser ParameterDirectoryChooser;
-    @FXML
-    private Button directorySelectButton;
-    @FXML
-    private Label pythonPathFieldLabel;
-    @FXML
     private TextField pythonPathField;
-    @FXML
-    private Button pythonSelectButton;
-    @FXML
-    private Button pathsSave;
-    @FXML
-    private Button pathsDefault;
 
     /* Fields for GAMESS Server Settings */
     @FXML
     private VBox gamessBox;
+    @FXML
+    private TextField gamessServerField;
+    @FXML
+    private TextField gamessUserName;
+    @FXML
+    private PasswordField gamessPassword;
 
 
     /* Fields for LibEFP Server Settings */
@@ -145,7 +137,6 @@ public class SettingsViewController {
             init.generateMetas(UserPreferences.getUserParameterPath());
             init.addMetasToTree();
         }
-
     }
 
     @FXML
@@ -172,7 +163,33 @@ public class SettingsViewController {
     }
 
     private void initializeGamess(){
+        if (UserPreferences.getGamessServer().equals("check")) gamessServerField.setPromptText("Enter Server Address");
+        else gamessServerField.setPromptText(UserPreferences.getGamessServer());
+        if (UserPreferences.getGamessUsername().equals("check")) gamessUserName.setPromptText("Enter your username for the server");
+        else gamessUserName.setPromptText(UserPreferences.getGamessUsername());
+    }
 
+    @FXML
+    private void gamessSave(){
+        if (!gamessServerField.getText().equals("")){
+            UserPreferences.setGamessServer(gamessServerField.getText());
+        }
+        if (!gamessUserName.getText().equals("")){
+            UserPreferences.setGamessUsername(gamessUserName.getText());
+        }
+        if (!gamessPassword.getText().equals("")){
+            UserPreferences.setGamessPassword(gamessPassword.getText());
+        }
+    }
+
+    @FXML
+    private void gamessClear(){
+        UserPreferences.setGamessServer("check");
+        UserPreferences.setGamessUsername("check");
+        UserPreferences.setGamessPassword("check");
+        gamessServerField.setPromptText("Enter Server Address");
+        gamessUserName.setPromptText("Enter your username for the server");
+        gamessPassword.setPromptText("");
     }
 
     private void openGamessSettings(){
