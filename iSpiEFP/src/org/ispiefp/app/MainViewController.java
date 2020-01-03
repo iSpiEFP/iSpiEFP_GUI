@@ -10,6 +10,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 import org.ispiefp.app.util.ProgressIndicatorTest;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.Jmol;
@@ -52,36 +53,36 @@ public class MainViewController {
     private static boolean[] interested_parameters = {false, false, false};
 
     private ProgressIndicatorTest pit;
-    
+
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
 
     @FXML
     private Parent root;
-    
+
     /******************************************************************************************
      *             PANES & LISTS SECTION BEGINS                                               *
      ******************************************************************************************/
     @FXML
     private SplitPane leftRightSplitPane;
-    
+
     @FXML
     private ListView<String> leftListView;
-    
+
     @FXML
     private SplitPane middleRightSplitPane;
-    
+
     @FXML
     private Pane middlePane;
-    
+
     @FXML
     private SplitPane rightVerticalSplitPane;
-    
+
     @FXML
     private Pane upperRightPane;
-    
+
     @FXML
     private Pane bottomRightPane;
-    
+
     /******************************************************************************************
      *             ICON BUTTON SECTION BEGINS                                         *
      ******************************************************************************************/
@@ -90,28 +91,28 @@ public class MainViewController {
 
     @FXML
     private ToggleButton haloButton;
-        
+
     @FXML
     private ToggleButton snipButton;
-    
+
     @FXML
     private ToggleButton measureButton;
 
     @FXML
     private ToggleButton pickCenterButton;
-    
+
     @FXML
     private ToggleButton playPauseButton;
 
     @FXML
     private ToggleButton modelKitButton;
-    
+
     @FXML
     private Button consoleButton;
-    
+
     @FXML
     private Button libefpButton;
-    
+
     /**
      * initialize(); is called after @FXML parameters have been loaded in
      * Loading order goes as: Constructor > @FXML > initialize();
@@ -135,7 +136,7 @@ public class MainViewController {
         modelKitButton.setGraphic(new ImageView(build));
         consoleButton.setText("");
         consoleButton.setGraphic(new ImageView(terminal));
-        
+
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
 
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
@@ -144,15 +145,15 @@ public class MainViewController {
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
     }
-    
+
     /**
-     * Constructor for JavaFX main view controller. 
+     * Constructor for JavaFX main view controller.
      * Loading order goes as: Constructor > @FXML > initialize();
      */
     public MainViewController() {
-        
+
     }
-    
+
     public static String getLastOpenedFile() {
         return lastOpenedFile;
     }
@@ -188,34 +189,66 @@ public class MainViewController {
                 new FileChooser.ExtensionFilter("PDB", "*.pdb")
         );
         Stage currStage = (Stage) root.getScene().getWindow();
-        
+
         File file = fileChooser.showOpenDialog(currStage);
-        
+
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
-        if(jmolMainPanel.openFile(file)) {
-            
+        if (jmolMainPanel.openFile(file)) {
+
             lastOpenedFile = file.getAbsolutePath();
             lastOpenedFileName = file.getName();
-            
+
             leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
             middleRightSplitPane.setDividerPositions(1, 0);
-            
+
             //reset buttons
             haloButton.setSelected(false);
             snipButton.setSelected(false);
             playPauseButton.setText("");
             playPauseButton.setGraphic(new ImageView(play));
             playPauseButton.setSelected(false);
-            
+
             //TODO refactor the libefp button
             libefpButton.setDisable(true);
         }
     }
 
+    @FXML
+    /**
+     * Opens a new stage for selecting a fragment from those contained within the fragmentTree
+     * which has been built. Then hands off control to the MetaDataSelectorController
+     */
+    public void fragmentOpen() throws IOException {
+
+        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/metaDataSelector.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Select Fragment");
+        stage.setScene(new Scene(fragmentSelector));
+        stage.showAndWait();
+        File xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+        jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+        if (jmolMainPanel.openFile(xyzFile)) {
+
+            lastOpenedFile = xyzFile.getAbsolutePath();
+            lastOpenedFileName = xyzFile.getName();
+
+            leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+            middleRightSplitPane.setDividerPositions(1, 0);
+
+            //reset buttons
+            haloButton.setSelected(false);
+            snipButton.setSelected(false);
+            playPauseButton.setText("");
+            playPauseButton.setGraphic(new ImageView(play));
+            playPauseButton.setSelected(false);
+        }
+    }
+
     /**
      * TODO: fileOpenRecent this button does not exist in the fxml doc and needs to be added
-     * @throws IOException
-     *  This is currently disabled in the fxml doc since it is not currently operational
+     *
+     * @throws IOException This is currently disabled in the fxml doc since it is not currently operational
      */
 
 
@@ -255,165 +288,168 @@ public class MainViewController {
 
     }
 
-        public void editUndo() throws IOException {
-            jmolMainPanel.undoDeleteBond();
+    public void editUndo() throws IOException {
+        jmolMainPanel.undoDeleteBond();
+    }
+
+    @FXML
+    public void editRedo() throws IOException {
+        //TODO JmolMainPanel history is current kept in a stack which pops only allowing an undo.
+        /* to implement undo change the stack to an arraylist and keep an index of the current */
+
+        //This is currently disabled in the fxml doc since it is not currently operational
+    }
+
+    @FXML
+    public void openAbout() throws IOException {    //Help -> About dialog
+        Alert a1 = new Alert(Alert.AlertType.CONFIRMATION, "hello");
+        a1.setTitle("About iSpiEFP");
+        a1.setHeaderText("About Us");
+        a1.setContentText("iSpiEFP is a tool for visualizing and describing molecular systems with the EFP method created and managed " +
+                "by the Slipchenko Research Group at Purdue University. iSpiEFP comes complete with a public database full of " +
+                "EFP Parameter files, and missing parameters can be calculated using Gamess. This application serves as a " +
+                "job-workflow manager which binds different technologies into one single application that allows chemists " +
+                "to point and click while utilizing high performance computing.");
+        a1.showAndWait();
+
+    }
+
+    public void editSelectAll() throws IOException {
+        jmolMainPanel.viewer.runScript("select all");
+    }
+
+    @FXML
+    public void editSelectNone() throws IOException {
+        jmolMainPanel.viewer.runScript("select none");
+    }
+
+    /******************************************************************************************
+     *             VIEW MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void viewFullScreen() throws IOException {
+        Main.getPrimaryStage().setFullScreen(true);
+        Main.getPrimaryStage().setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+    }
+
+    @FXML
+    public void viewWindowed() throws IOException {
+        Main.getPrimaryStage().setFullScreen(false);
+    }
+
+    @FXML
+    public void viewTop() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 1 0 0 -90");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewLeft() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 0 1 0 -90");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewRight() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 0 1 0 90");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewBottom() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 1 0 0 90");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewCenter() throws IOException {
+        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+        jmolMainPanel.repaint();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //             ZOOM SUB MENU BEGINS                                                      //
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    @FXML
+    public void viewZoomIn() throws IOException {
+        jmolMainPanel.viewer.runScript("zoom in");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewZoomOut() throws IOException {
+        jmolMainPanel.viewer.runScript("zoom out");
+        jmolMainPanel.repaint();
+    }
+
+    public void openLibEFPServers() throws IOException {
+        Parent serversList = FXMLLoader.load(getClass().getResource("views/LibEFPServers.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("LibEFP Servers");
+        stage.setScene(new Scene(serversList));
+        stage.show();
+    }
+
+    @FXML
+    public void viewZoom50() throws IOException {
+        jmolMainPanel.viewer.runScript("zoom 50");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewZoom75() throws IOException {
+        jmolMainPanel.viewer.runScript("zoom 75");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewZoom100() throws IOException {
+        jmolMainPanel.viewer.runScript("zoom 100");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewZoom150() throws IOException {
+        jmolMainPanel.viewer.runScript("zoom 150");
+        jmolMainPanel.repaint();
+    }
+
+    @FXML
+    public void viewZoom200() throws IOException {
+        jmolMainPanel.viewer.runScript("zoom 200");
+        jmolMainPanel.repaint();
+    }
+
+    /******************************************************************************************
+     *             SEARCH MENU BEGINS                                                         *
+     ******************************************************************************************/
+    @FXML
+    /**
+     * Handle Search Fragments button. Search the database for similar fragments to the current molecule
+     */
+    public void searchFindEFPPublicDatabase() throws IOException {
+        if (!lastOpenedFile.isEmpty()) {
+            //set divider positions
+            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
+            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
+
+            //Runs auxiliary JmolViewer
+            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
+
+            //load aux table list
+            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
+            try {
+                //start database controller actions
+                DBcontroller.run();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No file was opened");
         }
+    }
 
-        @FXML
-        public void editRedo() throws IOException {
-            //TODO JmolMainPanel history is current kept in a stack which pops only allowing an undo.
-            /* to implement undo change the stack to an arraylist and keep an index of the current */
-
-            //This is currently disabled in the fxml doc since it is not currently operational
-        }
-
-        @FXML
-        public void openAbout() throws IOException {    //Help -> About dialog
-            Alert a1 = new Alert(Alert.AlertType.CONFIRMATION, "hello");
-            a1.setTitle("About iSpiEFP");
-            a1.setHeaderText("About Us");
-            a1.setContentText("iSpiEFP is a tool for visualizing and describing molecular systems with the EFP method created and managed " +
-                    "by the Slipchenko Research Group at Purdue University. iSpiEFP comes complete with a public database full of " +
-                    "EFP Parameter files, and missing parameters can be calculated using Gamess. This application serves as a " +
-                    "job-workflow manager which binds different technologies into one single application that allows chemists " +
-                    "to point and click while utilizing high performance computing.");
-            a1.showAndWait();
-
-        }
-
-            public void editSelectAll() throws IOException {
-                jmolMainPanel.viewer.runScript("select all");
-            }
-
-            @FXML
-            public void editSelectNone() throws IOException {
-                jmolMainPanel.viewer.runScript("select none");
-            }
-
-            /******************************************************************************************
-             *             VIEW MENU BEGINS                                                           *
-             ******************************************************************************************/
-            @FXML
-            public void viewFullScreen() throws IOException {
-                Main.getPrimaryStage().setFullScreen(true);
-                Main.getPrimaryStage().setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-            }
-
-            @FXML
-            public void viewWindowed() throws IOException {
-                Main.getPrimaryStage().setFullScreen(false);
-            }
-
-            @FXML
-            public void viewTop() throws IOException {
-                jmolMainPanel.viewer.runScript("moveto 0 1 0 0 -90");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewLeft() throws IOException {
-                jmolMainPanel.viewer.runScript("moveto 0 0 1 0 -90");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewRight() throws IOException {
-                jmolMainPanel.viewer.runScript("moveto 0 0 1 0 90");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewBottom() throws IOException {
-                jmolMainPanel.viewer.runScript("moveto 0 1 0 0 90");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewCenter() throws IOException {
-                jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
-                jmolMainPanel.repaint();
-            }
-
-            ///////////////////////////////////////////////////////////////////////////////////////////
-            //             ZOOM SUB MENU BEGINS                                                      //
-            ///////////////////////////////////////////////////////////////////////////////////////////
-            @FXML
-            public void viewZoomIn() throws IOException {
-                jmolMainPanel.viewer.runScript("zoom in");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewZoomOut() throws IOException {
-                jmolMainPanel.viewer.runScript("zoom out");
-                jmolMainPanel.repaint();
-            }
-
-            public void openLibEFPServers() throws IOException {
-                Parent serversList = FXMLLoader.load(getClass().getResource("views/LibEFPServers.fxml"));
-                Stage stage = new Stage();
-                stage.initModality(Modality.WINDOW_MODAL);
-                stage.setTitle("LibEFP Servers");
-                stage.setScene(new Scene(serversList));
-                stage.show();
-            }
-
-            @FXML
-            public void viewZoom50() throws IOException {
-                jmolMainPanel.viewer.runScript("zoom 50");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewZoom75() throws IOException {
-                jmolMainPanel.viewer.runScript("zoom 75");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewZoom100() throws IOException {
-                jmolMainPanel.viewer.runScript("zoom 100");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewZoom150() throws IOException {
-                jmolMainPanel.viewer.runScript("zoom 150");
-                jmolMainPanel.repaint();
-            }
-
-            @FXML
-            public void viewZoom200() throws IOException {
-                jmolMainPanel.viewer.runScript("zoom 200");
-                jmolMainPanel.repaint();
-            }
-
-            /******************************************************************************************
-             *             SEARCH MENU BEGINS                                                         *
-             ******************************************************************************************/
-            @FXML
-            /**
-             * Handle Search Fragments button. Search the database for similar fragments to the current molecule
-             */
-            public void searchFindEFPPublicDatabase () throws IOException {
-                if (!lastOpenedFile.isEmpty()) {
-                    //set divider positions
-                    middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
-                    rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
-
-                    //Runs auxiliary JmolViewer
-                    JmolPanel jmolPanel = new JmolPanel(upperRightPane);
-
-                    //load aux table list
-                    DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
-                    try {
-                        //start database controller actions
-                        DBcontroller.run();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
             /******************************************************************************************
              *             CALCULATE MENU BEGINS                                                      *
              ******************************************************************************************/

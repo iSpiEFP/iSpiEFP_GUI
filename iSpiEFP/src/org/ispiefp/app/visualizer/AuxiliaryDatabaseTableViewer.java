@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.control.*;
-import org.ispiefp.app.MetaHandler;
+import org.ispiefp.app.MetaData.MetaHandler;
 import org.jmol.viewer.Viewer;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.database.DatabaseRecord;

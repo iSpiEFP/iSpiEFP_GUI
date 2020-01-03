@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.ispiefp.app.installer.BundleManager;
+import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.util.TermsofAgreement;
 
 import java.io.IOException;
@@ -30,6 +30,8 @@ public class Main extends Application {
     private static BorderPane mainLayout;
     public static HostServices hostServices;
 
+    public static LocalFragmentTree fragmentTree; /* Contains all currently available metaData */
+
     /**
      * The Main function which starts iSpiEFP
      *
@@ -45,9 +47,8 @@ public class Main extends Application {
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
 
-        //Manage Working Directory
-        BundleManager bundleManager = new BundleManager("LOCAL");
-        bundleManager.manageLocal();
+        Initializer initializer = new Initializer();
+        initializer.init();
 
         //get User Default Browser
         hostServices = getHostServices();
