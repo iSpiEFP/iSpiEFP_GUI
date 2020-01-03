@@ -1,5 +1,6 @@
 package org.ispiefp.app.EFPFileRetriever;
 
+import javafx.scene.control.Alert;
 import org.ispiefp.app.util.CheckInternetConnection;
 
 import java.io.*;
@@ -101,6 +102,15 @@ public class GithubRequester {
         } else{
             System.err.println("Not connected to the internet");
             //todo add an error pop-up showing not connected to the internet
+            Alert noInternetAlert = new Alert(Alert.AlertType.WARNING);
+            noInternetAlert.setTitle("Warning!");
+            noInternetAlert.setHeaderText("No Internet Connection");
+            noInternetAlert.setContentText("You are not connected to the internet." +
+                    "You can only access local EFP files. " +
+                    "If you wish to retrieve files from the iSpiEFP database, you must be connected" +
+                    "to the Internet. ");
+
+            noInternetAlert.showAndWait();
         }
         return returnFile;
     }
