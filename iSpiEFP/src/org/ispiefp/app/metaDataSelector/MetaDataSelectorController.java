@@ -4,16 +4,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.MetaData;
-import org.ispiefp.app.MetaData.MetaHandler;
+import org.ispiefp.app.util.CheckInternetConnection;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +41,21 @@ public class MetaDataSelectorController{
     private TableColumn fragmentFile;
 
     @FXML
+    private TableColumn electrostaticsIndicator;
+
+    @FXML
+    private TableColumn XRIndicator;
+
+    @FXML
+    private TableColumn polarizationIndicator;
+
+    @FXML
+    private TableColumn dispersionIndicator;
+
+    @FXML
+    private TableColumn basisSetIndicator;
+
+    @FXML
     private TextField fragmentSearchField;
 
     @FXML
@@ -46,6 +66,11 @@ public class MetaDataSelectorController{
         fragmentFromFiles = new ArrayList<>();
         selectedFragment = null;
         for (MetaData md : Main.fragmentTree.getMetaDataIterator()) {
+            // If there is no internet connection and the efp file for the fragment is not local, skip it.
+            if (!CheckInternetConnection.checkInternetConnection()) {
+                File checkIfLocal = new File(md.getFromFile());
+                if (!checkIfLocal.exists()) continue;
+            }
             fragments.add(md.getFragmentName());
             fragmentFromFiles.add(md.getFromFile());
             fragmentObservableList.add(md);
@@ -54,7 +79,7 @@ public class MetaDataSelectorController{
     }
 
     /**
-     * A lot of the code below is taken from a tutorial which I found at this link:
+     * A lot of the code for filtering below is taken from a tutorial which I found at this link:
      * https://code.makery.ch/blog/javafx-8-tableview-sorting-filtering/
      *
      * Other things may break this code, but changes which I know will break it are the following
@@ -68,6 +93,91 @@ public class MetaDataSelectorController{
         //Create table columns
         fragmentName.setCellValueFactory(new PropertyValueFactory<MetaData, String>("fragmentName"));
         fragmentFile.setCellValueFactory(new PropertyValueFactory<MetaData, String>("fromFile"));
+        basisSetIndicator.setCellValueFactory(new PropertyValueFactory<MetaData, String>("basisSet"));
+        electrostaticsIndicator.setCellValueFactory(new PropertyValueFactory<MetaData, Boolean>("electrostatics"));
+        XRIndicator.setCellValueFactory(new PropertyValueFactory<MetaData, Boolean>("exchangeRepulsion"));
+        polarizationIndicator.setCellValueFactory(new PropertyValueFactory<MetaData, Boolean>("polarization"));
+        dispersionIndicator.setCellValueFactory(new PropertyValueFactory<MetaData, Boolean>("dispersion"));
+
+        //Handle the display of non-string columns (just background colors should display)
+        electrostaticsIndicator.setCellFactory(col -> new TableCell<MetaData, Boolean>(){
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                setText("");
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+                else
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.RED, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+            }
+        });
+
+
+        XRIndicator.setCellFactory(col -> new TableCell<MetaData, Boolean>(){
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                setText("");
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+                else
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.RED, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+            }
+        });
+
+
+        polarizationIndicator.setCellFactory(col -> new TableCell<MetaData, Boolean>(){
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                setText("");
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+                else
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.RED, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+            }
+        });
+
+        dispersionIndicator.setCellFactory(col -> new TableCell<MetaData, Boolean>(){
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                setText("");
+                if (empty) this.setBackground(new Background(
+                        new BackgroundFill(
+                                Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                else if (item)
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.GREEN, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+                else
+                    this.setBackground(new Background(
+                            new BackgroundFill(
+                                    Color.RED, CornerRadii.EMPTY, new Insets(1,1,1,1))));
+            }
+        });
+
 
         //Wrap the observables in a FilteredList
         FilteredList<MetaData> filteredData = new FilteredList<>(fragmentObservableList, p -> true);

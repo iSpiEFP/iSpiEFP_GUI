@@ -26,8 +26,9 @@
                         <Menu mnemonicParsing="false" text="File">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
-                                <MenuItem mnemonicParsing="false" onAction="#fragmentOpen" text="Select Fragment" />
+                                <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
                                 <Menu disable="true" mnemonicParsing="false" text="Open Recent" />
+                                <Menu mnemonicParsing="false" onAction="#openSettings" text="Settings" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />
 

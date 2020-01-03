@@ -11,7 +11,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.ispiefp.app.EFPFileRetriever.GithubRequester;
-import org.ispiefp.app.util.ProgressIndicatorTest;
+import org.ispiefp.app.util.*;
 import org.jmol.viewer.Viewer;
 import org.openscience.jmol.app.Jmol;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
@@ -19,7 +19,6 @@ import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.submission.SubmissionHistoryController;
-import org.ispiefp.app.util.UnrecognizedAtomException;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 import org.ispiefp.app.visualizer.JmolPanel;
 import java.awt.BorderLayout;
@@ -219,14 +218,19 @@ public class MainViewController {
      * which has been built. Then hands off control to the MetaDataSelectorController
      */
     public void fragmentOpen() throws IOException {
-
+        File xyzFile;
         Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/metaDataSelector.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
         stage.showAndWait();
-        File xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+        try {
+            xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+        } catch (NullPointerException e){
+            System.out.println("User closed window without selecting a fragment");
+            return;
+        }
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         if (jmolMainPanel.openFile(xyzFile)) {
 
@@ -243,6 +247,33 @@ public class MainViewController {
             playPauseButton.setGraphic(new ImageView(play));
             playPauseButton.setSelected(false);
         }
+    }
+
+    public void openSettings() throws IOException{
+        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Settings");
+        stage.setScene(new Scene(fragmentSelector));
+        stage.showAndWait();
+    }
+
+    public void selectFragment() throws IOException{
+        String noInternetWarning = "You are not currently connected to the internet.\n\n" +
+                "You will only be able to select from " +
+                "fragments whose parameters are contained within your user parameters directory.";
+        if (!VerifyPython.isValidPython()){
+            VerifyPython.raisePythonError();
+            return;
+        }
+        if (!CheckInternetConnection.checkInternetConnection()){
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noInternetWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+            fragmentOpen();
+        }
+        else fragmentOpen();
     }
 
     /**
@@ -518,7 +549,7 @@ public class MainViewController {
 
             @FXML
             public void calculateEditServers () throws IOException {
-                Parent serversList = FXMLLoader.load(getClass().getResource("views/ServersList.fxml"));
+                Parent serversList = FXMLLoader.load(getClass().getResource("/views/ServersList.fxml"));
                 Stage stage = new Stage();
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.setTitle("Servers list");

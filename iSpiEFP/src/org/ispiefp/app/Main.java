@@ -10,6 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.util.TermsofAgreement;
+import org.ispiefp.app.util.VerifyPython;
 
 import java.io.IOException;
 
