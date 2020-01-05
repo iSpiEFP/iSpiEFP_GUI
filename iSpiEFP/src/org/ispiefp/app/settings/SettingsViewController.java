@@ -40,6 +40,9 @@ public class SettingsViewController {
     private TextField gamessUserName;
     @FXML
     private PasswordField gamessPassword;
+    @FXML
+    private TextField gamessOutputPath;
+
 
 
     /* Fields for LibEFP Server Settings */
@@ -95,7 +98,7 @@ public class SettingsViewController {
     }
 
     @FXML
-    private void selectDirectory() {
+    private void selectParameterDirectory() {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select the Directory Containing your EFP files");
         dc.setInitialDirectory(new File(UserPreferences.getUserParameterPath()));
@@ -167,8 +170,22 @@ public class SettingsViewController {
         else gamessServerField.setPromptText(UserPreferences.getGamessServer());
         if (UserPreferences.getGamessUsername().equals("check")) gamessUserName.setPromptText("Enter your username for the server");
         else gamessUserName.setPromptText(UserPreferences.getGamessUsername());
+        if (UserPreferences.getGamessOutputPath().equals("check")) gamessOutputPath.setPromptText(UserPreferences.getUserParameterPath());
+        else gamessOutputPath.setPromptText(UserPreferences.getGamessOutputPath());
     }
 
+    @FXML
+    private void selectGamessOutputDirectory() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Directory for the Output of GAMESS Calculations");
+        dc.setInitialDirectory(new File(UserPreferences.getUserParameterPath()));
+        Stage currStage = (Stage) anchor.getScene().getWindow();
+        try {
+            gamessOutputPath.setText(dc.showDialog(currStage).getAbsolutePath());
+        } catch (NullPointerException e){
+            System.out.println("User closed dialog without selecting a file");
+        }
+    }
     @FXML
     private void gamessSave(){
         if (!gamessServerField.getText().equals("")){
@@ -179,6 +196,9 @@ public class SettingsViewController {
         }
         if (!gamessPassword.getText().equals("")){
             UserPreferences.setGamessPassword(gamessPassword.getText());
+        }
+        if (!gamessOutputPath.getText().equals("")){
+            UserPreferences.setGamessOutputPath(gamessOutputPath.getText());
         }
     }
 
