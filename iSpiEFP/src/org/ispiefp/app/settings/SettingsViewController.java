@@ -27,27 +27,21 @@ public class SettingsViewController {
     @FXML
     private VBox pathsBox;
     @FXML
-    private Label parameterPathFieldLabel;
-    @FXML
     private TextField parameterPathField;
     @FXML
-    private DirectoryChooser ParameterDirectoryChooser;
-    @FXML
-    private Button directorySelectButton;
-    @FXML
-    private Label pythonPathFieldLabel;
-    @FXML
     private TextField pythonPathField;
-    @FXML
-    private Button pythonSelectButton;
-    @FXML
-    private Button pathsSave;
-    @FXML
-    private Button pathsDefault;
 
     /* Fields for GAMESS Server Settings */
     @FXML
     private VBox gamessBox;
+    @FXML
+    private TextField gamessServerField;
+    @FXML
+    private TextField gamessUserName;
+    @FXML
+    private PasswordField gamessPassword;
+    @FXML
+    private TextField gamessOutputPath;
 
 
     /* Fields for LibEFP Server Settings */
@@ -103,7 +97,7 @@ public class SettingsViewController {
     }
 
     @FXML
-    private void selectDirectory() {
+    private void selectParameterDirectory() {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select the Directory Containing your EFP files");
         dc.setInitialDirectory(new File(UserPreferences.getUserParameterPath()));
@@ -145,7 +139,6 @@ public class SettingsViewController {
             init.generateMetas(UserPreferences.getUserParameterPath());
             init.addMetasToTree();
         }
-
     }
 
     @FXML
@@ -172,7 +165,50 @@ public class SettingsViewController {
     }
 
     private void initializeGamess(){
+        if (UserPreferences.getGamessServer().equals("check")) gamessServerField.setPromptText("Enter Server Address");
+        else gamessServerField.setPromptText(UserPreferences.getGamessServer());
+        if (UserPreferences.getGamessUsername().equals("check")) gamessUserName.setPromptText("Enter your username for the server");
+        else gamessUserName.setPromptText(UserPreferences.getGamessUsername());
+        if (UserPreferences.getGamessOutputPath().equals("check")) gamessOutputPath.setPromptText(UserPreferences.getUserParameterPath());
+        else gamessOutputPath.setPromptText(UserPreferences.getGamessOutputPath());
+    }
 
+    @FXML
+    private void selectGamessOutputDirectory() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Directory for the Output of GAMESS Calculations");
+        dc.setInitialDirectory(new File(UserPreferences.getUserParameterPath()));
+        Stage currStage = (Stage) anchor.getScene().getWindow();
+        try {
+            gamessOutputPath.setText(dc.showDialog(currStage).getAbsolutePath());
+        } catch (NullPointerException e){
+            System.out.println("User closed dialog without selecting a file");
+        }
+    }
+    @FXML
+    private void gamessSave(){
+        if (!gamessServerField.getText().equals("")){
+            UserPreferences.setGamessServer(gamessServerField.getText());
+        }
+        if (!gamessUserName.getText().equals("")){
+            UserPreferences.setGamessUsername(gamessUserName.getText());
+        }
+        if (!gamessPassword.getText().equals("")){
+            UserPreferences.setGamessPassword(gamessPassword.getText());
+        }
+        if (!gamessOutputPath.getText().equals("")){
+            UserPreferences.setGamessOutputPath(gamessOutputPath.getText());
+        }
+    }
+
+    @FXML
+    private void gamessClear(){
+        UserPreferences.setGamessServer("check");
+        UserPreferences.setGamessUsername("check");
+        UserPreferences.setGamessPassword("check");
+        gamessServerField.setPromptText("Enter Server Address");
+        gamessUserName.setPromptText("Enter your username for the server");
+        gamessPassword.setPromptText("");
     }
 
     private void openGamessSettings(){

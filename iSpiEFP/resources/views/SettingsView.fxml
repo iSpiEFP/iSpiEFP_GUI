@@ -11,6 +11,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.PasswordField?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
     <top>
         <AnchorPane fx:id="anchor" minHeight="400.0" minWidth="900.0" prefHeight="700.0" prefWidth="1200.0">
@@ -32,7 +33,7 @@
             <VBox fx:id="pathsBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" visible="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <Label fx:id="parameterPathFieldLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Directory containing user generated parameters" textAlignment="CENTER" />
                 <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
-                <Button fx:id="diretorySelectButton" text="Find" onAction="#selectDirectory" />
+                <Button fx:id="directorySelectButton" text="Find" onAction="#selectParameterDirectory" />
                 <Separator />
                 <Label fx:id="pythonPathFieldLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path to Python interpreter" textAlignment="CENTER" />
                 <TextField fx:id="pythonPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
@@ -44,7 +45,23 @@
                 </HBox>
             </VBox>
             <VBox fx:id="gamessBox" prefHeight="655.0" prefWidth="624.0" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-                <TextField fx:id="gamessField" text="gamessPath Path" />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="GAMESS Server Address" />
+                <TextField fx:id="gamessServerField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="GAMESS Server Username" />
+                <TextField fx:id="gamessUserName" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="GAMESS Server Password" />
+                <PasswordField fx:id="gamessPassword" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path for GAMESS Output Files" />
+                <TextField fx:id="gamessOutputPath" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Button text="Find" onAction="#selectGamessOutputDirectory"/>
+                <Separator />
+                <HBox fx:id="gamessConfirmBox" spacing="10.0" alignment="BOTTOM_RIGHT" >
+                    <Button fx:id="gamessSave" text="Save" onAction="#gamessSave"/>
+                    <Button fx:id="gamessDefault" text="Clear" onAction="#gamessClear"/>
+                </HBox>
             </VBox>
             <VBox fx:id="libEFPBox" prefHeight="655.0" prefWidth="624.0" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <TextField fx:id="libEFPField" text="User Parameter Path" />
