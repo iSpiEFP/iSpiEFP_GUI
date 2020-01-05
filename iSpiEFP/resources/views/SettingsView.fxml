@@ -30,7 +30,7 @@
                     </TreeItem>
                 </TreeView>
             </VBox>
-            <VBox fx:id="pathsBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" visible="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <VBox fx:id="pathsBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <Label fx:id="parameterPathFieldLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Directory containing user generated parameters" textAlignment="CENTER" />
                 <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
                 <Button fx:id="directorySelectButton" text="Find" onAction="#selectParameterDirectory" />

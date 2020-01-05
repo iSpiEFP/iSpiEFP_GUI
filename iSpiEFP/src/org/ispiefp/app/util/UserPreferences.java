@@ -12,12 +12,14 @@ public class UserPreferences {
     private static final String GAMESS_USERNAME_KEY = "gamessUsername";
     private static final String GAMESS_PASSWORD_KEY = "gamessPassword";
     private static final String GAMESS_OUTPUT_KEY = "gamessOutputPath";
+
     private static String userParameterPath = null;
     private static String pythonPath = null;
     private static String gamessServer = null;
     private static String gamessUsername = null;
     private static String gamessPassword = null;
     private static String gamessOutputPath = null;
+
     private static boolean pythonPathExists = false;
     private static Preferences userPrefs;
 
@@ -63,6 +65,8 @@ public class UserPreferences {
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
         gamessPassword = userPrefs.get(GAMESS_PASSWORD_KEY, "check");
         gamessOutputPath = userPrefs.get(GAMESS_OUTPUT_KEY, "check");
+        gamessUsername = userPrefs.get(GAMESS_USERNAME, "check");
+        gamessPassword = userPrefs.get(GAMESS_PASSWORD, "check");
     }
 
     public static String getUserParameterPath() { return userParameterPath; }
@@ -107,5 +111,12 @@ public class UserPreferences {
     public static void setGamessOutputPath(String value){
         userPrefs.put(GAMESS_OUTPUT_KEY, value);
         gamessOutputPath = userPrefs.get(GAMESS_OUTPUT_KEY, "check");
+        userPrefs.put(GAMESS_USERNAME, value);
+        gamessUsername = userPrefs.get(GAMESS_USERNAME, "check");
+    }
+
+    public static void setGamessPassword(String value){
+        userPrefs.put(GAMESS_PASSWORD, value);
+        gamessPassword = userPrefs.get(GAMESS_PASSWORD, "check");
     }
 }
