@@ -65,6 +65,7 @@ public class Initializer {
                             extractMetaScriptPath,
                             child.getCanonicalPath(),
                             LocalBundleManager.META_DATA_GENERATION);
+                    System.out.println(commandInput);
                     Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                     String s;
