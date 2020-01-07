@@ -12,6 +12,10 @@ public class UserPreferences {
     private static final String GAMESS_USERNAME_KEY = "gamessUsername";
     private static final String GAMESS_PASSWORD_KEY = "gamessPassword";
     private static final String GAMESS_OUTPUT_KEY = "gamessOutputPath";
+    private static final String LIBEFP_SERVER_KEY = "libefpServerKey";
+    private static final String LIBEFP_USERNAME_KEY ="libefpUsername";
+    private static final String LIBEFP_PASSWORD_KEY = "libefpPassword";
+    private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
 
     private static String userParameterPath = null;
     private static String pythonPath = null;
@@ -19,6 +23,10 @@ public class UserPreferences {
     private static String gamessUsername = null;
     private static String gamessPassword = null;
     private static String gamessOutputPath = null;
+    private static String libefpServer = null;
+    private static String libefpUsername = null;
+    private static String libefpPassword = null;
+    private static String libefpOutputPath =null;
 
     private static boolean pythonPathExists = false;
     private static Preferences userPrefs;
@@ -59,12 +67,17 @@ public class UserPreferences {
             pythonPathExists = true;
         }
 
+        /* Gamess Settings Initialization */
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
         gamessPassword = userPrefs.get(GAMESS_PASSWORD_KEY, "check");
         gamessOutputPath = userPrefs.get(GAMESS_OUTPUT_KEY, "check");
-        gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
-        gamessPassword = userPrefs.get(GAMESS_PASSWORD_KEY, "check");
+
+        /* libEFP Settings Initialization */
+        libefpServer = userPrefs.get(LIBEFP_SERVER_KEY, "check");
+        libefpUsername = userPrefs.get(LIBEFP_USERNAME_KEY, "check");
+        libefpPassword = userPrefs.get(LIBEFP_PASSWORD_KEY, "check");
+        libefpOutputPath = userPrefs.get(LIBEFP_OUTPUT_KEY, "check");
     }
 
     public static String getUserParameterPath() {
@@ -93,6 +106,22 @@ public class UserPreferences {
 
     public static String getGamessOutputPath() {
         return gamessOutputPath;
+    }
+
+    public static String getLibefpServer(){
+        return libefpServer;
+    }
+
+    public static String getLibefpUsername(){
+        return libefpUsername;
+    }
+
+    public static String getLibefpPassword(){
+        return libefpPassword;
+    }
+
+    public static String getLibefpOutputPath(){
+        return libefpOutputPath;
     }
 
     public static void setUserParameterPath(String value) {
@@ -124,7 +153,25 @@ public class UserPreferences {
     public static void setGamessOutputPath(String value) {
         userPrefs.put(GAMESS_OUTPUT_KEY, value);
         gamessOutputPath = userPrefs.get(GAMESS_OUTPUT_KEY, "check");
-        userPrefs.put(GAMESS_USERNAME_KEY, value);
-        gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
+    }
+
+    public static void setLibefpServer(String value){
+        userPrefs.put(LIBEFP_SERVER_KEY, value);
+        libefpOutputPath = userPrefs.get(LIBEFP_SERVER_KEY, "check");
+    }
+
+    public static void setLibefpUsername(String value){
+        userPrefs.put(LIBEFP_USERNAME_KEY, value);
+        libefpUsername = userPrefs.get(LIBEFP_USERNAME_KEY, "check");
+    }
+
+    public static void setLibefpPassword(String value){
+        userPrefs.put(LIBEFP_PASSWORD_KEY, value);
+        libefpPassword = userPrefs.get(LIBEFP_PASSWORD_KEY, "check");
+    }
+
+    public static void setLibefpOutputPath(String value){
+        userPrefs.put(LIBEFP_OUTPUT_KEY, value);
+        libefpOutputPath = userPrefs.get(LIBEFP_OUTPUT_KEY, "check");
     }
 }
