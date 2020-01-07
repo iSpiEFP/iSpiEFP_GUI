@@ -23,7 +23,7 @@ public class UserPreferences {
     private static boolean pythonPathExists = false;
     private static Preferences userPrefs;
 
-    public UserPreferences(){
+    public UserPreferences() {
         userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
     }
 
@@ -31,19 +31,19 @@ public class UserPreferences {
      * Called at start-up checks in a system-independent manner for the following variables
      * and assigns them the following default variables these variables will persist upon
      * program exit:
-     *
+     * <p>
      * userParameterPath:
-     *  Description - The directory where the user stores their EFP files
-     *  Key - USER_PARAMETER_PATH_KEY
-     *  Default Value - The user parameter directory created upon first start-up
-     *
+     * Description - The directory where the user stores their EFP files
+     * Key - USER_PARAMETER_PATH_KEY
+     * Default Value - The user parameter directory created upon first start-up
+     * <p>
      * pythonPath:
-     *  Description - Path to the user's python interpreter if it exists. Check pythonPathExists first.
-     *  Key - PYTHON_PATH_KEY
-     *  Default Value - The path returned by the environment variable PYTHONPATH or an error message if DNE
+     * Description - Path to the user's python interpreter if it exists. Check pythonPathExists first.
+     * Key - PYTHON_PATH_KEY
+     * Default Value - The path returned by the environment variable PYTHONPATH or an error message if DNE
      */
     public void initializePreferences() {
-        if ((userParameterPath = userPrefs.get(USER_PARAMETER_PATH_KEY, "check")).equals("check")){
+        if ((userParameterPath = userPrefs.get(USER_PARAMETER_PATH_KEY, "check")).equals("check")) {
             userPrefs.put(USER_PARAMETER_PATH_KEY, LocalBundleManager.USER_PARAMETERS);
             userParameterPath = LocalBundleManager.USER_PARAMETERS;
         }
@@ -52,12 +52,10 @@ public class UserPreferences {
                 userPrefs.put(PYTHON_PATH_KEY, System.getenv("PYTHONPATH"));
                 pythonPath = System.getenv("PYTHONPATH");
                 pythonPathExists = true;
-            }
-            else{
+            } else {
                 pythonPath = "Could not automatically find python interpreter";
             }
-        }
-        else{
+        } else {
             pythonPathExists = true;
         }
 
@@ -65,58 +63,68 @@ public class UserPreferences {
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
         gamessPassword = userPrefs.get(GAMESS_PASSWORD_KEY, "check");
         gamessOutputPath = userPrefs.get(GAMESS_OUTPUT_KEY, "check");
-        gamessUsername = userPrefs.get(GAMESS_USERNAME, "check");
-        gamessPassword = userPrefs.get(GAMESS_PASSWORD, "check");
+        gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
+        gamessPassword = userPrefs.get(GAMESS_PASSWORD_KEY, "check");
     }
 
-    public static String getUserParameterPath() { return userParameterPath; }
+    public static String getUserParameterPath() {
+        return userParameterPath;
+    }
 
-    public static String getPythonPath() { return pythonPath; }
+    public static String getPythonPath() {
+        return pythonPath;
+    }
 
-    public static boolean pythonPathExists() { return pythonPathExists; }
+    public static boolean pythonPathExists() {
+        return pythonPathExists;
+    }
 
-    public static String getGamessServer() { return gamessServer; }
+    public static String getGamessServer() {
+        return gamessServer;
+    }
 
-    public static String getGamessUsername() { return gamessUsername; }
+    public static String getGamessUsername() {
+        return gamessUsername;
+    }
 
-    public static String getGamessPassword() { return gamessPassword; }
+    public static String getGamessPassword() {
+        return gamessPassword;
+    }
 
-    public static String getGamessOutputPath() { return gamessOutputPath; }
+    public static String getGamessOutputPath() {
+        return gamessOutputPath;
+    }
 
-    public static void setUserParameterPath(String value){
+    public static void setUserParameterPath(String value) {
         userPrefs.put(USER_PARAMETER_PATH_KEY, value);
         userParameterPath = userPrefs.get(USER_PARAMETER_PATH_KEY, "check");
     }
 
-    public static void setPythonPath(String value){
+    public static void setPythonPath(String value) {
         userPrefs.put(PYTHON_PATH_KEY, value);
         pythonPathExists = true;
         pythonPath = userPrefs.get(PYTHON_PATH_KEY, "check");
     }
 
-    public static void setGamessServer(String value){
+    public static void setGamessServer(String value) {
         userPrefs.put(GAMESS_SERVER_KEY, value);
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
     }
 
-    public static void setGamessUsername(String value){
+    public static void setGamessUsername(String value) {
         userPrefs.put(GAMESS_USERNAME_KEY, value);
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
     }
 
-    public static void setGamessPassword(String value){
+    public static void setGamessPassword(String value) {
         userPrefs.put(GAMESS_PASSWORD_KEY, value);
         gamessPassword = userPrefs.get(GAMESS_PASSWORD_KEY, "check");
     }
-    public static void setGamessOutputPath(String value){
+
+    public static void setGamessOutputPath(String value) {
         userPrefs.put(GAMESS_OUTPUT_KEY, value);
         gamessOutputPath = userPrefs.get(GAMESS_OUTPUT_KEY, "check");
-        userPrefs.put(GAMESS_USERNAME, value);
-        gamessUsername = userPrefs.get(GAMESS_USERNAME, "check");
-    }
-
-    public static void setGamessPassword(String value){
-        userPrefs.put(GAMESS_PASSWORD, value);
-        gamessPassword = userPrefs.get(GAMESS_PASSWORD, "check");
+        userPrefs.put(GAMESS_USERNAME_KEY, value);
+        gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
     }
 }
