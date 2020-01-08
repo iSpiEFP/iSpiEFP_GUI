@@ -43,18 +43,22 @@ public class SettingsViewController {
     @FXML
     private TextField gamessOutputPath;
 
-
-
     /* Fields for LibEFP Server Settings */
     @FXML
     private VBox libEFPBox;
-
-
+    @FXML
+    private TextField libEFPServerField;
+    @FXML
+    private TextField libEFPUserName;
+    @FXML
+    private PasswordField libEFPPassword;
+    @FXML
+    private TextField libEFPOutputPath;
 
     /*Fields for persistent scene */
     @FXML
     private VBox settingsBox;
-    @FXML
+        @FXML
     private TreeView<String> menuTree;
     @FXML
     private TreeItem topLeveLSettings;
@@ -219,7 +223,63 @@ public class SettingsViewController {
     }
 
     private void initializeLibEFP(){
+        if (UserPreferences.getLibefpServer().equals("check")) libEFPServerField.setPromptText("Enter Server Address");
+        else libEFPServerField.setPromptText(UserPreferences.getGamessServer());
+        if (UserPreferences.getLibefpUsername().equals("check")) libEFPUserName.setPromptText("Enter your username for the server");
+        else libEFPUserName.setPromptText(UserPreferences.getGamessUsername());
+        if (UserPreferences.getLibefpOutputPath().equals("check")) {
+            libEFPOutputPath.setPromptText(LocalBundleManager.LIBEFP);
+        } else if (new File(UserPreferences.getLibefpOutputPath()).exists() &&
+                new File(UserPreferences.getLibefpOutputPath()).isDirectory()) {
+            libEFPOutputPath.setPromptText(UserPreferences.getLibefpOutputPath());
+        } else{
+            libEFPOutputPath.setPromptText(System.getProperty("user.home"));
+        }
+    }
 
+    @FXML
+    private void selectLibEFPOutputDirectory() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Directory for the Output of libEFP Calculations");
+        if (UserPreferences.getLibefpOutputPath().equals("check")) {
+            dc.setInitialDirectory(new File(LocalBundleManager.LIBEFP));
+        } else if (new File(UserPreferences.getLibefpOutputPath()).exists() &&
+                new File(UserPreferences.getLibefpOutputPath()).isDirectory()) {
+            dc.setInitialDirectory(new File(UserPreferences.getLibefpOutputPath()));
+        } else{
+            dc.setInitialDirectory(new File(System.getProperty("user.home")));
+        }
+        Stage currStage = (Stage) anchor.getScene().getWindow();
+        try {
+            libEFPOutputPath.setText(dc.showDialog(currStage).getAbsolutePath());
+        } catch (NullPointerException e){
+            System.out.println("User closed dialog without selecting a file");
+        }
+    }
+    @FXML
+    private void libEFPSave(){
+        if (!libEFPServerField.getText().equals("")){
+            UserPreferences.setLibefpServer(libEFPServerField.getText());
+        }
+        if (!libEFPUserName.getText().equals("")){
+            UserPreferences.setLibefpUsername(libEFPUserName.getText());
+        }
+        if (!libEFPPassword.getText().equals("")){
+            UserPreferences.setLibefpPassword(libEFPPassword.getText());
+        }
+        if (!libEFPOutputPath.getText().equals("")){
+            UserPreferences.setLibefpOutputPath(libEFPOutputPath.getText());
+        }
+    }
+
+    @FXML
+    private void libEFPClear(){
+        UserPreferences.setLibefpServer("check");
+        UserPreferences.setLibefpUsername("check");
+        UserPreferences.setLibefpPassword("check");
+        libEFPServerField.setPromptText("Enter Server Address");
+        libEFPUserName.setPromptText("Enter your username for the server");
+        libEFPPassword.setPromptText("");
     }
 
     private void openLibEFPSettings(){
