@@ -13,6 +13,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
+import org.ispiefp.app.MainViewController;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.server.JobManager;
@@ -136,7 +137,7 @@ public class libEFPInputController implements Initializable {
     ArrayList jobids;
 
     private ArrayList<String> efpFilenames;
-
+    private ArrayList<File> efpFiles;
     private String workingDirectoryPath;
     private String libEFPInputsDirectory;
     private String efpFileDirectoryPath;
@@ -316,7 +317,7 @@ public class libEFPInputController implements Initializable {
         // Initializing Format ComboBox
 
 
-        // Initializing qChemInputTextArea
+        // Initializing libEFPInputTextArea
         try {
             libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
             libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
@@ -414,7 +415,7 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
     }
 
-    // Generate Q-Chem Input file
+    // Generate libEFP Input file
     public void generatelibEFPInputFile() {
         String libEFPText = libEFPInputTextArea.getText();
         FileChooser fileChooser = new FileChooser();
@@ -425,9 +426,10 @@ public class libEFPInputController implements Initializable {
 
         File currentOpenFile = null;
 
-        //if (MainViewController.getJmolVisualization() != null)
-        //	currentOpenFile = MainViewController.getJmolVisualization().getCurrentOpenFile();
-
+        //TODO when you make job submission general for all fragments, fix this
+        if (!efpFiles.isEmpty()) {
+            currentOpenFile = efpFiles.get(0);
+        }
         if (currentOpenFile != null) {
             String fileName = currentOpenFile.getName();
             int dotIndex = fileName.indexOf('.');
@@ -442,6 +444,10 @@ public class libEFPInputController implements Initializable {
         if (file != null) {
             saveFile(libEFPText, file);
         }
+    }
+
+    public void setEfpFiles(ArrayList<File> efpFiles){
+        this.efpFiles = efpFiles;
     }
 
     private void saveFile(String content, File file) {

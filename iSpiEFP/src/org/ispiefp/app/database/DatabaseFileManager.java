@@ -212,7 +212,7 @@ public class DatabaseFileManager {
      * Write this file to disk
      *
      * @param path    path of the file
-     * @param name    file name
+     * @param name    fi/le name
      * @param content file content
      */
     private void createFile(String path, String name, String content) {
