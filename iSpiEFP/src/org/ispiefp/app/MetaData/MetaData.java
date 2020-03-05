@@ -429,6 +429,33 @@ public class MetaData {
     }
 
     /**
+     * This method returns as a string the coordinates of the atoms as they would be listed in an XYZ file without
+     * creating the XYZ file. Method is useful for libEFPInputController which requires coordinates as Strings
+     * @return the above
+     */
+    public String getXYZCoords(){
+        StringBuilder sb = new StringBuilder();
+        double numAngstromsInBohr = 0.52918;
+            //Write the coordinates of each atom to the file
+            for (int i = 0; i < coordinates.length; i++){
+                //Don't include dummy atoms
+                if (coordinates[i].atomID.startsWith("B")){
+                    continue;
+                }
+                //Get the atom type by stripping all numbers from the atomID and removing the leading A
+                String atomType = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
+                atomType = atomType.substring(1);
+                //Follow XYZ file format for each atom
+                sb.append(String.format("%s\t%.5f\t%.5f\t%.5f%n",
+                        atomType,
+                        coordinates[i].x * numAngstromsInBohr,
+                        coordinates[i].y * numAngstromsInBohr,
+                        coordinates[i].z * numAngstromsInBohr));
+            }
+        return sb.toString();
+    }
+
+    /**
      * Sets the .efp file for this fragment. In order to conserve disk space, this method is only ran when a fragment
      * is selected from File->Select Fragment. If the file is not already local (the case if it is a user-generated
      * parameter), it will be deleted upon system exit because it can be obtained again in the next session as long

@@ -166,6 +166,10 @@ public class libEFPInputController implements Initializable {
         // initWorkingDir();
     }
 
+    public libEFPInputController(){
+        super();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Adding listener to title
@@ -426,7 +430,7 @@ public class libEFPInputController implements Initializable {
 
         File currentOpenFile = null;
 
-        //TODO when you make job submission general for all fragments, fix this
+        //TODO when you make job submission general for all fragments, fix this to get all and not just the first one
         if (!efpFiles.isEmpty()) {
             currentOpenFile = efpFiles.get(0);
         }

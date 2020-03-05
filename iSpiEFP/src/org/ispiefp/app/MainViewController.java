@@ -484,9 +484,13 @@ public class MainViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
-        FXMLLoader libEFPSubmissionLoader = FXMLLoader.load(getClass().getResource("/views/libEFP.fxml"));
-        Parent libEFPSubmissionParent = FXMLLoader.load(getClass().getResource("/views/libEFP.fxml"));
-        libEFPInputController libEFPSubmissionController = libEFPSubmissionLoader.getController();
+        FXMLLoader libEFPSubmissionLoader = new FXMLLoader(getClass().getResource("/views/libEFP.fxml"));
+        //libEFPInputController libEFPCont = new libEFPInputController(getFragmentEFPFiles());
+        Parent libEFPSubmissionParent = libEFPSubmissionLoader.load();
+        libEFPInputController libEFPCont = libEFPSubmissionLoader.getController();
+        //libEFPSubmissionLoader.setController(libEFPCont);
+        getFragmentEFPFiles();
+        libEFPCont.setEfpFiles(getFragmentEFPFiles());
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
