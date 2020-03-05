@@ -14,13 +14,12 @@ public class LocalFragmentTree {
         selectedFragment = null;
         metaHandler = new MetaHandler(LocalBundleManager.MASTER_META_FILE);
         MetaData[] metaDataArray = metaHandler.getMetaFile().getMetaDataObjects();
-        if (metaDataArray!=null) {
+        System.out.println(LocalBundleManager.MASTER_META_FILE);
+
             for (int i = 0; i < metaDataArray.length; i++) {
-
-                    frag_tree.putIfAbsent(metaDataArray[i].getFromFile(), metaDataArray[i]);
-
+                frag_tree.putIfAbsent(metaDataArray[i].getFromFile(), metaDataArray[i]);
             }
-        }
+
     }
 
     /**
