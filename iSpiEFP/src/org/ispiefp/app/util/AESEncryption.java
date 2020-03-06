@@ -1,6 +1,5 @@
 package org.ispiefp.app.util;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,7 +19,7 @@ public class AESEncryption {
         MessageDigest sha = null;
         try {
             key = myKey.getBytes(StandardCharsets.UTF_8);
-            sha = MessageDigest.getInstance("SHA-1");
+            sha = MessageDigest.getInstance("SHA-2");
             key = sha.digest(key);
             key = Arrays.copyOf(key, 16);
             secretKey = new SecretKeySpec(key, "AES");
