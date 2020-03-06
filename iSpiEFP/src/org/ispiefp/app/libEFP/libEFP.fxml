@@ -24,22 +24,22 @@
                         <Text layoutX="35.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Type:" />
                         <ComboBox fx:id="run_type" layoutX="133.0" layoutY="66.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
                         <Text layoutX="35.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Format:" />
-                        <ComboBox fx:id="format" layoutX="133.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
-                        <Text layoutX="31.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elec Damp:" />
-                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />
-                        <Text layoutX="339.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />
-                        <Text layoutX="338.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp" />
-                        <CheckComboBox fx:id="terms" layoutX="412.0" layoutY="114.0" prefHeight="25.0" prefWidth="103.0" />
-                        <ComboBox fx:id="pol_damp" layoutX="412.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
-                        <Text layoutX="34.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />
+                        <ComboBox fx:id="format" layoutX="133.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="148.0" />
+                        <Text layoutX="34.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elec Damp:" />
+                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="148.0" promptText="0" />
+                        <Text layoutX="334.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />
+                        <Text layoutX="336.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp:" />
+                        <CheckComboBox fx:id="terms" layoutX="462.0" layoutY="114.0" prefHeight="25.0" prefWidth="103.0" />
+                        <ComboBox fx:id="pol_damp" layoutX="464.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
+                        <Text layoutX="33.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />
                         <ComboBox fx:id="disp_damp" layoutX="133.0" layoutY="189.0" prefHeight="25.0" prefWidth="146.0" />
-                        <Text layoutX="334.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />
-                        <ComboBox fx:id="pol_solver" layoutX="412.0" layoutY="189.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                        <Text layoutX="333.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />
+                        <ComboBox fx:id="pol_solver" layoutX="464.0" layoutY="189.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
                         <Text layoutX="37.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server:" />
-                        <ComboBox fx:id="serversList" layoutX="133.0" layoutY="224.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
-                        <Text layoutX="313.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto submission: " />
-                        <ComboBox fx:id="auto_sub" layoutX="447.0" layoutY="224.0" prefHeight="25.0" prefWidth="70.0" />
-                        <TextArea fx:id="libEFPInputTextArea" layoutX="113.0" layoutY="262.0" prefHeight="122.0" prefWidth="400.0" />
+                        <ComboBox fx:id="serversList" layoutX="133.0" layoutY="224.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="147.0" />
+                        <Text layoutX="334.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto Submission: " />
+                        <ComboBox fx:id="auto_sub" layoutX="467.0" layoutY="224.0" prefHeight="27.0" prefWidth="102.0" />
+                        <TextArea fx:id="libEFPInputTextArea" layoutX="114.0" layoutY="276.0" prefHeight="122.0" prefWidth="400.0" />
                     </children>
                     <padding>
                         <Insets bottom="8.0" />
