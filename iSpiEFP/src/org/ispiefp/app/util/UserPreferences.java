@@ -4,8 +4,14 @@ import org.ispiefp.app.installer.LocalBundleManager;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import static org.ispiefp.app.util.AESEncryption.decrypt;
+import static org.ispiefp.app.util.AESEncryption.encrypt;
+import java.security.SecureRandom;
+
+
 public class UserPreferences {
     /* Keys for user preferences */
+    /* Random string implementation borrowed from mkyong.com*/
     private static final String USER_PARAMETER_PATH_KEY = "userParameterDirectory";
     private static final String PYTHON_PATH_KEY = "pythonInterpreterPath";
     private static final String GAMESS_SERVER_KEY = "gamessServerKey";
@@ -16,6 +22,7 @@ public class UserPreferences {
     private static final String LIBEFP_USERNAME_KEY ="libefpUsername";
     private static final String LIBEFP_PASSWORD_KEY = "libefpPassword";
     private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
+    private static final String ENCRYPT_KEY = "encryptionKey";
 
     private static String userParameterPath = null;
     private static String pythonPath = null;
@@ -27,6 +34,24 @@ public class UserPreferences {
     private static String libefpUsername = null;
     private static String libefpPassword = null;
     private static String libefpOutputPath =null;
+
+    private static SecureRandom random = new SecureRandom();
+    private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String CHAR_UPPER = CHAR_LOWER.toUpperCase();
+    private static final String NUMBER = "0123456789";
+
+    private static final String DATA_FOR_RANDOM_STRING = CHAR_LOWER + CHAR_UPPER + NUMBER;
+
+
+    //These fields were added for security. User's GAMESS and LibEFP usernames and passwords are encrypted using AES method
+    // with ad hoc class called AESEncryption.java.
+    private static String encrypGamessUser = null;
+    private static String encryGamessPass = null;
+    private static String encrypLibEFPUser = null;
+
+    private static String encrypLibEFPPass = null;
+    private static String secretKey = generateRandomString(12);
+    //TODO: Make rand string, put as user pref
 
     private static boolean pythonPathExists = false;
     private static Preferences userPrefs;
@@ -67,6 +92,8 @@ public class UserPreferences {
             pythonPathExists = true;
         }
 
+
+        userPrefs.put(ENCRYPT_KEY, secretKey);
         /* Gamess Settings Initialization */
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
@@ -80,12 +107,37 @@ public class UserPreferences {
         libefpOutputPath = userPrefs.get(LIBEFP_OUTPUT_KEY, "check");
     }
 
+    public static String generateRandomString(int length) {
+        if (length < 1) throw new IllegalArgumentException();
+
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+
+            // 0-62 (exclusive), random returns 0-61
+            int rndCharAt = random.nextInt(DATA_FOR_RANDOM_STRING.length());
+            char rndChar = DATA_FOR_RANDOM_STRING.charAt(rndCharAt);
+
+            // debug
+            System.out.format("%d\t:\t%c%n", rndCharAt, rndChar);
+
+            sb.append(rndChar);
+
+        }
+
+        return sb.toString();
+
+    }
+
     public static String getUserParameterPath() {
         return userParameterPath;
     }
 
     public static String getPythonPath() {
         return pythonPath;
+    }
+
+    public static String getSecretKey() {
+        return userPrefs.get(ENCRYPT_KEY, "check");
     }
 
     public static boolean pythonPathExists() {
@@ -141,13 +193,32 @@ public class UserPreferences {
     }
 
     public static void setGamessUsername(String value) {
-        userPrefs.put(GAMESS_USERNAME_KEY, value);
-        gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
+
+        try {
+            encrypGamessUser = encrypt(value, secretKey);
+            userPrefs.put(GAMESS_USERNAME_KEY, encrypGamessUser);
+//        userPrefs.put(GAMESS_USERNAME_KEY, value);
+            gamessUsername = decrypt(userPrefs.get(GAMESS_USERNAME_KEY, "check"), secretKey);
+        }
+
+        catch(Exception e) {
+            System.out.println("Problem accessing GAMESS username and/or with its encryption");
+            e.printStackTrace();
+        }
     }
 
     public static void setGamessPassword(String value) {
-        userPrefs.put(GAMESS_PASSWORD_KEY, value);
-        gamessPassword = userPrefs.get(GAMESS_PASSWORD_KEY, "check");
+       try {
+           encryGamessPass = encrypt(value, secretKey);
+
+           userPrefs.put(GAMESS_USERNAME_KEY, encryGamessPass);
+           //userPrefs.put(GAMESS_PASSWORD_KEY, value);
+           gamessPassword = decrypt(userPrefs.get(GAMESS_PASSWORD_KEY, "check"), secretKey);
+       }
+       catch(Exception e) {
+           System.out.println("Problem accessing GAMESS password and/or with its encryption");
+           e.printStackTrace();
+       }
     }
 
     public static void setGamessOutputPath(String value) {
@@ -157,17 +228,38 @@ public class UserPreferences {
 
     public static void setLibefpServer(String value){
         userPrefs.put(LIBEFP_SERVER_KEY, value);
-        libefpOutputPath = userPrefs.get(LIBEFP_SERVER_KEY, "check");
+        libefpOutputPath = decrypt(userPrefs.get(LIBEFP_SERVER_KEY, "check"), secretKey);
     }
 
     public static void setLibefpUsername(String value){
-        userPrefs.put(LIBEFP_USERNAME_KEY, value);
-        libefpUsername = userPrefs.get(LIBEFP_USERNAME_KEY, "check");
+
+        try {
+            encrypLibEFPUser = encrypt(value, secretKey);
+            userPrefs.put(LIBEFP_USERNAME_KEY, encrypLibEFPUser);
+
+//        userPrefs.put(LIBEFP_USERNAME_KEY, value);
+            libefpUsername = decrypt(userPrefs.get(LIBEFP_USERNAME_KEY, "check"), secretKey);
+
+        }
+
+        catch(Exception e) {
+            System.out.println("Problem accessing LibEFP username and/or with its encryption");
+            e.printStackTrace();
+        }
     }
 
     public static void setLibefpPassword(String value){
-        userPrefs.put(LIBEFP_PASSWORD_KEY, value);
-        libefpPassword = userPrefs.get(LIBEFP_PASSWORD_KEY, "check");
+
+        try {
+            encrypLibEFPPass = encrypt(value, secretKey);
+            userPrefs.put(LIBEFP_PASSWORD_KEY, encrypLibEFPPass);
+
+            libefpPassword = decrypt(userPrefs.get(LIBEFP_PASSWORD_KEY, "check"), secretKey);
+        }
+        catch(Exception e) {
+            System.out.println("Problem accessing LibEFP password and/or with its encryption");
+            e.printStackTrace();
+        }
     }
 
     public static void setLibefpOutputPath(String value){

@@ -226,7 +226,7 @@ public class MainViewController {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
-        stage.showAndWait();
+        stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         try {
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
         } catch (NullPointerException e) {
