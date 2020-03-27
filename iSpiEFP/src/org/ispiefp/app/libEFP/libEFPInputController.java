@@ -458,6 +458,14 @@ public class libEFPInputController implements Initializable {
 
     public void setEfpFiles(ArrayList<File> efpFiles){
         this.efpFiles = efpFiles;
+        coordinates = Main.fragmentTree.getSelectedFragment().getXYZCoords();
+        try {
+            libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
+            libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
+            libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     private void saveFile(String content, File file) {
