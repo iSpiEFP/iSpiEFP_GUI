@@ -22,6 +22,7 @@ import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.iSpiEFPServer;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.util.UserPreferences;
 
 import java.io.*;
 import java.net.Socket;
@@ -81,7 +82,7 @@ public class libEFPInputController implements Initializable {
     private TextArea libEFPInputTextArea2;
 
     @FXML
-    private ComboBox<String> serversList;
+    private TextField server;
 
     @FXML
     private ComboBox<String> need_fragment;
@@ -331,32 +332,37 @@ public class libEFPInputController implements Initializable {
             e.printStackTrace();
         }
 
-        // Initializing serversList
-        serverDetailsList = new ArrayList<>();
-        try {
-            serverDetailsList = ServerConfigController.getServerDetailsList();
-        } catch (ClassNotFoundException | BackingStoreException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        List<String> serverNames = new ArrayList<>();
-        for (ServerDetails server : serverDetailsList) {
-            serverNames.add(server.getAddress());
-        }
-        serversList.setItems(FXCollections.observableList(serverNames));
-        if (serverNames.size() > 0) {
-            serversList.setValue(serverNames.get(0));
-            setHostname(serverNames.get(0));
-        }
-        serversList.setEditable(true);
-        serversList.valueProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {
-                String address = t1;
-                System.out.println("Selected:" + address);
-                setHostname(address);
-            }
-        });
+//        // Initializing serversList
+//        serverDetailsList = new ArrayList<>();
+//        try {
+//            serverDetailsList = ServerConfigController.getServerDetailsList();
+//        } catch (ClassNotFoundException | BackingStoreException | IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        List<String> serverNames = new ArrayList<>();
+//        for (ServerDetails server : serverDetailsList) {
+//            serverNames.add(server.getAddress());
+//        }
+//        serversList.setItems(FXCollections.observableList(serverNames));
+//        if (serverNames.size() > 0) {
+//            serversList.setValue(serverNames.get(0));
+//            setHostname(serverNames.get(0));
+//        }
+//        serversList.setEditable(true);
+//        serversList.valueProperty().addListener(new ChangeListener<String>() {
+//            @Override
+//            public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {
+//                String address = t1;
+//                System.out.println("Selected:" + address);
+//                setHostname(address);
+//            }
+//        });
+
+        //Initializing server field
+        String serverName = UserPreferences.getLibefpServer();
+        if (serverName.equals("check")) server.setText("");
+        else server.setText(UserPreferences.getLibefpServer());
     }
 
     /**
@@ -526,16 +532,9 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-        if (selectedServer.getServerType().equalsIgnoreCase("local"))
-            submitJobToLocalServer(selectedServer);
-        else {
-            String hostname = this.hostname;
-            LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
+            LoginForm loginForm = new LoginForm(server.getText(), "LIBEFP");
             boolean authorized = loginForm.authenticate();
             if (authorized) {
-
-
                 createInputFile("md_1.in", this.libEFPInputsDirectory);
                 Thread.sleep(100);
                 System.out.println("sending these efp files:");
@@ -654,7 +653,142 @@ public class libEFPInputController implements Initializable {
             }
         }
         // Handle SSH case later
-    }
+//    /**
+//     * Handle job submission for the efpmd package
+//     *
+//     * @throws IOException
+//     * @throws InterruptedException
+//     */
+//    public void handleSubmit() throws IOException, InterruptedException {
+//        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
+//        if (selectedServer.getServerType().equalsIgnoreCase("local"))
+//            submitJobToLocalServer(selectedServer);
+//        else {
+//            String hostname = this.hostname;
+//            LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
+//            boolean authorized = loginForm.authenticate();
+//            if (authorized) {
+//
+//
+//                createInputFile("md_1.in", this.libEFPInputsDirectory);
+//                Thread.sleep(100);
+//                System.out.println("sending these efp files:");
+//                for (String filename : this.efpFilenames) {
+//                    System.out.println(filename);
+//                }
+//
+//                Connection conn = loginForm.getConnection(authorized);
+//
+//                String username = loginForm.getUsername();
+//                String password = loginForm.getPassword();
+//
+//
+//                SCPClient scp = conn.createSCPClient();
+//
+//
+//                SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
+//                FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + "/md_1.in"));
+//
+//
+//                IOUtils.copy(in, scpos);
+//                in.close();
+//                scpos.close();
+//                System.out.println("sent config file");
+//
+//
+//                Session sess = conn.openSession();
+//                sess.close();
+//
+//                for (String filename : this.efpFilenames) {
+//                    System.out.println(filename);
+//                    filename = filename.toLowerCase();
+//                    //scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
+//                    scpos = scp.put(filename, new File(this.efpFileDirectoryPath + filename).length(), "./iSpiClient/Libefp/fraglib", "0666");
+//                    in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
+//                    IOUtils.copy(in, scpos);
+//                    in.close();
+//                    scpos.close();
+//                }
+//
+//
+//                DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+//                Date date = new Date();
+//                String currentTime = dateFormat.format(date).toString();
+//
+//                String jobID = (new JobManager()).generateJobID().toString();
+//
+//                String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
+//
+//                scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
+//                InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
+//                IOUtils.copy(istream, scpos);
+//                istream.close();
+//                scpos.close();
+//
+//                sess = conn.openSession();
+//                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
+//
+//                InputStream stdout = new StreamGobbler(sess.getStdout());
+//                BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+//                String clusterjobID = "";
+//                while (true) {
+//                    String line = br.readLine();
+//                    if (line == null)
+//                        break;
+//                    System.out.println(line);
+//                    String[] tokens = line.split("\\.");
+//                    if (tokens[0].matches("\\d+")) {
+//                        clusterjobID = tokens[0];
+//                    }
+//                }
+//                System.out.println(clusterjobID);
+//                br.close();
+//                stdout.close();
+//                sess.close();
+//                conn.close();
+//
+//                String time = currentTime; //equivalent but in different formats
+//                dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+//                currentTime = dateFormat.format(date).toString();
+//
+//                userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
+//
+//                String serverName = Main.iSpiEFP_SERVER;
+//                int port = Main.iSpiEFP_PORT;
+//
+//                //send over job data to database
+//                String query = "Submit";
+//                query += "$END$";
+//                query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+//                query += "$ENDALL$";
+//
+//                //Socket client = new Socket(serverName, port);
+//                iSpiEFPServer iSpiServer = new iSpiEFPServer();
+//                Socket client = iSpiServer.connect(serverName, port);
+//                if (client == null) {
+//                    return;
+//                }
+//                OutputStream outToServer = client.getOutputStream();
+//                //DataOutputStream out = new DataOutputStream(outToServer);
+//
+//                System.out.println(query);
+//                outToServer.write(query.getBytes("UTF-8"));
+//                client.close();
+//                outToServer.close();
+//
+//                JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
+//                jobManager.watchJobStatus();
+//
+//
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setTitle("Libefp Submission");
+//                alert.setHeaderText(null);
+//                alert.setContentText("Job submitted to cluster successfully.");
+//                alert.showAndWait();
+//            }
+//        }
+//        // Handle SSH case later
+//    }
 
     public String getHostname() {
         return hostname;
