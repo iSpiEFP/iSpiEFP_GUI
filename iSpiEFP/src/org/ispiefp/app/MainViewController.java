@@ -489,6 +489,8 @@ public class MainViewController {
         Parent libEFPSubmissionParent = libEFPSubmissionLoader.load();
         libEFPInputController libEFPCont = libEFPSubmissionLoader.getController();
         //libEFPSubmissionLoader.setController(libEFPCont);
+        libEFPCont.setJmolViewer(jmolMainPanel.viewer);
+        libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
         libEFPCont.setEfpFiles(getFragmentEFPFiles());
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);

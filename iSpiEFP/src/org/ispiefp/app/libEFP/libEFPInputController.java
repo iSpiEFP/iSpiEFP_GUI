@@ -23,6 +23,7 @@ import org.ispiefp.app.server.iSpiEFPServer;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.util.UserPreferences;
+import org.jmol.viewer.Viewer;
 
 import java.io.*;
 import java.net.Socket;
@@ -142,6 +143,8 @@ public class libEFPInputController implements Initializable {
     private String workingDirectoryPath;
     private String libEFPInputsDirectory;
     private String efpFileDirectoryPath;
+    private Viewer jmolViewer;
+    private ArrayList<ArrayList<Integer>> viewerFragments;
 
     List<ServerDetails> serverDetailsList;
     private String hostname;
@@ -458,7 +461,8 @@ public class libEFPInputController implements Initializable {
 
     public void setEfpFiles(ArrayList<File> efpFiles){
         this.efpFiles = efpFiles;
-        coordinates = Main.fragmentTree.getSelectedFragment().getXYZCoords();
+        //coordinates = Main.fragmentTree.getSelectedFragment().getXYZCoords();
+        coordinates = generateInputText();
         try {
             libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
             libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
@@ -660,6 +664,55 @@ public class libEFPInputController implements Initializable {
                 alert.showAndWait();
             }
         }
+
+        public void saveCalculationType() {
+            System.out.println("does nothing");
+        }
+
+    //converts Addison's frag list to Hanjings Groups
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private ArrayList<ArrayList> getGroups(List<ArrayList<Integer>> fragment_list) {
+        ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
+        for (ArrayList<Integer> frag : fragment_list) {
+            if (frag.size() > 0) {
+                ArrayList curr_group = new ArrayList();
+                for (int piece : frag) {
+                    curr_group.add(piece);
+                }
+                Collections.sort(curr_group);
+                groups.add(curr_group);
+            }
+        }
+        return groups;
+    }
+
+    private String generateInputText()  {
+        StringBuilder sb = new StringBuilder();
+        ArrayList<String> file_names = efpFilenames;
+        ArrayList<ArrayList> groups = getGroups(viewerFragments);
+        int group_number = 0;
+        for (int i = 0; i < viewerFragments.size(); i++) {
+            //parse filename
+            if (group_number == 0) {
+                sb.append("fragment " + i + "\n");
+            } else {
+                sb.append("\nfragment " +  i + "\n");
+            }
+            //apend equivalent group coordinates
+            ArrayList<Integer> fragment = groups.get(group_number);
+            int j = 0;
+            for (int atom_num : fragment) {
+                if (j == 3) {
+                    break;
+                }
+                org.jmol.modelset.Atom current_atom = jmolViewer.ms.at[atom_num];
+                sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z + "\n");
+                j++;
+            }
+            group_number++;
+        }
+        return sb.toString();
+    }
         // Handle SSH case later
 //    /**
 //     * Handle job submission for the efpmd package
@@ -806,6 +859,21 @@ public class libEFPInputController implements Initializable {
         this.hostname = hostname;
     }
 
+    public Viewer getJmolViewer() {
+        return jmolViewer;
+    }
+
+    public void setJmolViewer(Viewer v){
+        jmolViewer = v;
+    }
+
+    public ArrayList<ArrayList<Integer>> getViewerFragments(){
+        return viewerFragments;
+    }
+
+    public void setViewerFragments(ArrayList<ArrayList<Integer>> frags){
+        viewerFragments = frags;
+    }
 }
 
 

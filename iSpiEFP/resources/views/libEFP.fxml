@@ -65,6 +65,11 @@
                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                             </padding>
                         </Button>
+                        <Button mnemonicParsing="false" onAction="#saveCalculationType" text="Save as Preset">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="12.0" top="4.0"/>
+                            </padding>
+                        </Button>
                     </buttons>
                     <padding>
                         <Insets right="195.0" top="5.0"/>
