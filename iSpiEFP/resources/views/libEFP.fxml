@@ -13,39 +13,40 @@
 <?import javafx.scene.text.Text?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.libEFPInputController">
+<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.libEFPInputController">
     <Tab text="main">
-        <SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="450.0" prefWidth="600.0">
+        <SplitPane dividerPositions="0.5, 0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="450.0" prefWidth="600.0">
             <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="270.0" prefWidth="600.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="120.0" prefWidth="160.0">
                     <children>
-                        <Text layoutX="35.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title:" />
-                        <TextField fx:id="title" layoutX="134.0" layoutY="19.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="409.0" promptText="Enter title" />
-                        <Text layoutX="35.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Type:" />
-                        <ComboBox fx:id="run_type" layoutX="133.0" layoutY="66.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="114.0" />
-                        <Text layoutX="35.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Format:" />
-                        <ComboBox fx:id="format" layoutX="133.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="113.0" />
-                        <Text layoutX="34.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elec Damp:" />
-                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="114.0" promptText="0" />
-                        <Text layoutX="334.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />
-                        <Text layoutX="334.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp:" />
-                        <CheckComboBox fx:id="terms" layoutX="462.0" layoutY="114.0" prefHeight="25.0" prefWidth="103.0" />
-                        <ComboBox fx:id="pol_damp" layoutX="464.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
-                        <Text layoutX="33.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />
-                        <ComboBox fx:id="disp_damp" layoutX="133.0" layoutY="189.0" prefHeight="27.0" prefWidth="113.0" />
-                        <Text layoutX="333.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />
-                        <ComboBox fx:id="pol_solver" layoutX="464.0" layoutY="189.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
-                        <Text layoutX="37.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server:" />
-                        <ComboBox fx:id="serversList" layoutX="133.0" layoutY="224.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="113.0" />
-                        <Text layoutX="334.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto Submission: " />
-                        <ComboBox fx:id="auto_sub" layoutX="464.0" layoutY="224.0" prefHeight="27.0" prefWidth="105.0" />
-                        <TextArea fx:id="libEFPInputTextArea" layoutX="35.0" layoutY="276.0" prefHeight="122.0" prefWidth="536.0" />
+                        <Text layoutX="34.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Load a Preset:" />
+                        <ComboBox fx:id="presets" layoutX="133.0" layoutY="1.0"  prefHeight="25.0" prefWidth="146.0" promptText="None Selected" />
+                        <Text layoutX="34.0" layoutY="45.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title:" />
+                        <TextField fx:id="title" layoutX="133.0" layoutY="28.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="409.0" promptText="Enter title" />
+                        <Text layoutX="35.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Type:" />
+                        <ComboBox fx:id="run_type" layoutX="133.0" layoutY="57.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
+                        <Text layoutX="35.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Format:" />
+                        <ComboBox fx:id="format" layoutX="133.0" layoutY="86.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                        <Text layoutX="35.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elec Damp:" />
+                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />
+                        <Text layoutX="338.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />
+                        <Text layoutX="338.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp" />
+                        <CheckComboBox fx:id="terms" layoutX="412.0" layoutY="86.0" prefHeight="25.0" prefWidth="103.0" />
+                        <ComboBox fx:id="pol_damp" layoutX="412.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
+                        <Text layoutX="35.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />
+                        <ComboBox fx:id="disp_damp" layoutX="133.0" layoutY="142.0" prefHeight="25.0" prefWidth="146.0" />
+                        <Text layoutX="338.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />
+                        <ComboBox fx:id="pol_solver" layoutX="412.0" layoutY="142.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                        <Text layoutX="35.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server:" />
+                        <TextField fx:id="server" layoutX="133.0" layoutY="174.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
+                        <Text layoutX="338.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto submission: " />
+                        <ComboBox fx:id="auto_sub" layoutX="445.0" layoutY="174.0" prefHeight="25.0" prefWidth="70.0" />
                     </children>
                     <padding>
                         <Insets bottom="8.0" />
                     </padding>
                 </AnchorPane>
-
+                <TextArea fx:id="libEFPInputTextArea" prefHeight="140.0" prefWidth="598.0" />
                 <ButtonBar maxHeight="-Infinity">
                     <buttons>
                         <Button mnemonicParsing="false" onAction="#generatelibEFPInputFile" text="Download Input">
@@ -59,6 +60,16 @@
                         <Button mnemonicParsing="false" onAction="#handleSubmit" text="Next">
                             <padding>
                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                            </padding>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#saveCalculationType" text="Save Preset">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="12.0" top="4.0" />
+                            </padding>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#deletePreset" text="Delete Preset">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="12.0" top="4.0" />
                             </padding>
                         </Button>
                     </buttons>

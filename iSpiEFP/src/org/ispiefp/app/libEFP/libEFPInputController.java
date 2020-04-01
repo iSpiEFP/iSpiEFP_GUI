@@ -13,6 +13,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
+import org.ispiefp.app.MainViewController;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.server.JobManager;
@@ -21,6 +22,8 @@ import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.iSpiEFPServer;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.util.UserPreferences;
+import org.jmol.viewer.Viewer;
 
 import java.io.*;
 import java.net.Socket;
@@ -39,6 +42,9 @@ public class libEFPInputController implements Initializable {
 
     @FXML
     private TabPane root;
+
+    @FXML
+    private ComboBox<String> presets;
 
     @FXML
     private TextField title;
@@ -80,7 +86,7 @@ public class libEFPInputController implements Initializable {
     private TextArea libEFPInputTextArea2;
 
     @FXML
-    private ComboBox<String> serversList;
+    private TextField server;
 
     @FXML
     private ComboBox<String> need_fragment;
@@ -136,10 +142,12 @@ public class libEFPInputController implements Initializable {
     ArrayList jobids;
 
     private ArrayList<String> efpFilenames;
-
+    private ArrayList<File> efpFiles;
     private String workingDirectoryPath;
     private String libEFPInputsDirectory;
     private String efpFileDirectoryPath;
+    private Viewer jmolViewer;
+    private ArrayList<ArrayList<Integer>> viewerFragments;
 
     List<ServerDetails> serverDetailsList;
     private String hostname;
@@ -163,6 +171,10 @@ public class libEFPInputController implements Initializable {
         this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + "/";  //storage for db incoming efp files
         this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS;         //needed for db file storage
         // initWorkingDir();
+    }
+
+    public libEFPInputController(){
+        super();
     }
 
     @Override
@@ -316,7 +328,7 @@ public class libEFPInputController implements Initializable {
         // Initializing Format ComboBox
 
 
-        // Initializing qChemInputTextArea
+        // Initializing libEFPInputTextArea
         try {
             libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
             libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
@@ -326,32 +338,49 @@ public class libEFPInputController implements Initializable {
             e.printStackTrace();
         }
 
-        // Initializing serversList
-        serverDetailsList = new ArrayList<>();
-        try {
-            serverDetailsList = ServerConfigController.getServerDetailsList();
-        } catch (ClassNotFoundException | BackingStoreException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        List<String> serverNames = new ArrayList<>();
-        for (ServerDetails server : serverDetailsList) {
-            serverNames.add(server.getAddress());
-        }
-        serversList.setItems(FXCollections.observableList(serverNames));
-        if (serverNames.size() > 0) {
-            serversList.setValue(serverNames.get(0));
-            setHostname(serverNames.get(0));
-        }
-        serversList.setEditable(true);
-        serversList.valueProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {
-                String address = t1;
-                System.out.println("Selected:" + address);
-                setHostname(address);
+//        // Initializing serversList
+//        serverDetailsList = new ArrayList<>();
+//        try {
+//            serverDetailsList = ServerConfigController.getServerDetailsList();
+//        } catch (ClassNotFoundException | BackingStoreException | IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        List<String> serverNames = new ArrayList<>();
+//        for (ServerDetails server : serverDetailsList) {
+//            serverNames.add(server.getAddress());
+//        }
+//        serversList.setItems(FXCollections.observableList(serverNames));
+//        if (serverNames.size() > 0) {
+//            serversList.setValue(serverNames.get(0));
+//            setHostname(serverNames.get(0));
+//        }
+//        serversList.setEditable(true);
+//        serversList.valueProperty().addListener(new ChangeListener<String>() {
+//            @Override
+//            public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {
+//                String address = t1;
+//                System.out.println("Selected:" + address);
+//                setHostname(address);
+//            }
+//        });
+
+        //Initializing server field
+        String serverName = UserPreferences.getLibefpServer();
+        if (serverName.equals("check")) server.setText("");
+        else server.setText(UserPreferences.getLibefpServer());
+
+        // Adding listener to presets
+        ObservableList<String> available_presets = FXCollections.observableArrayList();
+        System.out.println(UserPreferences.getLibEFPPresetNames());
+        available_presets.addAll(UserPreferences.getLibEFPPresetNames());
+        presets.getItems().addAll(available_presets);
+        presets.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null){
+                loadPreset(UserPreferences.getLibEFPPresets().get(newValue));
             }
-        });
+        }));
+
     }
 
     /**
@@ -414,7 +443,7 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
     }
 
-    // Generate Q-Chem Input file
+    // Generate libEFP Input file
     public void generatelibEFPInputFile() {
         String libEFPText = libEFPInputTextArea.getText();
         FileChooser fileChooser = new FileChooser();
@@ -425,9 +454,10 @@ public class libEFPInputController implements Initializable {
 
         File currentOpenFile = null;
 
-        //if (MainViewController.getJmolVisualization() != null)
-        //	currentOpenFile = MainViewController.getJmolVisualization().getCurrentOpenFile();
-
+        //TODO when you make job submission general for all fragments, fix this to get all and not just the first one
+        if (!efpFiles.isEmpty()) {
+            currentOpenFile = efpFiles.get(0);
+        }
         if (currentOpenFile != null) {
             String fileName = currentOpenFile.getName();
             int dotIndex = fileName.indexOf('.');
@@ -441,6 +471,19 @@ public class libEFPInputController implements Initializable {
 
         if (file != null) {
             saveFile(libEFPText, file);
+        }
+    }
+
+    public void setEfpFiles(ArrayList<File> efpFiles){
+        this.efpFiles = efpFiles;
+        //coordinates = Main.fragmentTree.getSelectedFragment().getXYZCoords();
+        coordinates = generateInputText();
+        try {
+            libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
+            libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
+            libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 
@@ -516,16 +559,9 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-        if (selectedServer.getServerType().equalsIgnoreCase("local"))
-            submitJobToLocalServer(selectedServer);
-        else {
-            String hostname = this.hostname;
-            LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
+            LoginForm loginForm = new LoginForm(server.getText(), "LIBEFP");
             boolean authorized = loginForm.authenticate();
             if (authorized) {
-
-
                 createInputFile("md_1.in", this.libEFPInputsDirectory);
                 Thread.sleep(100);
                 System.out.println("sending these efp files:");
@@ -643,8 +679,233 @@ public class libEFPInputController implements Initializable {
                 alert.showAndWait();
             }
         }
-        // Handle SSH case later
+
+    public void saveCalculationType() {
+        Boolean[] terms = new Boolean[4];
+        for (int i = 0; i < 4; i++) {
+            terms[i] = this.terms.getCheckModel().isChecked(i);
+        }
+        CalculationPreset savedType = new CalculationPreset(
+                title.getText(),
+                run_type.getSelectionModel().getSelectedItem(),
+                format.getSelectionModel().getSelectedItem(),
+                elec_damp.getSelectionModel().getSelectedItem(),
+                disp_damp.getSelectionModel().getSelectedItem(),
+                terms,
+                pol_damp.getSelectionModel().getSelectedItem(),
+                pol_solver.getSelectionModel().getSelectedItem()
+        );
+        UserPreferences.addLibEFPPreset(savedType);
+        presets.getItems().add(savedType.getTitle());
+        presets.getSelectionModel().select(savedType.getTitle());
     }
+
+    @FXML
+    public void loadPreset(CalculationPreset cp) {
+        title.setText(cp.getTitle());
+        run_type.setValue(cp.getRunType());
+        format.setValue(cp.getFormat());
+        elec_damp.setValue(cp.getElecDamp());
+        disp_damp.setValue(cp.getDispDamp());
+        pol_damp.setValue(cp.getPolDamp());
+        pol_solver.setValue(cp.getPolSolver());
+        terms.getCheckModel().clearChecks();
+        for (int i = 0; i < 4; i++){if (cp.getTerms()[i]) terms.getCheckModel().check(i);}
+        try{
+        updatelibEFPInputText();
+        } catch (IOException e){
+            System.err.println("Was unable to write to input file area");
+        }
+    }
+
+    @FXML
+    public void deletePreset() {
+        if (presets.getSelectionModel().isEmpty()) return;
+        UserPreferences.removeLibEFPPreset(presets.getSelectionModel().getSelectedItem());
+        presets.getItems().remove(presets.getSelectionModel().getSelectedItem());
+    }
+
+    //converts Addison's frag list to Hanjings Groups
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private ArrayList<ArrayList> getGroups(List<ArrayList<Integer>> fragment_list) {
+        ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
+        for (ArrayList<Integer> frag : fragment_list) {
+            if (frag.size() > 0) {
+                ArrayList curr_group = new ArrayList();
+                for (int piece : frag) {
+                    curr_group.add(piece);
+                }
+                Collections.sort(curr_group);
+                groups.add(curr_group);
+            }
+        }
+        return groups;
+    }
+
+    private String generateInputText()  {
+        StringBuilder sb = new StringBuilder();
+        ArrayList<String> file_names = efpFilenames;
+        ArrayList<ArrayList> groups = getGroups(viewerFragments);
+        int group_number = 0;
+        for (int i = 0; i < viewerFragments.size(); i++) {
+            //parse filename
+            if (group_number == 0) {
+                sb.append("fragment " + i + "\n");
+            } else {
+                sb.append("\nfragment " +  i + "\n");
+            }
+            //apend equivalent group coordinates
+            ArrayList<Integer> fragment = groups.get(group_number);
+            int j = 0;
+            for (int atom_num : fragment) {
+                if (j == 3) {
+                    break;
+                }
+                org.jmol.modelset.Atom current_atom = jmolViewer.ms.at[atom_num];
+                sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z + "\n");
+                j++;
+            }
+            group_number++;
+        }
+        return sb.toString();
+    }
+        // Handle SSH case later
+//    /**
+//     * Handle job submission for the efpmd package
+//     *
+//     * @throws IOException
+//     * @throws InterruptedException
+//     */
+//    public void handleSubmit() throws IOException, InterruptedException {
+//        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
+//        if (selectedServer.getServerType().equalsIgnoreCase("local"))
+//            submitJobToLocalServer(selectedServer);
+//        else {
+//            String hostname = this.hostname;
+//            LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
+//            boolean authorized = loginForm.authenticate();
+//            if (authorized) {
+//
+//
+//                createInputFile("md_1.in", this.libEFPInputsDirectory);
+//                Thread.sleep(100);
+//                System.out.println("sending these efp files:");
+//                for (String filename : this.efpFilenames) {
+//                    System.out.println(filename);
+//                }
+//
+//                Connection conn = loginForm.getConnection(authorized);
+//
+//                String username = loginForm.getUsername();
+//                String password = loginForm.getPassword();
+//
+//
+//                SCPClient scp = conn.createSCPClient();
+//
+//
+//                SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
+//                FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + "/md_1.in"));
+//
+//
+//                IOUtils.copy(in, scpos);
+//                in.close();
+//                scpos.close();
+//                System.out.println("sent config file");
+//
+//
+//                Session sess = conn.openSession();
+//                sess.close();
+//
+//                for (String filename : this.efpFilenames) {
+//                    System.out.println(filename);
+//                    filename = filename.toLowerCase();
+//                    //scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
+//                    scpos = scp.put(filename, new File(this.efpFileDirectoryPath + filename).length(), "./iSpiClient/Libefp/fraglib", "0666");
+//                    in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
+//                    IOUtils.copy(in, scpos);
+//                    in.close();
+//                    scpos.close();
+//                }
+//
+//
+//                DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+//                Date date = new Date();
+//                String currentTime = dateFormat.format(date).toString();
+//
+//                String jobID = (new JobManager()).generateJobID().toString();
+//
+//                String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
+//
+//                scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
+//                InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
+//                IOUtils.copy(istream, scpos);
+//                istream.close();
+//                scpos.close();
+//
+//                sess = conn.openSession();
+//                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
+//
+//                InputStream stdout = new StreamGobbler(sess.getStdout());
+//                BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+//                String clusterjobID = "";
+//                while (true) {
+//                    String line = br.readLine();
+//                    if (line == null)
+//                        break;
+//                    System.out.println(line);
+//                    String[] tokens = line.split("\\.");
+//                    if (tokens[0].matches("\\d+")) {
+//                        clusterjobID = tokens[0];
+//                    }
+//                }
+//                System.out.println(clusterjobID);
+//                br.close();
+//                stdout.close();
+//                sess.close();
+//                conn.close();
+//
+//                String time = currentTime; //equivalent but in different formats
+//                dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+//                currentTime = dateFormat.format(date).toString();
+//
+//                userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
+//
+//                String serverName = Main.iSpiEFP_SERVER;
+//                int port = Main.iSpiEFP_PORT;
+//
+//                //send over job data to database
+//                String query = "Submit";
+//                query += "$END$";
+//                query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+//                query += "$ENDALL$";
+//
+//                //Socket client = new Socket(serverName, port);
+//                iSpiEFPServer iSpiServer = new iSpiEFPServer();
+//                Socket client = iSpiServer.connect(serverName, port);
+//                if (client == null) {
+//                    return;
+//                }
+//                OutputStream outToServer = client.getOutputStream();
+//                //DataOutputStream out = new DataOutputStream(outToServer);
+//
+//                System.out.println(query);
+//                outToServer.write(query.getBytes("UTF-8"));
+//                client.close();
+//                outToServer.close();
+//
+//                JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
+//                jobManager.watchJobStatus();
+//
+//
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setTitle("Libefp Submission");
+//                alert.setHeaderText(null);
+//                alert.setContentText("Job submitted to cluster successfully.");
+//                alert.showAndWait();
+//            }
+//        }
+//        // Handle SSH case later
+//    }
 
     public String getHostname() {
         return hostname;
@@ -654,6 +915,21 @@ public class libEFPInputController implements Initializable {
         this.hostname = hostname;
     }
 
+    public Viewer getJmolViewer() {
+        return jmolViewer;
+    }
+
+    public void setJmolViewer(Viewer v){
+        jmolViewer = v;
+    }
+
+    public ArrayList<ArrayList<Integer>> getViewerFragments(){
+        return viewerFragments;
+    }
+
+    public void setViewerFragments(ArrayList<ArrayList<Integer>> frags){
+        viewerFragments = frags;
+    }
 }
 
 
