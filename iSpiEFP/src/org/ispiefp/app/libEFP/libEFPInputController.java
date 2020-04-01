@@ -44,6 +44,9 @@ public class libEFPInputController implements Initializable {
     private TabPane root;
 
     @FXML
+    private ComboBox<String> presets;
+
+    @FXML
     private TextField title;
     private static Preferences userPrefs_libefp = Preferences.userNodeForPackage(SubmissionHistoryController.class);
     @FXML
@@ -366,6 +369,18 @@ public class libEFPInputController implements Initializable {
         String serverName = UserPreferences.getLibefpServer();
         if (serverName.equals("check")) server.setText("");
         else server.setText(UserPreferences.getLibefpServer());
+
+        // Adding listener to presets
+        ObservableList<String> available_presets = FXCollections.observableArrayList();
+        System.out.println(UserPreferences.getLibEFPPresetNames());
+        available_presets.addAll(UserPreferences.getLibEFPPresetNames());
+        presets.getItems().addAll(available_presets);
+        presets.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null){
+                loadPreset(UserPreferences.getLibEFPPresets().get(newValue));
+            }
+        }));
+
     }
 
     /**
@@ -665,9 +680,50 @@ public class libEFPInputController implements Initializable {
             }
         }
 
-        public void saveCalculationType() {
-            System.out.println("does nothing");
+    public void saveCalculationType() {
+        Boolean[] terms = new Boolean[4];
+        for (int i = 0; i < 4; i++) {
+            terms[i] = this.terms.getCheckModel().isChecked(i);
         }
+        CalculationPreset savedType = new CalculationPreset(
+                title.getText(),
+                run_type.getSelectionModel().getSelectedItem(),
+                format.getSelectionModel().getSelectedItem(),
+                elec_damp.getSelectionModel().getSelectedItem(),
+                disp_damp.getSelectionModel().getSelectedItem(),
+                terms,
+                pol_damp.getSelectionModel().getSelectedItem(),
+                pol_solver.getSelectionModel().getSelectedItem()
+        );
+        UserPreferences.addLibEFPPreset(savedType);
+        presets.getItems().add(savedType.getTitle());
+        presets.getSelectionModel().select(savedType.getTitle());
+    }
+
+    @FXML
+    public void loadPreset(CalculationPreset cp) {
+        title.setText(cp.getTitle());
+        run_type.setValue(cp.getRunType());
+        format.setValue(cp.getFormat());
+        elec_damp.setValue(cp.getElecDamp());
+        disp_damp.setValue(cp.getDispDamp());
+        pol_damp.setValue(cp.getPolDamp());
+        pol_solver.setValue(cp.getPolSolver());
+        terms.getCheckModel().clearChecks();
+        for (int i = 0; i < 4; i++){if (cp.getTerms()[i]) terms.getCheckModel().check(i);}
+        try{
+        updatelibEFPInputText();
+        } catch (IOException e){
+            System.err.println("Was unable to write to input file area");
+        }
+    }
+
+    @FXML
+    public void deletePreset() {
+        if (presets.getSelectionModel().isEmpty()) return;
+        UserPreferences.removeLibEFPPreset(presets.getSelectionModel().getSelectedItem());
+        presets.getItems().remove(presets.getSelectionModel().getSelectedItem());
+    }
 
     //converts Addison's frag list to Hanjings Groups
     @SuppressWarnings({"rawtypes", "unchecked"})

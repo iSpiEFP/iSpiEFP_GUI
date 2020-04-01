@@ -1,6 +1,10 @@
 package org.ispiefp.app.util;
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.libEFP.CalculationPreset;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -23,6 +27,7 @@ public class UserPreferences {
     private static final String LIBEFP_PASSWORD_KEY = "libefpPassword";
     private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
     private static final String ENCRYPT_KEY = "encryptionKey";
+    private static final String LIBEFP_PRESETS_KEY = "libefpPresets";
 
     private static String userParameterPath = null;
     private static String pythonPath = null;
@@ -33,7 +38,8 @@ public class UserPreferences {
     private static String libefpServer = null;
     private static String libefpUsername = null;
     private static String libefpPassword = null;
-    private static String libefpOutputPath =null;
+    private static String libefpOutputPath = null;
+    private static HashMap<String, CalculationPreset> libefpPresets;
 
     private static SecureRandom random = new SecureRandom();
     private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
@@ -105,6 +111,47 @@ public class UserPreferences {
         libefpUsername = userPrefs.get(LIBEFP_USERNAME_KEY, "check");
         libefpPassword = userPrefs.get(LIBEFP_PASSWORD_KEY, "check");
         libefpOutputPath = userPrefs.get(LIBEFP_OUTPUT_KEY, "check");
+
+        /* libEFP preset Initialization */
+        libefpPresets = new HashMap<>();
+        String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
+        if (!encodedString.equals("check")){
+            String [] predefinedStringArray = encodedString.split("%@%");
+            for (int i = 0; i < predefinedStringArray.length; i++){
+                CalculationPreset newCP = new CalculationPreset(predefinedStringArray[i]);
+                libefpPresets.put(newCP.getTitle(), newCP);
+            }
+        }
+    }
+
+    public static void addLibEFPPreset(CalculationPreset cp){
+        String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
+        System.out.printf("encoded string is %s%n", encodedString);
+        if (encodedString.equals("check")){
+            userPrefs.put(LIBEFP_PRESETS_KEY, cp.getCalculationPresetDefinedString());
+        }
+        else {
+            if (!libefpPresets.containsKey(cp.getTitle())) {
+                userPrefs.put(LIBEFP_PRESETS_KEY, encodedString + "%@%" + cp.getCalculationPresetDefinedString());
+            }
+            libefpPresets.put(cp.getTitle(), cp);
+        }
+    }
+    public static void removeLibEFPPreset(String name){
+        libefpPresets.remove(name);
+        String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
+        String [] simpleString = encodedString.split("%@%");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < simpleString.length; i++){
+            if (simpleString[i].equals(name)) continue;
+            sb.append(simpleString[i]);
+            if (i != simpleString.length - 1) sb.append("%@%");
+        }
+        userPrefs.put(LIBEFP_PRESETS_KEY, sb.toString());
+    }
+
+    public static HashMap<String, CalculationPreset> getLibEFPPresets(){
+        return libefpPresets;
     }
 
     public static String generateRandomString(int length) {
@@ -174,6 +221,10 @@ public class UserPreferences {
 
     public static String getLibefpOutputPath(){
         return libefpOutputPath;
+    }
+
+    public static Set<String> getLibEFPPresetNames(){
+        return libefpPresets.keySet();
     }
 
     public static void setUserParameterPath(String value) {
