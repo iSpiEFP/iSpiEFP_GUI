@@ -12,6 +12,8 @@ import org.ispiefp.app.server.ServerDetails;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
+import java.util.prefs.BackingStoreException;
 
 public class ServerEditConfigViewController implements Initializable {
 
@@ -37,7 +39,7 @@ public class ServerEditConfigViewController implements Initializable {
     private TextArea runFileTemplateField;
 
     @FXML
-    private TextArea runFileTemplateField2;
+    private TextArea runFileTemplateField3;
 
     @FXML
     private TextField updateIntervalField;
@@ -46,18 +48,23 @@ public class ServerEditConfigViewController implements Initializable {
 
     private ServerDetails.QueueOptions queueOptions;
 
+    public String servername;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.queueOptions = new ServerDetails().new QueueOptions(); // Create an object for this
     }
 
-    public void setOriginalQueueOptions(ServerDetails.QueueOptions queueOptions, String serverType) {
-        submitField.setText(queueOptions.getSubmit());
-        queryField.setText(queueOptions.getQuery());
-        killField.setText(queueOptions.getKill());
-        jobFileListField.setText(queueOptions.getJobFileList());
-        queueInfoField.setText(queueOptions.getQueueInfo());
-	runFileTemplateField.setText("#!/bin/bash\n" +
+    Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+    String gamess_id = "gamess";
+    String libefp_id = "libefp";
+
+    public void setservername(String servername){
+        this.servername = servername;
+    }
+
+
+    public String default_gamess_template = "#!/bin/bash\n" +
             "# --------------------------------\n" +
             "# iSpiEFP Gamess job template\n" +
             "# --------------------------------\n" +
@@ -72,32 +79,46 @@ public class ServerEditConfigViewController implements Initializable {
             "\n" +
             "# And run Gamess\n" +
             "cd \"${PBS_O_WORKDIR}\" \n" +
-            "run_gms ${JOB_NAME}.inp");    
-	runFileTemplateField2.setText("#!/bin/bash\n" +
-                "# ------------------------------\n" +
-                "# iSpiEFP LibEFP job template\n" +
-                "# ------------------------------\n" +
-                "#PBS -q lslipche\n" +
-                "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
-                "#PBS -l walltime=${WALLTIME} \n" +
-                "#PBS -r n\n" +
-                "#PBS -S /bin/bash\n" +
-                "\n" +
-                "# Set up environment for LibEFP\n" +
-                "# TODO: Ask a chemist!\n" +
-                "\n" +
-                "# And run LibEFP\n" +
-                "cd \"${PBS_O_WORKDIR}\" \n" +
-                "# TODO: Ask a chemist!");
-        //runFileTemplateField.setText(queueOptions.getRunFileTemplate());
+            "run_gms ${JOB_NAME}.inp";
+
+    public String default_libefp_template = "#!/bin/bash\n" +
+            "# ------------------------------\n" +
+            "# iSpiEFP LibEFP job template\n" +
+            "# ------------------------------\n" +
+            "#PBS -q lslipche\n" +
+            "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
+            "#PBS -l walltime=${WALLTIME} \n" +
+            "#PBS -r n\n" +
+            "#PBS -S /bin/bash\n" +
+            "\n" +
+            "# Set up environment for LibEFP\n" +
+            "# TODO: Ask a chemist!\n" +
+            "\n" +
+            "# And run LibEFP\n" +
+            "cd \"${PBS_O_WORKDIR}\" \n" +
+            "# TODO: Ask a chemist!";
+
+
+    public void setOriginalQueueOptions(ServerDetails.QueueOptions queueOptions, String serverType) {
+        submitField.setText(queueOptions.getSubmit());
+        queryField.setText(queueOptions.getQuery());
+        killField.setText(queueOptions.getKill());
+        jobFileListField.setText(queueOptions.getJobFileList());
+        queueInfoField.setText(queueOptions.getQueueInfo());
+
         updateIntervalField.setText(Integer.toString(queueOptions.getUpdateIntervalSecs()));
         if (serverType.equals("Local")) {
             queryField.setDisable(true);
             killField.setDisable(true);
             jobFileListField.setDisable(true);
             queueInfoField.setDisable(true);
-            // runFileTemplateField.setDisable(true);
+
+
         }
+        runFileTemplateField.setText(prefs.get(servername+gamess_id,default_gamess_template));
+
+        runFileTemplateField3.setText(prefs.get(servername+libefp_id,default_libefp_template));
+
     }
 
     /**
@@ -115,6 +136,10 @@ public class ServerEditConfigViewController implements Initializable {
             queueOptions.setRunFileTemplate(runFileTemplateField.getText());
             queueOptions.setUpdateIntervalSecs(Integer.parseInt(updateIntervalField.getText()));
             okClicked = true;
+            prefs.put(servername+gamess_id,runFileTemplateField.getText());
+
+            prefs.put(servername+libefp_id,runFileTemplateField3.getText());
+
             ((Stage) root.getScene().getWindow()).close();
         }
     }
@@ -126,6 +151,13 @@ public class ServerEditConfigViewController implements Initializable {
     private void handleCancel() {
         ((Stage) root.getScene().getWindow()).close();
     }
+
+    @FXML
+    private void handlerestore(){
+        runFileTemplateField.setText(default_gamess_template);
+        runFileTemplateField3.setText(default_libefp_template);
+    }
+
 
     public boolean isOkClicked() {
         return okClicked;

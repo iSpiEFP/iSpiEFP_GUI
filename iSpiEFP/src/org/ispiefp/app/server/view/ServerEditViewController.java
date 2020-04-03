@@ -185,6 +185,7 @@ public class ServerEditViewController implements Initializable {
         // Set the serverDetails into the controller
         String selectedserverType = ((RadioButton) serverTypeGroup.getSelectedToggle()).getText();
         ServerEditConfigViewController controller = loader.getController();
+        controller.setservername(serverNameField.getText());
         if (queueOptions != null) {
             controller.setOriginalQueueOptions(queueOptions, selectedserverType);
         } else {
