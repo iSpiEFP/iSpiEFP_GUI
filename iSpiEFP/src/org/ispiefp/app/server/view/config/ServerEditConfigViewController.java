@@ -12,6 +12,8 @@ import org.ispiefp.app.server.ServerDetails;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
+import java.util.prefs.BackingStoreException;
 
 public class ServerEditConfigViewController implements Initializable {
 
@@ -40,16 +42,65 @@ public class ServerEditConfigViewController implements Initializable {
     private TextArea runFileTemplateField2;
 
     @FXML
+    private TextArea runFileTemplateField3;
+
+    @FXML
     private TextField updateIntervalField;
 
     private boolean okClicked;
 
     private ServerDetails.QueueOptions queueOptions;
 
+    public String servername;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.queueOptions = new ServerDetails().new QueueOptions(); // Create an object for this
     }
+
+    Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+    String gamess_id = "gamess";
+    String libefp_id = "libefp";
+
+    public void setservername(String servername){
+        this.servername = servername;
+    }
+
+
+    public String default_gamess_template = "#!/bin/bash\n" +
+            "# --------------------------------\n" +
+            "# iSpiEFP Gamess job template\n" +
+            "# --------------------------------\n" +
+            "#PBS -q lslipche\n" +
+            "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
+            "#PBS -l walltime=${WALLTIME} \n" +
+            "#PBS -r n\n" +
+            "#PBS -S /bin/bash\n" +
+            "\n" +
+            "# Set up environment for Gamess\n" +
+            "module load gamess\n" +
+            "\n" +
+            "# And run Gamess\n" +
+            "cd \"${PBS_O_WORKDIR}\" \n" +
+            "run_gms ${JOB_NAME}.inp";
+
+    public String default_libefp_template = "#!/bin/bash\n" +
+            "# ------------------------------\n" +
+            "# iSpiEFP LibEFP job template\n" +
+            "# ------------------------------\n" +
+            "#PBS -q lslipche\n" +
+            "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
+            "#PBS -l walltime=${WALLTIME} \n" +
+            "#PBS -r n\n" +
+            "#PBS -S /bin/bash\n" +
+            "\n" +
+            "# Set up environment for LibEFP\n" +
+            "# TODO: Ask a chemist!\n" +
+            "\n" +
+            "# And run LibEFP\n" +
+            "cd \"${PBS_O_WORKDIR}\" \n" +
+            "# TODO: Ask a chemist!";
+
 
     public void setOriginalQueueOptions(ServerDetails.QueueOptions queueOptions, String serverType) {
         submitField.setText(queueOptions.getSubmit());
@@ -57,7 +108,7 @@ public class ServerEditConfigViewController implements Initializable {
         killField.setText(queueOptions.getKill());
         jobFileListField.setText(queueOptions.getJobFileList());
         queueInfoField.setText(queueOptions.getQueueInfo());
-	runFileTemplateField.setText("#!/bin/bash\n" +
+	    runFileTemplateField.setText("#!/bin/bash\n" +
             "# --------------------------------\n" +
             "# iSpiEFP Gamess job template\n" +
             "# --------------------------------\n" +
@@ -73,7 +124,7 @@ public class ServerEditConfigViewController implements Initializable {
             "# And run Gamess\n" +
             "cd \"${PBS_O_WORKDIR}\" \n" +
             "run_gms ${JOB_NAME}.inp");    
-	runFileTemplateField2.setText("#!/bin/bash\n" +
+	    runFileTemplateField2.setText("#!/bin/bash\n" +
                 "# ------------------------------\n" +
                 "# iSpiEFP LibEFP job template\n" +
                 "# ------------------------------\n" +
@@ -97,7 +148,19 @@ public class ServerEditConfigViewController implements Initializable {
             jobFileListField.setDisable(true);
             queueInfoField.setDisable(true);
             // runFileTemplateField.setDisable(true);
+            Preferences node = Preferences.userNodeForPackage(this.getClass());
+            node.put("user_input_for_template_1",runFileTemplateField.getText());
+            node.put("user_input_for_template_2",runFileTemplateField2.getText());
+            try{
+                node.flush();
+            }catch (BackingStoreException e){
+                e.printStackTrace();
+            }
+
         }
+        runFileTemplateField.setText(prefs.get(servername+gamess_id,default_gamess_template));
+        runFileTemplateField3.setText(prefs.get(servername+libefp_id,default_libefp_template));
+
     }
 
     /**
@@ -115,6 +178,10 @@ public class ServerEditConfigViewController implements Initializable {
             queueOptions.setRunFileTemplate(runFileTemplateField.getText());
             queueOptions.setUpdateIntervalSecs(Integer.parseInt(updateIntervalField.getText()));
             okClicked = true;
+            prefs.put(gamess_id,runFileTemplateField.getText());
+
+            prefs.put(libefp_id,runFileTemplateField3.getText());
+
             ((Stage) root.getScene().getWindow()).close();
         }
     }
@@ -126,6 +193,43 @@ public class ServerEditConfigViewController implements Initializable {
     private void handleCancel() {
         ((Stage) root.getScene().getWindow()).close();
     }
+
+    @FXML//新加的 140行
+    private void handlerestore(){
+        runFileTemplateField.setText("#!/bin/bash\n" +
+                "# --------------------------------\n" +
+                "# iSpiEFP Gamess job template\n" +
+                "# --------------------------------\n" +
+                "#PBS -q lslipche\n" +
+                "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
+                "#PBS -l walltime=${WALLTIME} \n" +
+                "#PBS -r n\n" +
+                "#PBS -S /bin/bash\n" +
+                "\n" +
+                "# Set up environment for Gamess\n" +
+                "module load gamess\n" +
+                "\n" +
+                "# And run Gamess\n" +
+                "cd \"${PBS_O_WORKDIR}\" \n" +
+                "run_gms ${JOB_NAME}.inp");
+        runFileTemplateField2.setText("#!/bin/bash\n" +
+                "# ------------------------------\n" +
+                "# iSpiEFP LibEFP job template\n" +
+                "# ------------------------------\n" +
+                "#PBS -q lslipche\n" +
+                "#PBS -l nodes=1:ppn=${NCPUS}\t\n" +
+                "#PBS -l walltime=${WALLTIME} \n" +
+                "#PBS -r n\n" +
+                "#PBS -S /bin/bash\n" +
+                "\n" +
+                "# Set up environment for LibEFP\n" +
+                "# TODO: Ask a chemist!\n" +
+                "\n" +
+                "# And run LibEFP\n" +
+                "cd \"${PBS_O_WORKDIR}\" \n" +
+                "# TODO: Ask a chemist!");
+    }
+
 
     public boolean isOkClicked() {
         return okClicked;
