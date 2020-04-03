@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane fx:id="root" prefHeight="380.0" prefWidth="413.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vmol.app.server.view.config.ServerEditConfigViewController">
+<AnchorPane fx:id="root" prefHeight="380.0" prefWidth="413.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.server.view.config.ServerEditConfigViewController">
     <children>
         <GridPane layoutX="30.0" layoutY="28.0" prefWidth="393.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <columnConstraints>
@@ -82,12 +82,18 @@
                     </GridPane.margin>
                 </TextField>
                 <Label prefHeight="17.0" prefWidth="182.0" text="Run Gamess Job Template" GridPane.rowIndex="6" />
+
                 <TextArea fx:id="runFileTemplateField" prefHeight="40.0" prefWidth="383.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7">
                     <GridPane.margin>
                         <Insets left="5.0" right="5.0" top="2.0" />
                     </GridPane.margin>
                 </TextArea>
                 <Label prefHeight="17.0" prefWidth="182.0" text="Run LibEFP Job Template" GridPane.rowIndex="8" />
+                <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                    <buttons>
+                        <Button alignment="CENTER" mnemonicParsing="false" text="restore default template" onAction="#handlerestore" textAlignment="CENTER" />
+                    </buttons>
+                </ButtonBar>
             </children>
         </GridPane>
         <ButtonBar layoutX="176.0" layoutY="233.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
@@ -96,9 +102,8 @@
                 <Button mnemonicParsing="false" onAction="#handleCancel" text="Cancel" />
             </buttons>
         </ButtonBar>
-          <TextField fx:id="updateIntervalField" layoutX="141.0" layoutY="343.0" prefHeight="27.0" prefWidth="38.0" />
-          <Label layoutX="15.0" layoutY="348.0" text="Update Interval (s)" />
-          <TextArea fx:id="runFileTemplateField2" layoutX="15.0" layoutY="294.0" prefHeight="40.0" prefWidth="383.0" />
+        <TextField fx:id="updateIntervalField" layoutX="141.0" layoutY="343.0" prefHeight="27.0" prefWidth="38.0" />
+        <Label layoutX="15.0" layoutY="348.0" text="Update Interval (s)" />
+        <TextArea fx:id="runFileTemplateField2" layoutX="15.0" layoutY="294.0" prefHeight="40.0" prefWidth="383.0" />
     </children>
 </AnchorPane>
-
