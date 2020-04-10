@@ -138,7 +138,7 @@ __port 8080__. There are currently two servers for iSpiEFP to use and they shoul
   1.1: from the main menu, select File -> Project Structure, and select Artifacts.\
   1.2: click "+", point to JAR, and select From modules with dependencies.\
   1.3: To the right of the Main Class field, click on the folder icon, and select the main class (org.ispiefp.app.Main)\
-  1.4: click Apply at the right bottom and close the dialog.\
+  1.4: click Apply at the right bottom and close the dialog.
 2. Second build the Jar artifact \
   2.1: from the main menu, select Build -> Build Artifacts.\
   2.2: point to the iSpiEFP_GUI.jar and select Build\
