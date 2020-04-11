@@ -9,16 +9,16 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.util.CheckInternetConnection;
+import org.ispiefp.app.visualizer.JmolMainPanel;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +60,13 @@ public class MetaDataSelectorController{
 
     @FXML
     private Button selectButton;
+
+    // the preview panel for FXML
+    @FXML
+    private Pane previewPane;
+
+    // the preview jmol panel
+    private JmolMainPanel jmolPreviewPanel;
 
     public MetaDataSelectorController(){
         fragments = new ArrayList<>();
@@ -199,6 +206,12 @@ public class MetaDataSelectorController{
         SortedList<MetaData> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(fragmentList.comparatorProperty());
         fragmentList.setItems(sortedData);
+
+        // Call previewSelectedFragment to populate the preview window on the right when row selected changed
+        fragmentList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldSelection, newSelection) -> {
+            if (newSelection != null) previewSelectedFragment(fragmentList.getSelectionModel().getSelectedItem());
+        });
+
     }
 
     public void handleSelection(){
@@ -208,5 +221,24 @@ public class MetaDataSelectorController{
         selectedFragment.setEfpFile();
         Stage stage = (Stage) selectButton.getScene().getWindow();
         stage.close();
+    }
+
+    /**
+     * The function will show a preview of the selected fragment with the window on the right of the table view
+     * @param selectedItem the item selected to be displayed
+     */
+    private void previewSelectedFragment(MetaData selectedItem) {
+        System.out.println("Previewing: " + selectedItem.getFragmentName());
+        File xyzFile;
+        try {
+            xyzFile = selectedItem.createTempXYZ();
+            jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
+            jmolPreviewPanel.openFile(xyzFile);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println("Selected fragment NULL");
+        } catch (IOException e) {
+            System.out.println("Can not create XYZ file");
+        }
     }
 }
