@@ -209,7 +209,7 @@ public class MetaDataSelectorController{
 
         // Call previewSelectedFragment to populate the preview window on the right when row selected changed
         fragmentList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldSelection, newSelection) -> {
-            if (newSelection != null) previewSelectedFragment(fragmentList.getSelectionModel().getSelectedItem());
+            if (newSelection != null) previewSelectedFragment(fragmentList.getSelectionModel().getSelectedIndex());
         });
 
     }
@@ -225,13 +225,14 @@ public class MetaDataSelectorController{
 
     /**
      * The function will show a preview of the selected fragment with the window on the right of the table view
-     * @param selectedItem the item selected to be displayed
+     * @param selectedIndex the item selected to be displayed
      */
-    private void previewSelectedFragment(MetaData selectedItem) {
-        System.out.println("Previewing: " + selectedItem.getFragmentName());
+    private void previewSelectedFragment(int selectedIndex) {
+//        System.out.println("Previewing: " + selectedItem.getFragmentName());
         File xyzFile;
         try {
-            xyzFile = selectedItem.createTempXYZ();
+            xyzFile = Main.fragmentTree.getMetaData(
+                    fragmentFromFiles.get(selectedIndex)).createTempXYZ();
             jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
             jmolPreviewPanel.openFile(xyzFile);
         } catch (NullPointerException e) {

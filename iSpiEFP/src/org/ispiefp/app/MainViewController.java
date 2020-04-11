@@ -228,19 +228,31 @@ public class MainViewController {
         stage.setScene(new Scene(fragmentSelector));
         stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         try {
+            System.out.println("Here-3");
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+            System.out.println("Here-2");
         } catch (NullPointerException e) {
             System.out.println("User closed window without selecting a fragment");
             return;
         }
+        System.out.println("Here-1");
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+        System.out.println("Here0");
         if (jmolMainPanel.openFile(xyzFile)) {
+            System.out.println("Here1");
 
             lastOpenedFile = xyzFile.getAbsolutePath();
+            System.out.println("Here2");
             lastOpenedFileName = xyzFile.getName();
+            System.out.println("Here3");
+
+            System.out.println("Here4");
 
             leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+            System.out.println("Here5");
             middleRightSplitPane.setDividerPositions(1, 0);
+            System.out.println("Here6");
+
 
             //reset buttons
             haloButton.setSelected(false);
