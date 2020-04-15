@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
 import org.ispiefp.app.MainViewController;
+import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.server.JobManager;
@@ -34,6 +35,8 @@ import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.io.File;
+
+import static org.ispiefp.app.Main.fragmentTree;
 
 /**
  * Handle all job submission for libEFP package submission
@@ -769,6 +772,22 @@ public class libEFPInputController implements Initializable {
         }
         return sb.toString();
     }
+
+    /**
+     * Method computes the RMSD between each of the fragments in the viewer and each of the fragments in the
+     * local fragment tree
+     * @return a String representing the RMSD
+     */
+//    private String computeRMSD(){
+//        Map<String, String> rmsdMap; /* Will be populated with all efp files that were within 0.5 rmsd. Maps
+//                                        EFPFile to the computed RMSD as a string                            */
+//        for (MetaData md : Main.fragmentTree.getMetaDataIterator()){
+//            try {
+//
+//            }
+//        }
+//       return null;
+//    }
         // Handle SSH case later
 //    /**
 //     * Handle job submission for the efpmd package
