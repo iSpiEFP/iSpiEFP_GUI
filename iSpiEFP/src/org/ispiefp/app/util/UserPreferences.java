@@ -1,6 +1,7 @@
 package org.ispiefp.app.util;
 import org.ispiefp.app.installer.LocalBundleManager;
 
+import java.util.ArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -23,6 +24,11 @@ public class UserPreferences {
     private static final String LIBEFP_PASSWORD_KEY = "libefpPassword";
     private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
     private static final String ENCRYPT_KEY = "encryptionKey";
+
+    //Two variables below will keep track of FIVE most recent files opened, append them to string, and store and get from User Prefs
+    private static final String RECENT_COUNT_KEY = "RECENT_COUNT";
+    private static final String RECENTS_KEY = "RECENT_FILES_CHAIN";
+    //private static ArrayList<String> recentFilesArrList= new ArrayList<String>();
 
     private static String userParameterPath = null;
     private static String pythonPath = null;
@@ -94,6 +100,8 @@ public class UserPreferences {
 
 
         userPrefs.put(ENCRYPT_KEY, secretKey);
+        userPrefs.put(RECENTS_KEY, ""); //Initialize Recent files chain; file stuff zzz
+        userPrefs.put(RECENT_COUNT_KEY, "0");
         /* Gamess Settings Initialization */
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
@@ -105,8 +113,10 @@ public class UserPreferences {
         libefpUsername = userPrefs.get(LIBEFP_USERNAME_KEY, "check");
         libefpPassword = userPrefs.get(LIBEFP_PASSWORD_KEY, "check");
         libefpOutputPath = userPrefs.get(LIBEFP_OUTPUT_KEY, "check");
+
     }
 
+    //This method is used for the encryption key
     public static String generateRandomString(int length) {
         if (length < 1) throw new IllegalArgumentException();
 
@@ -174,6 +184,69 @@ public class UserPreferences {
 
     public static String getLibefpOutputPath(){
         return libefpOutputPath;
+    }
+
+//Recent file stuff
+
+    public static String getRecentFileAggStr() {
+        return userPrefs.get(RECENTS_KEY, "check");
+    }
+
+    public static void appendToRecentFilesStr(String filePath) {
+        String recentFilesChain = userPrefs.get(RECENTS_KEY, "check");
+
+        if (recentFilesChain.equals("check")) {
+            recentFilesChain = "";
+        }
+        if (!incrementRecentFilesCount()) {
+            System.out.println("WAS NOT INCREMENTED");
+            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
+
+            if (!recentFilesChain.equals("")) {
+                recentFilesChain = recentFilesChain.substring(0, recentFilesChain.length() - 2); //remove the last :: at the end
+                //String[] recentFilesArr = recentFilesChain.split("::");
+            }
+            int firstDividerInd = recentFilesChain.indexOf("::");
+            //int lastFilenameInd = recentFilesChain.lastIndexOf("::");
+
+            recentFilesChain = recentFilesChain.substring(firstDividerInd + 2);
+
+            recentFilesChain += filePath + "::";
+
+            userPrefs.put(RECENTS_KEY, recentFilesChain);
+        }
+
+        else {
+            System.out.println("WAS INCREMENTED");
+            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
+            recentFilesChain += filePath + "::";
+            userPrefs.put(RECENTS_KEY, recentFilesChain);
+            System.out.println("END OF APPEND() RECENT_CHAIN: " + userPrefs.get(RECENTS_KEY, recentFilesChain));
+           // userPrefs.put(RECENT_COUNT_KEY, "0");
+        }
+
+    }
+
+    public static String getRecentFilesCount() {
+        return userPrefs.get(RECENT_COUNT_KEY, "check");
+    }
+
+    public static boolean incrementRecentFilesCount() {
+        String recentFilesCountStr = userPrefs.get(RECENT_COUNT_KEY, "check");
+        if (recentFilesCountStr.equals("check")) {
+            recentFilesCountStr = "0";
+        }
+        int recentFilesCount = Integer.parseInt(recentFilesCountStr);
+
+        if (recentFilesCount == 7) {
+            return false;
+        }
+        else {
+            recentFilesCount++;
+            recentFilesCountStr = Integer.toString(recentFilesCount);
+            userPrefs.put(RECENT_COUNT_KEY, recentFilesCountStr);
+            return true;
+        }
     }
 
     public static void setUserParameterPath(String value) {

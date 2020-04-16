@@ -1,11 +1,16 @@
 package org.ispiefp.app;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -26,6 +31,9 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Optional;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -33,6 +41,9 @@ import javax.swing.JPanel;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+
+import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
+import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
 
 public class MainViewController {
 
@@ -49,8 +60,10 @@ public class MainViewController {
     private static String lastOpenedFile = new String();
     private static String lastOpenedFileName = new String();
     private static boolean[] interested_parameters = {false, false, false};
+    private static ProgressIndicator pi = new ProgressIndicator();
+    private static final String FIVE_MOST_RECENT_FILES = "RECENT_FILES";
 
-    private ProgressIndicatorTest pit;
+    private ProgressIndicator pit = new ProgressIndicator();
 
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
 
@@ -111,6 +124,7 @@ public class MainViewController {
     @FXML
     private Button libefpButton;
 
+    private UserPreferences userPrefs = new UserPreferences();
     /**
      * initialize(); is called after @FXML parameters have been loaded in
      * Loading order goes as: Constructor > @FXML > initialize();
@@ -176,13 +190,14 @@ public class MainViewController {
      * @throws UnrecognizedAtomException
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
+       // pit.setProgress(100);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Molecule");
         fileChooser.setInitialDirectory(
                 new File(System.getProperty("user.home"))
         );
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.*"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"  ),
                 new FileChooser.ExtensionFilter("XYZ", "*.xyz"),
                 new FileChooser.ExtensionFilter("PDB", "*.pdb")
         );
@@ -193,7 +208,9 @@ public class MainViewController {
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         if (jmolMainPanel.openFile(file)) {
 
+            //Logic for saving to recent files
             lastOpenedFile = file.getAbsolutePath();
+            appendToRecentFilesStr(lastOpenedFile);
             lastOpenedFileName = file.getName();
 
             leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
@@ -209,8 +226,82 @@ public class MainViewController {
             //TODO refactor the libefp button
             libefpButton.setDisable(true);
         }
+        //pit.setProgress(0);
     }
 
+    public void fileOpenRecent() throws IOException, UnrecognizedAtomException {
+
+        HashMap<String, String> truncedFileMap; //for trunc file implm
+        String recentFileStr = getRecentFileAggStr();
+        String[] rec_files = recentFileStr.split("::");
+        //System.out.println("\nRecent File String: " + recentFileStr + "\n");
+        ObservableList<String> data = FXCollections.observableArrayList();
+
+        ListView<String> listView = new ListView<String>(data);
+        listView.setPrefSize(320, 250);
+        listView.setEditable(true);
+
+//        for (int i = 0; i < rec_files.length; i++) {
+//            data.add(rec_files[i]);
+//        }
+
+
+        //LATER FEATURE: LIST FILES IN TRUNCATED FASHION (ex: ".../EFPfiles/Ch2.xyz")
+//        for (int i = 0; i < rec_files.length; i++) {
+//            String tempRecFile = rec_files[i];
+//            int lastSlash = tempRecFile.lastIndexOf()
+//            String truncRecFile;
+//        }
+
+        //LATER LATER FEATURE: Add tooltip of full path to each entry in ListView after converted to truncated?
+        data.addAll(rec_files);
+
+        Stage s1 = new Stage();
+        StackPane root = new StackPane();
+        root.getChildren().add(listView);
+        s1.setScene(new Scene(root, 200, 250));
+        s1.show();
+
+        //Listener below will open file of selected entry in JMOL
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                System.out.println("OLD VALUE: " + oldValue);
+                System.out.println("NEW VALUE: " + newValue);
+
+                File jmolFile = new File(newValue);
+                jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+
+                try {
+                    if (jmolMainPanel.openFile(jmolFile)) {
+
+
+                        leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+                        middleRightSplitPane.setDividerPositions(1, 0);
+
+                        //reset buttons
+                        haloButton.setSelected(false);
+                        snipButton.setSelected(false);
+                        playPauseButton.setText("");
+                        playPauseButton.setGraphic(new ImageView(play));
+                        playPauseButton.setSelected(false);
+
+                        //TODO refactor the libefp button
+                        libefpButton.setDisable(true);
+                        s1.close();
+                    } //try
+                }
+                catch (IOException e) {
+                    System.out.println("IOException");
+                }
+                catch (Exception e) {
+                    System.out.println("General Exception");
+                }
+            }
+        });
+
+    }
     @FXML
     /**
      * Opens a new stage for selecting a fragment from those contained within the fragmentTree
@@ -223,7 +314,14 @@ public class MainViewController {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
-        stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+
+        try {
+            stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        }
+        catch (Exception e) {
+            System.err.println("FRAGMENT MAIN VIEW ERROR");
+        }
+
         try {
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
         } catch (NullPointerException e){
@@ -254,8 +352,15 @@ public class MainViewController {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Settings");
         stage.setScene(new Scene(fragmentSelector));
-        stage.showAndWait();
+
+        try {
+            stage.showAndWait();
+        }
+        catch (Exception e) {
+            System.err.println("SHOW AND WAIT ERROR IN MAIN");
+        }
     }
+
 
     public void selectFragment() throws IOException{
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
@@ -284,10 +389,22 @@ public class MainViewController {
 
     @FXML
     public void fileExit() throws IOException {
-        System.out.println("Stage is closing");
-        Main.getPrimaryStage().close();
-        System.exit(0);
-        //TODO: add pop-up message, "Are you sure?"
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exit iSpiEFP");
+        alert.setHeaderText("Confirm Exit");
+        alert.setContentText("Are you sure you want to exit?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            // ... user chose OK
+            System.out.println("Stage is closing");
+            Main.getPrimaryStage().close();
+            System.exit(0);
+        } else {
+            // ... user chose CANCEL or closed the dialog
+            System.out.println("User cancelled. Stage not closing");
+        }
     }
 
     /******************************************************************************************
@@ -301,7 +418,7 @@ public class MainViewController {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Libefp Input");
         stage.setScene(new Scene(libEFPInput));
-        pit.fire();
+        pit.setProgress(100);
         stage.show();
 
     }
@@ -327,7 +444,7 @@ public class MainViewController {
                 "by the Slipchenko Research Group at Purdue University. iSpiEFP comes complete with a public database full of " +
                 "EFP Parameter files, and missing parameters can be calculated using Gamess. This application serves as a " +
                 "job-workflow manager which binds different technologies into one single application that allows chemists " +
-                "to point and click while utilizing high performance computing.");
+                "to point and click while utilizing high performance computing. iSpiEFP is under the LGPL 2.1 license");
         a1.showAndWait();
 
     }
@@ -475,6 +592,7 @@ public class MainViewController {
             public void calculateLibefpSetup () throws IOException {
                 //TODO This should open up the libefp setup page
                 //This is currently disabled in the fxml doc since it is not currently operational
+
 
             }
 
