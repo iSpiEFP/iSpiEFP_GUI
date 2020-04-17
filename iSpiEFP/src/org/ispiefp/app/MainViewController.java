@@ -491,7 +491,7 @@ public class MainViewController {
         //libEFPSubmissionLoader.setController(libEFPCont);
         libEFPCont.setJmolViewer(jmolMainPanel.viewer);
         libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
-        libEFPCont.setEfpFiles(getFragmentEFPFiles());
+        //libEFPCont.setEfpFiles(getFragmentEFPFiles());
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");

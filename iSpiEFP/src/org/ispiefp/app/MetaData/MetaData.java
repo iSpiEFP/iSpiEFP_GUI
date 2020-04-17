@@ -482,4 +482,12 @@ public class MetaData {
     public File getEfpFile() {
         return efpFile;
     }
+
+    /**
+     *
+     * @return
+     */
+    public String getChemFormula(){
+
+    }
 }
