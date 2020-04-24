@@ -63,7 +63,7 @@ public class UserPreferences {
     private static Preferences userPrefs;
 
     public UserPreferences() {
-        userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
+            userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
     }
 
     /**
@@ -188,29 +188,59 @@ public class UserPreferences {
 
 //Recent file stuff
 
+    //Gets aggregate list of recent files as string from user prefs
     public static String getRecentFileAggStr() {
         return userPrefs.get(RECENTS_KEY, "check");
     }
 
+    //adds a file to the recent file list
+    //File names in string are separated by "::" for later splitting
     public static void appendToRecentFilesStr(String filePath) {
         String recentFilesChain = userPrefs.get(RECENTS_KEY, "check");
 
         if (recentFilesChain.equals("check")) {
             recentFilesChain = "";
         }
+
+        /*
+           If the file chain already contains the path specified, take the path out from its
+           initial spot in the list and put it at the front of the string (top of the listview), since it's now
+           the most recent.
+         */
+
+        if (recentFilesChain.contains(filePath)) {
+            System.out.println("File chain before: " + filePath);
+            String updFilePath = filePath + "::";
+            int filePathInd = recentFilesChain.indexOf(updFilePath);
+            String frontOfChain = recentFilesChain.substring(0, filePathInd);
+            String backOfChain = recentFilesChain.substring(filePathInd + updFilePath.length());
+
+            System.out.println("Chain front: " + frontOfChain);
+            System.out.println("Chain back: " + backOfChain);
+
+            String updatedChain =  frontOfChain + backOfChain + filePath + "::";
+            System.out.println("File chain after: " + updatedChain);
+            userPrefs.put(RECENTS_KEY, updatedChain);
+            return;
+        }
+
+        //If the file count was not incremented, that means the file list is fully populated
+        //Since it's fully populated, remove the first in the chain (the oldest)
         if (!incrementRecentFilesCount()) {
             System.out.println("WAS NOT INCREMENTED");
             System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
 
-            if (!recentFilesChain.equals("")) {
-                recentFilesChain = recentFilesChain.substring(0, recentFilesChain.length() - 2); //remove the last :: at the end
-                //String[] recentFilesArr = recentFilesChain.split("::");
-            }
+//            if (!recentFilesChain.equals("")) {
+//                recentFilesChain = recentFilesChain.substring(0, recentFilesChain.length() - 2); //remove the last :: at the end
+//                //String[] recentFilesArr = recentFilesChain.split("::");
+//            }
             int firstDividerInd = recentFilesChain.indexOf("::");
             //int lastFilenameInd = recentFilesChain.lastIndexOf("::");
 
+            //Cutting off the first one in the chain (the oldest)
             recentFilesChain = recentFilesChain.substring(firstDividerInd + 2);
 
+            //Adding the new one to the end of the chain with the divider
             recentFilesChain += filePath + "::";
 
             userPrefs.put(RECENTS_KEY, recentFilesChain);
@@ -221,7 +251,7 @@ public class UserPreferences {
             System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
             recentFilesChain += filePath + "::";
             userPrefs.put(RECENTS_KEY, recentFilesChain);
-            System.out.println("END OF APPEND() RECENT_CHAIN: " + userPrefs.get(RECENTS_KEY, recentFilesChain));
+            System.out.println("END OF APPEND() RECENT_CHAIN: " + recentFilesChain);
            // userPrefs.put(RECENT_COUNT_KEY, "0");
         }
 

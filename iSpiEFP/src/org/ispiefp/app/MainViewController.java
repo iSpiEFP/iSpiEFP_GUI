@@ -32,8 +32,10 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -124,7 +126,11 @@ public class MainViewController {
     @FXML
     private Button libefpButton;
 
+    @FXML
+    private MenuItem openRecentMenuItem;
+
     private UserPreferences userPrefs = new UserPreferences();
+
     /**
      * initialize(); is called after @FXML parameters have been loaded in
      * Loading order goes as: Constructor > @FXML > initialize();
@@ -153,6 +159,14 @@ public class MainViewController {
 
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
         middleRightSplitPane.setDividerPositions(1, 0);
+
+        //TODO: Fix up, not totally correct
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem item1 = new MenuItem("Menu Item 1");
+        MenuItem item2 = new MenuItem("Menu Item 2");
+        contextMenu.getItems().addAll(item1, item2);
+
+       // openRecentMenuItem.setContextMenu
 
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
@@ -226,24 +240,30 @@ public class MainViewController {
             //TODO refactor the libefp button
             libefpButton.setDisable(true);
         }
+
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("File Does Not Exist");
+            alert.setContentText("We couldn't find the file you wanted. Try checking if the path is correct.");
+
+            alert.showAndWait();
+        }
         //pit.setProgress(0);
     }
 
     public void fileOpenRecent() throws IOException, UnrecognizedAtomException {
-
+        //TODO: Make it like a arrow dropdown (add context menu to this button)
         HashMap<String, String> truncedFileMap; //for trunc file implm
         String recentFileStr = getRecentFileAggStr();
         String[] rec_files = recentFileStr.split("::");
         //System.out.println("\nRecent File String: " + recentFileStr + "\n");
         ObservableList<String> data = FXCollections.observableArrayList();
 
+        //Collections.reverse(data);
         ListView<String> listView = new ListView<String>(data);
-        listView.setPrefSize(320, 250);
+        listView.setPrefSize(1000, 250);
         listView.setEditable(true);
-
-//        for (int i = 0; i < rec_files.length; i++) {
-//            data.add(rec_files[i]);
-//        }
 
 
         //LATER FEATURE: LIST FILES IN TRUNCATED FASHION (ex: ".../EFPfiles/Ch2.xyz")
@@ -255,11 +275,12 @@ public class MainViewController {
 
         //LATER LATER FEATURE: Add tooltip of full path to each entry in ListView after converted to truncated?
         data.addAll(rec_files);
+        Collections.reverse(data);
 
         Stage s1 = new Stage();
         StackPane root = new StackPane();
         root.getChildren().add(listView);
-        s1.setScene(new Scene(root, 200, 250));
+        s1.setScene(new Scene(root, 450, 250));
         s1.show();
 
         //Listener below will open file of selected entry in JMOL
@@ -267,8 +288,8 @@ public class MainViewController {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println("OLD VALUE: " + oldValue);
-                System.out.println("NEW VALUE: " + newValue);
+//                System.out.println("OLD VALUE: " + oldValue);
+//                System.out.println("NEW VALUE: " + newValue);
 
                 File jmolFile = new File(newValue);
                 jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
@@ -291,6 +312,14 @@ public class MainViewController {
                         libefpButton.setDisable(true);
                         s1.close();
                     } //try
+                    else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("File Does Not Exist");
+                        alert.setContentText("We couldn't find the file you wanted. Try checking if the path is correct.");
+
+                        alert.showAndWait();
+                    }
                 }
                 catch (IOException e) {
                     System.out.println("IOException");
@@ -300,6 +329,7 @@ public class MainViewController {
                 }
             }
         });
+
 
     }
     @FXML
