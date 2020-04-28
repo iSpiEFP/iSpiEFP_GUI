@@ -433,7 +433,7 @@ public class MetaData {
      * creating the XYZ file. Method is useful for libEFPInputController which requires coordinates as Strings
      * @return the above
      */
-    public String getXYZCoords(){
+    public String getXYZCoords() {
         StringBuilder sb = new StringBuilder();
         double numAngstromsInBohr = 0.52918;
             //Write the coordinates of each atom to the file

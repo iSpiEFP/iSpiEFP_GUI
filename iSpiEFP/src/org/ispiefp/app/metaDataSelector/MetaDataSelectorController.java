@@ -1,10 +1,12 @@
 package org.ispiefp.app.metaDataSelector;
 
+import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.collections.transformation.FilteredList;
@@ -12,7 +14,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.MainViewController;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.util.CheckInternetConnection;
 import org.ispiefp.app.visualizer.JmolMainPanel;
@@ -27,9 +31,11 @@ public class MetaDataSelectorController{
     private List<String> fragmentFromFiles;
     private ObservableList<MetaData> fragmentObservableList = FXCollections.observableArrayList();
     private MetaData selectedFragment;
+    private Stage currentStage;
+    private MainViewController mainViewController;
 
     @FXML
-    private Parent root;
+    private AnchorPane root;
 
     @FXML
     private TableView<MetaData> fragmentList;
@@ -83,6 +89,11 @@ public class MetaDataSelectorController{
             fragmentObservableList.add(md);
         }
 
+    }
+
+    public void setData(Stage currentStage, MainViewController mainViewController) {
+        this.currentStage = currentStage;
+        this.mainViewController = mainViewController;
     }
 
     /**
@@ -208,37 +219,45 @@ public class MetaDataSelectorController{
         fragmentList.setItems(sortedData);
 
         // Call previewSelectedFragment to populate the preview window on the right when row selected changed
+        selectButton.setOnAction(event -> handleSelection());
+
+        // Create the jmolMainPanel, solved the hanging issue
+        jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
+
         fragmentList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldSelection, newSelection) -> {
-            if (newSelection != null) previewSelectedFragment(fragmentList.getSelectionModel().getSelectedIndex());
+            if (newSelection != null) previewSelectedFragment(fragmentList.getSelectionModel().getSelectedItem());
         });
 
     }
 
-    public void handleSelection(){
-        MetaData selectedFragment = Main.fragmentTree.getMetaData(
-                fragmentFromFiles.get(fragmentList.getSelectionModel().getSelectedIndex()));
+    public void handleSelection() {
+        selectedFragment = Main.fragmentTree.
+                getMetaData(fragmentFromFiles.get(fragmentList.getSelectionModel().getSelectedIndex()));
         Main.fragmentTree.setSelectedFragment(selectedFragment);
         selectedFragment.setEfpFile();
-        Stage stage = (Stage) selectButton.getScene().getWindow();
-        stage.close();
+
+        root.getChildren().clear();
+        currentStage.close();
     }
+
 
     /**
      * The function will show a preview of the selected fragment with the window on the right of the table view
-     * @param selectedIndex the item selected to be displayed
+     * Appears to have issue when previewing a bunch and selecting
+     * @param selectedItem the item selected to be displayed
      */
-    private void previewSelectedFragment(int selectedIndex) {
-//        System.out.println("Previewing: " + selectedItem.getFragmentName());
+    private void previewSelectedFragment(MetaData selectedItem) {
         File xyzFile;
         try {
-            xyzFile = Main.fragmentTree.getMetaData(
-                    fragmentFromFiles.get(selectedIndex)).createTempXYZ();
-            jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
+            xyzFile = selectedItem.createTempXYZ();
+            jmolPreviewPanel.removeAll();
             jmolPreviewPanel.openFile(xyzFile);
+            xyzFile.delete();
         } catch (NullPointerException e) {
             e.printStackTrace();
             System.out.println("Selected fragment NULL");
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.println("Can not create XYZ file");
         }
     }

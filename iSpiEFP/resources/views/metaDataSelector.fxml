@@ -43,6 +43,7 @@
         </VBox>
     </GridPane>
     <HBox alignment="BOTTOM_RIGHT" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.leftAnchor="10">
-        <Button fx:id="selectButton" mnemonicParsing="false" onAction="#handleSelection" text="Select Fragment"/>
+<!--        <Button fx:id="selectButton" mnemonicParsing="false" onAction="#handleSelection" text="Select Fragment"/>-->
+        <Button fx:id="selectButton" mnemonicParsing="false" text="Select Fragment"/>
     </HBox>
 </AnchorPane>
