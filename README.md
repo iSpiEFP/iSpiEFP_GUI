@@ -31,14 +31,14 @@ ___
 
 ## Developer Notes
 ### Technologies/Software Used
-1. Java JDK 8 (Mine is Java version - 1.8.0_101)
+1. Java JDK 8
 2. JavaFX -  a software platform for creating and delivering desktop applications, as well as rich Internet applications (RIAs) that can run across a wide variety of devices. JavaFX is intended to replace Swing as the standard GUI library for Java SE, but both will be included for the foreseeable future. JavaFX is supported up through SDK version 10. If the compiler has trouble recognizing JavaFX, go to File > Project Structure > Project and make sure that the SDK version and Project Language Level match.  If you are using JDK 11 or greater, you may have to install JavaFX manually. You can download it here: https://gluonhq.com/products/javafx/ 
 3. SceneBuilder – for visualizing fxml files (UI files of the application). Download it from here – (http://gluonhq.com/products/scene-builder/). For a SceneBuilder tutorial visit: http://code.makery.ch/library/javafx-8-tutorial
 4. Jmol Jar File (used for visualizing the molecules within the application), see *Chemistry Technologies*.
 5. Gson - Gson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java Object.
 6. JUnit4 - JUnit is a widely used library for creating unit tests for Java programs. Unit tests are intended to test the functionality of individual classes rather than test their interaction. It is expected that if you create a new class, you also implement unit tests for that class. To learn how to write unit tests visit this page: https://www.vogella.com/tutorials/JUnit/article.html
 ### Setup
-Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capable of integrating with javaFX, sceneBuilder, and github. So choose whichever you would like to use.
+The iSpiEFP team strongly recommends using IntelliJ IDEA as your choice of IDE for the project. Other IDEs like Eclipse are serviceable but can be clunky and don't have as much of the functionality that makes working on the project easier. However, we have setup documentation for both below.
 
 #### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8 - this doc last updated: 10/1/19) 
 1. **Git Clone** - Clone the repository on your local machine to a directory of your choice
