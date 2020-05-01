@@ -218,11 +218,11 @@ public class MetaDataSelectorController{
         sortedData.comparatorProperty().bind(fragmentList.comparatorProperty());
         fragmentList.setItems(sortedData);
 
-        // Call previewSelectedFragment to populate the preview window on the right when row selected changed
-        selectButton.setOnAction(event -> handleSelection());
-
         // Create the jmolMainPanel, solved the hanging issue
         jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
+
+        // Call previewSelectedFragment to populate the preview window on the right when row selected changed
+        selectButton.setOnAction(event -> handleSelection());
 
         fragmentList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldSelection, newSelection) -> {
             if (newSelection != null) previewSelectedFragment(fragmentList.getSelectionModel().getSelectedItem());
@@ -236,7 +236,9 @@ public class MetaDataSelectorController{
         Main.fragmentTree.setSelectedFragment(selectedFragment);
         selectedFragment.setEfpFile();
 
-        root.getChildren().clear();
+//        root.getChildren().clear();
+//            ^^^ Statement to clear the screen if needed, appears to work without
+
         currentStage.close();
     }
 
@@ -250,7 +252,10 @@ public class MetaDataSelectorController{
         File xyzFile;
         try {
             xyzFile = selectedItem.createTempXYZ();
-            jmolPreviewPanel.removeAll();
+
+//            jmolPreviewPanel.removeAll();
+//            ^^^ Statement to clear the panel if needed, appears to work without
+
             jmolPreviewPanel.openFile(xyzFile);
             xyzFile.delete();
         } catch (NullPointerException e) {

@@ -232,6 +232,7 @@ public class MainViewController {
 
         stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
+
         try {
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
 
