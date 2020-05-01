@@ -112,6 +112,9 @@ public class MainViewController {
     @FXML
     private Button libefpButton;
 
+    @FXML
+    private Menu recentMenu;
+
     /**
      * initialize(); is called after @FXML parameters have been loaded in
      * Loading order goes as: Constructor > @FXML > initialize();
