@@ -32,7 +32,6 @@ public class MetaDataSelectorController{
     private ObservableList<MetaData> fragmentObservableList = FXCollections.observableArrayList();
     private MetaData selectedFragment;
     private Stage currentStage;
-    private MainViewController mainViewController;
 
     @FXML
     private AnchorPane root;
@@ -91,9 +90,8 @@ public class MetaDataSelectorController{
 
     }
 
-    public void setData(Stage currentStage, MainViewController mainViewController) {
+    public void setData(Stage currentStage) {
         this.currentStage = currentStage;
-        this.mainViewController = mainViewController;
     }
 
     /**

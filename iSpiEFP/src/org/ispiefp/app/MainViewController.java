@@ -227,7 +227,7 @@ public class MainViewController {
         Parent fragmentSelector = loader.load();
 
         MetaDataSelectorController metaDataSelectorController = loader.getController();
-        metaDataSelectorController.setData(stage, this);
+        metaDataSelectorController.setData(stage);
 
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
