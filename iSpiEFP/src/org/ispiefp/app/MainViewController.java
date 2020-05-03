@@ -10,11 +10,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 import org.ispiefp.app.libEFP.libEFPInputController;
+import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.util.*;
-import org.jmol.viewer.Viewer;
-import org.openscience.jmol.app.Jmol;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
@@ -113,6 +111,9 @@ public class MainViewController {
 
     @FXML
     private Button libefpButton;
+
+    @FXML
+    private Menu recentMenu;
 
     /**
      * initialize(); is called after @FXML parameters have been loaded in
@@ -220,34 +221,44 @@ public class MainViewController {
      * which has been built. Then hands off control to the MetaDataSelectorController
      */
     public void fragmentOpen() throws IOException {
-        File xyzFile;
-        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/metaDataSelector.fxml"));
         Stage stage = new Stage();
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/metaDataSelector.fxml"));
+        Parent fragmentSelector = loader.load();
+
+        MetaDataSelectorController metaDataSelectorController = loader.getController();
+        metaDataSelectorController.setData(stage);
+
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
+
         stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        File xyzFile;
+
         try {
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
+
+//            Do not need to create a new panel every time, this actually causes issue
+//            jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+
+            if (jmolMainPanel.openFile(xyzFile)) {
+
+                lastOpenedFile = xyzFile.getAbsolutePath();
+                lastOpenedFileName = xyzFile.getName();
+
+                leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+                middleRightSplitPane.setDividerPositions(1, 0);
+
+                //reset buttons
+                haloButton.setSelected(false);
+                snipButton.setSelected(false);
+                playPauseButton.setText("");
+                playPauseButton.setGraphic(new ImageView(play));
+                playPauseButton.setSelected(false);
+            }
         } catch (NullPointerException e) {
             System.out.println("User closed window without selecting a fragment");
-            return;
-        }
-        jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
-        if (jmolMainPanel.openFile(xyzFile)) {
-
-            lastOpenedFile = xyzFile.getAbsolutePath();
-            lastOpenedFileName = xyzFile.getName();
-
-            leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
-            middleRightSplitPane.setDividerPositions(1, 0);
-
-            //reset buttons
-            haloButton.setSelected(false);
-            snipButton.setSelected(false);
-            playPauseButton.setText("");
-            playPauseButton.setGraphic(new ImageView(play));
-            playPauseButton.setSelected(false);
         }
     }
 
