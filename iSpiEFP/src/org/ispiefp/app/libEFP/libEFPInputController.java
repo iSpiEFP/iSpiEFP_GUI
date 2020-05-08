@@ -536,8 +536,7 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-//        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-        ServerDetails selectedServer = server.getText();
+        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
         if (selectedServer.getServerType().equalsIgnoreCase("local"))
             submitJobToLocalServer(selectedServer);
         else {
