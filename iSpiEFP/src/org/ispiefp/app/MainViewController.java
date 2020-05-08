@@ -22,7 +22,6 @@ import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 import org.ispiefp.app.visualizer.JmolPanel;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -229,7 +228,7 @@ public class MainViewController {
         stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         try {
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException e){
             System.out.println("User closed window without selecting a fragment");
             return;
         }
@@ -251,7 +250,7 @@ public class MainViewController {
         }
     }
 
-    public void openSettings() throws IOException {
+    public void openSettings() throws IOException{
         Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
@@ -260,21 +259,22 @@ public class MainViewController {
         stage.showAndWait();
     }
 
-    public void selectFragment() throws IOException {
+    public void selectFragment() throws IOException{
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
                 "You will only be able to select from " +
                 "fragments whose parameters are contained within your user parameters directory.";
-        if (!VerifyPython.isValidPython()) {
+        if (!VerifyPython.isValidPython()){
             VerifyPython.raisePythonError();
             return;
         }
-        if (!CheckInternetConnection.checkInternetConnection()) {
+        if (!CheckInternetConnection.checkInternetConnection()){
             Alert alert = new Alert(Alert.AlertType.WARNING,
                     noInternetWarning,
                     ButtonType.OK);
             alert.showAndWait();
             fragmentOpen();
-        } else fragmentOpen();
+        }
+        else fragmentOpen();
     }
 
     /**
@@ -491,15 +491,15 @@ public class MainViewController {
         //libEFPSubmissionLoader.setController(libEFPCont);
         libEFPCont.setJmolViewer(jmolMainPanel.viewer);
         libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
-        //libEFPCont.setEfpFiles(getFragmentEFPFiles());
+        libEFPCont.setEfpFiles(getFragmentEFPFiles());
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(libEFPSubmissionParent));
         stage.showAndWait();
-                /* Implementation currently assumes that the fragment obtained from select fragment has not been
-                modified in any way. //TODO Make this general
-                 */
+        /* Implementation currently assumes that the fragment obtained from select fragment has not been
+        modified in any way. //TODO Make this general
+         */
     }
 
     //TODO: This method should later return EFPFiles for every fragment in the viewer
@@ -510,7 +510,7 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateLibefpHistory() throws IOException {
+    public void calculateLibefpHistory () throws IOException {
         LoginForm loginForm = new LoginForm("LIBEFP");
         boolean authorized = loginForm.authenticate();
         if (authorized) {
@@ -534,14 +534,14 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateGamessSetup() throws IOException {
+    public void calculateGamessSetup () throws IOException {
         //TODO this should open the gamess setup page
         //This is currently disabled in the fxml doc since it is not currently operational
 
     }
 
     @FXML
-    public void calculateGamessHistory() throws IOException {
+    public void calculateGamessHistory () throws IOException {
         LoginForm loginForm = new LoginForm("GAMESS");
         boolean authorized = loginForm.authenticate();
         if (authorized) {
@@ -566,7 +566,7 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateEditServers() throws IOException {
+    public void calculateEditServers () throws IOException {
         Parent serversList = FXMLLoader.load(getClass().getResource("/views/ServersList.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
@@ -579,23 +579,23 @@ public class MainViewController {
      *             HELP MENU BEGINS                                                           *
      ******************************************************************************************/
     @FXML
-    public void helpCheckForUpdates() throws IOException {
+    public void helpCheckForUpdates () throws IOException {
         //TODO
         //This is currently disabled in the fxml doc since it is not currently operational
     }
 
     @FXML
-    public void helpAbout() throws IOException {
+    public void helpAbout () throws IOException {
         Main.hostServices.showDocument("https://www.chem.purdue.edu/Slipchenko/");
     }
 
     @FXML
-    public void helpJmolWiki() throws IOException {
+    public void helpJmolWiki () throws IOException {
         Main.hostServices.showDocument("http://jmol.sourceforge.net/");
     }
 
     @FXML
-    public void helpJmolConsole() throws IOException {
+    public void helpJmolConsole () throws IOException {
         //create window for console
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JFrame consoleFrame = new JFrame();
@@ -626,27 +626,27 @@ public class MainViewController {
         });
     }
 
-    /*
-    @FXML
-    public void openLibEFPWindow() throws IOException {
-        Parent libEFPInput = FXMLLoader.load(getClass().getResource("views/libEFP.fxml"));
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.setTitle("Libefp Input");
-        stage.setScene(new Scene(libEFPInput));
-        stage.show();
-    }*/
+/*
+@FXML
+public void openLibEFPWindow() throws IOException {
+Parent libEFPInput = FXMLLoader.load(getClass().getResource("views/libEFP.fxml"));
+Stage stage = new Stage();
+stage.initModality(Modality.WINDOW_MODAL);
+stage.setTitle("Libefp Input");
+stage.setScene(new Scene(libEFPInput));
+stage.show();
+}*/
 
-    /*
-    @FXML
-    public void openGamessWindow() throws IOException {
-        Parent gamessInput = FXMLLoader.load(getClass().getResource("views/gamessInput.fxml"));
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.setTitle("Gamess Input");
-        stage.setScene(new Scene(gamessInput));
-        stage.show();
-    }*/
+/*
+@FXML
+public void openGamessWindow() throws IOException {
+Parent gamessInput = FXMLLoader.load(getClass().getResource("views/gamessInput.fxml"));
+Stage stage = new Stage();
+stage.initModality(Modality.WINDOW_MODAL);
+stage.setTitle("Gamess Input");
+stage.setScene(new Scene(gamessInput));
+stage.show();
+}*/
 
     /******************************************************************************************
      *             ICON BUTTON HANDLER SECTION BEGINS
@@ -660,7 +660,7 @@ public class MainViewController {
      * Handle Selection Toggle Button. Select all atoms and highlight
      */
     @FXML
-    public void toggleSelection() {
+    public void toggleSelection () {
         if (selectionButton.isSelected()) {
             jmolMainPanel.viewer.runScript("selectionHalos on");
             jmolMainPanel.viewer.runScript("select all");
@@ -676,7 +676,7 @@ public class MainViewController {
      * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
      */
     @FXML
-    public void toggleHalo() {
+    public void toggleHalo () {
         if (haloButton.isSelected()) {
             System.out.println("on");
             jmolMainPanel.viewer.runScript("selectionHalos on");
@@ -692,7 +692,7 @@ public class MainViewController {
      * Handle Snip Button. Turn on and off ability to fragment molecules by clicking on bonds
      */
     @FXML
-    public void toggleSnip() {
+    public void toggleSnip () {
         if (snipButton.isSelected()) {
             jmolMainPanel.viewer.runScript("set bondpicking true");
             jmolMainPanel.viewer.runScript("set picking deletebond");

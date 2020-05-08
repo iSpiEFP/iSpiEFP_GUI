@@ -16,7 +16,7 @@ import java.util.Map;
 // are the ones controlling the URL (by owning the repository)
 
 public class GithubRequester {
-    private final String GITHUB_FRAGMENT_REPO = "https://raw.githubusercontent.com/rderue/efp_parameters/master/";    /* Prefix to URL    */
+    private final String GITHUB_FRAGMENT_REPO = "https://raw.githubusercontent.com/iSpiEFP/EFP_parameters/master/";    /* Prefix to URL    */
     private String fileName = null;                             /* Filename to append to the prefix to complete URL */
     private URL gitURL = null;                                  /* URL created w/ the conjunction of above Strings  */
     private HttpURLConnection gitConnection = null;             /* Connection opened using the above URL            */
