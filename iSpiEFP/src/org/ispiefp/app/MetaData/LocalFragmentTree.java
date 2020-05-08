@@ -12,7 +12,8 @@ public class LocalFragmentTree {
     public LocalFragmentTree() {
         frag_tree = new TreeMap<>();
         selectedFragment = null;
-        metaHandler = new MetaHandler(LocalBundleManager.MASTER_META_FILE);
+//        metaHandler = new MetaHandler(LocalBundleManager.MASTER_META_FILE);
+        metaHandler = new MetaHandler();
         MetaData[] metaDataArray = metaHandler.getMetaFile().getMetaDataObjects();
         System.out.println(LocalBundleManager.MASTER_META_FILE);
 

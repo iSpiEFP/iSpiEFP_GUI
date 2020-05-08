@@ -7,6 +7,10 @@ import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 /* This class is essentially a wrapper for extracting all of the fields from a JSON String          */
 public class MetaData {
@@ -481,5 +485,37 @@ public class MetaData {
      */
     public File getEfpFile() {
         return efpFile;
+    }
+
+    /**
+     * Gets the chemical formula for a metaData object. The atoms and their numbers are listed in alphabetical order
+     * according to their atomic string
+     * @return The chemical formula as a string in the form <atom1><numAtom1><atom2><numAtom2>...
+     */
+    public String getChemFormula(){
+        HashMap<String, Integer> atomTypeMap = new HashMap<>();
+        PriorityQueue<String> pq = new PriorityQueue<>();
+        for (int i = 0; i < coordinates.length; i++){
+            String atomName = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
+            if (atomName.startsWith("B")) continue;
+            else atomName = atomName.substring(1);
+            if (atomTypeMap.containsKey(atomName)){
+                atomTypeMap.put(atomName, atomTypeMap.get(atomName) + 1);
+            }
+            else atomTypeMap.put(atomName, 1);
+        }
+        Iterator<String> keysItr = atomTypeMap.keySet().iterator();
+        while (keysItr.hasNext()){
+            StringBuilder sb = new StringBuilder();
+            String key = keysItr.next();
+            sb.append(key);
+            sb.append(atomTypeMap.get(key));
+            pq.add(sb.toString());
+        }
+        String returnString = "";
+        while (!pq.isEmpty()){
+            returnString += pq.poll();
+        }
+        return returnString;
     }
 }

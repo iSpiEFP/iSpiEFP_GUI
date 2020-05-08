@@ -31,6 +31,7 @@ public class VerifyPython {
         try{
             Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
             BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            /* p.getInputStream() is a strange function which also returns the output stream, see API */
             BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String s1 = "";
             String s2 = "";
