@@ -1,24 +1,28 @@
 package org.ispiefp.app.metaDataSelector;
 
+import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.MainViewController;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.util.CheckInternetConnection;
+import org.ispiefp.app.visualizer.JmolMainPanel;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,9 +31,10 @@ public class MetaDataSelectorController{
     private List<String> fragmentFromFiles;
     private ObservableList<MetaData> fragmentObservableList = FXCollections.observableArrayList();
     private MetaData selectedFragment;
+    private Stage currentStage;
 
     @FXML
-    private Parent root;
+    private AnchorPane root;
 
     @FXML
     private TableView<MetaData> fragmentList;
@@ -61,6 +66,13 @@ public class MetaDataSelectorController{
     @FXML
     private Button selectButton;
 
+    // the preview panel for FXML
+    @FXML
+    private Pane previewPane;
+
+    // the preview jmol panel
+    private JmolMainPanel jmolPreviewPanel;
+
     public MetaDataSelectorController(){
         fragments = new ArrayList<>();
         fragmentFromFiles = new ArrayList<>();
@@ -76,6 +88,10 @@ public class MetaDataSelectorController{
             fragmentObservableList.add(md);
         }
 
+    }
+
+    public void setData(Stage currentStage) {
+        this.currentStage = currentStage;
     }
 
     /**
@@ -199,14 +215,53 @@ public class MetaDataSelectorController{
         SortedList<MetaData> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(fragmentList.comparatorProperty());
         fragmentList.setItems(sortedData);
+
+        // Create the jmolMainPanel, solved the hanging issue
+        jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
+
+        // Call previewSelectedFragment to populate the preview window on the right when row selected changed
+        selectButton.setOnAction(event -> handleSelection());
+
+        fragmentList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldSelection, newSelection) -> {
+            if (newSelection != null) previewSelectedFragment(fragmentList.getSelectionModel().getSelectedItem());
+        });
+
     }
 
-    public void handleSelection(){
-        MetaData selectedFragment = Main.fragmentTree.getMetaData(
-                fragmentFromFiles.get(fragmentList.getSelectionModel().getSelectedIndex()));
+    public void handleSelection() {
+        selectedFragment = Main.fragmentTree.
+                getMetaData(fragmentFromFiles.get(fragmentList.getSelectionModel().getSelectedIndex()));
         Main.fragmentTree.setSelectedFragment(selectedFragment);
         selectedFragment.setEfpFile();
-        Stage stage = (Stage) selectButton.getScene().getWindow();
-        stage.close();
+
+//        root.getChildren().clear();
+//            ^^^ Statement to clear the screen if needed, appears to work without
+
+        currentStage.close();
+    }
+
+
+    /**
+     * The function will show a preview of the selected fragment with the window on the right of the table view
+     * Appears to have issue when previewing a bunch and selecting
+     * @param selectedItem the item selected to be displayed
+     */
+    private void previewSelectedFragment(MetaData selectedItem) {
+        File xyzFile;
+        try {
+            xyzFile = selectedItem.createTempXYZ();
+
+//            jmolPreviewPanel.removeAll();
+//            ^^^ Statement to clear the panel if needed, appears to work without
+
+            jmolPreviewPanel.openFile(xyzFile);
+            xyzFile.delete();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println("Selected fragment NULL");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Can not create XYZ file");
+        }
     }
 }
