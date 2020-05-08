@@ -310,33 +310,7 @@ public class libEFPInputController implements Initializable {
 
         }
 
-
-//		basis.setItems(FXCollections.observableList(basisTypes));
-//		basis.setValue("6-31G(d)");
-
-        // TODO : Make both charge and multiplicity fields accept only Numbers
-        // Initializing Charge textField
-
-
-        // Initializing Multiplicity textField
-//		multiplicity.setText("1");
-//		multiplicity.textProperty().addListener((observable, oldValue, newValue) -> {
-//			// force the field to be numeric only
-//            if (!newValue.matches("^[1-9]\\d*$")) {
-//                multiplicity.setText("");
-//            }
-//		    try {
-//				updateQChemInputText();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
-
-        // Initializing Format ComboBox
-
-
-        // Initializing qChemInputTextArea
+        // Initializing libEFPInputTextArea
         try {
             libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
             libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
@@ -459,9 +433,15 @@ public class libEFPInputController implements Initializable {
     }
 
 
-    public void setEfpFiles(ArrayList<File> efpFiles){
+    public void initEfpFiles(){
+        ArrayList<File> efpFiles = new ArrayList<>();
         for (int i = 0; i < viewerFragments.size(); i++) {
             Map<String, String> fragmentMetas = viewerFragmentMap.get(i);
+            System.out.printf("viewerFragmentMap has size %d%n", viewerFragmentMap.size());
+            Iterator<String> fragIterator = fragmentMetas.keySet().iterator();
+            while (fragIterator.hasNext()){
+                System.out.println("Found a fragment named " + fragIterator.next() + " in a match");
+            }
             if (fragmentMetas.keySet().size() > 0) {
                 String metaDataName = (String) fragmentMetas.keySet().toArray()[0];
                 System.out.println("Got this to be " + metaDataName);
@@ -556,7 +536,8 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
+//        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
+        ServerDetails selectedServer = server.getText();
         if (selectedServer.getServerType().equalsIgnoreCase("local"))
             submitJobToLocalServer(selectedServer);
         else {
@@ -753,7 +734,8 @@ public class libEFPInputController implements Initializable {
         int group_number = 0;
         for (int i = 0; i < viewerFragments.size(); i++) {
             //parse filename
-            if (group_number == 0) {
+            if (group_number == 0 && viewerFragmentMap.get(i).size() > 0) {
+                if (viewerFragmentMap.get(i).size() == 0) System.out.println("size was zero");
                 sb.append(viewerFragmentMap.get(i).keySet().toArray()[0] + " " + i + "\n");
                 System.out.println("Getting name of fragment to be " + viewerFragmentMap.get(i).keySet().toArray()[0]);
             } else {
@@ -847,7 +829,7 @@ public class libEFPInputController implements Initializable {
                     RMSDString = parsedString[parsedString.length - 1];
                     RMSD = Double.parseDouble(RMSDString);
                 }
-                if (RMSD < 1) {
+                if (RMSD < 5) {
                     rmsdMap.put(md.getFragmentName(), RMSDString);
                     fragmentMap.put(md.getFragmentName(), md);
                 }

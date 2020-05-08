@@ -491,7 +491,8 @@ public class MainViewController {
         //libEFPSubmissionLoader.setController(libEFPCont);
         libEFPCont.setJmolViewer(jmolMainPanel.viewer);
         libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
-        libEFPCont.setEfpFiles(getFragmentEFPFiles());
+        libEFPCont.initEfpFiles();
+//        libEFPCont.setEfpFiles(getFragmentEFPFiles());
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
@@ -506,6 +507,7 @@ public class MainViewController {
     public ArrayList<File> getFragmentEFPFiles() {
         ArrayList<File> returnList = new ArrayList<>();
         returnList.add(Main.fragmentTree.getSelectedFragment().getEfpFile());
+        System.out.println("return list is of size " + returnList.size());
         return returnList;
     }
 
