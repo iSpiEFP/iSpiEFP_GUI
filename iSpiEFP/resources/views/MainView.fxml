@@ -90,7 +90,7 @@
                         </Menu>
                         <Menu mnemonicParsing="false" text="Calculate">
                             <items>
-                                <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
+                                <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
                                 <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
                                 <Menu mnemonicParsing="false" text="Monitor Jobs">
                                     <items>

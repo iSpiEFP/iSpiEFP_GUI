@@ -18,10 +18,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.ispiefp.app.EFPFileRetriever.GithubRequester;
+import org.ispiefp.app.libEFP.libEFPInputController;
+import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.util.*;
-import org.jmol.viewer.Viewer;
-import org.openscience.jmol.app.Jmol;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
@@ -39,7 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.prefs.Preferences;
-
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -130,11 +129,13 @@ public class MainViewController {
     private Button libefpButton;
 
     @FXML
+
     private Menu openRecentMenu;
 
     private UserPreferences userPrefs = new UserPreferences();
 
     private String[] rec_files;
+    private Menu recentMenu;
 
     /**
      * initialize(); is called after @FXML parameters have been loaded in
@@ -416,9 +417,14 @@ public class MainViewController {
      * which has been built. Then hands off control to the MetaDataSelectorController
      */
     public void fragmentOpen() throws IOException {
-        File xyzFile;
-        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/metaDataSelector.fxml"));
         Stage stage = new Stage();
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/metaDataSelector.fxml"));
+        Parent fragmentSelector = loader.load();
+
+        MetaDataSelectorController metaDataSelectorController = loader.getController();
+        metaDataSelectorController.setData(stage);
+
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
@@ -429,28 +435,32 @@ public class MainViewController {
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
+       // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        File xyzFile;
 
         try {
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
-        } catch (NullPointerException e){
+
+//            Do not need to create a new panel every time, this actually causes issue
+//            jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+
+            if (jmolMainPanel.openFile(xyzFile)) {
+
+                lastOpenedFile = xyzFile.getAbsolutePath();
+                lastOpenedFileName = xyzFile.getName();
+
+                leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+                middleRightSplitPane.setDividerPositions(1, 0);
+
+                //reset buttons
+                haloButton.setSelected(false);
+                snipButton.setSelected(false);
+                playPauseButton.setText("");
+                playPauseButton.setGraphic(new ImageView(play));
+                playPauseButton.setSelected(false);
+            }
+        } catch (NullPointerException e) {
             System.out.println("User closed window without selecting a fragment");
-            return;
-        }
-        jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
-        if (jmolMainPanel.openFile(xyzFile)) {
-
-            lastOpenedFile = xyzFile.getAbsolutePath();
-            lastOpenedFileName = xyzFile.getName();
-
-            leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
-            middleRightSplitPane.setDividerPositions(1, 0);
-
-            //reset buttons
-            haloButton.setSelected(false);
-            snipButton.setSelected(false);
-            playPauseButton.setText("");
-            playPauseButton.setGraphic(new ImageView(play));
-            playPauseButton.setSelected(false);
         }
     }
 
@@ -693,311 +703,342 @@ public class MainViewController {
         }
     }
 
-            /******************************************************************************************
-             *             CALCULATE MENU BEGINS                                                      *
-             ******************************************************************************************/
-            @FXML
-            public void calculateLibefpSetup () throws IOException {
-                //TODO This should open up the libefp setup page
-                //This is currently disabled in the fxml doc since it is not currently operational
-
-
-            }
-
-            @FXML
-            public void calculateLibefpHistory () throws IOException {
-                LoginForm loginForm = new LoginForm("LIBEFP");
-                boolean authorized = loginForm.authenticate();
-                if (authorized) {
-                    SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
-                    FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource(
-                                    "views/submissionHistory.fxml"
-                            )
-                    );
-                    loader.setController(controller);
-                    Stage stage = new Stage(StageStyle.DECORATED);
-                    stage.setScene(
-                            new Scene(
-                                    loader.load()
-                            )
-                    );
-                    stage.initModality(Modality.WINDOW_MODAL);
-                    stage.setTitle("Submission History");
-                    stage.show();
-                }
-            }
-
-            @FXML
-            public void calculateGamessSetup () throws IOException {
-                //TODO this should open the gamess setup page
-                //This is currently disabled in the fxml doc since it is not currently operational
-
-            }
-
-            @FXML
-            public void calculateGamessHistory () throws IOException {
-                LoginForm loginForm = new LoginForm("GAMESS");
-                boolean authorized = loginForm.authenticate();
-                if (authorized) {
-                    gamessSubmissionHistoryController controller = new gamessSubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
-                    FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource(
-                                    "views/submissionHistory.fxml"
-                            )
-                    );
-                    loader.setController(controller);
-
-                    Stage stage = new Stage(StageStyle.DECORATED);
-                    stage.setScene(
-                            new Scene(
-                                    loader.load()
-                            )
-                    );
-                    stage.initModality(Modality.WINDOW_MODAL);
-                    stage.setTitle("Gamess Submission History");
-                    stage.show();
-                }
-            }
-
-            @FXML
-            public void calculateEditServers () throws IOException {
-                Parent serversList = FXMLLoader.load(getClass().getResource("/views/ServersList.fxml"));
-                Stage stage = new Stage();
-                stage.initModality(Modality.WINDOW_MODAL);
-                stage.setTitle("Servers list");
-                stage.setScene(new Scene(serversList));
-                stage.show();
-            }
-
-            /******************************************************************************************
-             *             HELP MENU BEGINS                                                           *
-             ******************************************************************************************/
-            @FXML
-            public void helpCheckForUpdates () throws IOException {
-                //TODO
-                //This is currently disabled in the fxml doc since it is not currently operational
-            }
-
-            @FXML
-            public void helpAbout () throws IOException {
-                Main.hostServices.showDocument("https://www.chem.purdue.edu/Slipchenko/");
-            }
-
-            @FXML
-            public void helpJmolWiki () throws IOException {
-                Main.hostServices.showDocument("http://jmol.sourceforge.net/");
-            }
-
-            @FXML
-            public void helpJmolConsole () throws IOException {
-                //create window for console
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                JFrame consoleFrame = new JFrame();
-                consoleFrame.setSize(800, 400);
-                consoleFrame.setLocation(
-                        (screenSize.width - 500) / 2,
-                        (screenSize.height) / 2);
-                consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-                //create and connect panel with jmol console
-                JPanel console_panel = new JPanel();
-                console_panel.setLayout(new BorderLayout());
-                AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
-                        "Editor Font Variables History State Clear Help");
-
-                // Callback any scripts run in console to jmol viewer in main
-                jmolMainPanel.viewer.setJmolCallbackListener(console);
-
-                //show console
-                consoleFrame.getContentPane().add(console_panel);
-                consoleFrame.setVisible(true);
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        consoleFrame.toFront();
-                        consoleFrame.repaint();
-                    }
-                });
-            }
-
-    /*
+    /******************************************************************************************
+     *             CALCULATE MENU BEGINS                                                      *
+     ******************************************************************************************/
     @FXML
-    public void openLibEFPWindow() throws IOException {
-        Parent libEFPInput = FXMLLoader.load(getClass().getResource("views/libEFP.fxml"));
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.setTitle("Libefp Input");
-        stage.setScene(new Scene(libEFPInput));
-        stage.show();
-    }*/
-
-    /*
-    @FXML
-    public void openGamessWindow() throws IOException {
-        Parent gamessInput = FXMLLoader.load(getClass().getResource("views/gamessInput.fxml"));
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.setTitle("Gamess Input");
-        stage.setScene(new Scene(gamessInput));
-        stage.show();
-    }*/
-
-            /******************************************************************************************
-             *             ICON BUTTON HANDLER SECTION BEGINS
-             *
-             *             The following section is for the Button Pane below the Menu Bar
-             *             containing all of the icon buttons. These buttons interact with the
-             *             Jmol Viewer object, and provide some default tools found in Jmol, as
-             *             well as some custom buttons.
-             ******************************************************************************************/
-            /**
-             * Handle Selection Toggle Button. Select all atoms and highlight
-             */
-            @FXML
-            public void toggleSelection () {
-                if (selectionButton.isSelected()) {
-                    jmolMainPanel.viewer.runScript("selectionHalos on");
-                    jmolMainPanel.viewer.runScript("select all");
-                    jmolMainPanel.repaint();
-                } else {
-                    jmolMainPanel.viewer.runScript("selectionHalos off");
-                    jmolMainPanel.viewer.runScript("select none");
-                    jmolMainPanel.repaint();
-                }
-            }
-
-            /**
-             * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
-             */
-            @FXML
-            public void toggleHalo () {
-                if (haloButton.isSelected()) {
-                    System.out.println("on");
-                    jmolMainPanel.viewer.runScript("selectionHalos on");
-                    jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
-                } else {
-                    System.out.println("off");
-                    jmolMainPanel.viewer.runScript("selectionHalos off");
-                    jmolMainPanel.repaint();
-                }
-            }
-
-            /**
-             * Handle Snip Button. Turn on and off ability to fragment molecules by clicking on bonds
-             */
-            @FXML
-            public void toggleSnip () {
-                if (snipButton.isSelected()) {
-                    jmolMainPanel.viewer.runScript("set bondpicking true");
-                    jmolMainPanel.viewer.runScript("set picking deletebond");
-                } else {
-                    jmolMainPanel.viewer.runScript("set bondpicking false");
-                }
-            }
-
-            /**
-             * Handle toggle measure button. Clicking on two seperate atoms measures distance
-             */
-            @FXML
-            public void toggleMeasure() {
-                if (measureButton.isSelected()) {
-                    jmolMainPanel.viewer.runScript("set picking MEASURE DISTANCE");
-                    jmolMainPanel.viewer.runScript("set pickingStyle MEASURE ON");
-                } else {
-                    jmolMainPanel.viewer.runScript("set pickingStyle MEASURE OFF");
-                    jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
-                }
-            }
-
-            /**
-             * Handle Pick Center Button. Centers a atom on selection
-             */
-            @FXML
-            public void handlePickCenter() {
-                if (pickCenterButton.isSelected()) {
-                    jmolMainPanel.viewer.runScript("set picking CENTER");
-                } else {
-                    jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
-                }
-            }
-
-            /**
-             * Handle Play Pause. Capture Molecule
-             */
-            @FXML
-            public void togglePlay() {
-                playPauseButton.setText("");
-                playPauseButton.setSelected(false);
-                playPauseButton.setGraphic(new ImageView(play));
-                if (playPauseButton.isSelected()) {
-                    playPauseButton.setGraphic(new ImageView(pause));
-                    jmolMainPanel.viewer.runScript("frame play");
-                } else {
-                    playPauseButton.setGraphic(new ImageView(play));
-                    jmolMainPanel.viewer.runScript("animation off");
-                }
-            }
-
-            /**
-             * Handle display console button. Display the terminal for scripting with jmol viewer
-             */
-            @FXML
-            public void displayConsole() {
-                //create window for console
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                JFrame consoleFrame = new JFrame();
-                consoleFrame.setSize(800, 400);
-                consoleFrame.setLocation(
-                        (screenSize.width - 500) / 2,
-                        (screenSize.height) / 2);
-                consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-                //create and connect panel with jmol console
-                JPanel console_panel = new JPanel();
-                console_panel.setLayout(new BorderLayout());
-                AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
-                        "Editor Font Variables History State Clear Help");
-
-                // Callback any scripts run in console to jmol viewer in main
-                jmolMainPanel.viewer.setJmolCallbackListener(console);
-
-                //show console
-                consoleFrame.getContentPane().add(console_panel);
-                consoleFrame.setVisible(true);
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        consoleFrame.toFront();
-                        consoleFrame.repaint();
-                    }
-                });
-            }
-
-            /**
-             * Handle the model kit button for making custom molecules
-             */
-            @FXML
-            public void toggleModelKit() {
-                if (modelKitButton.isSelected()) {
-                    jmolMainPanel.viewer.runScript("set modelKitMode true");
-                    jmolMainPanel.repaint();
-                } else {
-                    jmolMainPanel.viewer.runScript("set modelKitMode false");
-                    jmolMainPanel.repaint();
-                }
-            }
-
-            /**
-             * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
-             */
-            @FXML
-            public void libefp() {
-                System.out.println("libefp button");
-                //TODO need to call libefp constructor
-            }
-
-            /******************************************************************************************
-             *             ICON BUTTON HANDLER SECTION ENDS                                           *
-             ******************************************************************************************/
+    public void calculateLibefpSetup() throws IOException {
+        String noInternetWarning = "You are not currently connected to the internet.\n\n" +
+                "You will not be able to submit libEFP jobs to a cluster.";
+        if (!CheckInternetConnection.checkInternetConnection()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noInternetWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
         }
+        FXMLLoader libEFPSubmissionLoader = new FXMLLoader(getClass().getResource("/views/libEFP.fxml"));
+        //libEFPInputController libEFPCont = new libEFPInputController(getFragmentEFPFiles());
+        Parent libEFPSubmissionParent = libEFPSubmissionLoader.load();
+        libEFPInputController libEFPCont = libEFPSubmissionLoader.getController();
+        //libEFPSubmissionLoader.setController(libEFPCont);
+        libEFPCont.setJmolViewer(jmolMainPanel.viewer);
+        libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
+        libEFPCont.initEfpFiles();
+//        libEFPCont.setEfpFiles(getFragmentEFPFiles());
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Select Fragment");
+        stage.setScene(new Scene(libEFPSubmissionParent));
+        stage.showAndWait();
+        /* Implementation currently assumes that the fragment obtained from select fragment has not been
+        modified in any way. //TODO Make this general
+         */
+    }
+
+
+    //TODO: This method should later return EFPFiles for every fragment in the viewer
+    public ArrayList<File> getFragmentEFPFiles() {
+        ArrayList<File> returnList = new ArrayList<>();
+        returnList.add(Main.fragmentTree.getSelectedFragment().getEfpFile());
+        System.out.println("return list is of size " + returnList.size());
+        return returnList;
+    }
+
+    @FXML
+    public void calculateLibefpHistory () throws IOException {
+        LoginForm loginForm = new LoginForm("LIBEFP");
+        boolean authorized = loginForm.authenticate();
+        if (authorized) {
+            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "views/submissionHistory.fxml"
+                    )
+            );
+            loader.setController(controller);
+            Stage stage = new Stage(StageStyle.DECORATED);
+            stage.setScene(
+                    new Scene(
+                            loader.load()
+                    )
+            );
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Submission History");
+            stage.show();
+        }
+    }
+
+
+    @FXML
+    public void calculateGamessSetup () throws IOException {
+        //TODO this should open the gamess setup page
+        //This is currently disabled in the fxml doc since it is not currently operational
+
+    }
+
+    @FXML
+    public void calculateGamessHistory () throws IOException {
+        LoginForm loginForm = new LoginForm("GAMESS");
+        boolean authorized = loginForm.authenticate();
+        if (authorized) {
+            gamessSubmissionHistoryController controller = new gamessSubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "views/submissionHistory.fxml"
+                    )
+            );
+            loader.setController(controller);
+
+            Stage stage = new Stage(StageStyle.DECORATED);
+            stage.setScene(
+                    new Scene(
+                            loader.load()
+                    )
+            );
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Gamess Submission History");
+            stage.show();
+        }
+    }
+
+    @FXML
+    public void calculateEditServers () throws IOException {
+        Parent serversList = FXMLLoader.load(getClass().getResource("/views/ServersList.fxml"));
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Servers list");
+        stage.setScene(new Scene(serversList));
+        stage.show();
+    }
+
+    /******************************************************************************************
+     *             HELP MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void helpCheckForUpdates () throws IOException {
+        //TODO
+        //This is currently disabled in the fxml doc since it is not currently operational
+    }
+
+    @FXML
+    public void helpAbout () throws IOException {
+        Main.hostServices.showDocument("https://www.chem.purdue.edu/Slipchenko/");
+    }
+
+    @FXML
+    public void helpJmolWiki () throws IOException {
+        Main.hostServices.showDocument("http://jmol.sourceforge.net/");
+    }
+
+    @FXML
+    public void helpJmolConsole () throws IOException {
+        //create window for console
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame consoleFrame = new JFrame();
+        consoleFrame.setSize(800, 400);
+        consoleFrame.setLocation(
+                (screenSize.width - 500) / 2,
+                (screenSize.height) / 2);
+        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        //create and connect panel with jmol console
+        JPanel console_panel = new JPanel();
+        console_panel.setLayout(new BorderLayout());
+        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
+                "Editor Font Variables History State Clear Help");
+
+        // Callback any scripts run in console to jmol viewer in main
+        jmolMainPanel.viewer.setJmolCallbackListener(console);
+
+        //show console
+        consoleFrame.getContentPane().add(console_panel);
+        consoleFrame.setVisible(true);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                consoleFrame.toFront();
+                consoleFrame.repaint();
+            }
+        });
+    }
+
+/*
+@FXML
+public void openLibEFPWindow() throws IOException {
+Parent libEFPInput = FXMLLoader.load(getClass().getResource("views/libEFP.fxml"));
+Stage stage = new Stage();
+stage.initModality(Modality.WINDOW_MODAL);
+stage.setTitle("Libefp Input");
+stage.setScene(new Scene(libEFPInput));
+stage.show();
+}*/
+
+/*
+@FXML
+public void openGamessWindow() throws IOException {
+Parent gamessInput = FXMLLoader.load(getClass().getResource("views/gamessInput.fxml"));
+Stage stage = new Stage();
+stage.initModality(Modality.WINDOW_MODAL);
+stage.setTitle("Gamess Input");
+stage.setScene(new Scene(gamessInput));
+stage.show();
+}*/
+
+    /******************************************************************************************
+     *             ICON BUTTON HANDLER SECTION BEGINS
+     *
+     *             The following section is for the Button Pane below the Menu Bar
+     *             containing all of the icon buttons. These buttons interact with the
+     *             Jmol Viewer object, and provide some default tools found in Jmol, as
+     *             well as some custom buttons.
+     ******************************************************************************************/
+    /**
+     * Handle Selection Toggle Button. Select all atoms and highlight
+     */
+    @FXML
+    public void toggleSelection () {
+        if (selectionButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("selectionHalos on");
+            jmolMainPanel.viewer.runScript("select all");
+            jmolMainPanel.repaint();
+        } else {
+            jmolMainPanel.viewer.runScript("selectionHalos off");
+            jmolMainPanel.viewer.runScript("select none");
+            jmolMainPanel.repaint();
+        }
+    }
+
+    /**
+     * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
+     */
+    @FXML
+    public void toggleHalo () {
+        if (haloButton.isSelected()) {
+            System.out.println("on");
+            jmolMainPanel.viewer.runScript("selectionHalos on");
+            jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
+        } else {
+            System.out.println("off");
+            jmolMainPanel.viewer.runScript("selectionHalos off");
+            jmolMainPanel.repaint();
+        }
+    }
+
+    /**
+     * Handle Snip Button. Turn on and off ability to fragment molecules by clicking on bonds
+     */
+    @FXML
+    public void toggleSnip () {
+        if (snipButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set bondpicking true");
+            jmolMainPanel.viewer.runScript("set picking deletebond");
+        } else {
+            jmolMainPanel.viewer.runScript("set bondpicking false");
+        }
+    }
+
+    /**
+     * Handle toggle measure button. Clicking on two seperate atoms measures distance
+     */
+    @FXML
+    public void toggleMeasure() {
+        if (measureButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set picking MEASURE DISTANCE");
+            jmolMainPanel.viewer.runScript("set pickingStyle MEASURE ON");
+        } else {
+            jmolMainPanel.viewer.runScript("set pickingStyle MEASURE OFF");
+            jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
+        }
+    }
+
+    /**
+     * Handle Pick Center Button. Centers a atom on selection
+     */
+    @FXML
+    public void handlePickCenter() {
+        if (pickCenterButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set picking CENTER");
+        } else {
+            jmolMainPanel.viewer.runScript(" set picking SELECT ATOM");
+        }
+    }
+
+    /**
+     * Handle Play Pause. Capture Molecule
+     */
+    @FXML
+    public void togglePlay() {
+        playPauseButton.setText("");
+        playPauseButton.setSelected(false);
+        playPauseButton.setGraphic(new ImageView(play));
+        if (playPauseButton.isSelected()) {
+            playPauseButton.setGraphic(new ImageView(pause));
+            jmolMainPanel.viewer.runScript("frame play");
+        } else {
+            playPauseButton.setGraphic(new ImageView(play));
+            jmolMainPanel.viewer.runScript("animation off");
+        }
+    }
+
+    /**
+     * Handle display console button. Display the terminal for scripting with jmol viewer
+     */
+    @FXML
+    public void displayConsole() {
+        //create window for console
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame consoleFrame = new JFrame();
+        consoleFrame.setSize(800, 400);
+        consoleFrame.setLocation(
+                (screenSize.width - 500) / 2,
+                (screenSize.height) / 2);
+        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        //create and connect panel with jmol console
+        JPanel console_panel = new JPanel();
+        console_panel.setLayout(new BorderLayout());
+        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
+                "Editor Font Variables History State Clear Help");
+
+        // Callback any scripts run in console to jmol viewer in main
+        jmolMainPanel.viewer.setJmolCallbackListener(console);
+
+        //show console
+        consoleFrame.getContentPane().add(console_panel);
+        consoleFrame.setVisible(true);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                consoleFrame.toFront();
+                consoleFrame.repaint();
+            }
+        });
+    }
+
+    /**
+     * Handle the model kit button for making custom molecules
+     */
+    @FXML
+    public void toggleModelKit() {
+        if (modelKitButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set modelKitMode true");
+            jmolMainPanel.repaint();
+        } else {
+            jmolMainPanel.viewer.runScript("set modelKitMode false");
+            jmolMainPanel.repaint();
+        }
+    }
+
+    /**
+     * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
+     */
+    @FXML
+    public void libefp() {
+        System.out.println("libefp button");
+        //TODO need to call libefp constructor
+    }
+
+    /******************************************************************************************
+     *             ICON BUTTON HANDLER SECTION ENDS                                           *
+     ******************************************************************************************/
+}

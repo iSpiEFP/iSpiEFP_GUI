@@ -31,14 +31,14 @@ ___
 
 ## Developer Notes
 ### Technologies/Software Used
-1. Java JDK 8 (Mine is Java version - 1.8.0_101)
-2. JavaFX -  a software platform for creating and delivering desktop applications, as well as rich Internet applications (RIAs) that can run across a wide variety of devices. JavaFX is intended to replace Swing as the standard GUI library for Java SE, but both will be included for the foreseeable future.
+1. Java JDK 8
+2. JavaFX -  a software platform for creating and delivering desktop applications, as well as rich Internet applications (RIAs) that can run across a wide variety of devices. JavaFX is intended to replace Swing as the standard GUI library for Java SE, but both will be included for the foreseeable future. JavaFX is supported up through SDK version 10. If the compiler has trouble recognizing JavaFX, go to File > Project Structure > Project and make sure that the SDK version and Project Language Level match.  If you are using JDK 11 or greater, you may have to install JavaFX manually. You can download it here: https://gluonhq.com/products/javafx/ 
 3. SceneBuilder – for visualizing fxml files (UI files of the application). Download it from here – (http://gluonhq.com/products/scene-builder/). For a SceneBuilder tutorial visit: http://code.makery.ch/library/javafx-8-tutorial
 4. Jmol Jar File (used for visualizing the molecules within the application), see *Chemistry Technologies*.
 5. Gson - Gson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java Object.
 6. JUnit4 - JUnit is a widely used library for creating unit tests for Java programs. Unit tests are intended to test the functionality of individual classes rather than test their interaction. It is expected that if you create a new class, you also implement unit tests for that class. To learn how to write unit tests visit this page: https://www.vogella.com/tutorials/JUnit/article.html
 ### Setup
-Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capable of integrating with javaFX, sceneBuilder, and github. So choose whichever you would like to use.
+The iSpiEFP team strongly recommends using IntelliJ IDEA as your choice of IDE for the project. Other IDEs like Eclipse are serviceable but can be clunky and don't have as much of the functionality that makes working on the project easier. However, we have setup documentation for both below.
 
 #### IntelliJ Setup (IntelliJ IDE 2018.2.2, JDK 1.8 - this doc last updated: 10/1/19) 
 1. **Git Clone** - Clone the repository on your local machine to a directory of your choice
@@ -46,7 +46,7 @@ Two great java IDE's I like to use are IntelliJ IDEA or Eclipse. Both are capabl
 $ git clone https://github.com/iSpiEFP/iSpiEFP_GUI.git 
 ```
 2. **Import into IntelliJ IDEA** - Select "File > New > Project from Existing Sources..." and navigate to the location of the git clone, and then select the directory "iSpiEFP_GUI". This will barebones import the project into IntelliJ (More configuration is needed). Alternatively, if this is your first time using IntelliJ - click "Open" and select the directory "iSpiEFP_GUI".
-3. **Configure JDK** - Select "File > Project Structure > Project". Under Project SDK select "1.8" and under Project Language Level Select "8 - Lambdas, Type annotations etc." Note: Having a more recent SDK version will work, as long as you select the correct Project Language Level.
+3. **Configure JDK** - Select "File > Project Structure > Project". Under Project SDK select "1.8" and under Project Language Level Select "8 - Lambdas, Type annotations etc." Note: Having a more recent SDK version will work, as long as you select the correct Project Language Level. The Project Language Level should match the SDK version (Ex. If the SDK version is 10, the Project Language Level should be 10 - Local variable type inference.
 4. **Add External Jar Files** - All external jar files are located in "iSpiEFP_GUI/iSpiEFP/lib/". To add them to the project select "File > Project Structure > Modules > Dependencies". In the right hand side of the panel next to "scope" there will appear a "+" symbol. Select "+ > add library > java library", and select the directory "lib". After the panel updates with lib, select the checkbox next to lib, and click "apply". This will add all 3rd party jar files such as Jmol.
 5. **JUnit** - JUnit4 is the library that we use for unit tests. Fortunately, installations of IntelliJ come with JUnit4. Navigate to the iSpiEFP/Tests/src folder and select any of the testing class files. Hover over the errors that are underlined in red, and IntelliJ will ask if you'd like to add JUnit4 to the classpath. Select yes. Note: If this does not work, you may need to go to "File > Project Structure > Libraries", click the "+" near the top left, and select the "lib" folder; then, navigate to "Modules" in the sidebar on the left, hit the checkbox next to "lib" and "JUnit4," and hit "Ok."
 6. **Add Resources** - In IntelliJ, navigate to the file: "iSpiEFP_GUI/iSpiEFP/resources", right click the resources folder, and select "Mark Directory as > Resources Root". This will add all the image/icon files needed for iSpiEFP. Note: If "Mark Directory as > Unmark as Resources Root" already exists as an option, skip this step.
@@ -133,5 +133,14 @@ __port 8080__. There are currently two servers for iSpiEFP to use and they shoul
     ```
      ec2-18-220-105-41.us-east-2.compute.amazonaws.com
     ```
-
+#### Steps of building JAR file (IntelliJ)
+1. First create an aritifact configuration by following the steps below:\
+  1.1: from the main menu, select File -> Project Structure, and select Artifacts.\
+  1.2: click "+", point to JAR, and select From modules with dependencies.\
+  1.3: To the right of the Main Class field, click on the folder icon, and select the main class (org.ispiefp.app.Main)\
+  1.4: click Apply at the right bottom and close the dialog.
+2. Second build the Jar artifact \
+  2.1: from the main menu, select Build -> Build Artifacts.\
+  2.2: point to the iSpiEFP_GUI.jar and select Build\
+  2.3: in the out/artifacts/iSpiEFP_GUI_jar folder is the iSpiEFP_GUI.jar.
 

@@ -1,11 +1,16 @@
 package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
+import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 import org.ispiefp.app.MetaData.MetaData;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 /* The purpose of this class is to decode the information about which fields are contained in a metadata JSON bitmap */
 
@@ -14,19 +19,22 @@ public class MetaHandler {
     private MetaData currentMetaData;           /* The MetaData Object for the current fragment         */
     private MetaDataFile metaFile;              /* Used when all MetaDataObjects are in the same file   */
 
-    /**
-     * Constructor used when parsing individual JSON files
-     */
-    public MetaHandler(){
 
-    }
     /**
-     * Constructor used when all meta JSONs are in the same file
+     * Constructor used when all meta JSONs are in the same file saved locally
      * note: Expects the file passed to be in the library_parameters workspace
      * @param fileName name of the file
      */
     public MetaHandler(String fileName){
         metaFile = new MetaDataFile(fileName);
+    }
+
+    /**
+     * Constructor used when all meta JSONs are retrieved from the master file
+     * on Github
+     */
+    public MetaHandler(){
+        metaFile = new MetaDataFile();
     }
 
     /**
@@ -55,6 +63,29 @@ public class MetaHandler {
                 metaDataFileString = new String(Files.readAllBytes(Paths.get(pathToFile)));
             } catch (IOException e) {
                 System.err.println("The MetaDataFile was not in the expected directory: " + pathToFile);
+                metaDataFileString = null;
+            }
+            if (metaDataFileString != null) {
+                MetaDataFile inferredClass = gson.fromJson(metaDataFileString, MetaDataFile.class);
+                this.metaDataObjects = inferredClass.metaDataObjects;
+            }
+        }
+
+        /**
+         * Constructor for the MetaDataFile which contains all the MetaData objects
+         * from Github
+         *
+         */
+
+        public MetaDataFile() {
+            Gson gson = new Gson();         /* Instance of Gson used to parse the string to an object                 */
+            GithubRequester gr = new GithubRequester("libraryMeta.json");
+            String metaDataFileString;
+            try {
+                metaDataFileString = gr.getFileContents();
+
+            } catch (Exception e) {
+                System.err.println("The MetaDataFile could not be retrieved from Github");
                 metaDataFileString = null;
             }
             if (metaDataFileString != null) {

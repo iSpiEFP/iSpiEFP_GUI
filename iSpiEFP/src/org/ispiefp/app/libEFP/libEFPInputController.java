@@ -13,6 +13,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
+import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.server.JobManager;
@@ -21,6 +22,10 @@ import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.iSpiEFPServer;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.util.ExecutePython;
+import org.ispiefp.app.util.UserPreferences;
+import org.ispiefp.app.visualizer.ViewerHelper;
+import org.jmol.viewer.Viewer;
 
 import java.io.*;
 import java.net.Socket;
@@ -130,16 +135,27 @@ public class libEFPInputController implements Initializable {
     @FXML
     private TextField num_step_angle;
 
+    @FXML
+    private ComboBox<String> presets;
+
+    @FXML
+    private TextField server;
 
     String coordinates;
 
     ArrayList jobids;
 
     private ArrayList<String> efpFilenames;
-
+    private ArrayList<File> efpFiles;
     private String workingDirectoryPath;
     private String libEFPInputsDirectory;
     private String efpFileDirectoryPath;
+
+    private Viewer jmolViewer;
+    private ArrayList<ArrayList<Integer>> viewerFragments;
+    private Map<Integer, Map<String, String>> viewerFragmentMap;
+    private Map<String, MetaData> fragmentMap;
+
 
     List<ServerDetails> serverDetailsList;
     private String hostname;
@@ -163,6 +179,10 @@ public class libEFPInputController implements Initializable {
         this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + "/";  //storage for db incoming efp files
         this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS;         //needed for db file storage
         // initWorkingDir();
+    }
+
+    public libEFPInputController(){
+        super();
     }
 
     @Override
@@ -290,33 +310,7 @@ public class libEFPInputController implements Initializable {
 
         }
 
-
-//		basis.setItems(FXCollections.observableList(basisTypes));
-//		basis.setValue("6-31G(d)");
-
-        // TODO : Make both charge and multiplicity fields accept only Numbers
-        // Initializing Charge textField
-
-
-        // Initializing Multiplicity textField
-//		multiplicity.setText("1");
-//		multiplicity.textProperty().addListener((observable, oldValue, newValue) -> {
-//			// force the field to be numeric only
-//            if (!newValue.matches("^[1-9]\\d*$")) {
-//                multiplicity.setText("");
-//            }
-//		    try {
-//				updateQChemInputText();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
-
-        // Initializing Format ComboBox
-
-
-        // Initializing qChemInputTextArea
+        // Initializing libEFPInputTextArea
         try {
             libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
             libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
@@ -326,32 +320,26 @@ public class libEFPInputController implements Initializable {
             e.printStackTrace();
         }
 
-        // Initializing serversList
-        serverDetailsList = new ArrayList<>();
-        try {
-            serverDetailsList = ServerConfigController.getServerDetailsList();
-        } catch (ClassNotFoundException | BackingStoreException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        List<String> serverNames = new ArrayList<>();
-        for (ServerDetails server : serverDetailsList) {
-            serverNames.add(server.getAddress());
-        }
-        serversList.setItems(FXCollections.observableList(serverNames));
-        if (serverNames.size() > 0) {
-            serversList.setValue(serverNames.get(0));
-            setHostname(serverNames.get(0));
-        }
-        serversList.setEditable(true);
-        serversList.valueProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {
-                String address = t1;
-                System.out.println("Selected:" + address);
-                setHostname(address);
+
+        viewerFragmentMap = new HashMap<>();
+        fragmentMap = new HashMap<>();
+
+
+        //Initializing server field
+        String serverName = UserPreferences.getLibefpServer();
+        if (serverName.equals("check")) server.setText("");
+        else server.setText(UserPreferences.getLibefpServer());
+
+        // Adding listener to presets
+        ObservableList<String> available_presets = FXCollections.observableArrayList();
+        System.out.println(UserPreferences.getLibEFPPresetNames());
+        available_presets.addAll(UserPreferences.getLibEFPPresetNames());
+        presets.getItems().addAll(available_presets);
+        presets.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null){
+                loadPreset(UserPreferences.getLibEFPPresets().get(newValue));
             }
-        });
+        }));
     }
 
     /**
@@ -443,6 +431,38 @@ public class libEFPInputController implements Initializable {
             saveFile(libEFPText, file);
         }
     }
+
+
+    public void initEfpFiles(){
+        ArrayList<File> efpFiles = new ArrayList<>();
+        for (int i = 0; i < viewerFragments.size(); i++) {
+            Map<String, String> fragmentMetas = viewerFragmentMap.get(i);
+            System.out.printf("viewerFragmentMap has size %d%n", viewerFragmentMap.size());
+            Iterator<String> fragIterator = fragmentMetas.keySet().iterator();
+            while (fragIterator.hasNext()){
+                System.out.println("Found a fragment named " + fragIterator.next() + " in a match");
+            }
+            if (fragmentMetas.keySet().size() > 0) {
+                String metaDataName = (String) fragmentMetas.keySet().toArray()[0];
+                System.out.println("Got this to be " + metaDataName);
+                MetaData md = fragmentMap.get(metaDataName);
+                if (md != null) {
+                    System.out.println("Using fragment parameters from : " + md.getFragmentName());
+                    efpFiles.add(md.getEfpFile());
+                } else System.err.println("Could not find the metadata " + metaDataName);
+            }
+        }
+        //coordinates = Main.fragmentTree.getSelectedFragment().getXYZCoords();
+        coordinates = generateInputText();
+        try {
+            libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
+            libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
+            libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 
     private void saveFile(String content, File file) {
         try {
@@ -643,8 +663,183 @@ public class libEFPInputController implements Initializable {
                 alert.showAndWait();
             }
         }
-        // Handle SSH case later
     }
+
+    public void saveCalculationType() {
+        Boolean[] terms = new Boolean[4];
+        for (int i = 0; i < 4; i++) {
+            terms[i] = this.terms.getCheckModel().isChecked(i);
+        }
+        CalculationPreset savedType = new CalculationPreset(
+                title.getText(),
+                run_type.getSelectionModel().getSelectedItem(),
+                format.getSelectionModel().getSelectedItem(),
+                elec_damp.getSelectionModel().getSelectedItem(),
+                disp_damp.getSelectionModel().getSelectedItem(),
+                terms,
+                pol_damp.getSelectionModel().getSelectedItem(),
+                pol_solver.getSelectionModel().getSelectedItem()
+        );
+        UserPreferences.addLibEFPPreset(savedType);
+        presets.getItems().add(savedType.getTitle());
+        presets.getSelectionModel().select(savedType.getTitle());
+    }
+
+    @FXML
+    public void loadPreset(CalculationPreset cp) {
+        title.setText(cp.getTitle());
+        run_type.setValue(cp.getRunType());
+        format.setValue(cp.getFormat());
+        elec_damp.setValue(cp.getElecDamp());
+        disp_damp.setValue(cp.getDispDamp());
+        pol_damp.setValue(cp.getPolDamp());
+        pol_solver.setValue(cp.getPolSolver());
+        terms.getCheckModel().clearChecks();
+        for (int i = 0; i < 4; i++){if (cp.getTerms()[i]) terms.getCheckModel().check(i);}
+        try{
+        updatelibEFPInputText();
+        } catch (IOException e){
+            System.err.println("Was unable to write to input file area");
+        }
+    }
+
+    @FXML
+    public void deletePreset() {
+        if (presets.getSelectionModel().isEmpty()) return;
+        UserPreferences.removeLibEFPPreset(presets.getSelectionModel().getSelectedItem());
+        presets.getItems().remove(presets.getSelectionModel().getSelectedItem());
+    }
+
+    //converts Addison's frag list to Hanjings Groups
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private ArrayList<ArrayList> getGroups(List<ArrayList<Integer>> fragment_list) {
+        ArrayList<ArrayList> groups = new ArrayList<ArrayList>();
+        for (ArrayList<Integer> frag : fragment_list) {
+            if (frag.size() > 0) {
+                ArrayList curr_group = new ArrayList();
+                for (int piece : frag) {
+                    curr_group.add(piece);
+                }
+                Collections.sort(curr_group);
+                groups.add(curr_group);
+            }
+        }
+        return groups;
+    }
+
+    private String generateInputText()  {
+        StringBuilder sb = new StringBuilder();
+        ArrayList<ArrayList> groups = getGroups(viewerFragments);
+        int group_number = 0;
+        for (int i = 0; i < viewerFragments.size(); i++) {
+            //parse filename
+            if (group_number == 0 && viewerFragmentMap.get(i).size() > 0) {
+                if (viewerFragmentMap.get(i).size() == 0) System.out.println("size was zero");
+                sb.append(viewerFragmentMap.get(i).keySet().toArray()[0] + " " + i + "\n");
+                System.out.println("Getting name of fragment to be " + viewerFragmentMap.get(i).keySet().toArray()[0]);
+            } else {
+                sb.append("\n"+ viewerFragmentMap.get(i).keySet().toArray()[0] + " " + i + "\n");
+            }
+            //apend equivalent group coordinates
+            ArrayList<Integer> fragment = groups.get(group_number);
+            int j = 0;
+            for (int atom_num : fragment) {
+                if (j == 3) {
+                    break;
+                }
+                org.jmol.modelset.Atom current_atom = jmolViewer.ms.at[atom_num];
+                sb.append(current_atom.x + "  " + current_atom.y + "  " + current_atom.z + "\n");
+                j++;
+            }
+            group_number++;
+        }
+        return sb.toString();
+    }
+
+    private File createTempXYZFileFromViewer(int fragmentIndex) throws IOException {
+        BufferedWriter bw = null;
+        File xyzFile = null;
+        try {
+            //Create a temp xyz file
+            xyzFile = File.createTempFile("fragment_" + fragmentIndex, ".xyz");
+            xyzFile.deleteOnExit();
+            bw = new BufferedWriter(new FileWriter(xyzFile));
+
+            ArrayList<Integer> atoms = getGroups(viewerFragments).get(fragmentIndex);
+            //Write number of atoms not including dummy atoms in XYZ file
+            bw.write(String.format("%d%n%n", atoms.size()));
+            System.out.println(atoms.size());
+            System.out.println();
+            for (int atom_num : atoms) {
+                org.jmol.modelset.Atom atom = jmolViewer.ms.at[atom_num];
+                bw.write(String.format("%s\t%.5f\t%.5f\t%.5f%n",
+                        atom.getAtomName(),
+                        ViewerHelper.convertAngstromToBohr(atom.x),
+                        ViewerHelper.convertAngstromToBohr(atom.y),
+                        ViewerHelper.convertAngstromToBohr(atom.z)
+                ));
+                System.out.println(String.format("%s\t%.5f\t%.5f\t%.5f",
+                        atom.getAtomName(),
+                        ViewerHelper.convertAngstromToBohr(atom.x),
+                        ViewerHelper.convertAngstromToBohr(atom.y),
+                        ViewerHelper.convertAngstromToBohr(atom.z)
+                ));
+            }
+        }
+        finally {
+            if (bw != null) bw.close();
+        }
+        System.out.println();
+        return xyzFile;
+    }
+
+    /**
+     * Method computes the RMSD between each of the fragments in the viewer and each of the fragments in the
+     * local fragment tree
+     * @return a Map containing each of the fragments mapped to their respective RMSD values which had an RMSD below 0.5
+     */
+    private Map<String, String> computeRMSD(int fragmentIndex){
+        Map<String, String> rmsdMap = new HashMap<>(); /* Will be populated with all efp files that were within 0.5 rmsd. Maps
+                                                          EFPFile to the computed RMSD as a string                            */
+        File fragmentXYZFile = null;
+        File viewerFragmentXYZFile = null;
+        try {
+            viewerFragmentXYZFile = createTempXYZFileFromViewer(fragmentIndex);
+        } catch (IOException e){
+            e.printStackTrace();
+            System.err.println("Unable to create temporary xyz file of viewer fragment");
+        }
+        for (MetaData md : Main.fragmentTree.getMetaDataIterator()) {
+            Double RMSD = Double.MAX_VALUE;
+            if (md.getChemFormula().equals(getChemicalFormula(fragmentIndex))) {
+                System.out.println("Found a match!");
+                try {
+                    fragmentXYZFile = md.createTempXYZ();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.err.println("Was unable to create temporary file for computing RMSD");
+                }
+                String RMSDString = ExecutePython.runPythonScript(
+                        "calculate_rmsd.py",
+                        String.format("%s %s", fragmentXYZFile.getAbsolutePath(), viewerFragmentXYZFile.getAbsolutePath())
+                );
+                if (RMSDString.contains("OUTPUT")) {
+                    String [] parsedString = RMSDString.split("null");
+                    RMSDString = parsedString[parsedString.length - 1];
+                    RMSD = Double.parseDouble(RMSDString);
+                }
+                if (RMSD < 5) {
+                    rmsdMap.put(md.getFragmentName(), RMSDString);
+                    fragmentMap.put(md.getFragmentName(), md);
+                }
+                System.out.println("RMSDString was " + RMSDString);
+                System.out.println("Produced an RMSD of value " + RMSD);
+            }
+        }
+        return rmsdMap;
+    }
+
+        // Handle SSH case later
 
     public String getHostname() {
         return hostname;
@@ -654,6 +849,49 @@ public class libEFPInputController implements Initializable {
         this.hostname = hostname;
     }
 
+    public Viewer getJmolViewer() {
+        return jmolViewer;
+    }
+
+    public void setJmolViewer(Viewer v){
+        jmolViewer = v;
+    }
+
+    public ArrayList<ArrayList<Integer>> getViewerFragments(){
+        return viewerFragments;
+    }
+
+    public void setViewerFragments(ArrayList<ArrayList<Integer>> frags){
+        viewerFragments = frags;
+        for (int i = 0; i < viewerFragments.size(); i++){
+            viewerFragmentMap.put(i, computeRMSD(i));
+        }
+    }
+
+    public String getChemicalFormula(int fragmentIndex){
+        ArrayList<Integer> atoms = getGroups(viewerFragments).get(fragmentIndex);
+        HashMap<String, Integer> atomTypeMap = new HashMap<>();
+        PriorityQueue<String> pq = new PriorityQueue<>();
+        for (int atom_num : atoms) {
+            org.jmol.modelset.Atom atom = jmolViewer.ms.at[atom_num];
+            String atomName = atom.getAtomName().replaceAll("[^A-Za-z]", "");
+            Integer numThatAtom = atomTypeMap.containsKey(atomName) ? atomTypeMap.get(atomName) + 1 : 1;
+            atomTypeMap.put(atomName, numThatAtom);
+        }
+        Iterator<String> keysItr = atomTypeMap.keySet().iterator();
+        while (keysItr.hasNext()){
+            StringBuilder sb = new StringBuilder();
+            String key = keysItr.next();
+            sb.append(key);
+            sb.append(atomTypeMap.get(key));
+            pq.add(sb.toString());
+        }
+        String returnString = "";
+        while (!pq.isEmpty()){
+            returnString += pq.poll();
+        }
+        return returnString;
+    }
 }
 
 
