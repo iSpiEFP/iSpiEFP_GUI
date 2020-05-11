@@ -28,7 +28,7 @@
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
                                 <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
-                                <MenuItem mnemonicParsing="false" fx:id="openRecentMenuItem" onAction="#fileOpenRecent" text="Open Recent">
+                                <Menu mnemonicParsing="false" fx:id="openRecentMenu" onAction="#fileOpenRecent" text="Open Recent">
                                     <!--<fx:define>-->
                                         <!--<ContextMenu fx:id="cmTF">-->
                                             <!--<items>-->
@@ -38,7 +38,7 @@
                                             <!--</items>-->
                                         <!--</ContextMenu>-->
                                     <!--</fx:define>-->
-                                </MenuItem>
+                                </Menu>
                                 <Menu mnemonicParsing="false" onAction="#openSettings" text="Settings" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />

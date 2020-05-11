@@ -224,7 +224,7 @@ public class UserPreferences {
             return;
         }
 
-        //If the file count was not incremented, that means the file list is fully populated
+        //If the file count was not incremented, that means the file list is fully populated to the max number of files we want displayed
         //Since it's fully populated, remove the first in the chain (the oldest)
         if (!incrementRecentFilesCount()) {
             System.out.println("WAS NOT INCREMENTED");
@@ -268,7 +268,7 @@ public class UserPreferences {
         }
         int recentFilesCount = Integer.parseInt(recentFilesCountStr);
 
-        if (recentFilesCount == 7) {
+        if (recentFilesCount == 7) { //Comparing the number of files to the max number we want displayed
             return false;
         }
         else {

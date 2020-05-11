@@ -1,9 +1,12 @@
 package org.ispiefp.app;
 
+import com.sun.tools.javac.util.ArrayUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -127,9 +130,11 @@ public class MainViewController {
     private Button libefpButton;
 
     @FXML
-    private MenuItem openRecentMenuItem;
+    private Menu openRecentMenu;
 
     private UserPreferences userPrefs = new UserPreferences();
+
+    private String[] rec_files;
 
     /**
      * initialize(); is called after @FXML parameters have been loaded in
@@ -160,12 +165,8 @@ public class MainViewController {
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
         middleRightSplitPane.setDividerPositions(1, 0);
 
-        //TODO: Fix up, not totally correct
-        ContextMenu contextMenu = new ContextMenu();
-        MenuItem item1 = new MenuItem("Menu Item 1");
-        MenuItem item2 = new MenuItem("Menu Item 2");
-        contextMenu.getItems().addAll(item1, item2);
-
+//        MenuItem mi1 = new MenuItem("THIS ITEM");
+//        openRecentMenu.getItems().add(mi1);
        // openRecentMenuItem.setContextMenu
 
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
@@ -204,7 +205,8 @@ public class MainViewController {
      * @throws UnrecognizedAtomException
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
-       // pit.setProgress(100);
+        openRecentMenu.getItems().clear();
+        // pit.setProgress(100);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Molecule");
         fileChooser.setInitialDirectory(
@@ -239,6 +241,10 @@ public class MainViewController {
 
             //TODO refactor the libefp button
             libefpButton.setDisable(true);
+
+//            System.out.println("Recents chain: " + getRecentFileAggStr());
+            rec_files = getRecentFileAggStr().split("::");
+            populateOpenRecentMenu(rec_files);
         }
 
         else {
@@ -249,21 +255,75 @@ public class MainViewController {
 
             alert.showAndWait();
         }
-        //pit.setProgress(0);
     }
 
+
+
+
+    public void populateOpenRecentMenu(String[] recentFileArr) {
+        for (int i = recentFileArr.length - 1; i >= 0; i--) {
+            MenuItem mi = new MenuItem(recentFileArr[i]);
+            mi.setOnAction(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent t) {
+                    File jmolFile = new File(mi.getText());
+                    System.out.println("Jmol text: " + mi.getText());
+                    jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+
+                    try {
+                        if (jmolMainPanel.openFile(jmolFile)) {
+
+                            System.out.println("File opened in populate");
+                            leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+                            middleRightSplitPane.setDividerPositions(1, 0);
+
+                            //reset buttons
+                            haloButton.setSelected(false);
+                            snipButton.setSelected(false);
+                            playPauseButton.setText("");
+                            playPauseButton.setGraphic(new ImageView(play));
+                            playPauseButton.setSelected(false);
+
+                            //TODO refactor the libefp button
+                            libefpButton.setDisable(true);
+                        } //try
+                        else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("File Does Not Exist");
+                            alert.setContentText("We couldn't find the file you wanted. Try checking if the path is correct.");
+
+                            alert.showAndWait();
+                        }
+                    }
+                    catch (IOException e) {
+                        System.out.println("IOException");
+                    }
+                    catch (Exception e) {
+                        System.out.println("General Exception");
+                    }
+
+                }
+            });
+            openRecentMenu.getItems().add(mi);
+        }
+    }
+   // public void initialize file
+
     public void fileOpenRecent() throws IOException, UnrecognizedAtomException {
-        //TODO: Make it like a arrow dropdown (add context menu to this button)
-        HashMap<String, String> truncedFileMap; //for trunc file implm
+
+        openRecentMenu.getItems().clear();
+
         String recentFileStr = getRecentFileAggStr();
-        String[] rec_files = recentFileStr.split("::");
+        //System.out.println("AGG STR: " + recentFileStr);
+        rec_files = recentFileStr.split("::");
+        arrayReverse(rec_files, rec_files.length);
         //System.out.println("\nRecent File String: " + recentFileStr + "\n");
-        ObservableList<String> data = FXCollections.observableArrayList();
+//        ObservableList<String> data = FXCollections.observableArrayList();
 
         //Collections.reverse(data);
-        ListView<String> listView = new ListView<String>(data);
-        listView.setPrefSize(1000, 250);
-        listView.setEditable(true);
+//        ListView<String> listView = new ListView<String>(data);
+//        listView.setPrefSize(1000, 250);
+//        listView.setEditable(true);
 
 
         //LATER FEATURE: LIST FILES IN TRUNCATED FASHION (ex: ".../EFPfiles/Ch2.xyz")
@@ -274,63 +334,81 @@ public class MainViewController {
 //        }
 
         //LATER LATER FEATURE: Add tooltip of full path to each entry in ListView after converted to truncated?
-        data.addAll(rec_files);
-        Collections.reverse(data);
+//        data.addAll(rec_files);
+//        Collections.reverse(data);
 
-        Stage s1 = new Stage();
-        StackPane root = new StackPane();
-        root.getChildren().add(listView);
-        s1.setScene(new Scene(root, 450, 250));
-        s1.show();
+        for (int i = 0; i < rec_files.length; i++) {
+            openRecentMenu.getItems().add(new MenuItem(rec_files[i]));
+        }
+
+//        Stage s1 = new Stage();
+//        StackPane root = new StackPane();
+//        root.getChildren().add(listView);
+//        s1.setScene(new Scene(root, 450, 250));
+//        s1.show();
+
+
 
         //Listener below will open file of selected entry in JMOL
-        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+//        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+//
+//            @Override
+//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+////                System.out.println("OLD VALUE: " + oldValue);
+////                System.out.println("NEW VALUE: " + newValue);
+//
+//                File jmolFile = new File(newValue);
+//                jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+//
+//                try {
+//                    if (jmolMainPanel.openFile(jmolFile)) {
+//
+//
+//                        leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+//                        middleRightSplitPane.setDividerPositions(1, 0);
+//
+//                        //reset buttons
+//                        haloButton.setSelected(false);
+//                        snipButton.setSelected(false);
+//                        playPauseButton.setText("");
+//                        playPauseButton.setGraphic(new ImageView(play));
+//                        playPauseButton.setSelected(false);
+//
+//                        //TODO refactor the libefp button
+//                        libefpButton.setDisable(true);
+//                        s1.close();
+//                    } //try
+//                    else {
+//                        Alert alert = new Alert(Alert.AlertType.ERROR);
+//                        alert.setTitle("Error");
+//                        alert.setHeaderText("File Does Not Exist");
+//                        alert.setContentText("We couldn't find the file you wanted. Try checking if the path is correct.");
+//
+//                        alert.showAndWait();
+//                    }
+//                }
+//                catch (IOException e) {
+//                    System.out.println("IOException");
+//                }
+//                catch (Exception e) {
+//                    System.out.println("General Exception");
+//                }
+//            }
+//        });
 
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//                System.out.println("OLD VALUE: " + oldValue);
-//                System.out.println("NEW VALUE: " + newValue);
 
-                File jmolFile = new File(newValue);
-                jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+    }
 
-                try {
-                    if (jmolMainPanel.openFile(jmolFile)) {
-
-
-                        leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
-                        middleRightSplitPane.setDividerPositions(1, 0);
-
-                        //reset buttons
-                        haloButton.setSelected(false);
-                        snipButton.setSelected(false);
-                        playPauseButton.setText("");
-                        playPauseButton.setGraphic(new ImageView(play));
-                        playPauseButton.setSelected(false);
-
-                        //TODO refactor the libefp button
-                        libefpButton.setDisable(true);
-                        s1.close();
-                    } //try
-                    else {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("File Does Not Exist");
-                        alert.setContentText("We couldn't find the file you wanted. Try checking if the path is correct.");
-
-                        alert.showAndWait();
-                    }
-                }
-                catch (IOException e) {
-                    System.out.println("IOException");
-                }
-                catch (Exception e) {
-                    System.out.println("General Exception");
-                }
-            }
-        });
-
-
+    /*
+    Util method to reverse recent chains array for display. Only used in fileOpenRecent.
+     */
+    public static void arrayReverse(String a[], int n) {
+        String[] b = new String[n];
+        int j = n;
+        for (int i = 0; i < n; i++) {
+            b[j - 1] = a[i];
+            j = j - 1;
+        }
     }
     @FXML
     /**
