@@ -28,7 +28,7 @@
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
                                 <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
-                                <Menu mnemonicParsing="false" fx:id="openRecentMenu" onAction="#fileOpenRecent" text="Open Recent">
+                                <Menu mnemonicParsing="false" fx:id="openRecentMenu" onAction="#populateOpenRecentMenu" text="Open Recent">
                                     <!--<fx:define>-->
                                         <!--<ContextMenu fx:id="cmTF">-->
                                             <!--<items>-->
