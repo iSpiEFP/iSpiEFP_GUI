@@ -189,7 +189,12 @@ public class JmolPanel extends JPanel {
         FileParserController controller = loader.getController();
         controller.setFile(file);
 
-        stage.showAndWait();
+        try {
+            stage.showAndWait();
+        }
+        catch (Exception e) {
+            System.err.println("ERROR WITH STAGE SHOWING AND WAITING");
+        }
     }
     
     /**
