@@ -106,8 +106,8 @@ public class UserPreferences {
         }
 
         userPrefs.put(ENCRYPT_KEY, secretKey);
-        userPrefs.put(RECENTS_KEY, ""); //Initialize Recent files chain; file stuff zzz
-        userPrefs.put(RECENT_COUNT_KEY, "0");
+        //userPrefs.put(RECENTS_KEY, ""); //Initialize Recent files chain; file stuff zzz
+        //userPrefs.put(RECENT_COUNT_KEY, "0");
         /* Gamess Settings Initialization */
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
@@ -239,6 +239,10 @@ public class UserPreferences {
 
     //Gets aggregate list of recent files as string from user prefs
     public static String getRecentFileAggStr() {
+//        System.out.println("-------");
+//        System.out.println("Python path key: " + userPrefs.get(PYTHON_PATH_KEY, "check"));
+//        System.out.println("-------");
+        //System.out.println("Prefs str: " + userPrefs.get(RECENTS_KEY, "check"));
         return userPrefs.get(RECENTS_KEY, "check");
     }
 

@@ -131,7 +131,7 @@ public class MainViewController {
     //private UserPreferences userPrefs = new UserPreferences();
 
     private String[] rec_files;
-    private Menu recentMenu;
+    //private Menu recentMenu;
 
     /**
      * initialize(); is called after @FXML parameters have been loaded in
@@ -159,11 +159,13 @@ public class MainViewController {
 
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
 
+
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
         middleRightSplitPane.setDividerPositions(1, 0);
 
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
+
     }
 
     /**
