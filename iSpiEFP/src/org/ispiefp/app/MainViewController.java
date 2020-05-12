@@ -128,7 +128,7 @@ public class MainViewController {
 
     private Menu openRecentMenu;
 
-    private UserPreferences userPrefs = new UserPreferences();
+    //private UserPreferences userPrefs = new UserPreferences();
 
     private String[] rec_files;
     private Menu recentMenu;
@@ -161,10 +161,6 @@ public class MainViewController {
 
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
         middleRightSplitPane.setDividerPositions(1, 0);
-
-//        MenuItem mi1 = new MenuItem("THIS ITEM");
-//        openRecentMenu.getItems().add(mi1);
-       // openRecentMenuItem.setContextMenu
 
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
@@ -256,10 +252,19 @@ public class MainViewController {
     }
 
 
+    /*
+     File open recent:
+     Updated 5/11/20:
+     Logic for fileOpenRecent contained in 3 methods below:
+        - repopulate
+        - populateOpenRecentMenu
+        - fileOpenFromPath
+        These methods are used as of the time of writing only for recent files logic.
+     */
+
     public void repopulate() {
         openRecentMenu.getItems().clear();
         rec_files = getRecentFileAggStr().split("::");
-        System.out.println("Rec files in repop: " + Arrays.toString(rec_files));
         for (int i = rec_files.length - 1; i >= 0; i--) {
 
             MenuItem mi = new MenuItem(rec_files[i]);
@@ -273,6 +278,7 @@ public class MainViewController {
                     }
                     catch (Exception e) {
                         System.out.println("Exception in fileOpenPath");
+                        e.printStackTrace();
                     }
                 }
             });
@@ -282,11 +288,11 @@ public class MainViewController {
 
     }
 
+    //Handler method for fileOpenRecent button/File open recent
     public void populateOpenRecentMenu() throws IOException {
         openRecentMenu.getItems().clear();
         rec_files = getRecentFileAggStr().split("::");
 
-        //System.out.println("populate Button pressed");
         for (int i = rec_files.length - 1; i >= 0; i--) {
 
             MenuItem mi = new MenuItem(rec_files[i]);
@@ -295,7 +301,6 @@ public class MainViewController {
                 public void handle(ActionEvent t) {
                     try {
                         appendToRecentFilesStr(mi.getText());
-                        System.out.println("GGG H: currChain: " + getRecentFileAggStr());
                         fileOpenFromPath(mi.getText());
                         repopulate();
 
@@ -308,34 +313,12 @@ public class MainViewController {
 
             openRecentMenu.getItems().add(mi);
         }
-        System.out.println("GGG END: currChain: " + getRecentFileAggStr());
-//        rec_files = getRecentFileAggStr().split("::");
-//        openRecentMenu.getItems().clear();
-//        for (int i = rec_files.length - 1; i >= 0; i--) {
-//
-//            MenuItem mi = new MenuItem(rec_files[i]);
-//            System.out.println("New menu item made");
-//
-//            mi.setOnAction(new EventHandler<ActionEvent>() {
-//                public void handle(ActionEvent t) {
-//                    try {
-//                        appendToRecentFilesStr(mi.getText());
-//                        System.out.println("GGG H: currChain: " + getRecentFileAggStr());
-//                        fileOpenFromPath(mi.getText());
-//                    }
-//                    catch (Exception e) {
-//                        System.out.println("Exception in fileOpenPath");
-//                    }
-//                }
-//            });
-//
-//            openRecentMenu.getItems().add(mi);
-//        }
+
     }
 
     /*
-Used for opening files in the recent file list
- */
+        Used for opening files in the recent file list //ONLY USED FOR FILEOPENRECENT
+    */
     public void fileOpenFromPath(String moleculePath) throws IOException {
         File jmolFile = new File(moleculePath);
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
@@ -343,8 +326,6 @@ Used for opening files in the recent file list
         try {
             if (jmolMainPanel.openFile(jmolFile)) {
 
-              //  appendToRecentFilesStr(moleculePath); //Put the file path at the front
-               // rec_files = getRecentFileAggStr().split("::");
                 leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
                 middleRightSplitPane.setDividerPositions(1, 0);
 
@@ -357,7 +338,7 @@ Used for opening files in the recent file list
 
                 //TODO refactor the libefp button
                 libefpButton.setDisable(true);
-            } //try
+            }
 
         }
 
@@ -366,21 +347,10 @@ Used for opening files in the recent file list
         }
         catch (Exception e) {
             System.out.println("General Exception");
+            e.printStackTrace();
         }
     }
 
-
-    /*
-    Util method to reverse recent chains array for display. Only used in fileOpenRecent.
-     */
-    public static void arrayReverse(String a[], int n) {
-        String[] b = new String[n];
-        int j = n;
-        for (int i = 0; i < n; i++) {
-            b[j - 1] = a[i];
-            j = j - 1;
-        }
-    }
     @FXML
     /**
      * Opens a new stage for selecting a fragment from those contained within the fragmentTree

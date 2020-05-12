@@ -88,6 +88,7 @@ public class UserPreferences {
      * Default Value - The path returned by the environment variable PYTHONPATH or an error message if DNE
      */
     public void initializePreferences() {
+
         if ((userParameterPath = userPrefs.get(USER_PARAMETER_PATH_KEY, "check")).equals("check")) {
             userPrefs.put(USER_PARAMETER_PATH_KEY, LocalBundleManager.USER_PARAMETERS);
             userParameterPath = LocalBundleManager.USER_PARAMETERS;
@@ -103,7 +104,6 @@ public class UserPreferences {
         } else {
             pythonPathExists = true;
         }
-
 
         userPrefs.put(ENCRYPT_KEY, secretKey);
         userPrefs.put(RECENTS_KEY, ""); //Initialize Recent files chain; file stuff zzz
@@ -133,7 +133,7 @@ public class UserPreferences {
         }
     }
 
-    public static void addLibEFPPreset(CalculationPreset cp){
+    public static void addLibEFPPreset(CalculationPreset cp) {
         String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
         System.out.printf("encoded string is %s%n", encodedString);
         if (encodedString.equals("check")){
