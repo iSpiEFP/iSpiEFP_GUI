@@ -1,8 +1,13 @@
 package org.ispiefp.app.util;
 
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -12,7 +17,7 @@ import javafx.stage.StageStyle;
  */
 /*
   // 1. The code that needs the progress bar needs to go in the following segment within the call function
-  // Task task = new Task() {
+  Task task = new Task() {
       @Override
       protected Object call() throws Exception {
           // ADD EXECUTION CODE RIGHT HERE
@@ -30,10 +35,12 @@ import javafx.stage.StageStyle;
 
   // 2. call this class, pass in the task you made.
   // If you know the progress will not get to 100%, save the variable, and call destroyStage()
-  new customProgressBar(task);
+  new CustomProgressBar(task);
+  // Optionally, you can pass in a text to be displayed under the progress bar
+  new CustomProgressBar(task, "Calculation");
 
   // 3. make a new thread to start the progress bar
-  // new Thread(task).start();
+  new Thread(task).start();
 
   // 4. VERY IMPORTANT. If you have code that needs to be executed AFTER the task finishes.
   // Unfortunately, It has to be within this block. Otherwise, the task will run concurrently.
@@ -44,15 +51,25 @@ import javafx.stage.StageStyle;
   });
  */
 
-public class customProgressBar {
+public class CustomProgressBar {
 
     ProgressBar progressBar;
+    Label label;
     Task task;
     Stage stage;
+    String text;
 
-    public customProgressBar(Task task) {
+    private double xOffset = 0;
+    private double yOffset = 0;
+
+    public CustomProgressBar(Task task) {
+        this(task, "");
+    }
+
+    public CustomProgressBar(Task task, String text) {
         progressBar = new ProgressBar();
         this.task = task;
+        this.text = text;
         init();
     }
 
@@ -60,10 +77,13 @@ public class customProgressBar {
         stage = new Stage();
         stage.initStyle(StageStyle.UNDECORATED);
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setHeight(30);
+        stage.setHeight(80);
         stage.setWidth(600);
+        stage.setResizable(false);
 
         progressBar.setProgress(0.0);
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+        progressBar.setPrefHeight(50);
 
         task.setOnSucceeded(event -> stage.close());
         progressBar.progressProperty().bind(task.progressProperty());
@@ -71,7 +91,28 @@ public class customProgressBar {
             if (newValue.doubleValue() == 1) stage.close();
         });
 
-        Scene scene = new Scene(progressBar);
+        label = new Label(text);
+        label.setAlignment(Pos.CENTER);
+        label.setMaxWidth(Double.MAX_VALUE);
+        label.setPrefHeight(20);
+
+        VBox vBox = new VBox(label, progressBar);
+        vBox.setSpacing(10);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setMaxWidth(Double.MAX_VALUE);
+        vBox.setPadding(new Insets(10, 10, 10, 10));
+
+        // dragging
+        vBox.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+        vBox.setOnMouseDragged(event -> {
+            stage.setX(event.getScreenX() - xOffset);
+            stage.setY(event.getScreenY() - yOffset);
+        });
+
+        Scene scene = new Scene(vBox);
         stage.setScene(scene);
         stage.show();
 
