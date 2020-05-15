@@ -13,6 +13,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
+import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.loginPack.LoginForm;
@@ -147,6 +148,7 @@ public class libEFPInputController implements Initializable {
 
     private ArrayList<String> efpFilenames;
     private ArrayList<File> efpFiles;
+    private ArrayList<MetaData> metaDataList;
     private String workingDirectoryPath;
     private String libEFPInputsDirectory;
     private String efpFileDirectoryPath;
@@ -176,13 +178,16 @@ public class libEFPInputController implements Initializable {
         this.jobids = jobids;
         this.efpFilenames = efpFilenames;
         this.workingDirectoryPath = LocalBundleManager.workingDirectory;
-        this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + "/";  //storage for db incoming efp files
+        this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + File.separator;  //storage for db incoming efp files
         this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS;         //needed for db file storage
         // initWorkingDir();
     }
 
     public libEFPInputController(){
         super();
+        this.workingDirectoryPath = LocalBundleManager.workingDirectory;
+        this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + File.separator;  //storage for db incoming efp files
+        this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS;         //needed for db file storage
     }
 
     @Override
@@ -432,27 +437,40 @@ public class libEFPInputController implements Initializable {
         }
     }
 
-
+    /**
+     * Written by Ryan DeRue
+     *
+     * This method is called from the controller which initialized this controller. By calling this function,
+     * each of the fragments in the viewer have their RMSD computed against fragments whose chemical formula
+     * match in the list of available fragments. It then uses this information to populate the libEFP Input text
+     * areas. Currently it uses the first available fragment with a sufficiently small RMSD.
+     *
+     * Confusing variables:
+     *   1. viewerFragments ArrayList<ArrayList<Integer>>
+     *       An ArrayList<Integer> is the internal representation jmol uses for fragments. This variable is an
+     *       ArrayList of all of those representations.
+     *   2. viewerFragmentMap Map<Integer, Map<String, String>>
+     *       Maps the viewerFragment index of a fragment to a map whose keys are the name of a fragment
+     *       that matches on chemical formula and values are the computed RMSD values of this fragment against
+     *       the viewerFragment as a String.
+     *
+     * TODO: Create a list of fragments that matched on chemical formula and their RMSDs and let user pick.
+     */
     public void initEfpFiles(){
-        ArrayList<File> efpFiles = new ArrayList<>();
+        efpFiles = new ArrayList<>();
+//        ArrayList<MetaData> = new ArrayList<>();
         for (int i = 0; i < viewerFragments.size(); i++) {
             Map<String, String> fragmentMetas = viewerFragmentMap.get(i);
-            System.out.printf("viewerFragmentMap has size %d%n", viewerFragmentMap.size());
-            Iterator<String> fragIterator = fragmentMetas.keySet().iterator();
-            while (fragIterator.hasNext()){
-                System.out.println("Found a fragment named " + fragIterator.next() + " in a match");
-            }
             if (fragmentMetas.keySet().size() > 0) {
                 String metaDataName = (String) fragmentMetas.keySet().toArray()[0];
-                System.out.println("Got this to be " + metaDataName);
                 MetaData md = fragmentMap.get(metaDataName);
                 if (md != null) {
-                    System.out.println("Using fragment parameters from : " + md.getFragmentName());
+                    md.setEfpFile();
+                    System.out.printf("Within the libEFPInputController, the size of the %s is %d%n", md.getEfpFile().getName(), md.getEfpFile().length());
                     efpFiles.add(md.getEfpFile());
                 } else System.err.println("Could not find the metadata " + metaDataName);
             }
         }
-        //coordinates = Main.fragmentTree.getSelectedFragment().getXYZCoords();
         coordinates = generateInputText();
         try {
             libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
@@ -536,135 +554,284 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-        if (selectedServer.getServerType().equalsIgnoreCase("local"))
-            submitJobToLocalServer(selectedServer);
-        else {
-            String hostname = this.hostname;
-            LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
-            boolean authorized = loginForm.authenticate();
-            if (authorized) {
+//        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
+        String hostname;
+        String password;
+        String username;
+        hostname = server.getText();
+//        if (UserPreferences.getLibefpServer().equals(hostname)){
+//            username = UserPreferences.getLibefpUsername();
+//            password = UserPreferences.getLibefpPassword();
+//        }
+//        else {
+//            //todo: Handle the case that the user never setup their Settings
+//        }
+        LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
+        boolean authorized = loginForm.authenticate();
+        if (authorized) {
+            createInputFile("md_1.in", this.libEFPInputsDirectory);
+            Thread.sleep(100);
+            System.out.println("sending these efp files:");
+            for (File file : efpFiles) {
+                System.out.println(file.getName());
+            }
+
+            Connection conn = loginForm.getConnection(authorized);
+
+            username = loginForm.getUsername();
+            password = loginForm.getPassword();
 
 
-                createInputFile("md_1.in", this.libEFPInputsDirectory);
-                Thread.sleep(100);
-                System.out.println("sending these efp files:");
-                for (String filename : this.efpFilenames) {
-                    System.out.println(filename);
-                }
-
-                Connection conn = loginForm.getConnection(authorized);
-
-                String username = loginForm.getUsername();
-                String password = loginForm.getPassword();
+            SCPClient scp = conn.createSCPClient();
 
 
-                SCPClient scp = conn.createSCPClient();
+            SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
+            FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + "/md_1.in"));
 
 
-                SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
-                FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + "/md_1.in"));
+            IOUtils.copy(in, scpos);
+            in.close();
+            scpos.close();
+            System.out.println("sent config file");
 
 
+            Session sess = conn.openSession();
+            sess.close();
+
+            for (File file : efpFiles) {
+                SCPClient scpClient = conn.createSCPClient();
+                String filename = file.getName();
+                String filePath = file.getAbsolutePath();
+                System.out.println(filename);
+                filename = filename.toLowerCase();
+                //scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
+//                scpos = scpClient.put(filename, new File(this.efpFileDirectoryPath + filename).length(), "./iSpiClient/Libefp/fraglib", "0666");
+                scpos = scpClient.put(filePath, file.length(), "./iSpiClient/Libefp/fraglib", "0666");
+                System.out.printf("Creating new FIS: %s%s%n", this.efpFileDirectoryPath, filename);
+//                System.out.printf("Size of file is %d %n", new File(filePath).length());
+//                in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
+                in = new FileInputStream(file);
                 IOUtils.copy(in, scpos);
                 in.close();
                 scpos.close();
-                System.out.println("sent config file");
-
-
-                Session sess = conn.openSession();
-                sess.close();
-
-                for (String filename : this.efpFilenames) {
-                    System.out.println(filename);
-                    filename = filename.toLowerCase();
-                    //scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
-                    scpos = scp.put(filename, new File(this.efpFileDirectoryPath + filename).length(), "./iSpiClient/Libefp/fraglib", "0666");
-                    in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
-                    IOUtils.copy(in, scpos);
-                    in.close();
-                    scpos.close();
-                }
-
-
-                DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
-                Date date = new Date();
-                String currentTime = dateFormat.format(date).toString();
-
-                String jobID = (new JobManager()).generateJobID().toString();
-
-                String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
-
-                scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
-                InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
-                IOUtils.copy(istream, scpos);
-                istream.close();
-                scpos.close();
-
-                sess = conn.openSession();
-                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
-
-                InputStream stdout = new StreamGobbler(sess.getStdout());
-                BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-                String clusterjobID = "";
-                while (true) {
-                    String line = br.readLine();
-                    if (line == null)
-                        break;
-                    System.out.println(line);
-                    String[] tokens = line.split("\\.");
-                    if (tokens[0].matches("\\d+")) {
-                        clusterjobID = tokens[0];
-                    }
-                }
-                System.out.println(clusterjobID);
-                br.close();
-                stdout.close();
-                sess.close();
-                conn.close();
-
-                String time = currentTime; //equivalent but in different formats
-                dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                currentTime = dateFormat.format(date).toString();
-
-                userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-
-                String serverName = Main.iSpiEFP_SERVER;
-                int port = Main.iSpiEFP_PORT;
-
-                //send over job data to database
-                String query = "Submit";
-                query += "$END$";
-                query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
-                query += "$ENDALL$";
-
-                //Socket client = new Socket(serverName, port);
-                iSpiEFPServer iSpiServer = new iSpiEFPServer();
-                Socket client = iSpiServer.connect(serverName, port);
-                if (client == null) {
-                    return;
-                }
-                OutputStream outToServer = client.getOutputStream();
-                //DataOutputStream out = new DataOutputStream(outToServer);
-
-                System.out.println(query);
-                outToServer.write(query.getBytes("UTF-8"));
-                client.close();
-                outToServer.close();
-
-                JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
-                jobManager.watchJobStatus();
-
-
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Libefp Submission");
-                alert.setHeaderText(null);
-                alert.setContentText("Job submitted to cluster successfully.");
-                alert.showAndWait();
             }
+
+
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+            Date date = new Date();
+            String currentTime = dateFormat.format(date).toString();
+
+            String jobID = (new JobManager()).generateJobID().toString();
+
+            String pbs_script = "/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
+//            String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
+
+            scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
+            InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
+            IOUtils.copy(istream, scpos);
+            istream.close();
+            scpos.close();
+
+            sess = conn.openSession();
+            sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
+
+            InputStream stdout = new StreamGobbler(sess.getStdout());
+            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+            String clusterjobID = "";
+            while (true) {
+                String line = br.readLine();
+                if (line == null)
+                    break;
+                System.out.println(line);
+                String[] tokens = line.split("\\.");
+                if (tokens[0].matches("\\d+")) {
+                    clusterjobID = tokens[0];
+                }
+            }
+            System.out.println(clusterjobID);
+            br.close();
+            stdout.close();
+            sess.close();
+            conn.close();
+
+            String time = currentTime; //equivalent but in different formats
+            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+            currentTime = dateFormat.format(date).toString();
+
+            userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
+
+            String serverName = Main.iSpiEFP_SERVER;
+            int port = Main.iSpiEFP_PORT;
+
+            //send over job data to database
+            String query = "Submit";
+            query += "$END$";
+            query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+            query += "$ENDALL$";
+
+            //Socket client = new Socket(serverName, port);
+            iSpiEFPServer iSpiServer = new iSpiEFPServer();
+            Socket client = iSpiServer.connect(serverName, port);
+            if (client == null) {
+                return;
+            }
+            OutputStream outToServer = client.getOutputStream();
+            //DataOutputStream out = new DataOutputStream(outToServer);
+
+            System.out.println(query);
+            outToServer.write(query.getBytes("UTF-8"));
+            client.close();
+            outToServer.close();
+
+            JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
+            jobManager.watchJobStatus();
+
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Libefp Submission");
+            alert.setHeaderText(null);
+            alert.setContentText("Job submitted to cluster successfully.");
+            alert.showAndWait();
         }
     }
 
+//    /**
+//     * Handle job submission for the efpmd package
+//     *
+//     * @throws IOException
+//     * @throws InterruptedException
+//     */
+//    public void handleSubmit() throws IOException, InterruptedException {
+//        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
+//        if (selectedServer.getServerType().equalsIgnoreCase("local"))
+//            submitJobToLocalServer(selectedServer);
+//        else {
+//            String hostname = this.hostname;
+//            LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
+//            boolean authorized = loginForm.authenticate();
+//            if (authorized) {
+//
+//
+//                createInputFile("md_1.in", this.libEFPInputsDirectory);
+//                Thread.sleep(100);
+//                System.out.println("sending these efp files:");
+//                for (String filename : this.efpFilenames) {
+//                    System.out.println(filename);
+//                }
+//
+//                Connection conn = loginForm.getConnection(authorized);
+//
+//                String username = loginForm.getUsername();
+//                String password = loginForm.getPassword();
+//
+//
+//                SCPClient scp = conn.createSCPClient();
+//
+//
+//                SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
+//                FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + "/md_1.in"));
+//
+//
+//                IOUtils.copy(in, scpos);
+//                in.close();
+//                scpos.close();
+//                System.out.println("sent config file");
+//
+//
+//                Session sess = conn.openSession();
+//                sess.close();
+//
+//                for (String filename : this.efpFilenames) {
+//                    System.out.println(filename);
+//                    filename = filename.toLowerCase();
+//                    //scpos = scp.put(filename,new File(this.efpFileDirectoryPath+filename).length(),"./vmol/fraglib","0666");
+//                    scpos = scp.put(filename, new File(this.efpFileDirectoryPath + filename).length(), "./iSpiClient/Libefp/fraglib", "0666");
+//                    in = new FileInputStream(new File(this.efpFileDirectoryPath + filename));
+//                    IOUtils.copy(in, scpos);
+//                    in.close();
+//                    scpos.close();
+//                }
+//
+//
+//                DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+//                Date date = new Date();
+//                String currentTime = dateFormat.format(date).toString();
+//
+//                String jobID = (new JobManager()).generateJobID().toString();
+//
+//                String pbs_script = "./iSpiClient/Libefp/src/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
+//
+//                scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
+//                InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
+//                IOUtils.copy(istream, scpos);
+//                istream.close();
+//                scpos.close();
+//
+//                sess = conn.openSession();
+//                sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
+//
+//                InputStream stdout = new StreamGobbler(sess.getStdout());
+//                BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+//                String clusterjobID = "";
+//                while (true) {
+//                    String line = br.readLine();
+//                    if (line == null)
+//                        break;
+//                    System.out.println(line);
+//                    String[] tokens = line.split("\\.");
+//                    if (tokens[0].matches("\\d+")) {
+//                        clusterjobID = tokens[0];
+//                    }
+//                }
+//                System.out.println(clusterjobID);
+//                br.close();
+//                stdout.close();
+//                sess.close();
+//                conn.close();
+//
+//                String time = currentTime; //equivalent but in different formats
+//                dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+//                currentTime = dateFormat.format(date).toString();
+//
+//                userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
+//
+//                String serverName = Main.iSpiEFP_SERVER;
+//                int port = Main.iSpiEFP_PORT;
+//
+//                //send over job data to database
+//                String query = "Submit";
+//                query += "$END$";
+//                query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+//                query += "$ENDALL$";
+//
+//                //Socket client = new Socket(serverName, port);
+//                iSpiEFPServer iSpiServer = new iSpiEFPServer();
+//                Socket client = iSpiServer.connect(serverName, port);
+//                if (client == null) {
+//                    return;
+//                }
+//                OutputStream outToServer = client.getOutputStream();
+//                //DataOutputStream out = new DataOutputStream(outToServer);
+//
+//                System.out.println(query);
+//                outToServer.write(query.getBytes("UTF-8"));
+//                client.close();
+//                outToServer.close();
+//
+//                JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
+//                jobManager.watchJobStatus();
+//
+//
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setTitle("Libefp Submission");
+//                alert.setHeaderText(null);
+//                alert.setContentText("Job submitted to cluster successfully.");
+//                alert.showAndWait();
+//            }
+//        }
+//    }
+//
     public void saveCalculationType() {
         Boolean[] terms = new Boolean[4];
         for (int i = 0; i < 4; i++) {
@@ -685,6 +852,13 @@ public class libEFPInputController implements Initializable {
         presets.getSelectionModel().select(savedType.getTitle());
     }
 
+    /**
+     * Written by Ryan DeRue
+     * This method loads every non coordinate field of the libEFP setup with one of the user's saved calculations
+     * whose options are saved in the CalculationPreset class which is passed. Is backed by the UserPreferences
+     * Java class.
+     * @param cp CalculationPreset class containing the user's options
+     */
     @FXML
     public void loadPreset(CalculationPreset cp) {
         title.setText(cp.getTitle());
@@ -703,6 +877,10 @@ public class libEFPInputController implements Initializable {
         }
     }
 
+    /**
+     * Written by Ryan DeRue
+     * Deletes the currently selected preset from the User's machine.
+     */
     @FXML
     public void deletePreset() {
         if (presets.getSelectionModel().isEmpty()) return;
@@ -727,6 +905,23 @@ public class libEFPInputController implements Initializable {
         return groups;
     }
 
+    /**
+     * Written by Ryan DeRue
+     * This method is responsible for generating the text which populates the box at the bottom of the view which will
+     * eventually be used to create the actual input file that will be sent to run the calculation. The getGroups fxn
+     * was already written when I started working on this class. I use it as a blackBox to interpret the viewerFragments
+     * correctly.
+     *
+     * Confusing variables:
+     *   1. viewerFragments ArrayList<ArrayList<Integer>>
+     *       An ArrayList<Integer> is the internal representation jmol uses for fragments. This variable is an
+     *       ArrayList of all of those representations.
+     *   2. viewerFragmentMap Map<Integer, Map<String, String>>
+     *       Maps the viewerFragment index of a fragment to a map whose keys are the name of a fragment
+     *       that matches on chemical formula and values are the computed RMSD values of this fragment against
+     *       the viewerFragment as a String.
+     * @return The String populate the inputTextArea.
+     */
     private String generateInputText()  {
         StringBuilder sb = new StringBuilder();
         ArrayList<ArrayList> groups = getGroups(viewerFragments);
@@ -756,6 +951,15 @@ public class libEFPInputController implements Initializable {
         return sb.toString();
     }
 
+    /**
+     * Written by Ryan DeRue
+     * Method creates a temporary xyz file for the viewerFragment whose index is passed to this function. This function
+     * is primarily used for computing RMSDs against the xyz files of the library fragments. The created file will be
+     * deleted when the program exits.
+     * @param fragmentIndex The index of the fragment in the viewer
+     * @return A java.io file containing the xyz coordinates of a viewerFragment.
+     * @throws IOException if the file is not able to be created.
+     */
     private File createTempXYZFileFromViewer(int fragmentIndex) throws IOException {
         BufferedWriter bw = null;
         File xyzFile = null;
@@ -789,18 +993,18 @@ public class libEFPInputController implements Initializable {
         finally {
             if (bw != null) bw.close();
         }
-        System.out.println();
         return xyzFile;
     }
 
     /**
+     * Written by Ryan DeRue
      * Method computes the RMSD between each of the fragments in the viewer and each of the fragments in the
      * local fragment tree
      * @return a Map containing each of the fragments mapped to their respective RMSD values which had an RMSD below 0.5
      */
     private Map<String, String> computeRMSD(int fragmentIndex){
-        Map<String, String> rmsdMap = new HashMap<>(); /* Will be populated with all efp files that were within 0.5 rmsd. Maps
-                                                          EFPFile to the computed RMSD as a string                            */
+        Map<String, String> rmsdMap = new HashMap<>(); /* Will be populated with all of the fragment names and their  *
+                                                        * respective RMSDs                                            */
         File fragmentXYZFile = null;
         File viewerFragmentXYZFile = null;
         try {

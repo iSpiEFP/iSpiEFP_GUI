@@ -80,7 +80,7 @@ public class LoginForm {
         return this.hostname;
     }
 
-    private void setUsername(String username) {
+    public void setUsername(String username) {
         if (_remember) {
             //overwrite preferences - May not work for windows computers
             if (username != null) {
@@ -93,7 +93,7 @@ public class LoginForm {
         this.username = username;
     }
 
-    private void setPassword(String password) {
+    public void setPassword(String password) {
         if (_remember) {
             //overwrite preferences
             if (password != null) {

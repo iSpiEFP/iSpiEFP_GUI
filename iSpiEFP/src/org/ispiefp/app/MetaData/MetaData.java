@@ -475,6 +475,7 @@ public class MetaData {
         }
         GithubRequester requester = new GithubRequester(fromFile);
         efpFile = requester.getEFPFile();
+        System.out.printf("When setting, size of file is %d%n", efpFile.length());
         requester.cleanUp();
     }
 
