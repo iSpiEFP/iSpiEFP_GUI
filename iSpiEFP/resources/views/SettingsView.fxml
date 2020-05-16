@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeItem?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.PasswordField?>
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
+    <top>
+        <AnchorPane fx:id="anchor" minHeight="400.0" minWidth="900.0" prefHeight="700.0" prefWidth="1200.0">
+            <VBox prefHeight="679.0" prefWidth="248.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <TreeView fx:id="menuTree" prefHeight="655.0" prefWidth="248.0" showRoot="false">
+                    <TreeItem fx:id="topLeveLSettings" value="Settings">
+                        <children>
+                            <TreeItem fx:id="defaultPaths" value="Default Paths" />
+                            <TreeItem fx:id="serverSettings" value="Server Settings">
+                                <children>
+                                    <TreeItem fx:id="gamessServer" value="GAMESS Server Settings" />
+                                    <TreeItem fx:id="libEFPServer" value="LibEFP Server Settings" />
+                                </children>
+                            </TreeItem>
+                        </children>
+                    </TreeItem>
+                </TreeView>
+            </VBox>
+            <VBox fx:id="pathsBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Directory containing user generated parameters" textAlignment="CENTER" />
+                <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Button text="Find" onAction="#selectParameterDirectory" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path to Python interpreter" textAlignment="CENTER" />
+                <TextField fx:id="pythonPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Button text="Find" onAction="#selectPythonPath"/>
+                <Separator />
+                <HBox spacing="10.0" alignment="BOTTOM_RIGHT">
+                    <Button fx:id="pathsSave" text="Save" onAction="#pathsSave"/>
+                    <Button text="Restore Defaults" onAction="#pathsRestoreDefaults"/>
+                </HBox>
+            </VBox>
+            <VBox fx:id="gamessBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="GAMESS Server Address" />
+                <TextField fx:id="gamessServerField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="GAMESS Server Username" />
+                <TextField fx:id="gamessUserName" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="GAMESS Server Password" />
+                <PasswordField fx:id="gamessPassword" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path for GAMESS Output Files" />
+                <TextField fx:id="gamessOutputPath" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Button text="Find" onAction="#selectGamessOutputDirectory"/>
+                <Separator />
+                <HBox spacing="10.0" alignment="BOTTOM_RIGHT" >
+                    <Button fx:id="gamessSave" text="Save" onAction="#gamessSave"/>
+                    <Button text="Clear" onAction="#gamessClear"/>
+                </HBox>
+            </VBox>
+            <VBox fx:id="libEFPBox" prefHeight="655.0" prefWidth="624.0" visible="false" spacing="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="libEFP Server Address" />
+                <TextField fx:id="libEFPServerField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="libEFP Server Username" />
+                <TextField fx:id="libEFPUserName" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="libEFP Server Password" />
+                <PasswordField fx:id="libEFPPassword" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path for libEFP Output Files" />
+                <TextField fx:id="libEFPOutputPath" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Button text="Find" onAction="#selectLibEFPOutputDirectory"/>
+                <Separator />
+                <HBox spacing="10.0" alignment="BOTTOM_RIGHT" >
+                    <Button fx:id="libEFPSave" text="Save" onAction="#libEFPSave"/>
+                    <Button text="Clear" onAction="#libEFPClear"/>
+                </HBox>
+            </VBox>
+        </AnchorPane>
+    </top>
+</BorderPane>

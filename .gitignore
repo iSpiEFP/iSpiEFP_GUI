@@ -1,4 +1,5 @@
 .DS_Store
 /bin/
 .idea/
-iSpiEFP/out/
+iSpiEFP/out/test
+iSpiEFP/out/production/iSpiEFP_GUI
