@@ -99,6 +99,8 @@ public class SelectRMSDController {
 
     private Stage currentStage;
 
+    private boolean alwaysLowest;
+
     public SelectRMSDController(){
         super();
         currentViewerFragmentIndex = 0;
@@ -198,6 +200,10 @@ public class SelectRMSDController {
             e.printStackTrace();
             System.out.println("Can not create XYZ file");
         }
+    }
+
+    private void handleSelectAlwaysLowest(){
+
     }
 
     private File createTempXYZFileFromViewer(int fragmentIndex) throws IOException {
