@@ -608,6 +608,8 @@ public class libEFPInputController implements Initializable {
 
             SCPClient scp = conn.createSCPClient();
 
+            libEFPSlurmSubmission submitter = new libEFPSlurmSubmission()
+
 
             SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
             FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + "/md_1.in"));

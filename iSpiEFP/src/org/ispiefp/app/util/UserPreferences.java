@@ -28,6 +28,7 @@ public class UserPreferences {
     private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
     private static final String ENCRYPT_KEY = "encryptionKey";
     private static final String LIBEFP_PRESETS_KEY = "libefpPresets";
+    private static final String LIBEFP_RJOBS_KEY = "libefprunningjobs";
 
     private static String userParameterPath = null;
     private static String pythonPath = null;
@@ -39,6 +40,7 @@ public class UserPreferences {
     private static String libefpUsername = null;
     private static String libefpPassword = null;
     private static String libefpOutputPath = null;
+    private static String libefpRunningJobs = null;
     private static HashMap<String, CalculationPreset> libefpPresets;
 
     private static SecureRandom random = new SecureRandom();
@@ -57,7 +59,6 @@ public class UserPreferences {
 
     private static String encrypLibEFPPass = null;
     private static String secretKey = generateRandomString(12);
-    //TODO: Make rand string, put as user pref
 
     private static boolean pythonPathExists = false;
     private static Preferences userPrefs;

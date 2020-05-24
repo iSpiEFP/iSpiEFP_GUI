@@ -45,7 +45,7 @@ public abstract class libEFPSubmission {
     String inputFilePath;
     String outputFilename;
 
-    abstract String submit(String efpmdPath, String inputFilePath, String outputFilename);
+    abstract String submit(String efpmdPath, String inputFilePath, String outputFilename, String schedulerOutputName);
     abstract File createSubmissionScript(String efpmdPath, String inputFilePath, String outputFilename) throws IOException;
 
     public void setHostname(String hostname) {
@@ -146,7 +146,7 @@ class libEFPPBSSubmission extends libEFPSubmission {
 }
 class libEFPSlurmSubmission extends libEFPSubmission {
 
-    public libEFPSlurmSubmission(String stdoutFilename, String queueName, int numNodes, int numProcessors,
+    public libEFPSlurmSubmission(String queueName, int numNodes, int numProcessors,
                                  String walltime, int mem){
 
 //        submitString = "/usr/pbs/bin/qsub ${JOB_NAME}.run";
@@ -155,7 +155,6 @@ class libEFPSlurmSubmission extends libEFPSubmission {
 //        jobFileListString = "find ${JOB_DIR} -type f";
 //        queueInfoString = "/usr/pbs/bin/qstat -fQ";
 //
-        this.stdoutFilename = stdoutFilename;
         this.queueName = queueName;
         this.numNodes = numNodes;
         this.numProcessors = numProcessors;
@@ -163,7 +162,7 @@ class libEFPSlurmSubmission extends libEFPSubmission {
         this.mem = mem;
     }
 
-    File createSubmissionScript(String efpmdPath, String inputFilePath, String outputFilename) throws IOException {
+    File createSubmissionScript(String efpmdPath, String inputFilePath, String outputFilename, String schedulerOutName) throws IOException {
         String template = String.format(
             "#!/bin/bash\n" +
             "#SBATCH -o %s\n" +
@@ -173,8 +172,10 @@ class libEFPSlurmSubmission extends libEFPSubmission {
             "#SBATCH -t %s\n" +
             "#SBATCH --mem=%d\n" +
             "%s %s > %s",
-            stdoutFilename, queueName, numNodes, numProcessors, walltime,
-            mem, efpmdPath, inputFilePath, outputFilename
+            LocalBundleManager.LIBEFP_OUTPUTS + LocalBundleManager.FILE_SEPERATOR + schedulerOutName + ".stdout",
+            queueName, numNodes, numProcessors, walltime, mem, efpmdPath,
+            LocalBundleManager.LIBEFP_INPUTS + LocalBundleManager.FILE_SEPERATOR + inputFilePath,
+            LocalBundleManager.LIBEFP_OUTPUTS + LocalBundleManager.FILE_SEPERATOR + outputFilename
         );
 
         File submissionScript = new File("submission.slurm");
@@ -184,7 +185,7 @@ class libEFPSlurmSubmission extends libEFPSubmission {
     public String submit(String efpmdPath, String inputFilePath, String outputFilename) {
         String jobID = UUID.randomUUID().toString();
         try {
-        File submissionScript = createSubmissionScript(efpmdPath, inputFilePath, outputFilename);
+        File submissionScript = createSubmissionScript(efpmdPath, inputFilePath, outputFilename, jobID);
         Connection con = new Connection(hostname);
             boolean isAuthenticated = con.authenticateWithPassword(username, password);
             if (!isAuthenticated) {
@@ -197,7 +198,7 @@ class libEFPSlurmSubmission extends libEFPSubmission {
             scp.put(remoteFileName, submissionScript.length(), LocalBundleManager.LIBEFP_INPUTS, "0666");
             Session s = con.openSession();
             s.execCommand("cd " + LocalBundleManager.LIBEFP);
-            s.execCommand(String.format("sbatch %s", LocalBundleManager.LIBEFP_INPUTS + remoteFileName));
+            s.execCommand(String.format("sbatch %s", LocalBundleManager.LIBEFP_INPUTS + LocalBundleManager.FILE_SEPERATOR + remoteFileName));
             return jobID;
         } catch (IOException e){
             e.printStackTrace();
