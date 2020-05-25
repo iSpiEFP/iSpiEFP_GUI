@@ -134,9 +134,11 @@ public class UserPreferences {
         encodedString = userPrefs.get(SERVERS_KEY, "check");
         if (!encodedString.equals("check")){
             String [] serverStringArray = encodedString.split("%@%");
-            for (int i = 0; i < serverStringArray.length; i++){
-                ServerInfo newServer = new ServerInfo(serverStringArray[i]);
-                servers.put(newServer.getEntryname(), newServer);
+            for (int i = 0; i < serverStringArray.length; i++) {
+                if (!serverStringArray[i].equals("")) {
+                    ServerInfo newServer = new ServerInfo(serverStringArray[i]);
+                    servers.put(newServer.getEntryname(), newServer);
+                }
             }
         }
     }
@@ -189,7 +191,8 @@ public class UserPreferences {
         String [] simpleString = encodedString.split("%@%");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < simpleString.length; i++){
-            if (simpleString[i].equals(name)) continue;
+            System.out.println(simpleString[i]);
+            if (simpleString[i].split(";%;")[0].equals(name)) continue;
             sb.append(simpleString[i]);
             if (i != simpleString.length - 1) sb.append("%@%");
         }

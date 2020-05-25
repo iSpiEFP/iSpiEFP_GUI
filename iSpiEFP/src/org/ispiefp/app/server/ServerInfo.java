@@ -3,6 +3,7 @@ package org.ispiefp.app.server;
 import java.io.Serializable;
 
 public class ServerInfo implements Serializable{
+
     private String entryname;
     private String hostname;
     private String username;
@@ -11,6 +12,7 @@ public class ServerInfo implements Serializable{
     private boolean hasGAMESS;
     private String libEFPPath;
     private String gamessPath;
+    private String scheduler;
 
     public ServerInfo(String entryname, boolean dummy){
         this.entryname = entryname;
@@ -26,6 +28,10 @@ public class ServerInfo implements Serializable{
         hasGAMESS = parsedTerms[5].equals("true");
         libEFPPath = parsedTerms[6];
         gamessPath = parsedTerms[7];
+        scheduler = parsedTerms[8];
+
+
+
     }
 
     public void setEntryname(String entryname) {
@@ -38,6 +44,10 @@ public class ServerInfo implements Serializable{
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setHasLibEFP(boolean hasLibEFP) {
@@ -56,6 +66,10 @@ public class ServerInfo implements Serializable{
         this.gamessPath = gamessPath;
     }
 
+    public void setScheduler(String scheduler) {
+        this.scheduler = scheduler;
+    }
+
     public String getEntryname() {
         return entryname;
     }
@@ -66,6 +80,10 @@ public class ServerInfo implements Serializable{
 
     public String getUsername() {
         return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getGamessPath() {
@@ -82,6 +100,10 @@ public class ServerInfo implements Serializable{
 
     public boolean hasLibEFP() {
         return hasLibEFP;
+    }
+
+    public String getScheduler() {
+        return scheduler;
     }
 
     public String getServerInfoDefinedString(){
@@ -101,6 +123,8 @@ public class ServerInfo implements Serializable{
         sb.append(libEFPPath);
         sb.append(";%;");
         sb.append(gamessPath);
+        sb.append(";%;");
+        sb.append(scheduler);
         return sb.toString();
     }
 }
