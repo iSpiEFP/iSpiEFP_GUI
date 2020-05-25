@@ -20,7 +20,7 @@
                     <TreeItem fx:id="topLeveLSettings" value="Settings">
                         <children>
                             <TreeItem fx:id="defaultPaths" value="Default Paths" />
-                            <TreeItem fx:id="serverSettings" value="Server Settings">
+                            <TreeItem fx:id="serverSettings" value="Servers">
                                 <children>
                                     <TreeItem fx:id="gamessServer" value="GAMESS Server Settings" />
                                     <TreeItem fx:id="libEFPServer" value="LibEFP Server Settings" />

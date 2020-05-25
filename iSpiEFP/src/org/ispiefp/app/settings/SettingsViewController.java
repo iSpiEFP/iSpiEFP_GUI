@@ -2,6 +2,7 @@ package org.ispiefp.app.settings;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -75,7 +76,8 @@ public class SettingsViewController {
         initializePaths();
         initializeGamess();
         initializeLibEFP();
-        if (menuTree == null) System.out.println("yeh");
+
+
         menuTree.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
             @Override
             public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue, TreeItem<String> newValue) {

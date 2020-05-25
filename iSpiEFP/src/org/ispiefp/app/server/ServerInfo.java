@@ -6,13 +6,26 @@ public class ServerInfo implements Serializable{
     private String entryname;
     private String hostname;
     private String username;
+    private String password;
     private boolean hasLibEFP;
     private boolean hasGAMESS;
     private String libEFPPath;
     private String gamessPath;
 
-    public ServerInfo(String entryname){
+    public ServerInfo(String entryname, boolean dummy){
         this.entryname = entryname;
+    }
+
+    public ServerInfo(String definedString){ //separates each term with a ;%;
+        String[] parsedTerms = definedString.split(";%;");
+        entryname = parsedTerms[0];
+        hostname = parsedTerms[1];
+        username = parsedTerms[2];
+        password = parsedTerms[3];
+        hasLibEFP = parsedTerms[4].equals("true");
+        hasGAMESS = parsedTerms[5].equals("true");
+        libEFPPath = parsedTerms[6];
+        gamessPath = parsedTerms[7];
     }
 
     public void setEntryname(String entryname) {
@@ -69,5 +82,25 @@ public class ServerInfo implements Serializable{
 
     public boolean hasLibEFP() {
         return hasLibEFP;
+    }
+
+    public String getServerInfoDefinedString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(entryname);
+        sb.append(";%;");
+        sb.append(hostname);
+        sb.append(";%;");
+        sb.append(username);
+        sb.append(";%;");
+        sb.append(password);
+        sb.append(";%;");
+        sb.append(hasLibEFP);
+        sb.append(";%;");
+        sb.append(hasGAMESS);
+        sb.append(";%;");
+        sb.append(libEFPPath);
+        sb.append(";%;");
+        sb.append(gamessPath);
+        return sb.toString();
     }
 }
