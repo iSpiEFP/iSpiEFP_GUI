@@ -1,6 +1,9 @@
 package org.ispiefp.app.util;
+import com.sun.security.ntlm.Server;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.libEFP.CalculationPreset;
+import org.ispiefp.app.server.ServerDetails;
+import org.ispiefp.app.server.ServerInfo;
 
 import java.util.ArrayList;
 
@@ -29,6 +32,8 @@ public class UserPreferences {
     private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
     private static final String ENCRYPT_KEY = "encryptionKey";
     private static final String LIBEFP_PRESETS_KEY = "libefpPresets";
+    private static final String LIBEFP_RJOBS_KEY = "libefprunningjobs";
+    private static final String SERVERS_KEY = "servers";
 
     //Two variables below will keep track of FIVE most recent files opened, append them to string, and store and get from User Prefs
     private static final String RECENT_COUNT_KEY = "RECENT_COUNT";
@@ -45,7 +50,9 @@ public class UserPreferences {
     private static String libefpUsername = null;
     private static String libefpPassword = null;
     private static String libefpOutputPath = null;
+    private static String libefpRunningJobs = null;
     private static HashMap<String, CalculationPreset> libefpPresets;
+    private static HashMap<String, ServerInfo> servers;
 
     private static SecureRandom random = new SecureRandom();
     private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
@@ -63,7 +70,6 @@ public class UserPreferences {
 
     private static String encrypLibEFPPass = null;
     private static String secretKey = generateRandomString(12);
-    //TODO: Make rand string, put as user pref
 
     private static boolean pythonPathExists = false;
     private static Preferences userPrefs;
@@ -131,6 +137,19 @@ public class UserPreferences {
                 libefpPresets.put(newCP.getTitle(), newCP);
             }
         }
+
+        /* Server Settings Initialization */
+        servers = new HashMap<>();
+        encodedString = userPrefs.get(SERVERS_KEY, "check");
+        if (!encodedString.equals("check")){
+            String [] serverStringArray = encodedString.split("%@%");
+            for (int i = 0; i < serverStringArray.length; i++) {
+                if (!serverStringArray[i].equals("")) {
+                    ServerInfo newServer = new ServerInfo(serverStringArray[i]);
+                    servers.put(newServer.getEntryname(), newServer);
+                }
+            }
+        }
     }
 
     public static void addLibEFPPreset(CalculationPreset cp) {
@@ -162,6 +181,36 @@ public class UserPreferences {
     public static HashMap<String, CalculationPreset> getLibEFPPresets(){
         return libefpPresets;
 
+    }
+
+    public static void addServer(ServerInfo si){
+        String encodedString = userPrefs.get(SERVERS_KEY, "check");
+        if (encodedString.equals("check")){
+            userPrefs.put(SERVERS_KEY, si.getServerInfoDefinedString());
+        }
+        else {
+            if (!servers.containsKey(si.getEntryname())) {
+                userPrefs.put(SERVERS_KEY, encodedString + "%@%" + si.getServerInfoDefinedString());
+            }
+            servers.put(si.getEntryname(), si);
+        }
+    }
+    public static void removeServer(String name){
+        servers.remove(name);
+        String encodedString = userPrefs.get(SERVERS_KEY, "check");
+        String [] simpleString = encodedString.split("%@%");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < simpleString.length; i++){
+            System.out.println(simpleString[i]);
+            if (simpleString[i].split(";%;")[0].equals(name)) continue;
+            sb.append(simpleString[i]);
+            if (i != simpleString.length - 1) sb.append("%@%");
+        }
+        userPrefs.put(SERVERS_KEY, sb.toString());
+    }
+
+    public static HashMap<String, ServerInfo> getServers(){
+        return servers;
     }
 
     //This method is used for the encryption key
