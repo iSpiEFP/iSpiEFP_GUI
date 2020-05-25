@@ -1,11 +1,19 @@
 package org.ispiefp.app;
 
+import com.sun.tools.javac.util.ArrayUtils;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -25,14 +33,17 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-
+import java.util.*;
+import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+
+import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
+import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
 
 public class MainViewController {
 
@@ -49,8 +60,10 @@ public class MainViewController {
     private static String lastOpenedFile = new String();
     private static String lastOpenedFileName = new String();
     private static boolean[] interested_parameters = {false, false, false};
+    private static ProgressIndicator pi = new ProgressIndicator();
+    private static final String FIVE_MOST_RECENT_FILES = "RECENT_FILES";
 
-    private ProgressIndicatorTest pit;
+    private ProgressIndicator pit = new ProgressIndicator();
 
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
 
@@ -112,7 +125,13 @@ public class MainViewController {
     private Button libefpButton;
 
     @FXML
-    private Menu recentMenu;
+
+    private Menu openRecentMenu;
+
+    //private UserPreferences userPrefs = new UserPreferences();
+
+    private String[] rec_files;
+    //private Menu recentMenu;
 
     /**
      * initialize(); is called after @FXML parameters have been loaded in
@@ -140,11 +159,13 @@ public class MainViewController {
 
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
 
+
         leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
         middleRightSplitPane.setDividerPositions(1, 0);
 
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
+
     }
 
     /**
@@ -179,13 +200,15 @@ public class MainViewController {
      * @throws UnrecognizedAtomException
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
+        openRecentMenu.getItems().clear();
+        // pit.setProgress(100);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Molecule");
         fileChooser.setInitialDirectory(
                 new File(System.getProperty("user.home"))
         );
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.*"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"  ),
                 new FileChooser.ExtensionFilter("XYZ", "*.xyz"),
                 new FileChooser.ExtensionFilter("PDB", "*.pdb")
         );
@@ -196,7 +219,9 @@ public class MainViewController {
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         if (jmolMainPanel.openFile(file)) {
 
+            //Logic for saving to recent files
             lastOpenedFile = file.getAbsolutePath();
+            appendToRecentFilesStr(lastOpenedFile);
             lastOpenedFileName = file.getName();
 
             leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
@@ -211,6 +236,120 @@ public class MainViewController {
 
             //TODO refactor the libefp button
             libefpButton.setDisable(true);
+
+//            System.out.println("Recents chain: " + getRecentFileAggStr());
+            rec_files = getRecentFileAggStr().split("::");
+            System.out.println("Rec files array in fileOpen: " + Arrays.toString(rec_files));
+            populateOpenRecentMenu(); //populates menu w/ rec_files, it's global so not passed as parameter
+        }
+
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("File Does Not Exist");
+            alert.setContentText("We couldn't find the file you wanted. Try checking if the path is correct.");
+
+            alert.showAndWait();
+        }
+    }
+
+
+    /*
+     File open recent:
+     Updated 5/11/20:
+     Logic for fileOpenRecent contained in 3 methods below:
+        - repopulate
+        - populateOpenRecentMenu
+        - fileOpenFromPath
+        These methods are used as of the time of writing only for recent files logic.
+     */
+
+    public void repopulate() {
+        openRecentMenu.getItems().clear();
+        rec_files = getRecentFileAggStr().split("::");
+        for (int i = rec_files.length - 1; i >= 0; i--) {
+
+            MenuItem mi = new MenuItem(rec_files[i]);
+
+            mi.setOnAction(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent t) {
+                    try {
+                        appendToRecentFilesStr(mi.getText());
+                        fileOpenFromPath(mi.getText());
+                        repopulate();
+                    }
+                    catch (Exception e) {
+                        System.out.println("Exception in fileOpenPath");
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            openRecentMenu.getItems().add(mi);
+        }
+
+    }
+
+    //Handler method for fileOpenRecent button/File open recent
+    public void populateOpenRecentMenu() throws IOException {
+        openRecentMenu.getItems().clear();
+        rec_files = getRecentFileAggStr().split("::");
+
+        for (int i = rec_files.length - 1; i >= 0; i--) {
+
+            MenuItem mi = new MenuItem(rec_files[i]);
+
+            mi.setOnAction(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent t) {
+                    try {
+                        appendToRecentFilesStr(mi.getText());
+                        fileOpenFromPath(mi.getText());
+                        repopulate();
+
+                    }
+                    catch (Exception e) {
+                        System.out.println("Exception in fileOpenPath");
+                    }
+                }
+            });
+
+            openRecentMenu.getItems().add(mi);
+        }
+
+    }
+
+    /*
+        Used for opening files in the recent file list //ONLY USED FOR FILEOPENRECENT
+    */
+    public void fileOpenFromPath(String moleculePath) throws IOException {
+        File jmolFile = new File(moleculePath);
+        jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
+
+        try {
+            if (jmolMainPanel.openFile(jmolFile)) {
+
+                leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
+                middleRightSplitPane.setDividerPositions(1, 0);
+
+                //reset buttons
+                haloButton.setSelected(false);
+                snipButton.setSelected(false);
+                playPauseButton.setText("");
+                playPauseButton.setGraphic(new ImageView(play));
+                playPauseButton.setSelected(false);
+
+                //TODO refactor the libefp button
+                libefpButton.setDisable(true);
+            }
+
+        }
+
+        catch (IOException e) {
+            System.out.println("IOException");
+        }
+        catch (Exception e) {
+            System.out.println("General Exception");
+            e.printStackTrace();
         }
     }
 
@@ -232,7 +371,13 @@ public class MainViewController {
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(fragmentSelector));
 
-        stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        try {
+            stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        }
+        catch (Exception e) {
+            System.err.println("FRAGMENT MAIN VIEW ERROR");
+        }
+       // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
 
         try {
@@ -267,8 +412,15 @@ public class MainViewController {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Settings");
         stage.setScene(new Scene(fragmentSelector));
-        stage.showAndWait();
+
+        try {
+            stage.showAndWait();
+        }
+        catch (Exception e) {
+            System.err.println("SHOW AND WAIT ERROR IN MAIN");
+        }
     }
+
 
     public void selectFragment() throws IOException{
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
@@ -297,10 +449,22 @@ public class MainViewController {
 
     @FXML
     public void fileExit() throws IOException {
-        System.out.println("Stage is closing");
-        Main.getPrimaryStage().close();
-        System.exit(0);
-        //TODO: add pop-up message, "Are you sure?"
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exit iSpiEFP");
+        alert.setHeaderText("Confirm Exit");
+        alert.setContentText("Are you sure you want to exit?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            // ... user chose OK
+            System.out.println("Stage is closing");
+            Main.getPrimaryStage().close();
+            System.exit(0);
+        } else {
+            // ... user chose CANCEL or closed the dialog
+            System.out.println("User cancelled. Stage not closing");
+        }
     }
 
     /******************************************************************************************
@@ -314,7 +478,7 @@ public class MainViewController {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Libefp Input");
         stage.setScene(new Scene(libEFPInput));
-        pit.fire();
+        pit.setProgress(100);
         stage.show();
 
     }
@@ -340,7 +504,7 @@ public class MainViewController {
                 "by the Slipchenko Research Group at Purdue University. iSpiEFP comes complete with a public database full of " +
                 "EFP Parameter files, and missing parameters can be calculated using Gamess. This application serves as a " +
                 "job-workflow manager which binds different technologies into one single application that allows chemists " +
-                "to point and click while utilizing high performance computing.");
+                "to point and click while utilizing high performance computing. iSpiEFP is under the LGPL 2.1 license");
         a1.showAndWait();
 
     }
@@ -488,7 +652,6 @@ public class MainViewController {
     public void calculateLibefpSetup() throws IOException {
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
                 "You will not be able to submit libEFP jobs to a cluster.";
-
         if (!CheckInternetConnection.checkInternetConnection()) {
             Alert alert = new Alert(Alert.AlertType.WARNING,
                     noInternetWarning,
@@ -513,6 +676,7 @@ public class MainViewController {
         modified in any way. //TODO Make this general
          */
     }
+
 
     //TODO: This method should later return EFPFiles for every fragment in the viewer
     public ArrayList<File> getFragmentEFPFiles() {
@@ -545,6 +709,7 @@ public class MainViewController {
             stage.show();
         }
     }
+
 
     @FXML
     public void calculateGamessSetup () throws IOException {

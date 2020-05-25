@@ -6,6 +6,7 @@ import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.ServerInfo;
 
 import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
@@ -33,6 +34,11 @@ public class UserPreferences {
     private static final String LIBEFP_PRESETS_KEY = "libefpPresets";
     private static final String LIBEFP_RJOBS_KEY = "libefprunningjobs";
     private static final String SERVERS_KEY = "servers";
+
+    //Two variables below will keep track of FIVE most recent files opened, append them to string, and store and get from User Prefs
+    private static final String RECENT_COUNT_KEY = "RECENT_COUNT";
+    private static final String RECENTS_KEY = "RECENT_FILES_CHAIN";
+    //private static ArrayList<String> recentFilesArrList= new ArrayList<String>();
 
     private static String userParameterPath = null;
     private static String pythonPath = null;
@@ -69,7 +75,7 @@ public class UserPreferences {
     private static Preferences userPrefs;
 
     public UserPreferences() {
-        userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
+            userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
     }
 
     /**
@@ -88,6 +94,7 @@ public class UserPreferences {
      * Default Value - The path returned by the environment variable PYTHONPATH or an error message if DNE
      */
     public void initializePreferences() {
+
         if ((userParameterPath = userPrefs.get(USER_PARAMETER_PATH_KEY, "check")).equals("check")) {
             userPrefs.put(USER_PARAMETER_PATH_KEY, LocalBundleManager.USER_PARAMETERS);
             userParameterPath = LocalBundleManager.USER_PARAMETERS;
@@ -104,8 +111,9 @@ public class UserPreferences {
             pythonPathExists = true;
         }
 
-
         userPrefs.put(ENCRYPT_KEY, secretKey);
+        //userPrefs.put(RECENTS_KEY, ""); //Initialize Recent files chain; file stuff zzz
+        //userPrefs.put(RECENT_COUNT_KEY, "0");
         /* Gamess Settings Initialization */
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
@@ -117,6 +125,7 @@ public class UserPreferences {
         libefpUsername = userPrefs.get(LIBEFP_USERNAME_KEY, "check");
         libefpPassword = userPrefs.get(LIBEFP_PASSWORD_KEY, "check");
         libefpOutputPath = userPrefs.get(LIBEFP_OUTPUT_KEY, "check");
+
 
         /* libEFP preset Initialization */
         libefpPresets = new HashMap<>();
@@ -143,7 +152,7 @@ public class UserPreferences {
         }
     }
 
-    public static void addLibEFPPreset(CalculationPreset cp){
+    public static void addLibEFPPreset(CalculationPreset cp) {
         String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
         System.out.printf("encoded string is %s%n", encodedString);
         if (encodedString.equals("check")){
@@ -171,6 +180,7 @@ public class UserPreferences {
 
     public static HashMap<String, CalculationPreset> getLibEFPPresets(){
         return libefpPresets;
+
     }
 
     public static void addServer(ServerInfo si){
@@ -203,6 +213,7 @@ public class UserPreferences {
         return servers;
     }
 
+    //This method is used for the encryption key
     public static String generateRandomString(int length) {
         if (length < 1) throw new IllegalArgumentException();
 
@@ -272,8 +283,106 @@ public class UserPreferences {
         return libefpOutputPath;
     }
 
+
+//Recent file stuff
+
+    //Gets aggregate list of recent files as string from user prefs
+    public static String getRecentFileAggStr() {
+//        System.out.println("-------");
+//        System.out.println("Python path key: " + userPrefs.get(PYTHON_PATH_KEY, "check"));
+//        System.out.println("-------");
+        //System.out.println("Prefs str: " + userPrefs.get(RECENTS_KEY, "check"));
+        return userPrefs.get(RECENTS_KEY, "check");
+    }
+
+    //adds a file to the recent file list
+    //File names in string are separated by "::" for later splitting
+    public static void appendToRecentFilesStr(String filePath) {
+        String recentFilesChain = userPrefs.get(RECENTS_KEY, "check");
+
+        if (recentFilesChain.equals("check")) {
+            recentFilesChain = "";
+        }
+
+        /*
+           If the file chain already contains the path specified, take the path out from its
+           initial spot in the list and put it at the front of the string (top of the listview), since it's now
+           the most recent.
+         */
+
+        if (recentFilesChain.contains(filePath)) {
+            System.out.println("File chain before: " + filePath);
+            String updFilePath = filePath + "::";
+            int filePathInd = recentFilesChain.indexOf(updFilePath);
+            String frontOfChain = recentFilesChain.substring(0, filePathInd);
+            String backOfChain = recentFilesChain.substring(filePathInd + updFilePath.length());
+
+            System.out.println("Chain front: " + frontOfChain);
+            System.out.println("Chain back: " + backOfChain);
+
+            String updatedChain =  frontOfChain + backOfChain + filePath + "::";
+            System.out.println("File chain after: " + updatedChain);
+            userPrefs.put(RECENTS_KEY, updatedChain);
+            return;
+        }
+
+        //If the file count was not incremented, that means the file list is fully populated to the max number of files we want displayed
+        //Since it's fully populated, remove the first in the chain (the oldest)
+        if (!incrementRecentFilesCount()) {
+            System.out.println("WAS NOT INCREMENTED");
+            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
+
+//            if (!recentFilesChain.equals("")) {
+//                recentFilesChain = recentFilesChain.substring(0, recentFilesChain.length() - 2); //remove the last :: at the end
+//                //String[] recentFilesArr = recentFilesChain.split("::");
+//            }
+            int firstDividerInd = recentFilesChain.indexOf("::");
+            //int lastFilenameInd = recentFilesChain.lastIndexOf("::");
+
+            //Cutting off the first one in the chain (the oldest)
+            recentFilesChain = recentFilesChain.substring(firstDividerInd + 2);
+
+            //Adding the new one to the end of the chain with the divider
+            recentFilesChain += filePath + "::";
+
+            userPrefs.put(RECENTS_KEY, recentFilesChain);
+        }
+
+        else {
+            System.out.println("WAS INCREMENTED");
+            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
+            recentFilesChain += filePath + "::";
+            userPrefs.put(RECENTS_KEY, recentFilesChain);
+            System.out.println("END OF APPEND() RECENT_CHAIN: " + recentFilesChain);
+           // userPrefs.put(RECENT_COUNT_KEY, "0");
+        }
+
+    }
+
+    public static String getRecentFilesCount() {
+        return userPrefs.get(RECENT_COUNT_KEY, "check");
+    }
+
+    public static boolean incrementRecentFilesCount() {
+        String recentFilesCountStr = userPrefs.get(RECENT_COUNT_KEY, "check");
+        if (recentFilesCountStr.equals("check")) {
+            recentFilesCountStr = "0";
+        }
+        int recentFilesCount = Integer.parseInt(recentFilesCountStr);
+
+        if (recentFilesCount == 7) { //Comparing the number of files to the max number we want displayed
+            return false;
+        } else {
+            recentFilesCount++;
+            recentFilesCountStr = Integer.toString(recentFilesCount);
+            userPrefs.put(RECENT_COUNT_KEY, recentFilesCountStr);
+            return true;
+        }
+    }
+
     public static Set<String> getLibEFPPresetNames(){
         return libefpPresets.keySet();
+
     }
 
     public static void setUserParameterPath(String value) {
