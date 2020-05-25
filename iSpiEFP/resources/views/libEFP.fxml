@@ -38,7 +38,7 @@
                         <Text layoutX="338.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />
                         <ComboBox fx:id="pol_solver" layoutX="412.0" layoutY="142.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
                         <Text layoutX="35.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server:" />
-                        <TextField fx:id="server" layoutX="133.0" layoutY="174.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
+                        <ComboBox fx:id="server" layoutX="133.0" layoutY="174.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
                         <Text layoutX="338.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto submission: " />
                         <ComboBox fx:id="auto_sub" layoutX="445.0" layoutY="174.0" prefHeight="25.0" prefWidth="70.0" />
                     </children>

@@ -22,10 +22,7 @@ import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
-import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.server.ServerConfigController;
-import org.ispiefp.app.server.ServerDetails;
-import org.ispiefp.app.server.iSpiEFPServer;
+import org.ispiefp.app.server.*;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.util.ExecutePython;
@@ -145,7 +142,7 @@ public class libEFPInputController implements Initializable {
     private ComboBox<String> presets;
 
     @FXML
-    private TextField server;
+    private ComboBox<String> server;
 
     String coordinates;
 
@@ -165,7 +162,7 @@ public class libEFPInputController implements Initializable {
 
 
     List<ServerDetails> serverDetailsList;
-    private String hostname;
+    private ServerInfo selectedServer;
 
     public libEFPInputController(String coord) {
         this.coordinates = coord;
@@ -336,10 +333,15 @@ public class libEFPInputController implements Initializable {
 
 
         //Initializing server field
-        String serverName = UserPreferences.getLibefpServer();
-        if (serverName.equals("check")) server.setText("");
-        else server.setText(UserPreferences.getLibefpServer());
-
+        if (UserPreferences.getServers().keySet().size() < 1){
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    "You have not configured any servers. Please go to your settings and add a server before proceeding.",
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+        else {
+            server.getItems().setAll(UserPreferences.getServers().keySet());
+        }
         // Adding listener to presets
         ObservableList<String> available_presets = FXCollections.observableArrayList();
         System.out.println(UserPreferences.getLibEFPPresetNames());
@@ -588,9 +590,9 @@ public class libEFPInputController implements Initializable {
         String hostname;
         String password;
         String username;
-        hostname = server.getText();
+        selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
-        LoginForm loginForm = new LoginForm(hostname, "LIBEFP");
+        LoginForm loginForm = new LoginForm(selectedServer.getHostname(), "LIBEFP");
         boolean authorized = loginForm.authenticate();
         if (authorized) {
             createInputFile("md_1.in", this.libEFPInputsDirectory);
@@ -686,7 +688,7 @@ public class libEFPInputController implements Initializable {
             //send over job data to database
             String query = "Submit";
             query += "$END$";
-            query += username + "  " + hostname + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+            query += username + "  " + selectedServer.getHostname() + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
             query += "$ENDALL$";
 
             //Socket client = new Socket(serverName, port);
@@ -703,7 +705,7 @@ public class libEFPInputController implements Initializable {
             client.close();
             outToServer.close();
 
-            JobManager jobManager = new JobManager(username, password, hostname, jobID, title.getText(), time, "QUEUE", "LIBEFP");
+            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), jobID, title.getText(), time, "QUEUE", "LIBEFP");
             jobManager.watchJobStatus();
 
 
@@ -927,14 +929,6 @@ public class libEFPInputController implements Initializable {
     }
 
         // Handle SSH case later
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
 
     public Viewer getJmolViewer() {
         return jmolViewer;

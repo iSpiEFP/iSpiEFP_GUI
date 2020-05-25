@@ -202,8 +202,23 @@ public class SelectRMSDController {
         }
     }
 
-    private void handleSelectAlwaysLowest(){
-
+    @FXML
+    private void selectLowestRMSDs(){
+        double minimumValue = Double.MAX_VALUE;
+        MetaData minmumMetaData = null;
+        while (currentViewerFragmentIndex < validIndices.size()){
+            Map<MetaData, String> currentRMSDs = viewerFragmentMap.get(validIndices.get(currentViewerFragmentIndex));
+            for (MetaData md : currentRMSDs.keySet()){
+                double rmsd = Double.parseDouble(currentRMSDs.get(md));
+                if (rmsd < minimumValue){
+                    minimumValue = rmsd;
+                    minmumMetaData = md;
+                }
+            }
+            selectedMetaDatas.put(validIndices.get(validIndices.get(currentViewerFragmentIndex)), minmumMetaData);
+            currentViewerFragmentIndex++;
+        }
+        currentStage.close();
     }
 
     private File createTempXYZFileFromViewer(int fragmentIndex) throws IOException {
