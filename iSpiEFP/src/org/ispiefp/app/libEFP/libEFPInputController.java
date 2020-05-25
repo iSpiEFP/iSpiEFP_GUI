@@ -587,6 +587,7 @@ public class libEFPInputController implements Initializable {
      */
     public void handleSubmit() throws IOException, InterruptedException {
 //        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
+        libEFPSubmission submission;
         String hostname;
         String password;
         String username;
@@ -645,18 +646,22 @@ public class libEFPInputController implements Initializable {
             String currentTime = dateFormat.format(date).toString();
 
             String jobID = (new JobManager()).generateJobID().toString();
+//
+//            String pbs_script = "/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
+//
+//            scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
+//            InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
+//            IOUtils.copy(istream, scpos);
+//            istream.close();
+//            scpos.close();
+//
+//            sess = conn.openSession();
+//            sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
 
-            String pbs_script = "/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
-
-            scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
-            InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
-            IOUtils.copy(istream, scpos);
-            istream.close();
-            scpos.close();
-
-            sess = conn.openSession();
-            sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
-
+            if (selectedServer.getScheduler().equals("SLURM")){
+                submission = new libEFPSlurmSubmission(selectedServer,"lslipche", 1, 20, "00:30:00", 0);
+                submission.submit(selectedServer.getLibEFPPath(), "md_1.in", "output");
+            }
             InputStream stdout = new StreamGobbler(sess.getStdout());
             BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
             String clusterjobID = "";
