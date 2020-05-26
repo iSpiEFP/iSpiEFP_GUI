@@ -1,6 +1,5 @@
 package org.ispiefp.app;
 
-import com.sun.tools.javac.util.ArrayUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;

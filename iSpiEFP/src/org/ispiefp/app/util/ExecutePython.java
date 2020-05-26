@@ -4,13 +4,18 @@
  */
 package org.ispiefp.app.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.apache.commons.io.FileUtils;
+import org.ispiefp.app.Initializer;
+
+import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExecutePython {
 
@@ -29,34 +34,88 @@ public class ExecutePython {
      * @return The out and err of the executed process
      */
     public static String runPythonScript(String scriptName, String commandLineArgs) {
-        StringBuilder sb = new StringBuilder();
-        String scriptPath = null;
-        try {
-            URL resource = ExecutePython.class.getResource("/scripts/" + scriptName);
-            File file = Paths.get(resource.toURI()).toFile();
-            scriptPath = file.getAbsolutePath();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
-        }
-        if (!UserPreferences.pythonPathExists()) return null;
-        String commandInput = String.format("%s %s %s", UserPreferences.getPythonPath(), scriptPath, commandLineArgs);
-        try {
-            Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
-            BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            /* p.getInputStream() is a strange function which also returns the output stream, see API */
-            BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String s1 = "";
-            String s2 = "";
-            while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null) {
-                sb.append(s1);
-                sb.append(s2);
+        /* Determine whether we are in a JAR or an IDE */
+        String protocol = ExecutePython.class.getResource("").getProtocol();
+        if (protocol.equals("jar")) {
+            StringBuilder sb = new StringBuilder();
+            File script = null;
+            String jarLocation;
+            java.nio.file.FileSystem fileSystem = null;
+            try {
+                try {
+                    jarLocation = new File(ExecutePython.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+                    Path path = Paths.get(jarLocation);
+                    URI uri = new URI("jar", path.toUri().toString(), null);
+
+                    Map<String, String> env = new HashMap<>();
+                    env.put("create", "true");
+
+                    fileSystem = FileSystems.newFileSystem(uri, env);
+                    InputStream is = ExecutePython.class.getResourceAsStream("/scripts/" + scriptName);
+                    script = File.createTempFile("pythonScript", null);
+                    script.deleteOnExit();
+                    FileUtils.copyInputStreamToFile(is, script);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                if (!UserPreferences.pythonPathExists()) return null;
+                String commandInput = String.format("%s %s %s", UserPreferences.getPythonPath(), script.getAbsolutePath(), commandLineArgs);
+                try {
+                    Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
+                    BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    /* p.getInputStream() is a strange function which also returns the output stream, see API */
+                    BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String s1 = "";
+                    String s2 = "";
+                    while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null) {
+                        sb.append(s1);
+                        sb.append(s2);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return sb.toString();
+            } finally {
+                try {
+                    if (fileSystem != null) fileSystem.close();
+                } catch (IOException e) {
+                    System.err.println("Could not close filesystem created for JAR");
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
-        return sb.toString();
+        /* IDE Case */
+        else {
+            StringBuilder sb = new StringBuilder();
+            String scriptPath = null;
+            try {
+                URL resource = ExecutePython.class.getResource("/scripts/" + scriptName);
+                File file = Paths.get(resource.toURI()).toFile();
+                scriptPath = file.getAbsolutePath();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                return null;
+            }
+            if (!UserPreferences.pythonPathExists()) return null;
+            String commandInput = String.format("%s %s %s", UserPreferences.getPythonPath(), scriptPath, commandLineArgs);
+            try {
+                Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
+                BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                /* p.getInputStream() is a strange function which also returns the output stream, see API */
+                BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String s1 = "";
+                String s2 = "";
+                while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null) {
+                    sb.append(s1);
+                    sb.append(s2);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return sb.toString();
+        }
     }
 }
 

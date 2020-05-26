@@ -78,6 +78,7 @@ public class MetaHandler {
          */
 
         public MetaDataFile() {
+            System.out.println("get here");
             Gson gson = new Gson();         /* Instance of Gson used to parse the string to an object                 */
             GithubRequester gr = new GithubRequester("libraryMeta.json");
             String metaDataFileString;
