@@ -177,13 +177,10 @@ public class gamessInputController implements Initializable {
      * @return
      */
     public ArrayList<Atom> addHydrogens(ArrayList frag) {
-<<<<<<< Updated upstream
-        ArrayList<ArrayList<Integer>> originalBonds = buildOriginalBondMap(viewer); 
+        ArrayList<ArrayList<Integer>> originalBonds = buildOriginalBondMap(viewer);
 	//ArrayList<ArrayList<Integer>> originalBonds = JmolVisualizer.bondMap;
         //Viewer viewer = Main.jmolPanel.viewer;
-=======
-        ArrayList<ArrayList<Integer>> originalBonds = jmolMainPanel.getFragmentComponents();
->>>>>>> Stashed changes
+
 
         ArrayList<Atom> hydrogens = new ArrayList<Atom>();
         for (int i = 0; i < frag.size(); i++) {

@@ -757,6 +757,7 @@ public class libEFPInputController implements Initializable {
     }
 
     private File createTempXYZFileFromViewer(int fragmentIndex) throws IOException {
+//        System.out.println("\n\nTEMP XYZZZZZZZ CALLLLLLLEDDDDD\n\n");
         BufferedWriter bw = null;
         File xyzFile = null;
         try {
@@ -862,8 +863,10 @@ public class libEFPInputController implements Initializable {
     }
 
     public void setViewerFragments(ArrayList<ArrayList<Integer>> frags){
+        System.out.println("\nSETVIEWERFRAGS CALLED\n");
+        System.out.println("ViewerFrags size: " );
         viewerFragments = frags;
-        for (int i = 0; i < viewerFragments.size(); i++){
+        for (int i = 0; i < viewerFragments.size(); i++) {
             viewerFragmentMap.put(i, computeRMSD(i));
         }
     }

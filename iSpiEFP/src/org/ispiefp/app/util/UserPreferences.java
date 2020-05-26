@@ -106,8 +106,7 @@ public class UserPreferences {
         }
 
         userPrefs.put(ENCRYPT_KEY, secretKey);
-        //userPrefs.put(RECENTS_KEY, ""); //Initialize Recent files chain; file stuff zzz
-        //userPrefs.put(RECENT_COUNT_KEY, "0");
+
         /* Gamess Settings Initialization */
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
@@ -239,15 +238,12 @@ public class UserPreferences {
 
     //Gets aggregate list of recent files as string from user prefs
     public static String getRecentFileAggStr() {
-//        System.out.println("-------");
-//        System.out.println("Python path key: " + userPrefs.get(PYTHON_PATH_KEY, "check"));
-//        System.out.println("-------");
-        //System.out.println("Prefs str: " + userPrefs.get(RECENTS_KEY, "check"));
+
         return userPrefs.get(RECENTS_KEY, "check");
     }
 
     //adds a file to the recent file list
-    //File names in string are separated by "::" for later splitting
+    //File names in string are separated by "::" for later string splitting
     public static void appendToRecentFilesStr(String filePath) {
         String recentFilesChain = userPrefs.get(RECENTS_KEY, "check");
 
@@ -258,8 +254,7 @@ public class UserPreferences {
         /*
            If the file chain already contains the path specified, take the path out from its
            initial spot in the list and put it at the front of the string (top of the listview), since it's now
-           the most recent.
-         */
+           the most recent.         */
 
         if (recentFilesChain.contains(filePath)) {
             System.out.println("File chain before: " + filePath);
@@ -283,10 +278,6 @@ public class UserPreferences {
             System.out.println("WAS NOT INCREMENTED");
             System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
 
-//            if (!recentFilesChain.equals("")) {
-//                recentFilesChain = recentFilesChain.substring(0, recentFilesChain.length() - 2); //remove the last :: at the end
-//                //String[] recentFilesArr = recentFilesChain.split("::");
-//            }
             int firstDividerInd = recentFilesChain.indexOf("::");
             //int lastFilenameInd = recentFilesChain.lastIndexOf("::");
 
@@ -300,12 +291,11 @@ public class UserPreferences {
         }
 
         else {
-            System.out.println("WAS INCREMENTED");
-            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
+//            System.out.println("WAS INCREMENTED");
+//            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
             recentFilesChain += filePath + "::";
             userPrefs.put(RECENTS_KEY, recentFilesChain);
-            System.out.println("END OF APPEND() RECENT_CHAIN: " + recentFilesChain);
-           // userPrefs.put(RECENT_COUNT_KEY, "0");
+            //System.out.println("END OF APPEND() RECENT_CHAIN: " + recentFilesChain);
         }
 
     }
@@ -357,7 +347,6 @@ public class UserPreferences {
         try {
             encrypGamessUser = encrypt(value, secretKey);
             userPrefs.put(GAMESS_USERNAME_KEY, encrypGamessUser);
-//        userPrefs.put(GAMESS_USERNAME_KEY, value);
             gamessUsername = decrypt(userPrefs.get(GAMESS_USERNAME_KEY, "check"), secretKey);
         }
 
@@ -372,7 +361,6 @@ public class UserPreferences {
            encryGamessPass = encrypt(value, secretKey);
 
            userPrefs.put(GAMESS_USERNAME_KEY, encryGamessPass);
-           //userPrefs.put(GAMESS_PASSWORD_KEY, value);
            gamessPassword = decrypt(userPrefs.get(GAMESS_PASSWORD_KEY, "check"), secretKey);
        }
        catch(Exception e) {
@@ -396,8 +384,6 @@ public class UserPreferences {
         try {
             encrypLibEFPUser = encrypt(value, secretKey);
             userPrefs.put(LIBEFP_USERNAME_KEY, encrypLibEFPUser);
-
-//        userPrefs.put(LIBEFP_USERNAME_KEY, value);
             libefpUsername = decrypt(userPrefs.get(LIBEFP_USERNAME_KEY, "check"), secretKey);
 
         }

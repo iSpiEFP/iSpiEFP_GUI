@@ -1,10 +1,6 @@
 package org.ispiefp.app;
 
-import com.sun.tools.javac.util.ArrayUtils;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -13,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -34,7 +29,6 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -127,11 +121,7 @@ public class MainViewController {
     @FXML
 
     private Menu openRecentMenu;
-
-    //private UserPreferences userPrefs = new UserPreferences();
-
     private String[] rec_files;
-    //private Menu recentMenu;
 
     /**
      * initialize(); is called after @FXML parameters have been loaded in
@@ -201,7 +191,7 @@ public class MainViewController {
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
         openRecentMenu.getItems().clear();
-        // pit.setProgress(100);
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Molecule");
         fileChooser.setInitialDirectory(
@@ -221,7 +211,7 @@ public class MainViewController {
 
             //Logic for saving to recent files
             lastOpenedFile = file.getAbsolutePath();
-            appendToRecentFilesStr(lastOpenedFile);
+            appendToRecentFilesStr(lastOpenedFile); //adds file to "recently opened" list
             lastOpenedFileName = file.getName();
 
             leftRightSplitPane.setDividerPositions(0.2f, 0.3f);
@@ -237,9 +227,7 @@ public class MainViewController {
             //TODO refactor the libefp button
             libefpButton.setDisable(true);
 
-//            System.out.println("Recents chain: " + getRecentFileAggStr());
             rec_files = getRecentFileAggStr().split("::");
-            System.out.println("Rec files array in fileOpen: " + Arrays.toString(rec_files));
             populateOpenRecentMenu(); //populates menu w/ rec_files, it's global so not passed as parameter
         }
 
@@ -258,9 +246,9 @@ public class MainViewController {
      File open recent:
      Updated 5/11/20:
      Logic for fileOpenRecent contained in 3 methods below:
-        - repopulate
-        - populateOpenRecentMenu
-        - fileOpenFromPath
+        - repopulate (helper)
+        - populateOpenRecentMenu (main)
+        - fileOpenFromPath (helper)
         These methods are used as of the time of writing only for recent files logic.
      */
 
@@ -372,19 +360,15 @@ public class MainViewController {
         stage.setScene(new Scene(fragmentSelector));
 
         try {
-            stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+            stage.showAndWait();
         }
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
-       // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
 
         try {
             xyzFile = Main.fragmentTree.getSelectedFragment().createTempXYZ();
-
-//            Do not need to create a new panel every time, this actually causes issue
-//            jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
 
             if (jmolMainPanel.openFile(xyzFile)) {
 
@@ -422,7 +406,7 @@ public class MainViewController {
     }
 
 
-    public void selectFragment() throws IOException{
+    public void selectFragment() throws IOException {
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
                 "You will only be able to select from " +
                 "fragments whose parameters are contained within your user parameters directory.";
@@ -439,13 +423,6 @@ public class MainViewController {
         }
         else fragmentOpen();
     }
-
-    /**
-     * TODO: fileOpenRecent this button does not exist in the fxml doc and needs to be added
-     *
-     * @throws IOException This is currently disabled in the fxml doc since it is not currently operational
-     */
-
 
     @FXML
     public void fileExit() throws IOException {
@@ -659,14 +636,11 @@ public class MainViewController {
             alert.showAndWait();
         }
         FXMLLoader libEFPSubmissionLoader = new FXMLLoader(getClass().getResource("/views/libEFP.fxml"));
-        //libEFPInputController libEFPCont = new libEFPInputController(getFragmentEFPFiles());
         Parent libEFPSubmissionParent = libEFPSubmissionLoader.load();
         libEFPInputController libEFPCont = libEFPSubmissionLoader.getController();
-        //libEFPSubmissionLoader.setController(libEFPCont);
         libEFPCont.setJmolViewer(jmolMainPanel.viewer);
         libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
         libEFPCont.initEfpFiles();
-//        libEFPCont.setEfpFiles(getFragmentEFPFiles());
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
