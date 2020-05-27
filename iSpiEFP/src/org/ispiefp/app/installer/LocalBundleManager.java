@@ -31,6 +31,7 @@ public class LocalBundleManager {
     public static String LIBEFP_SRC;
     public static String LIBEFP_SRC_EXE;
     public static String LIBEFP_INPUTS;
+    public static String LIBEFP_OUTPUTS;
     public static String LIBEFP_PARAMETERS;
     public static String LIBEFP_COORDINATES;
     public static String PARAMETERS;            /* Parameter subdirectories and permanent single JSON file      */
@@ -57,6 +58,7 @@ public class LocalBundleManager {
             LIBEFP = WORKSPACE + FILE_SEPERATOR + "Libefp";
             LIBEFP_SRC = LIBEFP + FILE_SEPERATOR + "src";
             LIBEFP_INPUTS = LIBEFP + FILE_SEPERATOR + "Inputs";
+            LIBEFP_OUTPUTS = LIBEFP + FILE_SEPERATOR + "Outputs";
             LIBEFP_PARAMETERS = LIBEFP + FILE_SEPERATOR + "Parameters";
             LIBEFP_COORDINATES = LIBEFP + FILE_SEPERATOR + "Coordinates";
             LIBEFP_SRC_EXE = LIBEFP_SRC + FILE_SEPERATOR + "efpmd";

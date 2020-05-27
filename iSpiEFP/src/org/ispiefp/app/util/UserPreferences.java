@@ -1,6 +1,9 @@
 package org.ispiefp.app.util;
+import com.sun.security.ntlm.Server;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.libEFP.CalculationPreset;
+import org.ispiefp.app.server.ServerDetails;
+import org.ispiefp.app.server.ServerInfo;
 
 import java.util.ArrayList;
 
@@ -29,6 +32,8 @@ public class UserPreferences {
     private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
     private static final String ENCRYPT_KEY = "encryptionKey";
     private static final String LIBEFP_PRESETS_KEY = "libefpPresets";
+    private static final String LIBEFP_RJOBS_KEY = "libefprunningjobs";
+    private static final String SERVERS_KEY = "servers";
 
     //Two variables below will keep track of FIVE most recent files opened, append them to string, and store and get from User Prefs
     private static final String RECENT_COUNT_KEY = "RECENT_COUNT";
@@ -45,7 +50,9 @@ public class UserPreferences {
     private static String libefpUsername = null;
     private static String libefpPassword = null;
     private static String libefpOutputPath = null;
+    private static String libefpRunningJobs = null;
     private static HashMap<String, CalculationPreset> libefpPresets;
+    private static HashMap<String, ServerInfo> servers;
 
     private static SecureRandom random = new SecureRandom();
     private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
@@ -63,13 +70,12 @@ public class UserPreferences {
 
     private static String encrypLibEFPPass = null;
     private static String secretKey = generateRandomString(12);
-    //TODO: Make rand string, put as user pref
 
     private static boolean pythonPathExists = false;
     private static Preferences userPrefs;
 
     public UserPreferences() {
-            userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
+        userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
     }
 
     /**
@@ -106,7 +112,8 @@ public class UserPreferences {
         }
 
         userPrefs.put(ENCRYPT_KEY, secretKey);
-
+        //userPrefs.put(RECENTS_KEY, ""); //Initialize Recent files chain; file stuff zzz
+        //userPrefs.put(RECENT_COUNT_KEY, "0");
         /* Gamess Settings Initialization */
         gamessServer = userPrefs.get(GAMESS_SERVER_KEY, "check");
         gamessUsername = userPrefs.get(GAMESS_USERNAME_KEY, "check");
@@ -128,6 +135,19 @@ public class UserPreferences {
             for (int i = 0; i < predefinedStringArray.length; i++){
                 CalculationPreset newCP = new CalculationPreset(predefinedStringArray[i]);
                 libefpPresets.put(newCP.getTitle(), newCP);
+            }
+        }
+
+        /* Server Settings Initialization */
+        servers = new HashMap<>();
+        encodedString = userPrefs.get(SERVERS_KEY, "check");
+        if (!encodedString.equals("check")){
+            String [] serverStringArray = encodedString.split("%@%");
+            for (int i = 0; i < serverStringArray.length; i++) {
+                if (!serverStringArray[i].equals("")) {
+                    ServerInfo newServer = new ServerInfo(serverStringArray[i]);
+                    servers.put(newServer.getEntryname(), newServer);
+                }
             }
         }
     }
@@ -161,6 +181,36 @@ public class UserPreferences {
     public static HashMap<String, CalculationPreset> getLibEFPPresets(){
         return libefpPresets;
 
+    }
+
+    public static void addServer(ServerInfo si){
+        String encodedString = userPrefs.get(SERVERS_KEY, "check");
+        if (encodedString.equals("check")){
+            userPrefs.put(SERVERS_KEY, si.getServerInfoDefinedString());
+        }
+        else {
+            if (!servers.containsKey(si.getEntryname())) {
+                userPrefs.put(SERVERS_KEY, encodedString + "%@%" + si.getServerInfoDefinedString());
+            }
+            servers.put(si.getEntryname(), si);
+        }
+    }
+    public static void removeServer(String name){
+        servers.remove(name);
+        String encodedString = userPrefs.get(SERVERS_KEY, "check");
+        String [] simpleString = encodedString.split("%@%");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < simpleString.length; i++){
+            System.out.println(simpleString[i]);
+            if (simpleString[i].split(";%;")[0].equals(name)) continue;
+            sb.append(simpleString[i]);
+            if (i != simpleString.length - 1) sb.append("%@%");
+        }
+        userPrefs.put(SERVERS_KEY, sb.toString());
+    }
+
+    public static HashMap<String, ServerInfo> getServers(){
+        return servers;
     }
 
     //This method is used for the encryption key
@@ -238,12 +288,15 @@ public class UserPreferences {
 
     //Gets aggregate list of recent files as string from user prefs
     public static String getRecentFileAggStr() {
-
+//        System.out.println("-------");
+//        System.out.println("Python path key: " + userPrefs.get(PYTHON_PATH_KEY, "check"));
+//        System.out.println("-------");
+        //System.out.println("Prefs str: " + userPrefs.get(RECENTS_KEY, "check"));
         return userPrefs.get(RECENTS_KEY, "check");
     }
 
     //adds a file to the recent file list
-    //File names in string are separated by "::" for later string splitting
+    //File names in string are separated by "::" for later splitting
     public static void appendToRecentFilesStr(String filePath) {
         String recentFilesChain = userPrefs.get(RECENTS_KEY, "check");
 
@@ -254,7 +307,8 @@ public class UserPreferences {
         /*
            If the file chain already contains the path specified, take the path out from its
            initial spot in the list and put it at the front of the string (top of the listview), since it's now
-           the most recent.         */
+           the most recent.
+         */
 
         if (recentFilesChain.contains(filePath)) {
             System.out.println("File chain before: " + filePath);
@@ -278,6 +332,10 @@ public class UserPreferences {
             System.out.println("WAS NOT INCREMENTED");
             System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
 
+//            if (!recentFilesChain.equals("")) {
+//                recentFilesChain = recentFilesChain.substring(0, recentFilesChain.length() - 2); //remove the last :: at the end
+//                //String[] recentFilesArr = recentFilesChain.split("::");
+//            }
             int firstDividerInd = recentFilesChain.indexOf("::");
             //int lastFilenameInd = recentFilesChain.lastIndexOf("::");
 
@@ -291,11 +349,12 @@ public class UserPreferences {
         }
 
         else {
-//            System.out.println("WAS INCREMENTED");
-//            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
+            System.out.println("WAS INCREMENTED");
+            System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
             recentFilesChain += filePath + "::";
             userPrefs.put(RECENTS_KEY, recentFilesChain);
-            //System.out.println("END OF APPEND() RECENT_CHAIN: " + recentFilesChain);
+            System.out.println("END OF APPEND() RECENT_CHAIN: " + recentFilesChain);
+            // userPrefs.put(RECENT_COUNT_KEY, "0");
         }
 
     }
@@ -347,6 +406,7 @@ public class UserPreferences {
         try {
             encrypGamessUser = encrypt(value, secretKey);
             userPrefs.put(GAMESS_USERNAME_KEY, encrypGamessUser);
+//        userPrefs.put(GAMESS_USERNAME_KEY, value);
             gamessUsername = decrypt(userPrefs.get(GAMESS_USERNAME_KEY, "check"), secretKey);
         }
 
@@ -357,16 +417,17 @@ public class UserPreferences {
     }
 
     public static void setGamessPassword(String value) {
-       try {
-           encryGamessPass = encrypt(value, secretKey);
+        try {
+            encryGamessPass = encrypt(value, secretKey);
 
-           userPrefs.put(GAMESS_USERNAME_KEY, encryGamessPass);
-           gamessPassword = decrypt(userPrefs.get(GAMESS_PASSWORD_KEY, "check"), secretKey);
-       }
-       catch(Exception e) {
-           System.out.println("Problem accessing GAMESS password and/or with its encryption");
-           e.printStackTrace();
-       }
+            userPrefs.put(GAMESS_USERNAME_KEY, encryGamessPass);
+            //userPrefs.put(GAMESS_PASSWORD_KEY, value);
+            gamessPassword = decrypt(userPrefs.get(GAMESS_PASSWORD_KEY, "check"), secretKey);
+        }
+        catch(Exception e) {
+            System.out.println("Problem accessing GAMESS password and/or with its encryption");
+            e.printStackTrace();
+        }
     }
 
     public static void setGamessOutputPath(String value) {
@@ -384,6 +445,8 @@ public class UserPreferences {
         try {
             encrypLibEFPUser = encrypt(value, secretKey);
             userPrefs.put(LIBEFP_USERNAME_KEY, encrypLibEFPUser);
+
+//        userPrefs.put(LIBEFP_USERNAME_KEY, value);
             libefpUsername = decrypt(userPrefs.get(LIBEFP_USERNAME_KEY, "check"), secretKey);
 
         }

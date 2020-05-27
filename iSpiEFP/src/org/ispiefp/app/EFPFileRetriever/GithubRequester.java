@@ -1,5 +1,7 @@
 package org.ispiefp.app.EFPFileRetriever;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import org.ispiefp.app.util.CheckInternetConnection;
 
 import java.io.*;
@@ -69,7 +71,7 @@ public class GithubRequester {
                 System.err.println("Error occurred while reading from stream");
                 e.printStackTrace();
             }
-                return output;
+            return output;
         }
     }
 
@@ -99,8 +101,14 @@ public class GithubRequester {
                 e.printStackTrace();
             }
         } else{
+            String noInternetWarning = String.format("Unable to retrieve %s from Github because you are not connected to" +
+                    "the internet. Connect to the internet and try again.", fileName);
+
             System.err.println("Not connected to the internet");
-            //todo add an error pop-up showing not connected to the internet
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noInternetWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
         }
         return returnFile;
     }
