@@ -33,7 +33,7 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
             this.mem = mem;
         }
 
-        File createSubmissionScript(String efpmdPath, String inputFileName, String outputFilename, String schedulerOutName) throws IOException {
+        File createSubmissionScript() throws IOException {
             String template = String.format(
                     "#!/bin/bash\n" +
                             "#SBATCH -o %s\n" +
@@ -43,9 +43,9 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
                             "#SBATCH -t %s\n" +
                             "#SBATCH --mem=%d\n" +
                             "%s %s > %s\n",
-                    REMOTE_LIBEFP_OUT + schedulerOutName + ".stdout",
+                    REMOTE_LIBEFP_OUT + schedulerOutputName + ".stdout",
                     queueName, numNodes, numProcessors, walltime, mem, efpmdPath,
-                    REMOTE_LIBEFP_IN + inputFileName,
+                    REMOTE_LIBEFP_IN + inputFilePath,
                     REMOTE_LIBEFP_OUT + outputFilename
             );
 
@@ -53,10 +53,35 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
             FileUtils.writeStringToFile(submissionScript, template, Charset.forName("UTF-8"));
             return submissionScript;
         }
-        public String submit(String efpmdPath, String inputFileName, String outputFilename) {
+
+        public String getSubmissionScriptText(){
+            return String.format(
+                    "#!/bin/bash\n" +
+                            "#SBATCH -o %s\n" +
+                            "#SBATCH -A %s\n" +
+                            "#SBATCH -N %d\n" +
+                            "#SBATCH -n %d\n" +
+                            "#SBATCH -t %s\n" +
+                            "#SBATCH --mem=%d\n" +
+                            "%s %s > %s\n",
+                    REMOTE_LIBEFP_OUT + schedulerOutputName + ".stdout",
+                    queueName, numNodes, numProcessors, walltime, mem, efpmdPath,
+                    REMOTE_LIBEFP_IN + inputFilePath,
+                    REMOTE_LIBEFP_OUT + outputFilename
+            );
+        }
+
+        public void prepareJob(String efpmdPath, String inputFilePath, String outputFilename){
+            this.efpmdPath = efpmdPath;
+            this.inputFilePath = inputFilePath;
+            this.outputFilename = outputFilename + ".out";
+            schedulerOutputName = outputFilename + ".stdout";
+        }
+
+        public String submit() {
             String jobID = UUID.randomUUID().toString();
             try {
-                File submissionScript = createSubmissionScript(efpmdPath, inputFilePath, outputFilename, jobID);
+                File submissionScript = createSubmissionScript();
                 Connection con = new Connection(hostname);
                 con.connect();
                 boolean isAuthenticated = con.authenticateWithPassword(username, password);

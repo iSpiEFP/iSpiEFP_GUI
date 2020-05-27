@@ -660,7 +660,8 @@ public class libEFPInputController implements Initializable {
 
             if (selectedServer.getScheduler().equals("SLURM")){
                 submission = new libEFPSlurmSubmission(selectedServer,"lslipche", 1, 20, "00:30:00", 0);
-                submission.submit(selectedServer.getLibEFPPath(), "md_1.in", "output");
+                submission.prepareJob(selectedServer.getLibEFPPath(), "md_1.in", "output");
+                submission.submit();
             }
             InputStream stdout = new StreamGobbler(sess.getStdout());
             BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
