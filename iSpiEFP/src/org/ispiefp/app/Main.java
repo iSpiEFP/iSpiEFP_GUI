@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.ispiefp.app.MetaData.*;
@@ -29,7 +30,7 @@ public class Main extends Application {
     public static final int iSpiEFP_PORT = 8080;
 
     private static Stage primaryStage;
-    private static BorderPane mainLayout;
+    private static AnchorPane mainLayout;
 
     public static HostServices hostServices;
 
@@ -98,11 +99,11 @@ public class Main extends Application {
         Main.primaryStage = primaryStage;
     }
 
-    public static BorderPane getMainLayout() {
+    public static AnchorPane getMainLayout() {
         return mainLayout;
     }
 
-    public static void setMainLayout(BorderPane mainLayout) {
+    public static void setMainLayout(AnchorPane mainLayout) {
         Main.mainLayout = mainLayout;
     }
 }
