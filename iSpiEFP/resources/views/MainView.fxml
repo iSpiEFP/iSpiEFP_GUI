@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="root" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.MainViewController">
-    <VBox spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+    <VBox spacing="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <VBox BorderPane.alignment="CENTER">
             <MenuBar>
                 <menus>
@@ -99,70 +99,67 @@
                     </Menu>
                 </menus>
             </MenuBar>
-            <Pane prefHeight="55.0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+            <HBox prefHeight="55.0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" spacing="10" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets top="10" left="10" right="10" />
+                </padding>
                 <children>
-                    <ToggleButton fx:id="selectionButton" layoutX="14.0" layoutY="10" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleSelection" prefHeight="45.0" prefWidth="45.0" text="select">
+                    <ToggleButton fx:id="selectionButton" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleSelection" prefHeight="45.0" prefWidth="45.0" text="select">
                         <tooltip>
                             <Tooltip text="Select all atoms" />
                         </tooltip>
                     </ToggleButton>
-                    <ToggleButton fx:id="haloButton" layoutX="70.0" layoutY="10" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleHalo" prefHeight="45.0" prefWidth="45.0" text="Halo On">
+                    <ToggleButton fx:id="haloButton" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleHalo" prefHeight="45.0" prefWidth="45.0" text="Halo On">
                         <tooltip>
                             <Tooltip text="Select an atom" />
                         </tooltip>
                     </ToggleButton>
-                    <ToggleButton fx:id="snipButton" layoutX="126.0" layoutY="10" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleSnip" prefHeight="45.0" prefWidth="45.0" text="Fragmenation">
+                    <ToggleButton fx:id="snipButton" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleSnip" prefHeight="45.0" prefWidth="45.0" text="Fragmenation">
                         <tooltip>
                             <Tooltip text="Select a bond to delete" />
                         </tooltip>
                     </ToggleButton>
-                    <ToggleButton fx:id="measureButton" layoutX="185.0" layoutY="10" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleMeasure" prefHeight="45.0" prefWidth="45.0" text="measure">
+                    <ToggleButton fx:id="measureButton" lineSpacing="5.0" mnemonicParsing="false" onAction="#toggleMeasure" prefHeight="45.0" prefWidth="45.0" text="measure">
                         <tooltip>
                             <Tooltip text="Select two atoms to measure distance" />
                         </tooltip>
                     </ToggleButton>
-                    <ToggleButton fx:id="pickCenterButton" layoutX="242.0" layoutY="10" mnemonicParsing="false" onAction="#handlePickCenter" prefHeight="45.0" prefWidth="45.0" text="center">
+                    <ToggleButton fx:id="pickCenterButton" mnemonicParsing="false" onAction="#handlePickCenter" prefHeight="45.0" prefWidth="45.0" text="center">
                         <tooltip>
                             <Tooltip text="Select an atom to center on it" />
                         </tooltip>
                     </ToggleButton>
-                    <ToggleButton fx:id="playPauseButton" layoutX="298.0" layoutY="10" lineSpacing="5.0" mnemonicParsing="false" onAction="#togglePlay" prefHeight="45.0" prefWidth="45.0" text="play_pause">
+                    <ToggleButton fx:id="playPauseButton" lineSpacing="5.0" mnemonicParsing="false" onAction="#togglePlay" prefHeight="45.0" prefWidth="45.0" text="play_pause">
                         <tooltip>
                             <Tooltip text="Capture" />
                         </tooltip>
                     </ToggleButton>
-                    <ToggleButton fx:id="modelKitButton" layoutX="355.0" layoutY="10" mnemonicParsing="false" onAction="#toggleModelKit" prefHeight="45.0" prefWidth="45.0" text="modelKit">
+                    <ToggleButton fx:id="modelKitButton" mnemonicParsing="false" onAction="#toggleModelKit" prefHeight="45.0" prefWidth="45.0" text="modelKit">
                         <tooltip>
                             <Tooltip text="Build a custom model" />
                         </tooltip>
                     </ToggleButton>
-                    <Button fx:id="consoleButton" layoutX="413.0" layoutY="10" mnemonicParsing="false" onAction="#displayConsole" prefHeight="45.0" prefWidth="45.0" text="show_console">
+                    <Button fx:id="consoleButton" mnemonicParsing="false" onAction="#displayConsole" prefHeight="45.0" prefWidth="45.0" text="show_console">
                         <tooltip>
                             <Tooltip text="Use Jmol Java console" />
                         </tooltip>
                     </Button>
-                    <Button fx:id="libefpButton" layoutX="1116.0" layoutY="10" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp">
+                    <Separator orientation="VERTICAL"/>
+                    <Button text="Geometries" prefHeight="45.0"/>
+                    <Button text="Energies" prefHeight="45.0"/>
+                    <Button text="Pairwise Energies" prefHeight="45.0"/>
+                    <Button text="MD" prefHeight="45.0"/>
+                    <Button text="Stats" prefHeight="45.0"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="libefpButton" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp">
                         <tooltip>
                             <Tooltip text="Calculate Libefp" />
                         </tooltip>
                     </Button>
                 </children>
-            </Pane>
-        </VBox>
-        <SplitPane fx:id="leftRightSplitPane" dividerPositions="0.5" maxHeight="Infinity" maxWidth="Infinity" BorderPane.alignment="CENTER" HBox.hgrow="ALWAYS">
-            <HBox spacing="10">
-                <Region HBox.hgrow="ALWAYS" />
-                <Button text="Geometries" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button text="Energies" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button text="Pairwise Energies" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button text="MD" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button text="Stats" />
-                <Region HBox.hgrow="ALWAYS" />
             </HBox>
+        </VBox>
+        <SplitPane fx:id="leftRightSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0.5" maxHeight="Infinity" maxWidth="Infinity" HBox.hgrow="ALWAYS">
             <ListView fx:id="leftListView" />
             <SplitPane fx:id="middleRightSplitPane" dividerPositions="0.5">
                 <Pane fx:id="middlePane" />
