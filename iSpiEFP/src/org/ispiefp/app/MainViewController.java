@@ -125,8 +125,17 @@ public class MainViewController {
     private Button libefpButton;
 
     @FXML
-
     private Menu openRecentMenu;
+
+    // All the analysis buttons
+    public Button analysisGeometries;
+    public Button analysisEnergies;
+    public Button analysisPairWiseEnergies;
+    public Button analysisMD;
+    public Button analysisStats;
+
+    // History and Project List View
+    public ListView historyListView;
 
     //private UserPreferences userPrefs = new UserPreferences();
 

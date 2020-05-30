@@ -145,11 +145,11 @@
                         </tooltip>
                     </Button>
                     <Separator orientation="VERTICAL"/>
-                    <Button text="Geometries" prefHeight="45.0"/>
-                    <Button text="Energies" prefHeight="45.0"/>
-                    <Button text="Pairwise Energies" prefHeight="45.0"/>
-                    <Button text="MD" prefHeight="45.0"/>
-                    <Button text="Stats" prefHeight="45.0"/>
+                    <Button fx:id="analysisGeometries" text="Geometries" prefHeight="45.0"/>
+                    <Button fx:id="analysisEnergies" text="Energies" prefHeight="45.0"/>
+                    <Button fx:id="analysisPairWiseEnergies" text="Pairwise Energies" prefHeight="45.0"/>
+                    <Button fx:id="analysisMD" text="MD" prefHeight="45.0"/>
+                    <Button fx:id="analysisStats" text="Stats" prefHeight="45.0"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="libefpButton" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp">
                         <tooltip>
@@ -160,7 +160,20 @@
             </HBox>
         </VBox>
         <SplitPane fx:id="leftRightSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0.5" maxHeight="Infinity" maxWidth="Infinity" HBox.hgrow="ALWAYS">
-            <ListView fx:id="leftListView" />
+            <VBox>
+                <Label text="Fragments">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                </Label>
+                <ListView fx:id="leftListView" />
+                <Label text="History and Projects">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                </Label>
+                <ListView fx:id="historyListView" />
+            </VBox>
             <SplitPane fx:id="middleRightSplitPane" dividerPositions="0.5">
                 <Pane fx:id="middlePane" />
                 <SplitPane fx:id="rightVerticalSplitPane" dividerPositions="0.5" orientation="VERTICAL">
