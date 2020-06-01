@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -160,7 +161,7 @@ public class DatabaseController {
      * @return
      */
     private Button getLibefpSubmitButton() {
-        BorderPane borderPane = Main.getMainLayout();
+        AnchorPane borderPane = Main.getMainLayout();
         ObservableList list = borderPane.getChildren();
         VBox vbox = (VBox) list.get(0);
         
