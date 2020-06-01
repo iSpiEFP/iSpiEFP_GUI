@@ -654,6 +654,10 @@ public class libEFPInputController implements Initializable {
         this.hostname = hostname;
     }
 
+    public void setCoordinates(String coords){
+        coordinates = coords;
+    }
+
 }
 
 
