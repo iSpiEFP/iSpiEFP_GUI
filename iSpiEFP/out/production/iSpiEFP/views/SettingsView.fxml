@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeItem?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
+    <top>
+        <AnchorPane fx:id="anchor" minHeight="400.0" minWidth="900.0" prefHeight="700.0" prefWidth="1200.0">
+            <VBox prefHeight="679.0" prefWidth="248.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <TreeView fx:id="menuTree" prefHeight="655.0" prefWidth="248.0" showRoot="false">
+                    <TreeItem fx:id="topLeveLSettings" value="Settings">
+                        <children>
+                            <TreeItem fx:id="defaultPaths" value="Default Paths" />
+                            <TreeItem fx:id="serverSettings" value="Servers">
+                                <children>
+                                    <TreeItem fx:id="addNew" value="Add New Server" />
+                                    <TreeItem fx:id="servers" value="Configured Servers" />
+                                </children>
+                            </TreeItem>
+                        </children>
+                    </TreeItem>
+                </TreeView>
+            </VBox>
+            <VBox fx:id="pathsBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Directory containing user generated parameters" textAlignment="CENTER" />
+                <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Button onAction="#selectParameterDirectory" text="Find" />
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path to Python interpreter" textAlignment="CENTER" />
+                <TextField fx:id="pythonPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <Button onAction="#selectPythonPath" text="Find" />
+                <Separator />
+                <HBox alignment="BOTTOM_RIGHT" spacing="10.0">
+                    <Button fx:id="pathsSave" onAction="#pathsSave" text="Save" />
+                    <Button onAction="#pathsRestoreDefaults" text="Restore Defaults" />
+                </HBox>
+            </VBox>
+            <VBox fx:id="serversBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Server Alias:" />
+                    <TextField fx:id="alias" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                </HBox>
+                <Separator />
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Hostname:" />
+                    <TextField fx:id="hostname" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                </HBox>
+                <Separator />
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Username:" />
+                    <TextField fx:id="username" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                </HBox>
+                <Separator />
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Password:" />
+                    <PasswordField fx:id="password" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                </HBox>
+                <Separator />
+                <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Server Options" />
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <CheckBox fx:id="hasLibEFPButton" onAction="#enableLibEFPPath" text="libEFP installed?" />
+                    <CheckBox fx:id="hasGAMESSButton" onAction="#enableGAMESSPath" text="GAMESS installed?" />
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="120" text="Scheduling System:" />
+                    <ChoiceBox fx:id="scheduler" />
+                </HBox>
+                <Separator />
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="BOTTOM_LEFT" prefHeight="21.0" prefWidth="633.0" text="Path to libEFP installation" />
+                    <TextField fx:id="libEFPInstallationPath" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="462.0" />
+                </HBox>
+                <Separator />
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="BOTTOM_LEFT" prefHeight="21.0" prefWidth="633.0" text="Path to GAMESS installation" />
+                    <TextField fx:id="GAMESSInstallationPath" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="462.0" />
+                </HBox>
+                <Separator />
+                <HBox alignment="BOTTOM_RIGHT" spacing="10.0">
+                    <Button fx:id="serverSave" onAction="#saveServer" text="Save" />
+                    <Button fx:id="serverDelete" onAction="#deleteServer" text="Delete" />
+                    <Button fx:id="serverAuth" onAction="#authenticateServer" text="Authenticate" />
+                </HBox>
+            </VBox>
+        </AnchorPane>
+    </top>
+</BorderPane>

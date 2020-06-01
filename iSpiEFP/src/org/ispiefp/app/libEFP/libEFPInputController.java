@@ -198,7 +198,6 @@ public class libEFPInputController implements Initializable {
 
         title.setText("Title");
 
-
         ObservableList<String> terms_adding = FXCollections.observableArrayList();
         terms_adding.add("elec");
         terms_adding.add("pol");
