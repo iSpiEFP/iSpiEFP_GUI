@@ -6,9 +6,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -130,10 +135,7 @@ public class MainViewController {
 
     // History and Project List View
     public ListView historyListView;
-
     private String[] rec_files;
-    //private Menu recentMenu;
-
     /**
      * initialize(); is called after @FXML parameters have been loaded in
      * Loading order goes as: Constructor > @FXML > initialize();
@@ -905,6 +907,53 @@ stage.show();
         }
     }
 
+    @FXML
+    public void showGeomAnalysis() {
+
+    }
+
+    @FXML
+    public void showEnergyAnalysis() {
+
+        Stage stage = new Stage();
+        stage.setTitle("Energy Analysis");
+        //  primaryStage.setScene(new Scene(root, 300, 275));
+
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Total");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Energy (kcal/mol)");
+
+        BarChart chart = new BarChart(xAxis, yAxis);
+
+        XYChart.Series dataSeries1 = new XYChart.Series();
+
+        dataSeries1.setName("Energy Values");
+
+        double electrostatVal = -30.0;
+        double exchRepulsVal = 40.0;
+        double polarVal = -12.5;
+        double dispersVal = -20.0;
+        double totalVal = electrostatVal + exchRepulsVal + polarVal + dispersVal;
+
+        VBox vBox = new VBox(chart);
+        Scene scene = new Scene(vBox, 800, 800);
+
+        scene.getStylesheets().add("bar_styles.css");
+
+        dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
+        dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
+        dataSeries1.getData().add(new XYChart.Data("Polarization", polarVal));
+        dataSeries1.getData().add(new XYChart.Data("Dispersion", dispersVal));
+        dataSeries1.getData().add(new XYChart.Data("Total", totalVal));
+
+        chart.getData().add(dataSeries1);
+
+        stage.setScene(scene);
+        stage.setHeight(500);
+        stage.setWidth(800);
+        stage.show();
+    }
     /**
      * Handle Play Pause. Capture Molecule
      */
