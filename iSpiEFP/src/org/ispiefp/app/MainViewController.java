@@ -1,17 +1,18 @@
 package org.ispiefp.app;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -909,6 +910,64 @@ stage.show();
 
     @FXML
     public void showGeomAnalysis() {
+        Stage stage = new Stage();
+        stage.setTitle("Geometry Analysis");
+
+        NumberAxis xAxis = new NumberAxis();
+        xAxis.setLabel("Geometry");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Energy");
+
+        LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
+        geomVsEnergyChart.setTitle("Geometry vs. Energy");
+
+        VBox vBox = new VBox(30);
+        Scene scene = new Scene(vBox, 800, 800);
+
+        HBox topHBox = new HBox();
+        ListView<String> list = new ListView<String>();
+        ObservableList<String> items = FXCollections.observableArrayList (
+                "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
+        list.setItems(items);
+        list.setPrefHeight(300);
+
+        HBox bottomHBox = new HBox(10);
+
+        Button leftArrow = new Button();
+        leftArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+        leftArrow.setRotate(180);
+        bottomHBox.getChildren().add(leftArrow);
+
+        Button circularPlayButton = new Button();
+        circularPlayButton.setStyle("-fx-border-radius: 20;");
+        circularPlayButton.setPrefWidth(20);
+        bottomHBox.getChildren().add(circularPlayButton);
+
+        Button rightArrow = new Button();
+        rightArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+        bottomHBox.getChildren().add(rightArrow);
+
+        Button dummyButton = new Button();
+        dummyButton.setPrefWidth(500);
+        dummyButton.setVisible(false);
+        bottomHBox.getChildren().add(dummyButton);
+        XYChart.Series series = new XYChart.Series();
+        series.setName("Dummy Vals");
+
+        series.getData().add(new XYChart.Data(1, 60));
+        series.getData().add(new XYChart.Data(2, 40));
+        series.getData().add(new XYChart.Data(3, 25));
+        series.getData().add(new XYChart.Data(4, 20));
+
+        geomVsEnergyChart.getData().add(series);
+
+        topHBox.getChildren().addAll(list, geomVsEnergyChart);
+        vBox.getChildren().addAll(topHBox, bottomHBox);
+        //rootPane.getChildren().addAll(pane1, pane2);
+        stage.setScene(scene);
+        stage.setHeight(500);
+        stage.setWidth(800);
+        stage.show();
 
     }
 
@@ -917,7 +976,6 @@ stage.show();
 
         Stage stage = new Stage();
         stage.setTitle("Energy Analysis");
-        //  primaryStage.setScene(new Scene(root, 300, 275));
 
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Total");
@@ -928,7 +986,7 @@ stage.show();
 
         XYChart.Series dataSeries1 = new XYChart.Series();
 
-        dataSeries1.setName("Energy Values");
+       dataSeries1.setName("Dummy Vals");
 
         double electrostatVal = -30.0;
         double exchRepulsVal = 40.0;
@@ -940,6 +998,7 @@ stage.show();
         Scene scene = new Scene(vBox, 800, 800);
 
         scene.getStylesheets().add("bar_styles.css");
+        scene.getStylesheets().add("button_styles.css");
 
         dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
         dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
