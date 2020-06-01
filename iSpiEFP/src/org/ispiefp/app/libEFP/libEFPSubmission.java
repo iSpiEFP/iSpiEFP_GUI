@@ -36,7 +36,7 @@ public abstract class libEFPSubmission {
     int updateIntervalSecs;
 
     /* Submission Script Fields */
-    String stdoutFilename;
+    String schedulerOutputName;
     String queueName;
     int numNodes;
     int numProcessors;
@@ -55,8 +55,10 @@ public abstract class libEFPSubmission {
         username = server.getUsername();
         password = server.getPassword();
     }
-    abstract String submit(String efpmdPath, String inputFilePath, String outputFilename);
-    abstract File createSubmissionScript(String efpmdPath, String inputFilePath, String outputFilename, String schedulerOutputName) throws IOException;
+    abstract String submit();
+    abstract File createSubmissionScript() throws IOException;
+    abstract String getSubmissionScriptText();
+    abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
@@ -101,4 +103,17 @@ public abstract class libEFPSubmission {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public void setOutputFilename(String outputFilename) { this.outputFilename = outputFilename + ".out"; }
+
+    public void setQueueName(String name){ queueName = name; }
+
+    public void setNumNodes(int numNodes) { this.numNodes = numNodes; }
+
+    public void setNumProcessors(int numProcessors) { this.numProcessors = numProcessors; }
+
+    public void setWalltime(String walltime) { this.walltime = walltime; }
+
+    public void setMem(int mem) { this.mem = mem; }
+
 }
