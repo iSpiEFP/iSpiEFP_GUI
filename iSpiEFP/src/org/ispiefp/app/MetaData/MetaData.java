@@ -7,6 +7,10 @@ import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 /* This class is essentially a wrapper for extracting all of the fields from a JSON String          */
 public class MetaData {
@@ -429,6 +433,33 @@ public class MetaData {
     }
 
     /**
+     * This method returns as a string the coordinates of the atoms as they would be listed in an XYZ file without
+     * creating the XYZ file. Method is useful for libEFPInputController which requires coordinates as Strings
+     * @return the above
+     */
+    public String getXYZCoords() {
+        StringBuilder sb = new StringBuilder();
+        double numAngstromsInBohr = 0.52918;
+            //Write the coordinates of each atom to the file
+            for (int i = 0; i < coordinates.length; i++){
+                //Don't include dummy atoms
+                if (coordinates[i].atomID.startsWith("B")){
+                    continue;
+                }
+                //Get the atom type by stripping all numbers from the atomID and removing the leading A
+                String atomType = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
+                atomType = atomType.substring(1);
+                //Follow XYZ file format for each atom
+                sb.append(String.format("%s\t%.5f\t%.5f\t%.5f%n",
+                        atomType,
+                        coordinates[i].x * numAngstromsInBohr,
+                        coordinates[i].y * numAngstromsInBohr,
+                        coordinates[i].z * numAngstromsInBohr));
+            }
+        return sb.toString();
+    }
+
+    /**
      * Sets the .efp file for this fragment. In order to conserve disk space, this method is only ran when a fragment
      * is selected from File->Select Fragment. If the file is not already local (the case if it is a user-generated
      * parameter), it will be deleted upon system exit because it can be obtained again in the next session as long
@@ -444,6 +475,7 @@ public class MetaData {
         }
         GithubRequester requester = new GithubRequester(fromFile);
         efpFile = requester.getEFPFile();
+        System.out.printf("When setting, size of file is %d%n", efpFile.length());
         requester.cleanUp();
     }
 
@@ -454,5 +486,37 @@ public class MetaData {
      */
     public File getEfpFile() {
         return efpFile;
+    }
+
+    /**
+     * Gets the chemical formula for a metaData object. The atoms and their numbers are listed in alphabetical order
+     * according to their atomic string
+     * @return The chemical formula as a string in the form <atom1><numAtom1><atom2><numAtom2>...
+     */
+    public String getChemFormula(){
+        HashMap<String, Integer> atomTypeMap = new HashMap<>();
+        PriorityQueue<String> pq = new PriorityQueue<>();
+        for (int i = 0; i < coordinates.length; i++){
+            String atomName = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
+            if (atomName.startsWith("B")) continue;
+            else atomName = atomName.substring(1);
+            if (atomTypeMap.containsKey(atomName)){
+                atomTypeMap.put(atomName, atomTypeMap.get(atomName) + 1);
+            }
+            else atomTypeMap.put(atomName, 1);
+        }
+        Iterator<String> keysItr = atomTypeMap.keySet().iterator();
+        while (keysItr.hasNext()){
+            StringBuilder sb = new StringBuilder();
+            String key = keysItr.next();
+            sb.append(key);
+            sb.append(atomTypeMap.get(key));
+            pq.add(sb.toString());
+        }
+        String returnString = "";
+        while (!pq.isEmpty()){
+            returnString += pq.poll();
+        }
+        return returnString;
     }
 }

@@ -8,12 +8,12 @@
       <sourceFolder url="file://$MODULE_DIR$/iSpiEFP/Tests/TestResources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/iSpiEFP/Tests/src" isTestSource="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="com.google.code.gson:gson:2.8.5" level="project" />
-    <orderEntry type="library" name="javafx.base" level="project" />
-    <orderEntry type="library" name="org.controlsfx:controlsfx:11.0.0" level="project" />
-    <orderEntry type="module-library">
+    <orderEntry type="library" exported="" name="com.google.code.gson:gson:2.8.5" level="project" />
+    <orderEntry type="library" exported="" name="javafx.base" level="project" />
+    <orderEntry type="library" exported="" name="org.controlsfx:controlsfx:11.0.0" level="project" />
+    <orderEntry type="module-library" exported="">
       <library name="JUnit4">
         <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/" />
@@ -23,8 +23,8 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="lib" level="project" />
-    <orderEntry type="module-library">
+    <orderEntry type="library" exported="" name="lib" level="project" />
+    <orderEntry type="module-library" exported="">
       <library name="JUnit4">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.12.jar!/" />
@@ -34,5 +34,8 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="org.controlsfx:controlsfx:9.0.0" level="project" />
+    <orderEntry type="library" name="javafx-swt" level="project" />
+    <orderEntry type="library" name="jre-10.0" level="project" />
   </component>
 </module>

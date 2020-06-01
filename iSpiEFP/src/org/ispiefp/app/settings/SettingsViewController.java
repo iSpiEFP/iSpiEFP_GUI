@@ -1,81 +1,76 @@
 package org.ispiefp.app.settings;
 
+import ch.ethz.ssh2.Connection;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.ispiefp.app.Initializer;
+import org.ispiefp.app.installer.BundleManager;
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.loginPack.LoginForm;
+import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.UserPreferences;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
 import java.util.prefs.Preferences;
 
 public class SettingsViewController {
     /* Overarching Class Fields */
     private VBox currentVbox;
 
-    @FXML
-    private AnchorPane anchor;
+    @FXML private AnchorPane anchor;
 
     /* Fields for Path Settings */
-    @FXML
-    private VBox pathsBox;
-    @FXML
-    private TextField parameterPathField;
-    @FXML
-    private TextField pythonPathField;
+    @FXML private VBox pathsBox;
+    @FXML private TextField parameterPathField;
+    @FXML private TextField pythonPathField;
 
-    /* Fields for GAMESS Server Settings */
-    @FXML
-    private VBox gamessBox;
-    @FXML
-    private TextField gamessServerField;
-    @FXML
-    private TextField gamessUserName;
-    @FXML
-    private PasswordField gamessPassword;
-    @FXML
-    private TextField gamessOutputPath;
 
-    /* Fields for LibEFP Server Settings */
-    @FXML
-    private VBox libEFPBox;
-    @FXML
-    private TextField libEFPServerField;
-    @FXML
-    private TextField libEFPUserName;
-    @FXML
-    private PasswordField libEFPPassword;
-    @FXML
-    private TextField libEFPOutputPath;
+    /* Fields for Server Settings */
+    @FXML private VBox serversBox;
+    @FXML private TextField alias;
+    @FXML private TextField hostname;
+    @FXML private TextField username;
+    @FXML private PasswordField password;
+    @FXML private TextField libEFPInstallationPath;
+    @FXML private TextField GAMESSInstallationPath;
+    @FXML private CheckBox hasLibEFPButton;
+    @FXML private CheckBox hasGAMESSButton;
+    @FXML private ChoiceBox scheduler;
 
     /*Fields for persistent scene */
-    @FXML
-    private VBox settingsBox;
-        @FXML
-    private TreeView<String> menuTree;
-    @FXML
-    private TreeItem topLeveLSettings;
-    @FXML
-    private TreeItem<String> defaultPaths;
-    @FXML
-    private TreeItem<String> serverSettings;
-    @FXML
-    private TreeItem<String> gamessServer;
-    @FXML
-    private TreeItem<String> libEFPServer;
+    @FXML private VBox settingsBox;
+    @FXML private TreeView<String> menuTree;
+    @FXML private TreeItem topLeveLSettings;
+    @FXML private TreeItem<String> defaultPaths;
+    @FXML private TreeItem<String> serverSettings;
+    @FXML private TreeItem<String> addNew;
+    @FXML private TreeItem<String> servers;
 
     public void initialize() {
         initializePaths();
-        initializeGamess();
-        initializeLibEFP();
-        if (menuTree == null) System.out.println("yeh");
+        initializeServers();
+        scheduler.getItems().add("PBS");
+        scheduler.getItems().add("SLURM");
+        scheduler.getItems().add("TORQUE");
         menuTree.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
             @Override
             public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue, TreeItem<String> newValue) {
@@ -83,12 +78,13 @@ public class SettingsViewController {
                     case "Default Paths":
                         openPathsSettings();
                         break;
-                    case "GAMESS Server Settings":
-                        openGamessSettings();
+                    case "Add New Server":
+                        addNewServer();
                         break;
-                    case "LibEFP Server Settings":
-                        openLibEFPSettings();
-                        break;
+                    default:
+                        if (UserPreferences.getServers().containsKey(newValue.getValue())){
+                            loadServer(UserPreferences.getServers().get(newValue.getValue()));
+                        }
                 }
             }
         });
@@ -96,7 +92,7 @@ public class SettingsViewController {
         pathsBox.setVisible(true);
     }
 
-    private void initializePaths(){
+    private void initializePaths() {
         parameterPathField.setPromptText(UserPreferences.getUserParameterPath());
         pythonPathField.setPromptText(UserPreferences.getPythonPath());
     }
@@ -109,8 +105,8 @@ public class SettingsViewController {
         Stage currStage = (Stage) anchor.getScene().getWindow();
         try {
             parameterPathField.setText(dc.showDialog(currStage).getAbsolutePath());
-        } catch (NullPointerException e){
-            System.out.println("User closed dialog without selecting a file");;
+        } catch (NullPointerException e) {
+            System.out.println("User closed dialog without selecting a file");
         }
     }
 
@@ -126,19 +122,20 @@ public class SettingsViewController {
             fc.setInitialDirectory(new File(System.getProperty("user.home")));
         }
         Stage currStage = (Stage) anchor.getScene().getWindow();
-        try{
+        try {
             pythonPathField.setText(fc.showOpenDialog(currStage).getAbsolutePath());
-        } catch(NullPointerException e){
-            System.out.println("User closed dialog without selecting a file");;
+        } catch (NullPointerException e) {
+            System.out.println("User closed dialog without selecting a file");
+            ;
         }
     }
 
     @FXML
-    private void pathsSave(){
-        if (!pythonPathField.getText().equals("")){
+    private void pathsSave() {
+        if (!pythonPathField.getText().equals("")) {
             UserPreferences.setPythonPath(pythonPathField.getText());
         }
-        if (!parameterPathField.getText().equals("")){
+        if (!parameterPathField.getText().equals("")) {
             UserPreferences.setUserParameterPath(parameterPathField.getText());
             Initializer init = new Initializer();
             init.generateMetas(UserPreferences.getUserParameterPath());
@@ -147,7 +144,7 @@ public class SettingsViewController {
     }
 
     @FXML
-    private void pathsRestoreDefaults(){
+    private void pathsRestoreDefaults() {
         UserPreferences.setUserParameterPath(LocalBundleManager.USER_PARAMETERS);
         Initializer init = new Initializer();
         init.generateMetas(UserPreferences.getUserParameterPath());
@@ -163,129 +160,281 @@ public class SettingsViewController {
         }
     }
 
-    private void openPathsSettings(){
+    private void openPathsSettings() {
         currentVbox.setVisible(false);
         pathsBox.setVisible(true);
         currentVbox = pathsBox;
     }
 
-    private void initializeGamess(){
-        if (UserPreferences.getGamessServer().equals("check")) gamessServerField.setPromptText("Enter Server Address");
-        else gamessServerField.setPromptText(UserPreferences.getGamessServer());
-        if (UserPreferences.getGamessUsername().equals("check")) gamessUserName.setPromptText("Enter your username for the server");
-        else gamessUserName.setPromptText(UserPreferences.getGamessUsername());
-        if (UserPreferences.getGamessOutputPath().equals("check")) gamessOutputPath.setPromptText(UserPreferences.getUserParameterPath());
-        else gamessOutputPath.setPromptText(UserPreferences.getGamessOutputPath());
+
+//    @FXML
+//    private void selectGamessOutputDirectory() {
+//        DirectoryChooser dc = new DirectoryChooser();
+//        dc.setTitle("Directory for the Output of GAMESS Calculations");
+//        dc.setInitialDirectory(new File(UserPreferences.getUserParameterPath()));
+//        Stage currStage = (Stage) anchor.getScene().getWindow();
+//        try {
+//            gamessOutputPath.setText(dc.showDialog(currStage).getAbsolutePath());
+//        } catch (NullPointerException e){
+//            System.out.println("User closed dialog without selecting a file");
+//        }
+//    }
+
+
+//    @FXML
+//    private void selectLibEFPOutputDirectory() {
+//        DirectoryChooser dc = new DirectoryChooser();
+//        dc.setTitle("Directory for the Output of libEFP Calculations");
+//        if (UserPreferences.getLibefpOutputPath().equals("check")) {
+//            dc.setInitialDirectory(new File(LocalBundleManager.LIBEFP));
+//        } else if (new File(UserPreferences.getLibefpOutputPath()).exists() &&
+//                new File(UserPreferences.getLibefpOutputPath()).isDirectory()) {
+//            dc.setInitialDirectory(new File(UserPreferences.getLibefpOutputPath()));
+//        } else {
+//            dc.setInitialDirectory(new File(System.getProperty("user.home")));
+//        }
+//        Stage currStage = (Stage) anchor.getScene().getWindow();
+//        try {
+//            libEFPOutputPath.setText(dc.showDialog(currStage).getAbsolutePath());
+//        } catch (NullPointerException e) {
+//            System.out.println("User closed dialog without selecting a file");
+//        }
+//    }
+
+
+    /* Begin methods for server VBox */
+
+    private void initializeServers() {
+        servers.getChildren().clear();
+        System.out.println(UserPreferences.getServers().keySet());
+        for (String serverName : UserPreferences.getServers().keySet()) {
+            servers.getChildren().add(new TreeItem<>(serverName));
+        }
+        servers.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                openServerSettings();
+                loadServer(UserPreferences.getServers().get(newValue));
+            }
+        }));
     }
 
-    @FXML
-    private void selectGamessOutputDirectory() {
-        DirectoryChooser dc = new DirectoryChooser();
-        dc.setTitle("Directory for the Output of GAMESS Calculations");
-        dc.setInitialDirectory(new File(UserPreferences.getUserParameterPath()));
-        Stage currStage = (Stage) anchor.getScene().getWindow();
-        try {
-            gamessOutputPath.setText(dc.showDialog(currStage).getAbsolutePath());
-        } catch (NullPointerException e){
-            System.out.println("User closed dialog without selecting a file");
-        }
-    }
-    @FXML
-    private void gamessSave(){
-        if (!gamessServerField.getText().equals("")){
-            UserPreferences.setGamessServer(gamessServerField.getText());
-        }
-        if (!gamessUserName.getText().equals("")){
-            UserPreferences.setGamessUsername(gamessUserName.getText());
-        }
-        if (!gamessPassword.getText().equals("")){
-            UserPreferences.setGamessPassword(gamessPassword.getText());
-        }
-        if (!gamessOutputPath.getText().equals("")){
-            UserPreferences.setGamessOutputPath(gamessOutputPath.getText());
-        }
-    }
-
-    @FXML
-    private void gamessClear(){
-        UserPreferences.setGamessServer("check");
-        UserPreferences.setGamessUsername("check");
-        UserPreferences.setGamessPassword("check");
-        gamessServerField.setPromptText("Enter Server Address");
-        gamessUserName.setPromptText("Enter your username for the server");
-        gamessPassword.setPromptText("");
-    }
-
-    private void openGamessSettings(){
+    private void openServerSettings(){
         currentVbox.setVisible(false);
-        gamessBox.setVisible(true);
-        currentVbox = gamessBox;
+        serversBox.setVisible(true);
+        currentVbox = serversBox;
     }
 
-    private void initializeLibEFP(){
-        if (UserPreferences.getLibefpServer().equals("check")) libEFPServerField.setPromptText("Enter Server Address");
-        else libEFPServerField.setPromptText(UserPreferences.getGamessServer());
-        if (UserPreferences.getLibefpUsername().equals("check")) libEFPUserName.setPromptText("Enter your username for the server");
-        else libEFPUserName.setPromptText(UserPreferences.getGamessUsername());
-        if (UserPreferences.getLibefpOutputPath().equals("check")) {
-            libEFPOutputPath.setPromptText(LocalBundleManager.LIBEFP);
-        } else if (new File(UserPreferences.getLibefpOutputPath()).exists() &&
-                new File(UserPreferences.getLibefpOutputPath()).isDirectory()) {
-            libEFPOutputPath.setPromptText(UserPreferences.getLibefpOutputPath());
-        } else{
-            libEFPOutputPath.setPromptText(System.getProperty("user.home"));
+    private void loadServer(ServerInfo si) {
+        openServerSettings();
+        alias.setText(si.getEntryname());
+        hostname.setText(si.getHostname());
+        username.setText(si.getUsername());
+        password.setText(si.getPassword());
+        scheduler.setValue(si.getScheduler());
+        if (si.hasGAMESS()) {
+            hasGAMESSButton.setSelected(true);
+            GAMESSInstallationPath.setText(si.getGamessPath());
+        } else {
+            hasGAMESSButton.setSelected(false);
+            GAMESSInstallationPath.setDisable(true);
+        }
+        if (si.hasLibEFP()) {
+            hasLibEFPButton.setSelected(true);
+            libEFPInstallationPath.setText(si.getLibEFPPath());
+        } else {
+            hasLibEFPButton.setSelected(false);
+            libEFPInstallationPath.setDisable(true);
         }
     }
 
     @FXML
-    private void selectLibEFPOutputDirectory() {
-        DirectoryChooser dc = new DirectoryChooser();
-        dc.setTitle("Directory for the Output of libEFP Calculations");
-        if (UserPreferences.getLibefpOutputPath().equals("check")) {
-            dc.setInitialDirectory(new File(LocalBundleManager.LIBEFP));
-        } else if (new File(UserPreferences.getLibefpOutputPath()).exists() &&
-                new File(UserPreferences.getLibefpOutputPath()).isDirectory()) {
-            dc.setInitialDirectory(new File(UserPreferences.getLibefpOutputPath()));
-        } else{
-            dc.setInitialDirectory(new File(System.getProperty("user.home")));
+    private void enableLibEFPPath() {
+        libEFPInstallationPath.setDisable(!hasLibEFPButton.isSelected());
+    }
+
+    @FXML
+    private void enableGAMESSPath() {
+        GAMESSInstallationPath.setDisable(!hasGAMESSButton.isSelected());
+    }
+
+    @FXML
+    private void saveServer() {
+        UserPreferences.removeServer(alias.getText());
+        ServerInfo si = new ServerInfo(alias.getText(), true);
+        si.setHostname(hostname.getText());
+        si.setUsername(username.getText());
+        si.setPassword(password.getText());
+        si.setScheduler(scheduler.getValue().toString());
+
+        if (hasLibEFPButton.isSelected()) {
+            si.setHasLibEFP(true);
+            si.setLibEFPPath(libEFPInstallationPath.getText());
+        } else {
+            si.setHasLibEFP(false);
         }
-        Stage currStage = (Stage) anchor.getScene().getWindow();
+        if (hasGAMESSButton.isSelected()) {
+            si.setHasGAMESS(true);
+            si.setGamessPath(GAMESSInstallationPath.getText());
+        } else {
+            si.setHasGAMESS(false);
+        }
+        UserPreferences.addServer(si);
+    }
+
+    @FXML
+    private void deleteServer() {
+        System.out.println(servers.getValue());
+        UserPreferences.removeServer(menuTree.getSelectionModel().getSelectedItem().getValue());
+        initializeServers();
+        clearServerForm();
+        menuTree.getSelectionModel().clearSelection();
+    }
+
+    private void addNewServer() {
+
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Add New Server");
+
+        // Set the button types.
+        ButtonType loginButtonType = new ButtonType("Save Server Alias", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+
+        // Create the username and password labels and fields.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField serverAlias = new TextField();
+
+        // Enable/Disable login button depending on whether a username was entered.
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+        loginButton.setDisable(true);
+
+
+        grid.add(new Label("Server Alias:"), 0, 0);
+        grid.add(serverAlias, 1, 0);
+
+
+        // Do some validation (using the Java 8 lambda syntax).
+        serverAlias.textProperty().addListener((observable, oldValue, newValue) -> {
+            loginButton.setDisable(newValue.trim().isEmpty());
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Request focus on the username field by default.
+        Platform.runLater(() -> username.requestFocus());
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                return serverAlias.getText();
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent()){
+            servers.getChildren().add(new TreeItem<>(result.get()));
+            openServerSettings();
+            ServerInfo si = new ServerInfo(result.get(), true);
+            UserPreferences.addServer(si);
+        }
+    }
+
+    private void clearServerForm(){
+        alias.setText("");
+        hostname.setText("");
+        username.setText("");
+        password.setText("");
+        hasLibEFPButton.setSelected(false);
+        hasGAMESSButton.setSelected(false);
+        libEFPInstallationPath.setText("");
+        GAMESSInstallationPath.setText("");
+    }
+
+    @FXML
+    private void authenticateServer() {
+        Connection connection;
         try {
-            libEFPOutputPath.setText(dc.showDialog(currStage).getAbsolutePath());
-        } catch (NullPointerException e){
-            System.out.println("User closed dialog without selecting a file");
+            connection = new Connection(hostname.getText());
+            connection.connect();
+            if (!connection.authenticateWithPassword(username.getText(), password.getText())) {
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        String.format("Was unable to connect to %s with your credentials", hostname.getText()),
+                        ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    String.format("Was unable to connect to %s with your credentials", hostname.getText()),
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
         }
-    }
-    @FXML
-    private void libEFPSave(){
-        if (!libEFPServerField.getText().equals("")){
-            UserPreferences.setLibefpServer(libEFPServerField.getText());
+        if (hasLibEFPButton.isSelected()) {
+            BundleManager libEFPBundleManager = new BundleManager(username.getText(),
+                    password.getText(),
+                    hostname.getText(),
+                    "LIBEFP",
+                    connection);
+            if (!libEFPBundleManager.manageRemote()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING,
+                        String.format(
+                                "Was able to connect to the remote, but was unable to verify the libEFP installation at %s",
+                                libEFPInstallationPath.getText()),
+                        ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
         }
-        if (!libEFPUserName.getText().equals("")){
-            UserPreferences.setLibefpUsername(libEFPUserName.getText());
-        }
-        if (!libEFPPassword.getText().equals("")){
-            UserPreferences.setLibefpPassword(libEFPPassword.getText());
-        }
-        if (!libEFPOutputPath.getText().equals("")){
-            UserPreferences.setLibefpOutputPath(libEFPOutputPath.getText());
-        }
-    }
 
-    @FXML
-    private void libEFPClear(){
-        UserPreferences.setLibefpServer("check");
-        UserPreferences.setLibefpUsername("check");
-        UserPreferences.setLibefpPassword("check");
-        libEFPServerField.setPromptText("Enter Server Address");
-        libEFPUserName.setPromptText("Enter your username for the server");
-        libEFPPassword.setPromptText("");
-    }
+        if (hasGAMESSButton.isSelected()) {
+            BundleManager libEFPBundleManager = new BundleManager(username.getText(),
+                    password.getText(),
+                    hostname.getText(),
+                    "GAMESS",
+                    connection);
+            if (!libEFPBundleManager.manageRemote()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING,
+                        String.format(
+                                "Was able to connect to the remote, but was unable to verify the GAMESS installation at %s",
+                                GAMESSInstallationPath.getText()
+                        ),
+                        ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+        }
+        if (hasLibEFPButton.isSelected() && hasGAMESSButton.isSelected()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Authenticated and verified installation of LIBEFP and GAMESS",
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
 
-    private void openLibEFPSettings(){
-        currentVbox.setVisible(false);
-        libEFPBox.setVisible(true);
-        currentVbox = libEFPBox;
-    }
+        else if (hasLibEFPButton.isSelected()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                            "Authenticated and verified installation of LIBEFP",
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
 
+        else if (hasGAMESSButton.isSelected()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Authenticated and verified installation of GAMESS",
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+
+        else if (hasLibEFPButton.isSelected()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Authenticated",
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+    }
 }

@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ContextMenu?>
 <BorderPane fx:id="root" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.1"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.MainViewController">
     <top>
@@ -27,7 +28,17 @@
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
                                 <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
-                                <Menu disable="true" mnemonicParsing="false" text="Open Recent" />
+                                <Menu mnemonicParsing="false" fx:id="openRecentMenu" onAction="#populateOpenRecentMenu" text="Open Recent">
+                                    <!--<fx:define>-->
+                                        <!--<ContextMenu fx:id="cmTF">-->
+                                            <!--<items>-->
+                                                <!--<MenuItem text="Add"/>-->
+                                                <!--<MenuItem text="Remove"/>-->
+                                                <!--<MenuItem text="Enhance"/>-->
+                                            <!--</items>-->
+                                        <!--</ContextMenu>-->
+                                    <!--</fx:define>-->
+                                </Menu>
                                 <Menu mnemonicParsing="false" onAction="#openSettings" text="Settings" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />
@@ -79,7 +90,7 @@
                         </Menu>
                         <Menu mnemonicParsing="false" text="Calculate">
                             <items>
-                                <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
+                                <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
                                 <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
                                 <Menu mnemonicParsing="false" text="Monitor Jobs">
                                     <items>
