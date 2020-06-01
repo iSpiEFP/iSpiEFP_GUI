@@ -1,9 +1,5 @@
 package org.ispiefp.app;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -33,7 +29,6 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -124,10 +119,17 @@ public class MainViewController {
     private Button libefpButton;
 
     @FXML
-
     private Menu openRecentMenu;
 
-    //private UserPreferences userPrefs = new UserPreferences();
+    // All the analysis buttons
+    public Button analysisGeometries;
+    public Button analysisEnergies;
+    public Button analysisPairWiseEnergies;
+    public Button analysisMD;
+    public Button analysisStats;
+
+    // History and Project List View
+    public ListView historyListView;
 
     private String[] rec_files;
     //private Menu recentMenu;
@@ -376,7 +378,6 @@ public class MainViewController {
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
-        // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
 
         try {
