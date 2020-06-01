@@ -467,7 +467,7 @@ public class libEFPInputController implements Initializable {
         efpFiles = new ArrayList<>();
         ArrayList<Integer> validIndices = new ArrayList<>();
         for (int i = 0; i < viewerFragments.size(); i++){
-            if (viewerFragmentMap.get(i).keySet().size() > 1) validIndices.add(i);
+            if (viewerFragmentMap.get(i).keySet().size() > 0) validIndices.add(i);
         }
         if (validIndices.size() > 0) {
             Stage stage = new Stage();
@@ -660,7 +660,8 @@ public class libEFPInputController implements Initializable {
 
             if (selectedServer.getScheduler().equals("SLURM")){
                 submission = new libEFPSlurmSubmission(selectedServer,"lslipche", 1, 20, "00:30:00", 0);
-                submission.submit(selectedServer.getLibEFPPath(), "md_1.in", "output");
+                submission.prepareJob(selectedServer.getLibEFPPath(), "md_1.in", "output");
+                submission.submit();
             }
             InputStream stdout = new StreamGobbler(sess.getStdout());
             BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
@@ -761,7 +762,7 @@ public class libEFPInputController implements Initializable {
         terms.getCheckModel().clearChecks();
         for (int i = 0; i < 4; i++){if (cp.getTerms()[i]) terms.getCheckModel().check(i);}
         try{
-        updatelibEFPInputText();
+            updatelibEFPInputText();
         } catch (IOException e){
             System.err.println("Was unable to write to input file area");
         }
@@ -894,7 +895,7 @@ public class libEFPInputController implements Initializable {
      */
     private Map<MetaData, String> computeRMSD(int fragmentIndex){
         Map<MetaData, String> rmsdMap = new HashMap<>(); /* Will be populated with all of the fragment names and      *
-                                                          * their respective RMSDs                                    */
+         * their respective RMSDs                                    */
         File fragmentXYZFile = null;
         File viewerFragmentXYZFile = null;
         try {
@@ -933,7 +934,7 @@ public class libEFPInputController implements Initializable {
         return rmsdMap;
     }
 
-        // Handle SSH case later
+    // Handle SSH case later
 
     public Viewer getJmolViewer() {
         return jmolViewer;
