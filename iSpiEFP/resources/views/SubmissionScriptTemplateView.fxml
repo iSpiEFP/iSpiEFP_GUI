@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.SubmissionScriptTemplateViewController">
+    <SplitPane dividerPositions="0.25, 0.75" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="450.0" prefWidth="600.0">
+        <items>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="121.0" prefWidth="600.0">
+                <children>
+                    <Text layoutX="22.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Job Name:" />
+                    <TextField fx:id="jobName" layoutX="100.0" layoutY="13.0" onAction="#updateSubmissionScriptText" prefHeight="31.0" prefWidth="188.0" promptText="Enter title" />
+                    <Text layoutX="300.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Queue Name:" />
+                    <TextField fx:id="queue" layoutX="402.0" layoutY="13.0" onAction="#updateSubmissionScriptText" prefHeight="31.0" prefWidth="172.0" />
+                    <Text layoutX="22.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Number of Nodes:" />
+                    <TextField fx:id="numNodes" layoutX="159.0" layoutY="53.0" onAction="#updateSubmissionScriptText" prefHeight="31.0" prefWidth="127.0" />
+                    <Text layoutX="300.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Processors per Node:" />
+                    <TextField fx:id="numProcs" layoutX="449.0" layoutY="53.0" onAction="#updateSubmissionScriptText" prefHeight="31.0" prefWidth="125.0" />
+                    <Text layoutX="26.0" layoutY="113.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Walltime:" />
+                    <TextField fx:id="walltime" layoutX="99.0" layoutY="92.0" onAction="#updateSubmissionScriptText" prefHeight="31.0" prefWidth="189.0" promptText="0" />
+                    <Text layoutX="300.0" layoutY="113.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Memory:" />
+                    <TextField fx:id="memory" layoutX="370.0" layoutY="92.0" prefHeight="31.0" prefWidth="204.0" />
+                </children>
+                <padding>
+                    <Insets bottom="8.0" />
+                </padding>
+            </AnchorPane>
+            <TextArea fx:id="libEFPInputTextArea" prefHeight="244.0" prefWidth="600.0" />
+            <ButtonBar maxHeight="-Infinity">
+                <buttons>
+                    <Button mnemonicParsing="false" onAction="#handleNext" text="Next">
+                        <padding>
+                            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                        </padding>
+                    </Button>
+                </buttons>
+                <padding>
+                    <Insets right="40.0" top="5.0" />
+                </padding>
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+            </ButtonBar>
+        </items>
+        <padding>
+            <Insets bottom="8.0" />
+        </padding>
+    </SplitPane>
+</AnchorPane>
