@@ -933,24 +933,30 @@ stage.show();
 
         HBox bottomHBox = new HBox(10);
 
+        Button dummyButton = new Button();
+        dummyButton.setPrefWidth(75);
+        dummyButton.setVisible(false);
+        bottomHBox.getChildren().add(dummyButton);
+
         Button leftArrow = new Button();
         leftArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+       // leftArrow.setStyle("-fx-bar-fill: #FF7F50;");
         leftArrow.setRotate(180);
         bottomHBox.getChildren().add(leftArrow);
 
         Button circularPlayButton = new Button();
         circularPlayButton.setStyle("-fx-border-radius: 20;");
         circularPlayButton.setPrefWidth(20);
+       // circularPlayButton.setStyle("-fx-bar-fill: #FF7F50");
+
         bottomHBox.getChildren().add(circularPlayButton);
 
         Button rightArrow = new Button();
         rightArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+      //  rightArrow.setStyle("-fx-bar-fill: #FF7F50;");
         bottomHBox.getChildren().add(rightArrow);
 
-        Button dummyButton = new Button();
-        dummyButton.setPrefWidth(500);
-        dummyButton.setVisible(false);
-        bottomHBox.getChildren().add(dummyButton);
+
         XYChart.Series series = new XYChart.Series();
         series.setName("Dummy Vals");
 
