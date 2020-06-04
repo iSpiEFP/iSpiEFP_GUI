@@ -993,7 +993,7 @@ stage.show();
                 //If the user drags right
                 if (event.getSceneX() - lastXPosition >= 30.0) {
                     xAxis.setAutoRanging(false);
-                    xAxis.setTickUnit(1);
+                    xAxis.setTickUnit(xAxis.getTickUnit() + 1);
                     System.out.println("Finished right drag logic");
                     redrawGraph(series, geomVsEnergyChart);
                 }
