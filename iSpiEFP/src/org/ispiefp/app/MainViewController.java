@@ -666,6 +666,15 @@ public class MainViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
+        if (jmolMainPanel.getFragmentComponents() == null){
+            String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
+                    " calculations on. Add something to the system before attempting to perform libEFP calculations.";
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noFragmentsSelectedWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         FXMLLoader libEFPSubmissionLoader = new FXMLLoader(getClass().getResource("/views/libEFP.fxml"));
         //libEFPInputController libEFPCont = new libEFPInputController(getFragmentEFPFiles());
         Parent libEFPSubmissionParent = libEFPSubmissionLoader.load();
