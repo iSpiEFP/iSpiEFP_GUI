@@ -36,6 +36,8 @@ import java.util.ResourceBundle;
             this.submission = submission;
         }
 
+        public SubmissionScriptTemplateViewController() { super(); }
+
         @Override
         public void initialize(URL location, ResourceBundle resources) {
             jobName.setPromptText("My Job");
@@ -45,12 +47,36 @@ import java.util.ResourceBundle;
 
             walltime.setPromptText("hh:mm:ss");
             nextButton.setDisable(true);
+
+            jobName.textProperty().addListener((observable, ov, nv) -> {
+                setJobName();
+            });
+
+            queue.textProperty().addListener((observable, ov, nv) -> {
+                setQueue();
+            });
+
+            numNodes.textProperty().addListener((observable, ov, nv) -> {
+                setNumNodes();
+            });
+
+            numProcs.textProperty().addListener((observable, ov, nv) -> {
+                setNumProcs();
+            });
+
+            walltime.textProperty().addListener((observable, ov, nv) -> {
+                setWalltime();
+            });
+
+            memory.textProperty().addListener((observable, ov, nv) -> {
+                setMemory();
+            });
         }
 
         @FXML
         private void updateSubmissionScriptText(){
-            submissionScriptTextArea.setText(submission.getSubmissionScriptText());
             validateInput();
+            submissionScriptTextArea.setText(submission.getSubmissionScriptText());
         }
 
         private void validateInput(){
@@ -83,6 +109,7 @@ import java.util.ResourceBundle;
         @FXML
         public void setJobName(){
             submission.setOutputFilename(jobName.getText());
+            System.out.println(jobName.getText());
             updateSubmissionScriptText();
         }
 
@@ -113,6 +140,11 @@ import java.util.ResourceBundle;
         @FXML
         public void setMemory(){
             submission.setMem(Integer.parseInt(memory.getText()));
+            updateSubmissionScriptText();
+        }
+
+        public void setSubmission(libEFPSubmission submission) {
+            this.submission = submission;
             updateSubmissionScriptText();
         }
 

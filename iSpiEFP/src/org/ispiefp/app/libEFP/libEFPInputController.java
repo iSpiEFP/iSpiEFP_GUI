@@ -645,7 +645,7 @@ public class libEFPInputController implements Initializable {
             Date date = new Date();
             String currentTime = dateFormat.format(date).toString();
 
-            String jobID = (new JobManager()).generateJobID().toString();
+//            String jobID = (new JobManager()).generateJobID().toString();
 //
 //            String pbs_script = "/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
 //
@@ -661,7 +661,18 @@ public class libEFPInputController implements Initializable {
             if (selectedServer.getScheduler().equals("SLURM")){
                 submission = new libEFPSlurmSubmission(selectedServer,"lslipche", 1, 20, "00:30:00", 0);
                 submission.prepareJob(selectedServer.getLibEFPPath(), "md_1.in", "output");
-                submission.submit();
+
+                FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
+                Parent subScriptParent = subScriptViewLoader.load();
+                SubmissionScriptTemplateViewController subScriptCont = subScriptViewLoader.getController();
+                subScriptCont.setSubmission(submission);
+                Stage stage = new Stage();
+                stage.initModality(Modality.WINDOW_MODAL);
+                stage.setTitle("Select Fragment");
+                stage.setScene(new Scene(subScriptParent));
+                stage.showAndWait();
+
+//                submission.submit();
             }
             InputStream stdout = new StreamGobbler(sess.getStdout());
             BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
@@ -694,7 +705,7 @@ public class libEFPInputController implements Initializable {
             //send over job data to database
             String query = "Submit";
             query += "$END$";
-            query += username + "  " + selectedServer.getHostname() + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
+//            query += username + "  " + selectedServer.getHostname() + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
             query += "$ENDALL$";
 
             //Socket client = new Socket(serverName, port);
@@ -711,8 +722,8 @@ public class libEFPInputController implements Initializable {
             client.close();
             outToServer.close();
 
-            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), jobID, title.getText(), time, "QUEUE", "LIBEFP");
-            jobManager.watchJobStatus();
+//            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), jobID, title.getText(), time, "QUEUE", "LIBEFP");
+//            jobManager.watchJobStatus();
 
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
