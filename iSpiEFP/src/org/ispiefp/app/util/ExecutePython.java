@@ -31,7 +31,7 @@ public class ExecutePython {
      *  ensure that when you use this method you do appropriate error checking.
      * @param scriptName Name of the script located in the resources/scripts directory
      * @param commandLineArgs Everything that would follow after python <script name> on the command line
-     * @return The out and err of the executed process
+     * @return The out of the executed process
      */
     public static String runPythonScript(String scriptName, String commandLineArgs) {
         /* Determine whether we are in a JAR or an IDE */
@@ -68,8 +68,10 @@ public class ExecutePython {
                     BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                     String s1 = "";
                     String s2 = "";
+                    System.out.printf("stderr for script %s:%n", scriptName);
                     while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null) {
                         //sb.append(s1);
+                        System.out.println(s1);
                         sb.append(s2);
                     }
                 } catch (IOException e) {
@@ -106,8 +108,10 @@ public class ExecutePython {
                 BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String s1 = "";
                 String s2 = "";
+                System.out.printf("stderr for script %s:%n", scriptName);
                 while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null) {
-                    sb.append(s1);
+//                    sb.append(s1);
+                    System.out.println(s1);
                     sb.append(s2);
                 }
             } catch (IOException e) {

@@ -817,6 +817,7 @@ public class libEFPInputController implements Initializable {
         StringBuilder sb = new StringBuilder();
         ArrayList<ArrayList> groups = getGroups(viewerFragments);
         int group_number = 0;
+        System.out.printf("ViewerFragmentMap size is %d%n", viewerFragmentMap.size());
         for (int i = 0; i < viewerFragments.size(); i++) {
             //parse filename
             MetaData md = (MetaData) viewerFragmentMap.get(i).keySet().toArray()[0];
@@ -920,7 +921,7 @@ public class libEFPInputController implements Initializable {
                 );
                 if (RMSDString.contains("OUTPUT")) {
                     String [] parsedString = RMSDString.split("null");
-                    RMSDString = parsedString[parsedString.length - 1];
+                    RMSDString = parsedString[parsedString.length - 1].split("OUTPUT")[1];
                     RMSD = Double.parseDouble(RMSDString);
                 }
                 if (RMSD < 5) {

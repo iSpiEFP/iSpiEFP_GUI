@@ -14,64 +14,52 @@ import java.nio.file.Paths;
 
 public class VerifyPython {
 
-    public static boolean isValidPython(){
-//        String testPythonScriptPath = null;
-//        StringBuilder sb = new StringBuilder();
-//        try {
-//            URL resource = VerifyPython.class.getResource("/scripts/testPythonInterpreterVersion.py");
-//            File file = Paths.get(resource.toURI()).toFile();
-//            testPythonScriptPath = file.getAbsolutePath();
-//        } catch (URISyntaxException e){
-//            e.printStackTrace();
-//        }
-//        System.out.println(UserPreferences.getPythonPath());
-//        if (!UserPreferences.pythonPathExists()) return false;
-//        String commandInput = String.format("%s %s",UserPreferences.getPythonPath(),
-//                testPythonScriptPath);
-//        try{
-//            Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
-//            BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-//            /* p.getInputStream() is a strange function which also returns the output stream, see API */
-//            BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//            String s1 = "";
-//            String s2 = "";
-//            while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null){
-//                sb.append(s1);
-//                sb.append(s2);
-//            }
-//        } catch (IOException e){
-//            e.printStackTrace();
-//            return false;
-//        }
-//        System.out.println(sb.toString());
+    public static boolean isValidPython() {
+
         String scriptOutput = ExecutePython.runPythonScript("testPythonInterpreterVersion.py", "");
         System.out.println(scriptOutput);
-        if (scriptOutput == null) return false;
-        return scriptOutput.equals("") || scriptOutput.equals("numpy is not installed");
-    }
-
-    public static void raisePythonError(){
-        String noPythonInterpreterError = "iSpiEFP is currently unable to find your Python interpreter" +
+        if (scriptOutput != null &&
+                !scriptOutput.matches(".* is not installed") &&
+                !scriptOutput.equals("invalid python version")) {
+            return true;
+        }
+        String noDefaultPythonInterpreterError = "iSpiEFP is currently unable to find your Python interpreter" +
                 " by using your system's environment variables. You will be unable to select any fragments" +
                 " until you select a valid Python interpreter (Python3 3.0 or higher) from File -> Settings" +
                 " -> Default Path Settings";
-        if (!UserPreferences.pythonPathExists() || !VerifyPython.isValidPython()){
+        if (!UserPreferences.pythonPathExists()) {
             Alert alert = new Alert(Alert.AlertType.ERROR,
-                    noPythonInterpreterError,
+                    noDefaultPythonInterpreterError,
                     ButtonType.OK);
             alert.showAndWait();
-            return;
+            return false;
         }
-        String scriptOutput = ExecutePython.runPythonScript("testPythonInterpreterVersion.py", "");
-        if (scriptOutput.equals("numpy is not installed")) {
-            String noNumpy = "iSpiEFP uses the python module numpy to perform RMSD calculations. We cannot detect numpy" +
-                    " within the modules of your selected interpreter. Please install numpy or choose a different interpreter" +
-                    " which has numpy";
+        if (scriptOutput.equals("invalid python version")){
+            String invalidPythonVersionError = "Your selected python interpreter is not at least version number 3.0 " +
+                    "Please select a different python interpreter.";
             Alert alert = new Alert(Alert.AlertType.ERROR,
-                    noNumpy,
+                    invalidPythonVersionError,
                     ButtonType.OK);
             alert.showAndWait();
-            return;
+            return false;
         }
+        System.out.printf("Script output us %s%n", scriptOutput);
+        if (scriptOutput.matches(".* is not installed")) {
+            String missingModule = scriptOutput.split(" ")[0];
+            String noModule = String.format("iSpiEFP uses the python module %s to perform RMSD calculations. " +
+                            "We cannot detect %s within the loadable modules of your selected interpreter. Please " +
+                            "install numpy or choose a different interpreter which has %s",
+                    missingModule, missingModule, missingModule);
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    noModule,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return false;
+        }
+        return false;
+    }
+
+    public static void raisePythonError() {
+
     }
 }
