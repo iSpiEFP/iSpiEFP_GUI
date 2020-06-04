@@ -64,7 +64,7 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
                         "#SBATCH -t %s\n" +
                         "#SBATCH --mem=%d\n" +
                         "%s %s > %s\n",
-                REMOTE_LIBEFP_OUT + schedulerOutputName + ".stdout",
+                REMOTE_LIBEFP_OUT + schedulerOutputName,
                 queueName, numNodes, numProcessors, walltime, mem, efpmdPath,
                 REMOTE_LIBEFP_IN + inputFilePath,
                 REMOTE_LIBEFP_OUT + outputFilename
