@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -137,6 +138,8 @@ public class MainViewController {
     // History and Project List View
     public ListView historyListView;
     private String[] rec_files;
+
+    double lastXPosition;
     /**
      * initialize(); is called after @FXML parameters have been loaded in
      * Loading order goes as: Constructor > @FXML > initialize();
@@ -908,6 +911,15 @@ stage.show();
         }
     }
 
+    public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
+        dataSeries.getData().clear();
+        dataSeries.getData().add(new XYChart.Data(1, 60));
+        dataSeries.getData().add(new XYChart.Data(2, 40));
+        dataSeries.getData().add(new XYChart.Data(3, 25));
+        dataSeries.getData().add(new XYChart.Data(4, 20));
+        lineChart.getData().add(dataSeries);
+
+    }
     @FXML
     public void showGeomAnalysis() {
         Stage stage = new Stage();
@@ -917,6 +929,11 @@ stage.show();
         xAxis.setLabel("Geometry");
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Energy");
+
+//        xAxis.setAutoRanging(false);
+//        yAxis.setAutoRanging(false);
+//        xAxis.setTickUnit(10.0);
+//        yAxis.setTickUnit(10.0);
 
         LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
         geomVsEnergyChart.setTitle("Geometry vs. Energy");
@@ -940,22 +957,17 @@ stage.show();
 
         Button leftArrow = new Button();
         leftArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
-       // leftArrow.setStyle("-fx-bar-fill: #FF7F50;");
         leftArrow.setRotate(180);
         bottomHBox.getChildren().add(leftArrow);
 
         Button circularPlayButton = new Button();
         circularPlayButton.setStyle("-fx-border-radius: 20;");
         circularPlayButton.setPrefWidth(20);
-       // circularPlayButton.setStyle("-fx-bar-fill: #FF7F50");
-
         bottomHBox.getChildren().add(circularPlayButton);
 
         Button rightArrow = new Button();
         rightArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
-      //  rightArrow.setStyle("-fx-bar-fill: #FF7F50;");
         bottomHBox.getChildren().add(rightArrow);
-
 
         XYChart.Series series = new XYChart.Series();
         series.setName("Dummy Vals");
@@ -967,6 +979,33 @@ stage.show();
 
         geomVsEnergyChart.getData().add(series);
 
+        //geomVsEnergyChart.
+        xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                System.out.println("X Axis pressed");
+                lastXPosition = event.getSceneX();
+            }
+        }));
+
+        xAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                System.out.println("X Axis dragged");
+                //If the user drags right
+                if (event.getSceneX() - lastXPosition >= 30.0) {
+                    xAxis.setAutoRanging(false);
+                    xAxis.setTickUnit(1);
+                    System.out.println("Finished right drag logic");
+                    redrawGraph(series, geomVsEnergyChart);
+                }
+            }
+        }));
+
+//        xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                System.out.println("X Axis pressed");
+//
+//            }
+//        }));
         topHBox.getChildren().addAll(list, geomVsEnergyChart);
         vBox.getChildren().addAll(topHBox, bottomHBox);
         //rootPane.getChildren().addAll(pane1, pane2);
@@ -987,6 +1026,7 @@ stage.show();
         xAxis.setLabel("Total");
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Energy (kcal/mol)");
+        yAxis.setTickUnit(100);
 
         BarChart chart = new BarChart(xAxis, yAxis);
 
@@ -1004,7 +1044,6 @@ stage.show();
         Scene scene = new Scene(vBox, 800, 800);
 
         scene.getStylesheets().add("bar_styles.css");
-        scene.getStylesheets().add("button_styles.css");
 
         dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
         dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
@@ -1014,9 +1053,12 @@ stage.show();
 
         chart.getData().add(dataSeries1);
 
+       // System.out.println("Chart Width: " + chart.getWidth());        //chart.setMaxWidth(50);
+
+        chart.setMaxWidth(500);
         stage.setScene(scene);
-        stage.setHeight(500);
-        stage.setWidth(800);
+        stage.setHeight(450);
+        stage.setWidth(500);
         stage.show();
     }
     /**
