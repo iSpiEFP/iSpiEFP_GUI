@@ -45,8 +45,9 @@ public class VerifyPython {
 //        }
 //        System.out.println(sb.toString());
         String scriptOutput = ExecutePython.runPythonScript("testPythonInterpreterVersion.py", "");
+        System.out.println(scriptOutput);
         if (scriptOutput == null) return false;
-        return scriptOutput.equals("");
+        return scriptOutput.equals("") || scriptOutput.equals("numpy is not installed");
     }
 
     public static void raisePythonError(){
@@ -57,6 +58,17 @@ public class VerifyPython {
         if (!UserPreferences.pythonPathExists() || !VerifyPython.isValidPython()){
             Alert alert = new Alert(Alert.AlertType.ERROR,
                     noPythonInterpreterError,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        String scriptOutput = ExecutePython.runPythonScript("testPythonInterpreterVersion.py", "");
+        if (scriptOutput.equals("numpy is not installed")) {
+            String noNumpy = "iSpiEFP uses the python module numpy to perform RMSD calculations. We cannot detect numpy" +
+                    " within the modules of your selected interpreter. Please install numpy or choose a different interpreter" +
+                    " which has numpy";
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    noNumpy,
                     ButtonType.OK);
             alert.showAndWait();
             return;

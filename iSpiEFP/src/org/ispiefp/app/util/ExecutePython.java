@@ -69,7 +69,7 @@ public class ExecutePython {
                     String s1 = "";
                     String s2 = "";
                     while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null) {
-                        sb.append(s1);
+                        //sb.append(s1);
                         sb.append(s2);
                     }
                 } catch (IOException e) {
