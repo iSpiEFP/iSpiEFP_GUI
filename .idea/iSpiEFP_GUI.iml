@@ -23,7 +23,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="lib" level="project" />
     <orderEntry type="module-library" exported="">
       <library name="JUnit4">
         <CLASSES>
@@ -35,17 +34,8 @@
       </library>
     </orderEntry>
     <orderEntry type="library" exported="" name="org.controlsfx:controlsfx:9.0.0" level="project" />
-    <orderEntry type="library" exported="" name="javafx-swt" level="project" />
-    <orderEntry type="library" exported="" name="jre-10.0" level="project" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/iSpiEFP/lib" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/iSpiEFP/lib" recursive="false" />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="javafx-swt" level="project" />
+    <orderEntry type="library" name="jre-10.0" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
