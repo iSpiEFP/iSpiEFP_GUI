@@ -587,11 +587,34 @@ public class libEFPInputController implements Initializable {
      */
     public void handleSubmit() throws IOException, InterruptedException {
 //        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-        libEFPSubmission submission;
-        String hostname;
-        String password;
-        String username;
+        libEFPSubmission submission = null; /* Submitter responsible for dealing with server scheduling system */
+        String hostname = null;             /* Hostname of the server the user selects */
+        String password = null;             /* Password of the user for the server */
+        String username = null;             /* Username of the user for the server */
+        String jobID = null;                /* JobID for the job the user submits  */
+
         selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
+
+        if (selectedServer.getScheduler().equals("SLURM")) {
+            submission = new libEFPSlurmSubmission(selectedServer, "lslipche", 1, 20, "00:30:00", 0);
+            submission.prepareJob(selectedServer.getLibEFPPath(), "md_1.in", "output");
+        }
+        //TODO: Handle case of PBS and Torque
+        else if (selectedServer.getScheduler().equals("PBS")) {
+            submission = new libEFPSlurmSubmission(selectedServer, "lslipche", 1, 20, "00:30:00", 0);
+            submission.prepareJob(selectedServer.getLibEFPPath(), "md_1.in", "output");
+        }
+        FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
+        Parent subScriptParent = subScriptViewLoader.load();
+        SubmissionScriptTemplateViewController subScriptCont = subScriptViewLoader.getController();
+        subScriptCont.setSubmission(submission);
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Select Fragment");
+        stage.setScene(new Scene(subScriptParent));
+        stage.showAndWait();
+
+        jobID = submission.submit();
 
         LoginForm loginForm = new LoginForm(selectedServer.getHostname(), "LIBEFP");
         boolean authorized = loginForm.authenticate();
@@ -610,8 +633,6 @@ public class libEFPInputController implements Initializable {
 
 
             SCPClient scp = conn.createSCPClient();
-
-//            libEFPSlurmSubmission submitter = new libEFPSlurmSubmission();
 
 
             SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
@@ -645,35 +666,7 @@ public class libEFPInputController implements Initializable {
             Date date = new Date();
             String currentTime = dateFormat.format(date).toString();
 
-//            String jobID = (new JobManager()).generateJobID().toString();
-//
-//            String pbs_script = "/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
-//
-//            scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
-//            InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
-//            IOUtils.copy(istream, scpos);
-//            istream.close();
-//            scpos.close();
-//
-//            sess = conn.openSession();
-//            sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
 
-            if (selectedServer.getScheduler().equals("SLURM")){
-                submission = new libEFPSlurmSubmission(selectedServer,"lslipche", 1, 20, "00:30:00", 0);
-                submission.prepareJob(selectedServer.getLibEFPPath(), "md_1.in", "output");
-
-                FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
-                Parent subScriptParent = subScriptViewLoader.load();
-                SubmissionScriptTemplateViewController subScriptCont = subScriptViewLoader.getController();
-                subScriptCont.setSubmission(submission);
-                Stage stage = new Stage();
-                stage.initModality(Modality.WINDOW_MODAL);
-                stage.setTitle("Select Fragment");
-                stage.setScene(new Scene(subScriptParent));
-                stage.showAndWait();
-
-//                submission.submit();
-            }
             InputStream stdout = new StreamGobbler(sess.getStdout());
             BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
             String clusterjobID = "";
@@ -699,30 +692,7 @@ public class libEFPInputController implements Initializable {
 
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
 
-            String serverName = Main.iSpiEFP_SERVER;
-            int port = Main.iSpiEFP_PORT;
-
-            //send over job data to database
-            String query = "Submit";
-            query += "$END$";
-//            query += username + "  " + selectedServer.getHostname() + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
-            query += "$ENDALL$";
-
-            //Socket client = new Socket(serverName, port);
-            iSpiEFPServer iSpiServer = new iSpiEFPServer();
-            Socket client = iSpiServer.connect(serverName, port);
-            if (client == null) {
-                return;
-            }
-            OutputStream outToServer = client.getOutputStream();
-            //DataOutputStream out = new DataOutputStream(outToServer);
-
-            System.out.println(query);
-            outToServer.write(query.getBytes("UTF-8"));
-            client.close();
-            outToServer.close();
-
-//            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), jobID, title.getText(), time, "QUEUE", "LIBEFP");
+            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), jobID, title.getText(), time, "QUEUE", "LIBEFP");
 //            jobManager.watchJobStatus();
 
 

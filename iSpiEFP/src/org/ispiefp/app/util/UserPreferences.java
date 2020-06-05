@@ -2,6 +2,7 @@ package org.ispiefp.app.util;
 import com.sun.security.ntlm.Server;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.libEFP.CalculationPreset;
+import org.ispiefp.app.libEFP.JobsMonitor;
 import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.ServerInfo;
 
@@ -53,6 +54,7 @@ public class UserPreferences {
     private static String libefpRunningJobs = null;
     private static HashMap<String, CalculationPreset> libefpPresets;
     private static HashMap<String, ServerInfo> servers;
+    private static JobsMonitor jobsMonitor;
 
     private static SecureRandom random = new SecureRandom();
     private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
@@ -150,6 +152,13 @@ public class UserPreferences {
                 }
             }
         }
+
+        /* Running LibEFP Jobs Inintialization */
+        encodedString = userPrefs.get(LIBEFP_RJOBS_KEY, "check");
+        if (!encodedString.equals("check")){
+            jobsMonitor = new JobsMonitor(encodedString);
+        }
+        else jobsMonitor = new JobsMonitor();
     }
 
     public static void addLibEFPPreset(CalculationPreset cp) {
@@ -283,6 +292,15 @@ public class UserPreferences {
         return libefpOutputPath;
     }
 
+    public static JobsMonitor getJobsMonitor(){
+        return jobsMonitor;
+    }
+
+    public static void setJobsMonitor(String jsonString){
+        userPrefs.put(LIBEFP_RJOBS_KEY, jsonString);
+        jobsMonitor = new JobsMonitor(jsonString);
+        jobsMonitor.run();
+    }
 
 //Recent file stuff
 

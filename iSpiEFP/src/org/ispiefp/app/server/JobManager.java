@@ -4,6 +4,7 @@ import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.SCPInputStream;
 import ch.ethz.ssh2.StreamGobbler;
+import com.google.gson.Gson;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -30,7 +31,7 @@ public class JobManager implements Runnable {
     private String date;
     private String status;
     private String type;
-    private Connection conn;
+    private transient Connection conn;
 
     public JobManager(String username, String password, String hostname, String jobID, String title, String date, String status, String type) {
         this.username = username;
@@ -407,6 +408,84 @@ public class JobManager implements Runnable {
             e.printStackTrace();
         }
 
+    }
+
+    public Connection getConn() {
+        return conn;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public String getJobID() {
+        return jobID;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setConn(Connection conn) {
+        this.conn = conn;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public void setJobID(String jobID) {
+        this.jobID = jobID;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String toJsonString(){
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
     }
 
 }
