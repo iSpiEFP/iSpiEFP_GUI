@@ -5,6 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import org.ispiefp.app.server.ServerInfo;
 
 import java.net.URL;
@@ -109,7 +110,8 @@ import java.util.ResourceBundle;
         @FXML
         public void setJobName(){
             submission.setOutputFilename(jobName.getText());
-            System.out.println(jobName.getText());
+            submission.setInputFilename(jobName.getText());
+            submission.setSchedulerOutputName(jobName.getText());
             updateSubmissionScriptText();
         }
 
@@ -157,7 +159,12 @@ import java.util.ResourceBundle;
         }
 
         public void handleNext(){
+            Stage stage = (Stage) nextButton.getScene().getWindow();
+            stage.close();
+        }
 
+        public String getUsersSubmissionScript(){
+            return submissionScriptTextArea.getText();
         }
 
     }

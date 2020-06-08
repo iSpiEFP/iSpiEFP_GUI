@@ -82,7 +82,7 @@ public class JobManager implements Runnable {
         try {
             if (this.type != null) {
                 if (this.type.equals("LIBEFP")) {
-                    scpos = scp.get("iSpiClient/Libefp/output/error_" + jobID);
+                    scpos = scp.get("iSpiClient/Libefp/output/" + jobID);
                     scpos.close();
                     jobIsDone = true;
                 } else if (this.type.equals("GAMESS")) {
@@ -94,7 +94,7 @@ public class JobManager implements Runnable {
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            //e.printStackTrace();
+            e.printStackTrace();
             System.out.println("Job is running!");
         }
         conn.close();

@@ -2,11 +2,12 @@ package org.ispiefp.app.libEFP;
 
 import com.google.gson.Gson;
 import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.util.UserPreferences;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static java.lang.Thread.sleep;
 
 public class JobsMonitor implements Runnable {
     private ArrayList<JobManager> jobs;
@@ -17,8 +18,7 @@ public class JobsMonitor implements Runnable {
 
     public JobsMonitor(String jobsJson){
         Gson gson = new Gson();
-        JobManager[] jobs = gson.fromJson(jobsJson, JobManager[].class);
-        this.jobs = new ArrayList<>(Arrays.asList(jobs));
+        this.jobs = gson.fromJson(jobsJson, JobsMonitor.class).jobs;
     }
 
     public JobsMonitor(){
@@ -42,7 +42,7 @@ public class JobsMonitor implements Runnable {
                     System.err.printf("Was unable to monitor job: %s", jm.getJobID());
                 }
             }
-            try{ wait(30);} catch (InterruptedException e) { e.printStackTrace();}
+            try{ sleep(30000);} catch (InterruptedException e) { e.printStackTrace();}
         }
     }
 
