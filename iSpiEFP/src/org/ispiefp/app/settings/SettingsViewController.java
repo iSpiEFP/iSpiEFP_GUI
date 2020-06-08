@@ -29,6 +29,7 @@ import org.ispiefp.app.util.UserPreferences;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
@@ -257,6 +258,8 @@ public class SettingsViewController {
         GAMESSInstallationPath.setDisable(!hasGAMESSButton.isSelected());
     }
 
+    //ArrayList<String> all_server_names = new ArrayList<>();
+
     @FXML
     private void saveServer() {
         UserPreferences.removeServer(alias.getText());
@@ -278,7 +281,19 @@ public class SettingsViewController {
         } else {
             si.setHasGAMESS(false);
         }
-        UserPreferences.addServer(si);
+//        for (String serverName : UserPreferences.getServers().keySet()) {
+//            if (serverName!=alias.getText()){
+                UserPreferences.addServer(si);
+//            }else{
+//                Alert alert = new Alert(Alert.AlertType.ERROR,
+//                        String.format("The server is already exist, please use another server name"),
+//                        ButtonType.OK);
+//                alert.showAndWait();
+//                //return;
+//            }
+//        }
+
+
     }
 
     @FXML
@@ -337,10 +352,34 @@ public class SettingsViewController {
         Optional<String> result = dialog.showAndWait();
 
         if (result.isPresent()){
-            servers.getChildren().add(new TreeItem<>(result.get()));
+            //servers.getChildren().add(new TreeItem<>(result.get()));
             openServerSettings();
             ServerInfo si = new ServerInfo(result.get(), true);
-            UserPreferences.addServer(si);
+            boolean duplicated_server_name = false;
+            for (String serverName : UserPreferences.getServers().keySet()) {
+                //System.out.println(serverName);
+                if (serverName.equals(si.getEntryname())){
+                    duplicated_server_name=true;
+                    break;
+                }
+
+            }
+            //System.out.println(duplicated_server_name);
+            if (duplicated_server_name==false){
+                servers.getChildren().add(new TreeItem<>(result.get()));
+                //System.out.println("caught!");
+                UserPreferences.addServer(si);
+
+            }else{
+                //System.out.println("caught!");
+                //UserPreferences.removeServer(si.getEntryname());
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        String.format("The server is already exist, please use another server name"),
+                        ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+            //UserPreferences.addServer(si);
         }
     }
 
