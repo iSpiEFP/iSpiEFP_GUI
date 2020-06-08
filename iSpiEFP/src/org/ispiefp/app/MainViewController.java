@@ -7,15 +7,14 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -23,6 +22,7 @@ import javafx.stage.StageStyle;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.util.*;
+import org.jmol.awtjs.swing.Grid;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
@@ -41,7 +41,6 @@ import javax.swing.JPanel;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 
 import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
 import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
@@ -140,6 +139,9 @@ public class MainViewController {
     private String[] rec_files;
 
     double lastXPosition;
+
+    Scene gridScene;
+
     /**
      * initialize(); is called after @FXML parameters have been loaded in
      * Loading order goes as: Constructor > @FXML > initialize();
@@ -911,14 +913,24 @@ stage.show();
         }
     }
 
-    public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
+    public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart, NumberAxis xAxis, NumberAxis yAxis) {
         dataSeries.getData().clear();
+        lineChart.getData().clear();
+
+        xAxis.setLabel("Geometry");
+        yAxis.setLabel("Energy");
+
+        lineChart = new LineChart(xAxis, yAxis);
         dataSeries.getData().add(new XYChart.Data(1, 60));
         dataSeries.getData().add(new XYChart.Data(2, 40));
         dataSeries.getData().add(new XYChart.Data(3, 25));
         dataSeries.getData().add(new XYChart.Data(4, 20));
-        lineChart.getData().add(dataSeries);
-
+        try {
+            lineChart.getData().add(dataSeries);
+        }
+        catch (IllegalArgumentException e) {
+            System.out.println("Duplicate series Exception caught");
+        }
     }
     @FXML
     public void showGeomAnalysis() {
@@ -930,44 +942,42 @@ stage.show();
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Energy");
 
-//        xAxis.setAutoRanging(false);
-//        yAxis.setAutoRanging(false);
-//        xAxis.setTickUnit(10.0);
-//        yAxis.setTickUnit(10.0);
-
         LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
         geomVsEnergyChart.setTitle("Geometry vs. Energy");
 
-        VBox vBox = new VBox(30);
-        Scene scene = new Scene(vBox, 800, 800);
+        GridPane geomGrid = new GridPane();
+        geomGrid.setPadding(new Insets(10, 10, 10, 10));
+        //geomGrid.setHgap(10);
+      //  geomGrid.setVgap(10);
 
-        HBox topHBox = new HBox();
         ListView<String> list = new ListView<String>();
         ObservableList<String> items = FXCollections.observableArrayList (
                 "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
         list.setItems(items);
-        list.setPrefHeight(300);
+        list.setMaxHeight(300);
 
-        HBox bottomHBox = new HBox(10);
+        Button autosizeBtn = new Button("Autosize");
 
-        Button dummyButton = new Button();
-        dummyButton.setPrefWidth(75);
-        dummyButton.setVisible(false);
-        bottomHBox.getChildren().add(dummyButton);
+        autosizeBtn.setPrefWidth(120);
+        autosizeBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                xAxis.setAutoRanging(true);
+                yAxis.setAutoRanging(true);
+            }
+        }));
 
-        Button leftArrow = new Button();
-        leftArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
-        leftArrow.setRotate(180);
-        bottomHBox.getChildren().add(leftArrow);
+        Button leftArrowBtn = new Button();
+        leftArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+        leftArrowBtn.setRotate(180);
 
         Button circularPlayButton = new Button();
         circularPlayButton.setStyle("-fx-border-radius: 20;");
         circularPlayButton.setPrefWidth(20);
-        bottomHBox.getChildren().add(circularPlayButton);
 
-        Button rightArrow = new Button();
-        rightArrow.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
-        bottomHBox.getChildren().add(rightArrow);
+        Button rightArrowBtn = new Button();
+        rightArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+
+        HBox navBtnsHBox = new HBox(10);
 
         XYChart.Series series = new XYChart.Series();
         series.setName("Dummy Vals");
@@ -979,7 +989,6 @@ stage.show();
 
         geomVsEnergyChart.getData().add(series);
 
-        //geomVsEnergyChart.
         xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 System.out.println("X Axis pressed");
@@ -993,28 +1002,65 @@ stage.show();
                 //If the user drags right
                 if (event.getSceneX() - lastXPosition >= 30.0) {
                     xAxis.setAutoRanging(false);
-                    xAxis.setTickUnit(xAxis.getTickUnit() + 1);
+                    xAxis.setTickUnit(1);
                     System.out.println("Finished right drag logic");
-                    redrawGraph(series, geomVsEnergyChart);
+                    redrawGraph(series, geomVsEnergyChart, xAxis, yAxis);
                 }
             }
         }));
+        VBox axesEditVBox = new VBox(8);
+        HBox xHBox = new HBox(10);
+        HBox yHBox = new HBox(10);
+        HBox scaleBtnsHBox = new HBox(10);
 
-//        xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
-//            public void handle(MouseEvent event) {
-//                System.out.println("X Axis pressed");
-//
-//            }
-//        }));
-        topHBox.getChildren().addAll(list, geomVsEnergyChart);
-        vBox.getChildren().addAll(topHBox, bottomHBox);
-        //rootPane.getChildren().addAll(pane1, pane2);
-        stage.setScene(scene);
-        stage.setHeight(500);
-        stage.setWidth(800);
+        Label xLabel = new Label("X Scale: ");
+        TextField xAxeInput = new TextField();
+        xAxeInput.setPromptText("Current X axis Tick unit: " + xAxis.getTickUnit());
+        xHBox.getChildren().addAll(xLabel, xAxeInput);
+
+        Label yLabel = new Label("Y Scale: ");
+        TextField yAxeInput = new TextField();
+        yAxeInput.setPromptText("Current Y axis Tick unit: " + yAxis.getTickUnit());
+        yHBox.getChildren().addAll(yLabel, yAxeInput);
+
+        Button scaleBtn = new Button("Scale");
+        scaleBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                System.out.println("X Field text: " + xAxeInput.getText());
+                System.out.println("y Field text: " + yAxeInput.getText());
+
+                xAxis.setTickUnit(Double.parseDouble(xAxeInput.getText()));
+                yAxis.setTickUnit(Double.parseDouble(yAxeInput.getText()));
+                redrawGraph(series, geomVsEnergyChart, xAxis, yAxis);
+                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
+                GridPane.setConstraints(list, 0, 0);
+                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
+                GridPane.setConstraints(navBtnsHBox, 1, 2);
+                geomGrid.getChildren().clear();
+                geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
+                gridScene = new Scene(geomGrid, 1000, 1000);
+                stage.setScene(gridScene);
+                stage.show();
+            }
+        }));
+
+        scaleBtnsHBox.getChildren().addAll(scaleBtn, autosizeBtn);
+        axesEditVBox.getChildren().addAll(xHBox, yHBox, scaleBtnsHBox);
+
+        navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn);
+
+        GridPane.setConstraints(list, 0, 0);
+        GridPane.setConstraints(geomVsEnergyChart, 1, 0);
+        GridPane.setConstraints(navBtnsHBox, 1, 2);
+        //GridPane.setConstraints(axesEditVBox, 2, 4);
+
+        geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
+        gridScene = new Scene(geomGrid, 1000, 1000);
+        stage.setScene(gridScene);
         stage.show();
 
     }
+
 
     @FXML
     public void showEnergyAnalysis() {
