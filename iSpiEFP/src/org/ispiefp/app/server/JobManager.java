@@ -31,6 +31,8 @@ public class JobManager implements Runnable {
     private String date;
     private String status;
     private String type;
+    private String outputFilename;
+    private String stdoutputFilename;
     private transient Connection conn;
 
     public JobManager(String username, String password, String hostname, String jobID, String title, String date, String status, String type) {
@@ -42,6 +44,10 @@ public class JobManager implements Runnable {
         this.date = date;
         this.status = status;
         this.type = type;
+        if (type.equalsIgnoreCase("LIBEFP")){
+            outputFilename = "iSpiClient/Libefp/output/" + jobID;
+            stdoutputFilename = "iSpiClient/Libefp/output/" + jobID.substring(0, jobID.length() - 4) + ".stdout";
+        }
     }
 
     public JobManager(String username, String password, String hostname, String type) {
@@ -126,14 +132,14 @@ public class JobManager implements Runnable {
         try {
             boolean jobIsDone = false;
             do {
-                Thread.sleep(3000);
+                Thread.sleep(30000);
                 System.out.println("polling");
                 jobIsDone = checkStatus(this.jobID);
                 if (jobIsDone) {
                     //update database
                     System.out.println("job finished...");
-                    updateDBStatus(this.jobID, this.title, this.date, "DONE", this.type);
-                    notify(this.title, this.type);
+//                    updateDBStatus(this.jobID, this.title, this.date, "DONE", this.type);
+//                    notify(this.title, this.type);
                     if (this.type.equals("GAMESS")) {
                         //update the database with this efp file
                         String efp_file = getRemoteVmolOutput(this.jobID, this.type);
@@ -144,7 +150,8 @@ public class JobManager implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.err.println("Job: " + this.jobID + " is still running");
         }
     }
 
@@ -446,6 +453,14 @@ public class JobManager implements Runnable {
         return username;
     }
 
+    public String getOutputFilename(){
+        return outputFilename;
+    }
+
+    public String getStdoutputFilename() {
+        return stdoutputFilename;
+    }
+
     public void setConn(Connection conn) {
         this.conn = conn;
     }
@@ -480,6 +495,14 @@ public class JobManager implements Runnable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setOutputFilename(String outputFilename){
+        this.outputFilename = outputFilename;
+    }
+
+    public void setStdoutputFilename(String stdoutputFilename) {
+        this.stdoutputFilename = stdoutputFilename;
     }
 
     public String toJsonString(){

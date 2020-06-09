@@ -45,6 +45,7 @@ public class Initializer {
               deleteDirectory(new File(LocalBundleManager.META_DATA_GENERATION));
           }
         });
+        UserPreferences.clearJobsMonitor();
     }
 
     /**

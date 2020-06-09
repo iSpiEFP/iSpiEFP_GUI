@@ -684,6 +684,7 @@ public class libEFPInputController implements Initializable {
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
             JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), time, "QUEUE", "LIBEFP");
             UserPreferences.getJobsMonitor().addJob(jobManager);
+            UserPreferences.getJobsMonitor().run();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Libefp Submission");
             alert.setHeaderText(null);

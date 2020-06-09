@@ -302,6 +302,10 @@ public class UserPreferences {
         jobsMonitor.run();
     }
 
+    public static void clearJobsMonitor(){
+        userPrefs.remove(LIBEFP_RJOBS_KEY);
+    }
+
 //Recent file stuff
 
     //Gets aggregate list of recent files as string from user prefs
