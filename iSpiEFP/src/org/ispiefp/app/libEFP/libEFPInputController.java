@@ -144,6 +144,9 @@ public class libEFPInputController implements Initializable {
     @FXML
     private ComboBox<String> server;
 
+    @FXML
+    private Button nextButton;
+
     String coordinates;
 
     ArrayList jobids;
@@ -412,6 +415,7 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
+        if (!server.getSelectionModel().isEmpty()) nextButton.setDisable(false);
     }
 
     // Generate Q-Chem Input file
@@ -609,10 +613,10 @@ public class libEFPInputController implements Initializable {
         subScriptCont.setSubmission(submission);
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Select Fragment");
+        stage.setTitle("Submission Script Options");
         stage.setScene(new Scene(subScriptParent));
         stage.showAndWait();
-
+        if (!subScriptCont.isSubmitted()) return;
         Connection con = new Connection(selectedServer.getHostname());
         con.connect();
         boolean authorized = con.authenticateWithPassword(username, password);
@@ -684,7 +688,9 @@ public class libEFPInputController implements Initializable {
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
             JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), time, "QUEUE", "LIBEFP");
             UserPreferences.getJobsMonitor().addJob(jobManager);
-            UserPreferences.getJobsMonitor().run();
+//            UserPreferences.getJobsMonitor().run();
+            Stage currentStage = (Stage) root.getScene().getWindow();
+            currentStage.close();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Libefp Submission");
             alert.setHeaderText(null);

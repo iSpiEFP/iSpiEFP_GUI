@@ -7,6 +7,8 @@ import org.ispiefp.app.util.UserPreferences;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.Thread.sleep;
@@ -32,23 +34,40 @@ public class JobsMonitor implements Runnable {
         jm.watchJobStatus();
     }
 
-    public void run(){
-        for (JobManager jm : jobs) jm.watchJobStatus();
-        while (!jobs.isEmpty()) {
-            ArrayList<JobManager> completedJobs = new ArrayList<>();
-            for (JobManager jm : jobs) {
-                try {
-                    if (jm.checkStatus(jm.getJobID())) {
-                        retrieveJob(jm);
-                        completedJobs.add(jm);
+
+        public void run() {
+            for (JobManager jm : jobs) jm.watchJobStatus();
+            while (true) {
+                System.out.println("Rechecking jobs");
+                ArrayList<JobManager> completedJobs = new ArrayList<>();
+                for (JobManager jm : jobs) {
+                    try {
+                        if (jm.checkStatus(jm.getJobID())) {
+                            retrieveJob(jm);
+                            completedJobs.add(jm);
+                        }
+                    } catch (IOException e) {
+                        System.err.printf("Was unable to monitor job: %s", jm.getJobID());
                     }
-                } catch (IOException e) {
-                    System.err.printf("Was unable to monitor job: %s", jm.getJobID());
+                }
+                jobs.removeAll(completedJobs);
+                try {
+                    sleep(30000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-            jobs.removeAll(completedJobs);
         }
-        try{ sleep(30000);} catch (InterruptedException e) { e.printStackTrace();}
+
+    public void start(){
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask(){
+            @Override
+            public void run(){
+                run();
+            }
+        };
+        timer.schedule(task, 0l, 30000l);
     }
 
     public String toJson(){

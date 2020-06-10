@@ -100,8 +100,8 @@ public class JobManager implements Runnable {
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.out.println("Job is running!");
+//            e.printStackTrace();
+            System.out.printf("Job: %s is running!%n", jobID);
         }
         conn.close();
         return jobIsDone;
@@ -139,7 +139,7 @@ public class JobManager implements Runnable {
                     //update database
                     System.out.println("job finished...");
 //                    updateDBStatus(this.jobID, this.title, this.date, "DONE", this.type);
-//                    notify(this.title, this.type);
+                    notify(this.title, this.type);
                     if (this.type.equals("GAMESS")) {
                         //update the database with this efp file
                         String efp_file = getRemoteVmolOutput(this.jobID, this.type);
@@ -166,7 +166,7 @@ public class JobManager implements Runnable {
             public void run() {
                 // TODO Auto-generated method stub
                 Alert alert = new Alert(AlertType.CONFIRMATION);
-                String msg = "Your job:" + title + " has finished.";
+                String msg = "Your job: " + jobID + " has finished.";
 
                 alert.setTitle(type + " Job Submission");
                 alert.setHeaderText(null);
