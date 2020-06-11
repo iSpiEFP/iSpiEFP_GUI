@@ -1,10 +1,19 @@
 package org.ispiefp.app.submission;
 
+import java.util.ArrayList;
+
 public class SubmissionRecord {
+    /* Mandatory Fields */
     private String name;
     private String status;
     private String time;
     private String job_id;
+
+    /* Optional Fields */
+    private String outputFilePath;
+    private String stdoutputFilePath;
+    private ArrayList<String> usedEfpFilepaths;
+
 
     public SubmissionRecord(String name, String status, String time) {
         this.name = name;
@@ -35,6 +44,18 @@ public class SubmissionRecord {
         return job_id;
     }
 
+    public String getOutputFilePath() {
+        return outputFilePath;
+    }
+
+    public String getStdoutputFilePath() {
+        return stdoutputFilePath;
+    }
+
+    public ArrayList<String> getUsedEfpFilepaths() {
+        return usedEfpFilepaths;
+    }
+
     public void setJob_id(String job_id) {
         this.job_id = job_id;
     }
@@ -49,5 +70,17 @@ public class SubmissionRecord {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public void setOutputFilePath(String outputFilePath) {
+        this.outputFilePath = outputFilePath;
+    }
+
+    public void setStdoutputFilePath(String stdoutputFilePath) {
+        this.stdoutputFilePath = stdoutputFilePath;
+    }
+
+    public void setUsedEfpFilepaths(ArrayList<String> usedEfpFilepaths) {
+        this.usedEfpFilepaths = usedEfpFilepaths;
     }
 }

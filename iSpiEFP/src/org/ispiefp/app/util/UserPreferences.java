@@ -1,16 +1,11 @@
 package org.ispiefp.app.util;
-import com.sun.security.ntlm.Server;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.libEFP.CalculationPreset;
-import org.ispiefp.app.libEFP.JobsMonitor;
-import org.ispiefp.app.server.ServerDetails;
+import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.server.ServerInfo;
-
-import java.util.ArrayList;
 
 import java.util.HashMap;
 import java.util.Set;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import static org.ispiefp.app.util.AESEncryption.decrypt;

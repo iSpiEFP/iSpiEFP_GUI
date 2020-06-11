@@ -1,36 +1,34 @@
-package org.ispiefp.app.libEFP;
+package org.ispiefp.app.submission;
 
 import com.google.gson.Gson;
 import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.util.UserPreferences;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.Thread.sleep;
 
 public class JobsMonitor implements Runnable {
     private CopyOnWriteArrayList<JobManager> jobs;
-
-    public JobsMonitor(JobManager[] jobs){
-        this.jobs = new CopyOnWriteArrayList<>(Arrays.asList(jobs));
-    }
+    private ConcurrentHashMap<String, SubmissionRecord> records;
 
     public JobsMonitor(String jobsJson){
         Gson gson = new Gson();
         this.jobs = gson.fromJson(jobsJson, JobsMonitor.class).jobs;
+        this.records = gson.fromJson(jobsJson, JobsMonitor.class).records;
     }
 
     public JobsMonitor(){
         this.jobs = new CopyOnWriteArrayList<>();
+        this.records = new ConcurrentHashMap<>();
     }
 
     public void addJob(JobManager jm){
-        this.jobs.add(jm);
+        jobs.add(jm);
+        SubmissionRecord record = new SubmissionRecord(jm.getTitle(), jm.getStatus(), jm.getDate(), jm.getJobID());
+        records.put(jm.getJobID(), record);
         jm.watchJobStatus();
     }
 
@@ -44,6 +42,7 @@ public class JobsMonitor implements Runnable {
                     try {
                         if (jm.checkStatus(jm.getJobID())) {
                             retrieveJob(jm);
+                            saveRecord(jm);
                             completedJobs.add(jm);
                         }
                     } catch (IOException e) {
@@ -81,5 +80,11 @@ public class JobsMonitor implements Runnable {
         } catch (IOException e){ System.err.println("Was unable to retrieve the file for the completed job"); }
         System.out.println("Attempting to print the retrieved file:");
         System.out.println(fileContents);
+    }
+
+    public void saveRecord(JobManager jm){
+        records.get(jm.getJobID()).setStatus("COMPLETE");
+        records.get(jm.getJobID()).setOutputFilePath(jm.getOutputFilename());
+        records.get(jm.getJobID()).setStdoutputFilePath(jm.getStdoutputFilename());
     }
 }

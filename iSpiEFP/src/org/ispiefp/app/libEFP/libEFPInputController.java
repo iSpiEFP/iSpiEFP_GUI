@@ -418,7 +418,6 @@ public class libEFPInputController implements Initializable {
         if (!server.getSelectionModel().isEmpty()) nextButton.setDisable(false);
     }
 
-    // Generate Q-Chem Input file
     public void generatelibEFPInputFile() {
         String libEFPText = libEFPInputTextArea.getText();
         FileChooser fileChooser = new FileChooser();
