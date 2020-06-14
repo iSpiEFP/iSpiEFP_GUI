@@ -1,31 +1,33 @@
-//package org.ispiefp.app.submission;
-//
-//import javafx.collections.ObservableList;
-//import javafx.fxml.FXML;
-//import javafx.scene.Parent;
-//import javafx.scene.control.TableView;
-//import org.ispiefp.app.server.JobManager;
-//import org.ispiefp.app.server.ServerConfigController;
-//import org.ispiefp.app.server.ServerDetails;
-//import org.ispiefp.app.server.ServerInfo;
-//import org.ispiefp.app.util.UnrecognizedAtomException;
-//import org.ispiefp.app.util.UserPreferences;
-//import org.xml.sax.SAXException;
-//
-//import java.io.*;
-//import java.net.URISyntaxException;
-//import java.sql.SQLException;
-//import java.text.ParseException;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.prefs.BackingStoreException;
-//import java.util.prefs.Preferences;
-//
-///**
-// * Handle submission History for LIBEFP
-// */
-//public class SubmissionHistoryController {
+package org.ispiefp.app.submission;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.Parent;
+import javafx.scene.control.TableView;
+import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.server.ServerConfigController;
+import org.ispiefp.app.server.ServerDetails;
+import org.ispiefp.app.server.ServerInfo;
+import org.ispiefp.app.util.UnrecognizedAtomException;
+import org.ispiefp.app.util.UserPreferences;
+import org.xml.sax.SAXException;
+
+import java.io.*;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
+/**
+ * Handle submission History for LIBEFP
+ */
+public class SubmissionHistoryController {
 //    @FXML
 //    private Parent root;
 //    @FXML
@@ -38,19 +40,15 @@
 //    }
 //
 //    @FXML
-//    public void initialize() throws IOException, SAXException, SQLException, ParseException, URISyntaxException, BackingStoreException {
+//    public void initialize() {
 //        serverMap = UserPreferences.getServers();
-//        System.out.println("initializing");
-//        ServerConfigController serverConfig = new ServerConfigController();
 //
+//        Enumeration<SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords().elements();
+//        ObservableList<SubmissionRecord> data = FXCollections.observableArrayList();
 //
-//        ObservableList<SubmissionRecord> data = tableView.getItems();
+//        while (records.hasMoreElements()) { data.add(records.nextElement()); }
 //
-//        JobManager jobManager = new JobManager(this.username, this.password, this.hostname, "LIBEFP");
-//        ArrayList<String[]> jobHistory = jobManager.queryDatabaseforJobHistory("LIBEFP");
-//        jobHistory = jobManager.checkJobStatus(jobHistory);
-//
-//        loadData(jobHistory, data);
+//        tableView.getItems().setAll(data);
 //    }
 //
 //    private void loadData(ArrayList<String[]> jobHistory, ObservableList<SubmissionRecord> data) {
@@ -84,6 +82,10 @@
 //        }
 //    }
 //
+//    public void deleteRecord() {
+//        UserPreferences.getJobsMonitor().deleteRecord(tableView.getSelectionModel().getSelectedItem());
+//    }
+//
 //    public void refresh()
 //            throws IOException, SAXException, SQLException, ParseException, URISyntaxException, BackingStoreException {
 //        for (int i = 0; i < tableView.getItems().size(); i++) {
@@ -92,23 +94,22 @@
 //        initialize();
 //    }
 //
-//    /**
-//     * User has selected a row, load the efp files and xyz files and send the user the output controller form
-//     * @throws ParseException
-//     * @throws UnrecognizedAtomException
-//     */
+////    /**
+////     * User has selected a row, load the efp files and xyz files and send the user the output controller form
+////     * @throws ParseException
+////     * @throws UnrecognizedAtomException
+////     */
 //    public void visualize() throws ParseException, UnrecognizedAtomException {
 //
 //        SubmissionRecord record = tableView.getSelectionModel().getSelectedItem();
 //
-//        if (record.getStatus().equalsIgnoreCase("READY TO OPEN")) {
+//        if (record.getStatus().equalsIgnoreCase("complete")) {
 //            System.out.println("opening record");
-//
 //            //Get output form
 //            String output = "Error.";
 //            JobManager jobManager = new JobManager(this.username, this.password, this.hostname);
 //            try {
-//                output = jobManager.getRemoteFile("iSpiClient/Libefp/output/output_" + record.getJob_id());
+//                output = jobManager.getRemoteFile("iSpiClient/Libefp/output/" + record.getOutputFilePath());
 //            } catch (IOException e) {
 //                // TODO Auto-generated catch block
 //                e.printStackTrace();
@@ -118,7 +119,7 @@
 //            String log = "Error.";
 //            JobManager jobManager2 = new JobManager(this.username, this.password, this.hostname);
 //            try {
-//                log = jobManager2.getRemoteFile("iSpiClient/Libefp/output/error_" + record.getJob_id());
+//                log = jobManager2.getRemoteFile("iSpiClient/Libefp/output/" + record.getStdoutputFilePath());
 //            } catch (IOException e) {
 //                // TODO Auto-generated catch block
 //                e.printStackTrace();
@@ -128,5 +129,5 @@
 //            outputController.initialize(output, log, "LIBEFP");
 //        }
 //    }
-//
-//}
+
+}

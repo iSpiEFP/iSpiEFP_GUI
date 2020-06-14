@@ -13,9 +13,9 @@
                         prefWidth="659.0">
                 <children>
                     <Button layoutX="590.0" layoutY="450.0" onAction="#visualize" mnemonicParsing="false"
-                            text="Select"/>
-                    <Button layoutX="450.0" layoutY="450.0" onAction="#clearRecords" mnemonicParsing="false"
-                            text="Clear"/>
+                            text="View Details"/>
+                    <Button layoutX="450.0" layoutY="450.0" onAction="#deleteRecord" mnemonicParsing="false"
+                            text="Delete"/>
                     <Button layoutX="500.0" layoutY="450.0" onAction="#refresh" mnemonicParsing="false"
                             text="Refresh"/>
                     <TableView fx:id="tableView" layoutX="-1.0" prefHeight="400.0" prefWidth="659.0">
