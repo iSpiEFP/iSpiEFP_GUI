@@ -262,8 +262,29 @@ public class SettingsViewController {
 
     @FXML
     private void saveServer() {
+
         UserPreferences.removeServer(alias.getText());
         ServerInfo si = new ServerInfo(alias.getText(), true);
+
+        if (username.getText().equals("")){
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    String.format("The username is not entered"),
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+        if (hostname.getText().equals("")){
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        String.format("The hostname is not entered"),
+                        ButtonType.OK);
+                alert.showAndWait();
+        }
+        if (scheduler.getValue().toString().equals("null")){
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        String.format("The scheduler is not entered"),
+                        ButtonType.OK);
+                alert.showAndWait();
+        }
+
         si.setHostname(hostname.getText());
         si.setUsername(username.getText());
         si.setPassword(password.getText());
@@ -281,17 +302,13 @@ public class SettingsViewController {
         } else {
             si.setHasGAMESS(false);
         }
-//        for (String serverName : UserPreferences.getServers().keySet()) {
-//            if (serverName!=alias.getText()){
-                UserPreferences.addServer(si);
-//            }else{
-//                Alert alert = new Alert(Alert.AlertType.ERROR,
-//                        String.format("The server is already exist, please use another server name"),
-//                        ButtonType.OK);
-//                alert.showAndWait();
-//                //return;
-//            }
-//        }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                String.format("Server saved"),
+                ButtonType.OK);
+        alert.showAndWait();
+
+        UserPreferences.addServer(si);
+
 
 
     }
