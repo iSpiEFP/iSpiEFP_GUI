@@ -139,6 +139,7 @@ import java.util.ResourceBundle;
 
         @FXML
         public void setMemory(){
+            System.out.println(memory.getText());
             submission.setMem(Integer.parseInt(memory.getText()));
             updateSubmissionScriptText();
         }

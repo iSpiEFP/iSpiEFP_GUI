@@ -8,7 +8,7 @@ pol_driver iterative
 fraglib_path ../fraglib/
 userlib_path iSpiClient/Libefp/fraglib
 
-fragment pentacene_l
-3.6361299  -0.72231  0.0
-4.91111  -1.4056699  0.0
-6.05875  -0.72293997  0.0
+fragment h2o_l
+0.0  0.06303  0.0
+-0.75266  -0.50017  0.0
+0.75266  -0.50017  0.0
