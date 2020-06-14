@@ -1,0 +1,14 @@
+run_type sp
+coord  points
+terms elec pol disp xr 
+elec_damp screen
+pol_damp tt
+disp_damp overlap
+pol_driver iterative
+fraglib_path ../fraglib/
+userlib_path iSpiClient/Libefp/fraglib
+
+fragment pentacene_l
+3.6361299  -0.72231  0.0
+4.91111  -1.4056699  0.0
+6.05875  -0.72293997  0.0
