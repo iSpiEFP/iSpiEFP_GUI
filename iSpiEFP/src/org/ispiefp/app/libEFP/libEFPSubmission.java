@@ -48,15 +48,18 @@ public abstract class libEFPSubmission {
 
     public static String REMOTE_LIBEFP_DIR = "iSpiClient/Libefp";
     public static String REMOTE_LIBEFP_OUT = REMOTE_LIBEFP_DIR + "/output/";
-    public static String REMOTE_LIBEFP_IN = REMOTE_LIBEFP_DIR + "/input";
+    public static String REMOTE_LIBEFP_IN = REMOTE_LIBEFP_DIR + "/input/";
 
     public libEFPSubmission(ServerInfo server){
         hostname = server.getHostname();
         username = server.getUsername();
         password = server.getPassword();
+        if (server.hasLibEFP()){
+            efpmdPath = server.getLibEFPPath();
+        }
     }
-    abstract String submit();
-    abstract File createSubmissionScript() throws IOException;
+    abstract String submit(String input);
+    abstract File createSubmissionScript(String input) throws IOException;
     abstract String getSubmissionScriptText();
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
@@ -104,7 +107,11 @@ public abstract class libEFPSubmission {
         this.username = username;
     }
 
+    public void setInputFilename(String filename){ this.inputFilePath = filename + ".in"; }
+
     public void setOutputFilename(String outputFilename) { this.outputFilename = outputFilename + ".out"; }
+
+    public void setSchedulerOutputName(String filename) { this.schedulerOutputName = filename + ".stdout"; }
 
     public void setQueueName(String name){ queueName = name; }
 

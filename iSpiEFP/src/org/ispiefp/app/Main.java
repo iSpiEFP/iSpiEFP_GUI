@@ -11,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.util.TermsofAgreement;
+import org.ispiefp.app.util.UserPreferences;
 import org.ispiefp.app.util.VerifyPython;
 
 import java.io.IOException;
@@ -47,12 +48,19 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+        Thread mainThread = Thread.currentThread();
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
         showMainView();
 
         Initializer initializer = new Initializer();
         initializer.init();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run(){
+                UserPreferences.setJobsMonitor(UserPreferences.getJobsMonitor().toJson());
+                try{ mainThread.join(); } catch (InterruptedException e) { e.printStackTrace(); }
+            }
+        });
 
         //get User Default Browser
         hostServices = getHostServices();
