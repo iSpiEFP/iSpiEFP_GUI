@@ -13,6 +13,7 @@
                         <items>
                             <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
                             <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
+                            <MenuItem mnemonicParsing="false" onAction="#TestingOutFile" text="Testing" />
                             <Menu fx:id="openRecentMenu" mnemonicParsing="false" onAction="#populateOpenRecentMenu" text="Open Recent">
                                 <!--<fx:define>-->
                                 <!--<ContextMenu fx:id="cmTF">-->

@@ -30,8 +30,7 @@ import org.ispiefp.app.visualizer.JmolPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
@@ -990,6 +989,51 @@ stage.show();
     public void libefp() {
         System.out.println("libefp button");
         //TODO need to call libefp constructor
+    }
+
+    public void TestingOutFile() {
+        try {
+            File outFile = new File("test.out");
+            File tempOutFile = new File("testTemp.xyz");
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
+
+            boolean finalState = false;
+
+            int count = 0;
+            String finalOut = "";
+
+            while (true) {
+                String line = bufferedReader.readLine();
+                if (line == null) break;
+                else if (line.contains("FINAL STATE")) {
+                    finalState = true;
+                } else if (line.contains("RESTART DATA")) {
+                    finalState = false;
+                } else if (finalState) {
+                    if (!line.contains("GEOMETRY") && !line.equals("")) {
+                        finalOut += line;
+                        finalOut += '\n';
+                        count++;
+                    }
+                }
+            }
+
+            finalOut = count + "\n" + "0 1\n" + finalOut;
+            System.out.println(finalOut);
+
+            bufferedWriter.write(finalOut);
+
+            bufferedWriter.close();
+            bufferedReader.close();
+
+            jmolMainPanel.removeAll();
+            jmolMainPanel.openFile(tempOutFile);
+            tempOutFile.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /******************************************************************************************
