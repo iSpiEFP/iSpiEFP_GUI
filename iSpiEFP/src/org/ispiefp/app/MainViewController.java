@@ -802,6 +802,7 @@ public class MainViewController {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version 1.0.0, the most" +
                         " recent version", ButtonType.OK);
                 alert.showAndWait();
+
                 return;
             }
 
