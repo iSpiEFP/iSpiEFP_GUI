@@ -1,0 +1,14 @@
+run_type sp
+coord  points
+terms elec pol disp xr 
+elec_damp screen
+pol_damp tt
+disp_damp overlap
+pol_driver iterative
+fraglib_path ../fraglib/
+userlib_path iSpiClient/Libefp/fraglib
+
+fragment water
+0.0  0.06303  0.0
+-0.75266  -0.50017  0.0
+0.75266  -0.50017  0.0

@@ -705,27 +705,22 @@ public class MainViewController {
 
     @FXML
     public void calculateLibefpHistory () throws IOException {
-        LoginForm loginForm = new LoginForm("LIBEFP");
-        boolean authorized = loginForm.authenticate();
-        if (authorized) {
-            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "views/submissionHistory.fxml"
+                            "/views/submissionHistory.fxml"
                     )
             );
-            loader.setController(controller);
             Stage stage = new Stage(StageStyle.DECORATED);
             stage.setScene(
                     new Scene(
                             loader.load()
                     )
             );
-            stage.initModality(Modality.WINDOW_MODAL);
+        SubmissionHistoryController controller = loader.getController();
+        stage.initModality(Modality.WINDOW_MODAL);
             stage.setTitle("Submission History");
             stage.show();
         }
-    }
 
 
     @FXML

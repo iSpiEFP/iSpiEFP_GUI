@@ -4,6 +4,7 @@ import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.SCPInputStream;
 import ch.ethz.ssh2.StreamGobbler;
+import com.google.gson.Gson;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -30,7 +31,9 @@ public class JobManager implements Runnable {
     private String date;
     private String status;
     private String type;
-    private Connection conn;
+    private String outputFilename;
+    private String stdoutputFilename;
+    private transient Connection conn;
 
     public JobManager(String username, String password, String hostname, String jobID, String title, String date, String status, String type) {
         this.username = username;
@@ -41,6 +44,10 @@ public class JobManager implements Runnable {
         this.date = date;
         this.status = status;
         this.type = type;
+        if (type.equalsIgnoreCase("LIBEFP")){
+            outputFilename = "iSpiClient/Libefp/output/" + jobID;
+            stdoutputFilename = "iSpiClient/Libefp/output/" + jobID.substring(0, jobID.length() - 4) + ".stdout";
+        }
     }
 
     public JobManager(String username, String password, String hostname, String type) {
@@ -81,7 +88,7 @@ public class JobManager implements Runnable {
         try {
             if (this.type != null) {
                 if (this.type.equals("LIBEFP")) {
-                    scpos = scp.get("iSpiClient/Libefp/output/error_" + jobID);
+                    scpos = scp.get("iSpiClient/Libefp/output/" + jobID);
                     scpos.close();
                     jobIsDone = true;
                 } else if (this.type.equals("GAMESS")) {
@@ -93,8 +100,8 @@ public class JobManager implements Runnable {
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            //e.printStackTrace();
-            System.out.println("Job is running!");
+//            e.printStackTrace();
+            System.out.printf("Job: %s is running!%n", jobID);
         }
         conn.close();
         return jobIsDone;
@@ -125,13 +132,13 @@ public class JobManager implements Runnable {
         try {
             boolean jobIsDone = false;
             do {
-                Thread.sleep(3000);
+                Thread.sleep(30000);
                 System.out.println("polling");
                 jobIsDone = checkStatus(this.jobID);
                 if (jobIsDone) {
                     //update database
                     System.out.println("job finished...");
-                    updateDBStatus(this.jobID, this.title, this.date, "DONE", this.type);
+//                    updateDBStatus(this.jobID, this.title, this.date, "DONE", this.type);
                     notify(this.title, this.type);
                     if (this.type.equals("GAMESS")) {
                         //update the database with this efp file
@@ -143,7 +150,8 @@ public class JobManager implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.err.println("Job: " + this.jobID + " is still running");
         }
     }
 
@@ -158,7 +166,7 @@ public class JobManager implements Runnable {
             public void run() {
                 // TODO Auto-generated method stub
                 Alert alert = new Alert(AlertType.CONFIRMATION);
-                String msg = "Your job:" + title + " has finished.";
+                String msg = "Your job: " + jobID + " has finished.";
 
                 alert.setTitle(type + " Job Submission");
                 alert.setHeaderText(null);
@@ -407,6 +415,100 @@ public class JobManager implements Runnable {
             e.printStackTrace();
         }
 
+    }
+
+    public Connection getConn() {
+        return conn;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public String getJobID() {
+        return jobID;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getOutputFilename(){
+        return outputFilename;
+    }
+
+    public String getStdoutputFilename() {
+        return stdoutputFilename;
+    }
+
+    public void setConn(Connection conn) {
+        this.conn = conn;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public void setJobID(String jobID) {
+        this.jobID = jobID;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setOutputFilename(String outputFilename){
+        this.outputFilename = outputFilename;
+    }
+
+    public void setStdoutputFilename(String stdoutputFilename) {
+        this.stdoutputFilename = stdoutputFilename;
+    }
+
+    public String toJsonString(){
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
     }
 
 }

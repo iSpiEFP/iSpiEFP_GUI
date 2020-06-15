@@ -144,6 +144,9 @@ public class libEFPInputController implements Initializable {
     @FXML
     private ComboBox<String> server;
 
+    @FXML
+    private Button nextButton;
+
     String coordinates;
 
     ArrayList jobids;
@@ -181,7 +184,7 @@ public class libEFPInputController implements Initializable {
         this.efpFilenames = efpFilenames;
         this.workingDirectoryPath = LocalBundleManager.workingDirectory;
         this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + File.separator;  //storage for db incoming efp files
-        this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS;         //needed for db file storage
+        this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS + File.separator;         //needed for db file storage
         // initWorkingDir();
     }
 
@@ -189,7 +192,7 @@ public class libEFPInputController implements Initializable {
         super();
         this.workingDirectoryPath = LocalBundleManager.workingDirectory;
         this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + File.separator;  //storage for db incoming efp files
-        this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS;         //needed for db file storage
+        this.libEFPInputsDirectory = LocalBundleManager.LIBEFP_INPUTS + File.separator;         //needed for db file storage
     }
 
     @Override
@@ -412,9 +415,9 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
+        if (!server.getSelectionModel().isEmpty()) nextButton.setDisable(false);
     }
 
-    // Generate Q-Chem Input file
     public void generatelibEFPInputFile() {
         String libEFPText = libEFPInputTextArea.getText();
         FileChooser fileChooser = new FileChooser();
@@ -586,36 +589,48 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-//        ServerDetails selectedServer = serverDetailsList.get(serversList.getSelectionModel().getSelectedIndex());
-        libEFPSubmission submission;
-        String hostname;
-        String password;
-        String username;
+        libEFPSubmission submission = null; /* Submitter responsible for dealing with server scheduling system */
+        String password = null;             /* Password of the user for the server */
+        String username = null;             /* Username of the user for the server */
+        String jobID = null;                /* JobID for the job the user submits  */
+
         selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
-        LoginForm loginForm = new LoginForm(selectedServer.getHostname(), "LIBEFP");
-        boolean authorized = loginForm.authenticate();
+        if (selectedServer.getScheduler().equals("SLURM")) {
+            submission = new libEFPSlurmSubmission(selectedServer);
+        }
+        //TODO: Handle case of PBS and Torque
+        else if (selectedServer.getScheduler().equals("PBS")) {
+            submission = new libEFPSlurmSubmission(selectedServer);
+        }
+        username = submission.username;
+        password = submission.password;
+
+        FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
+        Parent subScriptParent = subScriptViewLoader.load();
+        SubmissionScriptTemplateViewController subScriptCont = subScriptViewLoader.getController();
+        subScriptCont.setSubmission(submission);
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Submission Script Options");
+        stage.setScene(new Scene(subScriptParent));
+        stage.showAndWait();
+        if (!subScriptCont.isSubmitted()) return;
+        Connection con = new Connection(selectedServer.getHostname());
+        con.connect();
+        boolean authorized = con.authenticateWithPassword(username, password);
         if (authorized) {
-            createInputFile("md_1.in", this.libEFPInputsDirectory);
+            createInputFile(submission.inputFilePath, this.libEFPInputsDirectory);
             Thread.sleep(100);
             System.out.println("sending these efp files:");
             for (File file : efpFiles) {
                 System.out.println(file.getName());
             }
-
-            Connection conn = loginForm.getConnection(authorized);
-
-            username = loginForm.getUsername();
-            password = loginForm.getPassword();
+            SCPClient scp = con.createSCPClient();
 
 
-            SCPClient scp = conn.createSCPClient();
-
-//            libEFPSlurmSubmission submitter = new libEFPSlurmSubmission();
-
-
-            SCPOutputStream scpos = scp.put("md_1.in", new File(this.libEFPInputsDirectory + "/md_1.in").length(), "./iSpiClient/Libefp/input", "0666");
-            FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + "/md_1.in"));
+            SCPOutputStream scpos = scp.put(submission.inputFilePath, new File(this.libEFPInputsDirectory + submission.inputFilePath).length(), "./iSpiClient/Libefp/input", "0666");
+            FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + submission.inputFilePath));
 
 
             IOUtils.copy(in, scpos);
@@ -624,11 +639,11 @@ public class libEFPInputController implements Initializable {
             System.out.println("sent config file");
 
 
-            Session sess = conn.openSession();
+            Session sess = con.openSession();
             sess.close();
 
             for (File file : efpFiles) {
-                SCPClient scpClient = conn.createSCPClient();
+                SCPClient scpClient = con.createSCPClient();
                 String filename = file.getName().substring(0, file.getName().indexOf('.') + 4);
                 filename = filename.toLowerCase();
                 scpos = scpClient.put(filename, file.length(), "./iSpiClient/Libefp/fraglib", "0666");
@@ -645,35 +660,7 @@ public class libEFPInputController implements Initializable {
             Date date = new Date();
             String currentTime = dateFormat.format(date).toString();
 
-//            String jobID = (new JobManager()).generateJobID().toString();
-//
-//            String pbs_script = "/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/md_1.in > iSpiClient/Libefp/output/output_" + jobID;
-//
-//            scpos = scp.put("vmol_" + jobID, pbs_script.length(), "iSpiClient/Libefp/output", "0666");
-//            InputStream istream = IOUtils.toInputStream(pbs_script, "UTF-8");
-//            IOUtils.copy(istream, scpos);
-//            istream.close();
-//            scpos.close();
-//
-//            sess = conn.openSession();
-//            sess.execCommand("source /etc/profile; cd iSpiClient/Libefp/output; qsub -l walltime=00:30:00 -l nodes=1:ppn=1 -e error_" + jobID + " -q standby vmol_" + jobID);
 
-            if (selectedServer.getScheduler().equals("SLURM")){
-                submission = new libEFPSlurmSubmission(selectedServer,"lslipche", 1, 20, "00:30:00", 0);
-                submission.prepareJob(selectedServer.getLibEFPPath(), "md_1.in", "output");
-
-                FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
-                Parent subScriptParent = subScriptViewLoader.load();
-                SubmissionScriptTemplateViewController subScriptCont = subScriptViewLoader.getController();
-                subScriptCont.setSubmission(submission);
-                Stage stage = new Stage();
-                stage.initModality(Modality.WINDOW_MODAL);
-                stage.setTitle("Select Fragment");
-                stage.setScene(new Scene(subScriptParent));
-                stage.showAndWait();
-
-//                submission.submit();
-            }
             InputStream stdout = new StreamGobbler(sess.getStdout());
             BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
             String clusterjobID = "";
@@ -691,41 +678,18 @@ public class libEFPInputController implements Initializable {
             br.close();
             stdout.close();
             sess.close();
-            conn.close();
+            con.close();
 
             String time = currentTime; //equivalent but in different formats
             dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             currentTime = dateFormat.format(date).toString();
-
+            submission.submit(subScriptCont.getUsersSubmissionScript());
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-
-            String serverName = Main.iSpiEFP_SERVER;
-            int port = Main.iSpiEFP_PORT;
-
-            //send over job data to database
-            String query = "Submit";
-            query += "$END$";
-//            query += username + "  " + selectedServer.getHostname() + "  " + jobID + "  " + title.getText() + "  " + time + "  " + "QUEUE" + "  " + "LIBEFP";
-            query += "$ENDALL$";
-
-            //Socket client = new Socket(serverName, port);
-            iSpiEFPServer iSpiServer = new iSpiEFPServer();
-            Socket client = iSpiServer.connect(serverName, port);
-            if (client == null) {
-                return;
-            }
-            OutputStream outToServer = client.getOutputStream();
-            //DataOutputStream out = new DataOutputStream(outToServer);
-
-            System.out.println(query);
-            outToServer.write(query.getBytes("UTF-8"));
-            client.close();
-            outToServer.close();
-
-//            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), jobID, title.getText(), time, "QUEUE", "LIBEFP");
-//            jobManager.watchJobStatus();
-
-
+            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), time, "QUEUE", "LIBEFP");
+            UserPreferences.getJobsMonitor().addJob(jobManager);
+//            UserPreferences.getJobsMonitor().run();
+            Stage currentStage = (Stage) root.getScene().getWindow();
+            currentStage.close();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Libefp Submission");
             alert.setHeaderText(null);
