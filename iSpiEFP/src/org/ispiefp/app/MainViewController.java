@@ -1013,7 +1013,17 @@ stage.show();
                     finalState = false;
                 } else if (finalState) {
                     if (!line.contains("GEOMETRY") && !line.equals("")) {
-                        finalOut += line;
+                        System.out.println(Arrays.toString(line.split(" ")));
+                        String[] unprocessedLine = line.split(" ");
+                        for (int i = 0; i < unprocessedLine.length; i++) {
+                            if (unprocessedLine[i].equals("")) continue;
+                            // ! might need to change if first element doesn't always start with A01
+                            else if (unprocessedLine[i].contains("A0")) {
+                                finalOut += unprocessedLine[i].substring(3).replaceAll("[0-9]", "");
+                            }
+                            else finalOut += unprocessedLine[i];
+                            finalOut += " ";
+                        }
                         finalOut += '\n';
                         count++;
                     }
