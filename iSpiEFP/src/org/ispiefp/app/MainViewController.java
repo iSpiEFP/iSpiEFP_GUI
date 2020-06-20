@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.xml.crypto.Data;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -139,6 +140,7 @@ public class MainViewController {
     private String[] rec_files;
 
     double lastXPosition;
+    double lastYPosition;
 
     Scene gridScene;
 
@@ -862,7 +864,7 @@ stage.show();
      * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
      */
     @FXML
-    public void toggleHalo () {
+    public void toggleHalo() {
         if (haloButton.isSelected()) {
             System.out.println("on");
             jmolMainPanel.viewer.runScript("selectionHalos on");
@@ -913,25 +915,39 @@ stage.show();
         }
     }
 
-    public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart, NumberAxis xAxis, NumberAxis yAxis) {
-        dataSeries.getData().clear();
-        lineChart.getData().clear();
+//    public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart, NumberAxis xAxis, NumberAxis yAxis) {
+//        dataSeries.getData().clear();
+//        lineChart.getData().clear();
+//
+//        xAxis.setLabel("Geometry");
+//        yAxis.setLabel("Energy");
+//
+//        lineChart = new LineChart(xAxis, yAxis);
+//        dataSeries.getData().add(new XYChart.Data(1, 60));
+//        dataSeries.getData().add(new XYChart.Data(2, 40));
+//        dataSeries.getData().add(new XYChart.Data(3, 25));
+//        dataSeries.getData().add(new XYChart.Data(4, 20));
+//        try {
+//            lineChart.getData().add(dataSeries);
+//        }
+//        catch (IllegalArgumentException e) {
+//            System.out.println("Duplicate series Exception caught");
+//        }
+//    }
+public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
+    dataSeries.getData().clear();
 
-        xAxis.setLabel("Geometry");
-        yAxis.setLabel("Energy");
+    XYChart.Data dataPt = new XYChart.Data(1, 60);
 
-        lineChart = new LineChart(xAxis, yAxis);
-        dataSeries.getData().add(new XYChart.Data(1, 60));
-        dataSeries.getData().add(new XYChart.Data(2, 40));
-        dataSeries.getData().add(new XYChart.Data(3, 25));
-        dataSeries.getData().add(new XYChart.Data(4, 20));
-        try {
-            lineChart.getData().add(dataSeries);
-        }
-        catch (IllegalArgumentException e) {
-            System.out.println("Duplicate series Exception caught");
-        }
-    }
+    dataSeries.getData().add(new XYChart.Data(1, 60));
+    dataSeries.getData().add(new XYChart.Data(2, 40));
+    dataSeries.getData().add(new XYChart.Data(3, 25));
+    dataSeries.getData().add(new XYChart.Data(4, 20));
+    lineChart.getData().add(dataSeries);
+
+//    Tooltip.install(dataSeries.getNode(), new Tooltip("(" + dataSeries.getNode()));
+   // dataSeries.getNode().setOnMouseClicked();
+}
     @FXML
     public void showGeomAnalysis() {
         Stage stage = new Stage();
@@ -941,6 +957,7 @@ stage.show();
         xAxis.setLabel("Geometry");
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Energy");
+
 
         LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
         geomVsEnergyChart.setTitle("Geometry vs. Energy");
@@ -982,13 +999,30 @@ stage.show();
         XYChart.Series series = new XYChart.Series();
         series.setName("Dummy Vals");
 
-        series.getData().add(new XYChart.Data(1, 60));
-        series.getData().add(new XYChart.Data(2, 40));
-        series.getData().add(new XYChart.Data(3, 25));
-        series.getData().add(new XYChart.Data(4, 20));
+
+        series.getData().add(new XYChart.Data<Number, Number>(1, 60));
+        series.getData().add(new XYChart.Data<Number, Number>(2, 40));
+        series.getData().add(new XYChart.Data<Number, Number>(3, 25));
+        series.getData().add(new XYChart.Data<Number, Number>(4, 20));
+
+        int maxYVal = 60;
+        int maxXVal = 4;
+
+        xAxis.setAutoRanging(false);
+        xAxis.setLowerBound(0);
+        xAxis.setUpperBound(maxXVal + 1);
+        xAxis.setTickUnit(1);
 
         geomVsEnergyChart.getData().add(series);
 
+
+//        for (XYChart.Data<Number, Number> data: series.getData()) {
+//
+//        }
+
+//        for (int i = 0; i < series.getData().size(); i++) {
+//            Tooltip.install(t, new Tooltip("(" + series.getData().get(0) + ", " + series.getData().get(1) + ")"));
+//        }
         xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 System.out.println("X Axis pressed");
@@ -1002,12 +1036,46 @@ stage.show();
                 //If the user drags right
                 if (event.getSceneX() - lastXPosition >= 30.0) {
                     xAxis.setAutoRanging(false);
-                    xAxis.setTickUnit(1);
+                   // xAxis.setTickUnit(0.5);
+
+                    //System.out.println("Scale x: " + xAxis.getScaleX());
+                    int tempMaxXVal = maxXVal * 2;
+                    xAxis.setUpperBound(tempMaxXVal);
+                    //maxXVal *= 2;
+
                     System.out.println("Finished right drag logic");
-                    redrawGraph(series, geomVsEnergyChart, xAxis, yAxis);
+
+                }
+
+                else if (lastXPosition - event.getSceneX() >= 30.0) {
+                    xAxis.setAutoRanging(false);
+                    //xAxis.setTickUnit();
+                    xAxis.setUpperBound(maxXVal / 2.0);
+
                 }
             }
         }));
+
+        yAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                System.out.println("Y Axis pressed");
+                lastYPosition = event.getSceneY();
+            }
+        }));
+
+        yAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                System.out.println("Y Axis dragged");
+                //If the user drags right
+                if (lastYPosition - event.getSceneY() >= 3.0) {
+                    yAxis.setAutoRanging(false);
+                    yAxis.setTickUnit(30);
+                    System.out.println("Finished up drag logic");
+                    redrawGraph(series, geomVsEnergyChart);
+                }
+            }
+        }));
+
         VBox axesEditVBox = new VBox(8);
         HBox xHBox = new HBox(10);
         HBox yHBox = new HBox(10);
@@ -1031,16 +1099,16 @@ stage.show();
 
                 xAxis.setTickUnit(Double.parseDouble(xAxeInput.getText()));
                 yAxis.setTickUnit(Double.parseDouble(yAxeInput.getText()));
-                redrawGraph(series, geomVsEnergyChart, xAxis, yAxis);
-                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
-                GridPane.setConstraints(list, 0, 0);
-                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
-                GridPane.setConstraints(navBtnsHBox, 1, 2);
-                geomGrid.getChildren().clear();
-                geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
-                gridScene = new Scene(geomGrid, 1000, 1000);
-                stage.setScene(gridScene);
-                stage.show();
+//                redrawGraph(series, geomVsEnergyChart);
+//                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
+//                GridPane.setConstraints(list, 0, 0);
+//                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
+//                GridPane.setConstraints(navBtnsHBox, 1, 2);
+//                geomGrid.getChildren().clear();
+//                geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
+//                gridScene = new Scene(geomGrid, 1000, 1000);
+//                stage.setScene(gridScene);
+//                stage.show();
             }
         }));
 
