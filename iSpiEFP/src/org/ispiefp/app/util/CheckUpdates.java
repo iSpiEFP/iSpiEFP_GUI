@@ -1,61 +1,39 @@
 package org.ispiefp.app.util;
+import org.ispiefp.app.EFPFileRetriever.GithubRequester;
+
 import java.io.*;
 
 public class CheckUpdates {
-    private String updates;
+    private String[] versions;
 
     public CheckUpdates() {
-        this.updates = this.updateScript();
+        this.versions = this.accessVersions();
     }
 
-    public String getUpdates() { return this.updates; }
+    public String[] getVersions() { return this.versions; }
 
-    private String updateScript() {
-        String s = new String();
+    /**
+     * Get the user's version number from iSpiEFP_GUI/iSpiEFP/rescoures/userVersion.txt locally
+     * and the most current version number from EFP_Parameters/currentVersion.txt on Github
+     *
+     * @return A String array of size 2, where the first index is the user's version and
+     * the second index is the most current version
+     */
+
+    private String[] accessVersions() {
+        String[] versions = new String[2];
 
         try {
-            File file = new File("iSpiEFP/resources/version.txt");
+            File file = new File("iSpiEFP/resources/userVersion.txt");
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
-            s += br.readLine();
-            return s;
+            versions[0] = br.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(s);
-        return s;
-        /*String testPythonScriptPath = null;
-        StringBuilder sb = new StringBuilder();
-        try {
-            URL resource = CheckUpdates.class.getResource("/scripts/checkUpdates.py");
-            System.out.println("resource = " + resource);
-            File file = Paths.get(resource.toURI()).toFile();
-            System.out.println("file = " + file);
-            testPythonScriptPath = file.getAbsolutePath();
-        } catch (URISyntaxException e){
-            e.printStackTrace();
-        }
-        System.out.println(UserPreferences.getPythonPath());
-        if (!UserPreferences.pythonPathExists()) return null;
-        String commandInput = String.format("%s %s",UserPreferences.getPythonPath(),
-                testPythonScriptPath);
-        //String[] arr = { testPythonScriptPath, ""};
-        try{
-            Process p = Runtime.getRuntime().exec(commandInput);   /* The path of the directory to write to */
-            /*BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream())); // getInputStream() returns output stream
-            String s1 = "";
-            String s2 = "";
-            while ((s1 = errReader.readLine()) != null || (s2 = outReader.readLine()) != null){
-                sb.append(s1);
-                sb.append(s2);
-            }
-        } catch (IOException e){
-            e.printStackTrace();
-            return null;
-        }
-        System.out.println(sb.toString());
-        return sb.toString();*/
-            //return null;
+        GithubRequester githubRequester = new GithubRequester("currentVersion.txt");
+        versions[1] = githubRequester.getFileContents();
+        versions[1] = versions[1].substring(0, versions[1].length() - 2);
+        return versions;
     }
 }
