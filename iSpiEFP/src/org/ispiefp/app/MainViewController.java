@@ -991,7 +991,7 @@ stage.show();
         //TODO need to call libefp constructor
     }
 
-    public void TestingOutFile() {
+    public void VisualizeLibEFPResultFile() {
         try {
             File outFile = new File("test.out");
             File tempOutFile = new File("testTemp.xyz");
@@ -1000,28 +1000,21 @@ stage.show();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
 
             boolean finalState = false;
-
             int count = 0;
             String finalOut = "";
 
             while (true) {
                 String line = bufferedReader.readLine();
                 if (line == null) break;
-                else if (line.contains("FINAL STATE")) {
-                    finalState = true;
-                } else if (line.contains("RESTART DATA")) {
-                    finalState = false;
-                } else if (finalState) {
+                else if (line.contains("FINAL STATE")) finalState = true;
+                else if (line.contains("RESTART DATA")) finalState = false;
+                else if (finalState) {
                     if (!line.contains("GEOMETRY") && !line.equals("")) {
-                        System.out.println(Arrays.toString(line.split(" ")));
                         String[] unprocessedLine = line.split(" ");
-                        for (int i = 0; i < unprocessedLine.length; i++) {
-                            if (unprocessedLine[i].equals("")) continue;
-                            // ! might need to change if first element doesn't always start with A01
-                            else if (unprocessedLine[i].contains("A")) {
-                                finalOut += unprocessedLine[i].substring(1).replaceAll("[0-9]", "");
-                            }
-                            else finalOut += unprocessedLine[i];
+                        for (String s : unprocessedLine) {
+                            if (s.equals("")) continue;
+                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
+                            else finalOut += s;
                             finalOut += " ";
                         }
                         finalOut += '\n';
@@ -1030,16 +1023,15 @@ stage.show();
                 }
             }
 
-            finalOut = count + "\n" + "0 1\n" + finalOut;
-            System.out.println(finalOut);
+            finalOut = count + "\n" + "comment\n" + finalOut;
 
             bufferedWriter.write(finalOut);
-
             bufferedWriter.close();
             bufferedReader.close();
 
             jmolMainPanel.removeAll();
             jmolMainPanel.openFile(tempOutFile);
+
             tempOutFile.delete();
         } catch (Exception e) {
             e.printStackTrace();
