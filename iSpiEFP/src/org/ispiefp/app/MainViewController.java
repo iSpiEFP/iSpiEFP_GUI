@@ -67,6 +67,10 @@ public class MainViewController {
     private ProgressIndicator pit = new ProgressIndicator();
 
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
+    private double maxXVal;
+    private double maxYVal;
+    private boolean xPressed;
+    private boolean yPressed;
 
     @FXML
     private Parent root;
@@ -1005,8 +1009,8 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         series.getData().add(new XYChart.Data<Number, Number>(3, 25));
         series.getData().add(new XYChart.Data<Number, Number>(4, 20));
 
-        int maxYVal = 60;
-        int maxXVal = 4;
+        maxYVal = 60;
+        maxXVal = 4;
 
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(0);
@@ -1025,6 +1029,7 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
 //        }
         xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
+                xPressed = true;
                 System.out.println("X Axis pressed");
                 lastXPosition = event.getSceneX();
             }
@@ -1034,24 +1039,24 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
             public void handle(MouseEvent event) {
                 System.out.println("X Axis dragged");
                 //If the user drags right
-                if (event.getSceneX() - lastXPosition >= 30.0) {
-                    xAxis.setAutoRanging(false);
-                   // xAxis.setTickUnit(0.5);
+                if (xPressed) {
+                    if (event.getSceneX() - lastXPosition >= 20.0) {
+                        xAxis.setAutoRanging(false);
+                        double tempMaxXVal = maxXVal * 2;
+                        xAxis.setUpperBound(tempMaxXVal);
+                        maxXVal *= 2;
 
-                    //System.out.println("Scale x: " + xAxis.getScaleX());
-                    int tempMaxXVal = maxXVal * 2;
-                    xAxis.setUpperBound(tempMaxXVal);
-                    //maxXVal *= 2;
+                        xPressed = false;
+                        System.out.println("Finished right drag logic");
 
-                    System.out.println("Finished right drag logic");
+                    } else if (lastXPosition - event.getSceneX() >= 20.0) {
+                        xAxis.setAutoRanging(false);
+                        //xAxis.setTickUnit();
+                        xAxis.setUpperBound(Math.ceil(maxXVal / 2));
+                        maxXVal /= 2;
+                        xPressed = false;
 
-                }
-
-                else if (lastXPosition - event.getSceneX() >= 30.0) {
-                    xAxis.setAutoRanging(false);
-                    //xAxis.setTickUnit();
-                    xAxis.setUpperBound(maxXVal / 2.0);
-
+                    }
                 }
             }
         }));
@@ -1060,18 +1065,30 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
             public void handle(MouseEvent event) {
                 System.out.println("Y Axis pressed");
                 lastYPosition = event.getSceneY();
+                yPressed = true;
             }
         }));
 
         yAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
+
                 System.out.println("Y Axis dragged");
                 //If the user drags right
-                if (lastYPosition - event.getSceneY() >= 3.0) {
-                    yAxis.setAutoRanging(false);
-                    yAxis.setTickUnit(30);
-                    System.out.println("Finished up drag logic");
-                    redrawGraph(series, geomVsEnergyChart);
+                if (yPressed) {
+                    if (lastYPosition - event.getSceneY() >= 20.0) {
+                        yAxis.setAutoRanging(false);
+                      //  yAxis.setTickUnit(30);
+                        yAxis.setUpperBound(maxYVal * 2);
+                        maxYVal *= 2;
+                        yPressed = false;
+                        System.out.println("Finished up drag logic");
+                    }
+                    else if (event.getSceneY() - lastYPosition >= 20.0) {
+                        yAxis.setAutoRanging(false);
+                        yAxis.setUpperBound(maxYVal / 2);
+                        maxYVal /= 2;
+                        yPressed = false;
+                    }
                 }
             }
         }));
@@ -1081,12 +1098,12 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         HBox yHBox = new HBox(10);
         HBox scaleBtnsHBox = new HBox(10);
 
-        Label xLabel = new Label("X Scale: ");
+        Label xLabel = new Label("Set X Bound");
         TextField xAxeInput = new TextField();
         xAxeInput.setPromptText("Current X axis Tick unit: " + xAxis.getTickUnit());
         xHBox.getChildren().addAll(xLabel, xAxeInput);
 
-        Label yLabel = new Label("Y Scale: ");
+        Label yLabel = new Label("Set Y Bound");
         TextField yAxeInput = new TextField();
         yAxeInput.setPromptText("Current Y axis Tick unit: " + yAxis.getTickUnit());
         yHBox.getChildren().addAll(yLabel, yAxeInput);
@@ -1097,18 +1114,9 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
                 System.out.println("X Field text: " + xAxeInput.getText());
                 System.out.println("y Field text: " + yAxeInput.getText());
 
-                xAxis.setTickUnit(Double.parseDouble(xAxeInput.getText()));
-                yAxis.setTickUnit(Double.parseDouble(yAxeInput.getText()));
-//                redrawGraph(series, geomVsEnergyChart);
-//                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
-//                GridPane.setConstraints(list, 0, 0);
-//                GridPane.setConstraints(geomVsEnergyChart, 1, 0);
-//                GridPane.setConstraints(navBtnsHBox, 1, 2);
-//                geomGrid.getChildren().clear();
-//                geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
-//                gridScene = new Scene(geomGrid, 1000, 1000);
-//                stage.setScene(gridScene);
-//                stage.show();
+                xAxis.setUpperBound(Double.parseDouble(xAxeInput.getText()));
+                yAxis.setUpperBound(Double.parseDouble(yAxeInput.getText()));
+
             }
         }));
 
