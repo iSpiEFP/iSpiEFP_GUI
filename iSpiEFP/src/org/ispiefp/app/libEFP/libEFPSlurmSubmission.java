@@ -1,17 +1,13 @@
 package org.ispiefp.app.libEFP;
 
-import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.SCPClient;
-import ch.ethz.ssh2.SCPOutputStream;
-import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.server.ServerInfo;
+import org.ispiefp.app.util.UserPreferences;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
@@ -33,30 +29,19 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
         this.mem = mem;
     }
 
-    File createSubmissionScript() throws IOException {
-        String template = String.format(
-                "#!/bin/bash\n" +
-                        "#SBATCH -o %s\n" +
-                        "#SBATCH -A %s\n" +
-                        "#SBATCH -N %d\n" +
-                        "#SBATCH -n %d\n" +
-                        "#SBATCH -t %s\n" +
-                        "#SBATCH --mem=%d\n" +
-                        "%s %s > %s\n",
-                REMOTE_LIBEFP_OUT + schedulerOutputName + ".stdout",
-                queueName, numNodes, numProcessors, walltime, mem, efpmdPath,
-                REMOTE_LIBEFP_IN + inputFilePath,
-                REMOTE_LIBEFP_OUT + outputFilename
-        );
+    public libEFPSlurmSubmission(ServerInfo server){
+        super(server);
+    }
 
+    File createSubmissionScript(String input) throws IOException {
         File submissionScript = new File("submission.slurm");
-        FileUtils.writeStringToFile(submissionScript, template, Charset.forName("UTF-8"));
+        FileUtils.writeStringToFile(submissionScript, input, Charset.forName("UTF-8"));
         return submissionScript;
     }
 
     public String getSubmissionScriptText(){
         return String.format(
-                "#!/bin/bash\n" +
+                "#!/bin/csh\n" +
                         "#SBATCH -o %s\n" +
                         "#SBATCH -A %s\n" +
                         "#SBATCH -N %d\n" +
@@ -65,23 +50,22 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
                         "#SBATCH --mem=%d\n" +
                         "%s %s > %s\n",
                 REMOTE_LIBEFP_OUT + schedulerOutputName,
-                queueName, numNodes, numProcessors, walltime, mem, efpmdPath,
-                REMOTE_LIBEFP_IN + inputFilePath,
+                queueName, numNodes, numProcessors, walltime,
+                mem, efpmdPath,
+                REMOTE_LIBEFP_IN  + inputFilePath,
                 REMOTE_LIBEFP_OUT + outputFilename
         );
     }
 
     public void prepareJob(String efpmdPath, String inputFilePath, String outputFilename){
-        this.efpmdPath = efpmdPath;
         this.inputFilePath = inputFilePath;
-        this.outputFilename = outputFilename + ".out";
-        schedulerOutputName = outputFilename + ".stdout";
+
     }
 
-    public String submit() {
+    public String submit(String input) {
         String jobID = UUID.randomUUID().toString();
         try {
-            File submissionScript = createSubmissionScript();
+            File submissionScript = createSubmissionScript(input);
             Connection con = new Connection(hostname);
             con.connect();
             boolean isAuthenticated = con.authenticateWithPassword(username, password);
@@ -98,9 +82,10 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
             in.close();
             scpos.close();
             Session s = con.openSession();
-            String cdCommand = "cd " + REMOTE_LIBEFP_DIR;
-            String queueCommand = String.format("sbatch %s", REMOTE_LIBEFP_IN + remoteFileName);
-            s.execCommand(String.format("%s; %s", cdCommand, queueCommand));
+            String queueCommand = String.format("sbatch %s%n", REMOTE_LIBEFP_IN + remoteFileName);
+            s.execCommand(queueCommand);
+            System.out.println("Executed command: " + queueCommand);
+            s.close();
             return jobID;
         } catch (IOException e){
             e.printStackTrace();

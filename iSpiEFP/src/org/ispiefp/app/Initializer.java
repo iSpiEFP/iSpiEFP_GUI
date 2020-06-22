@@ -45,6 +45,8 @@ public class Initializer {
               deleteDirectory(new File(LocalBundleManager.META_DATA_GENERATION));
           }
         });
+        Thread thread = new Thread(UserPreferences.getJobsMonitor());
+        thread.start();
     }
 
     /**

@@ -10,36 +10,53 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Text?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
+<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.libEFPInputController">
     <Tab text="main">
-        <SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="450.0" prefWidth="600.0">
+        <SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="591.0" prefWidth="600.0">
             <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="270.0" prefWidth="600.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="512.0" prefWidth="600.0">
                     <children>
-                        <Text layoutX="35.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title:" />
-                        <TextField fx:id="title" layoutX="134.0" layoutY="19.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="409.0" promptText="Enter title" />
-                        <Text layoutX="35.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Type:" />
-                        <ComboBox fx:id="run_type" layoutX="133.0" layoutY="66.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="114.0" />
-                        <Text layoutX="35.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Format:" />
-                        <ComboBox fx:id="format" layoutX="133.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="113.0" />
+                  <Text layoutX="23.0" layoutY="308.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pairwise analysis" />
+                  <ComboBox layoutX="150.0" layoutY="290.0" prefWidth="150.0" />
+                  <Text layoutX="27.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Load a preset" />
+                  <ComboBox fx:id="run_type1" layoutX="133.0" layoutY="76.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="114.0" />
+                        <Text layoutX="22.0" layoutY="60.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title:" />
+                        <TextField fx:id="title" layoutX="66.0" layoutY="42.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="246.0" promptText="Enter title" />
+                        <Text layoutX="28.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Type:" />
+                        <ComboBox fx:id="run_type" layoutX="133.0" layoutY="11.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="114.0" />
+                        <Text layoutX="51.0" layoutY="258.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Format:" />
+                        <ComboBox fx:id="format" layoutX="131.0" layoutY="232.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="113.0" />
                         <Text layoutX="34.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elec Damp:" />
-                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="114.0" promptText="0" />
-                        <Text layoutX="334.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />
-                        <Text layoutX="334.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp:" />
-                        <CheckComboBox fx:id="terms" layoutX="462.0" layoutY="114.0" prefHeight="25.0" prefWidth="103.0" />
-                        <ComboBox fx:id="pol_damp" layoutX="464.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
-                        <Text layoutX="33.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />
-                        <ComboBox fx:id="disp_damp" layoutX="133.0" layoutY="189.0" prefHeight="27.0" prefWidth="113.0" />
-                        <Text layoutX="333.0" layoutY="207.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />
-                        <ComboBox fx:id="pol_solver" layoutX="464.0" layoutY="189.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
-                        <Text layoutX="37.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server:" />
-                        <ComboBox fx:id="serversList" layoutX="133.0" layoutY="224.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="113.0" />
-                        <Text layoutX="334.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto Submission: " />
-                        <ComboBox fx:id="auto_sub" layoutX="464.0" layoutY="224.0" prefHeight="27.0" prefWidth="105.0" />
-                        <TextArea fx:id="libEFPInputTextArea" layoutX="35.0" layoutY="276.0" prefHeight="122.0" prefWidth="536.0" />
+                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="28.0" promptText="0" />
+                        <Text layoutX="323.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />
+                        <Text layoutX="194.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp:" />
+                        <CheckComboBox fx:id="terms" layoutX="465.0" layoutY="76.0" prefHeight="25.0" prefWidth="103.0" />
+                        <ComboBox fx:id="pol_damp" layoutX="261.0" layoutY="151.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="31.0" promptText="1" />
+                        <Text layoutX="329.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />
+                        <ComboBox fx:id="disp_damp" layoutX="420.0" layoutY="151.0" prefHeight="27.0" prefWidth="113.0" />
+                        <Text layoutX="333.0" layoutY="258.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />
+                        <ComboBox fx:id="pol_solver" layoutX="465.0" layoutY="240.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+                  <Text layoutX="22.0" layoutY="355.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Optimization / MD steps:" />
+                        <Text layoutX="31.0" layoutY="391.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server:" />
+                        <ComboBox fx:id="serversList" layoutX="134.0" layoutY="373.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="113.0" />
+                        <Text layoutX="310.0" layoutY="391.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto Submission: " />
+                        <ComboBox fx:id="auto_sub" layoutX="462.0" layoutY="373.0" prefHeight="27.0" prefWidth="105.0" />
+                        <TextArea fx:id="libEFPInputTextArea" layoutX="32.0" layoutY="409.0" prefHeight="122.0" prefWidth="536.0" />
+                  <TextField fx:id="title1" layoutX="187.0" layoutY="337.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="246.0" />
+                  <Line endX="700.0" layoutX="0.0" layoutY="325.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
+                  <Line endX="700.0" layoutX="10.0" layoutY="110.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
+                  <Line endX="700.0" layoutX="10.0" layoutY="370.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
+                        <Line endX="700.0" layoutX="10.0" layoutY="280.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
+                        <Line endX="700.0" layoutX="10.0" layoutY="200.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
+                  <Text layoutX="333.0" layoutY="308.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ligand:" />
+                  <TextField fx:id="title11" layoutX="466.0" layoutY="290.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="119.0" />
+                  <Text layoutX="22.0" layoutY="141.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Short-range dampings" wrappingWidth="177.43310546875" />
+
                     </children>
                     <padding>
                         <Insets bottom="8.0" />
@@ -82,22 +99,22 @@
             <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="120.0" prefWidth="160.0">
                     <children>
-                        <Text layoutX="35.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ensemble:" />
-                        <ComboBox fx:id="ensemble" layoutX="133.0" layoutY="57.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
-                        <Text layoutX="338.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Assign initial velocities:" />
-                        <ComboBox fx:id="velocitize" layoutX="497.0" layoutY="57" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="100.0" />
-                        <Text layoutX="35.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Time step: " />
-                        <TextField fx:id="time_step" layoutX="133.0" layoutY="86.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
-                        <Text layoutX="35.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Simulation temperature:" />
-                        <TextField fx:id="temperature" layoutX="183.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />
-                        <Text layoutX="338.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Print step:" />
-                        <Text layoutX="338.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Simulation pressure:" />
-                        <TextField fx:id="print_step" layoutX="412.0" layoutY="86.0" prefHeight="25.0" prefWidth="103.0" />
-                        <TextField fx:id="pressure" layoutX="492.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
-                        <Text layoutX="35.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thermostat parameter:" />
-                        <TextField fx:id="thermostat_tau" layoutX="180.0" layoutY="142.0" prefHeight="25.0" prefWidth="110.0" />
-                        <Text layoutX="338.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Barostat parameter:" />
-                        <TextField fx:id="barostat_tau" layoutX="492.0" layoutY="142.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                        <Text layoutX="34.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ensemble:" />
+                        <ComboBox fx:id="ensemble" layoutX="154.0" layoutY="24.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
+                        <Text layoutX="34.0" layoutY="182.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Random initial velocities:" />
+                        <ComboBox fx:id="velocitize" layoutX="200.0" layoutY="164.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="100.0" />
+                        <Text layoutX="32.0" layoutY="145.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Time step: " />
+                        <TextField fx:id="time_step" layoutX="199.0" layoutY="127.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                        <Text layoutX="32.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Temperature:" />
+                        <TextField fx:id="temperature" layoutX="199.0" layoutY="56.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />
+                        <Text layoutX="328.0" layoutY="145.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Print step:" />
+                        <Text layoutX="32.0" layoutY="112.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pressure:" />
+                        <TextField fx:id="print_step" layoutX="463.0" layoutY="127.0" prefHeight="25.0" prefWidth="103.0" />
+                        <TextField fx:id="pressure" layoutX="199.0" layoutY="94.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
+                        <Text layoutX="332.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thermostat:" />
+                        <TextField fx:id="thermostat_tau" layoutX="464.0" layoutY="56.0" prefHeight="27.0" prefWidth="100.0" />
+                        <Text layoutX="332.0" layoutY="112.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Barostat:" />
+                        <TextField fx:id="barostat_tau" layoutX="463.0" layoutY="94.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
 
                     </children>
                     <padding>

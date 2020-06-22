@@ -518,12 +518,16 @@ public class MainViewController {
     }
 
     public void editSelectAll() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos on");
         jmolMainPanel.viewer.runScript("select all");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void editSelectNone() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos off");
         jmolMainPanel.viewer.runScript("select none");
+        jmolMainPanel.repaint();
     }
 
     /******************************************************************************************
@@ -566,7 +570,8 @@ public class MainViewController {
 
     @FXML
     public void viewCenter() throws IOException {
-        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+//        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+        jmolMainPanel.viewer.runScript("moveto 0 {0 0 1} 0");
         jmolMainPanel.repaint();
     }
 
@@ -705,27 +710,22 @@ public class MainViewController {
 
     @FXML
     public void calculateLibefpHistory () throws IOException {
-        LoginForm loginForm = new LoginForm("LIBEFP");
-        boolean authorized = loginForm.authenticate();
-        if (authorized) {
-            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "views/submissionHistory.fxml"
+                            "/views/submissionHistory.fxml"
                     )
             );
-            loader.setController(controller);
             Stage stage = new Stage(StageStyle.DECORATED);
             stage.setScene(
                     new Scene(
                             loader.load()
                     )
             );
-            stage.initModality(Modality.WINDOW_MODAL);
+        SubmissionHistoryController controller = loader.getController();
+        stage.initModality(Modality.WINDOW_MODAL);
             stage.setTitle("Submission History");
             stage.show();
         }
-    }
 
 
     @FXML
@@ -770,14 +770,41 @@ public class MainViewController {
         stage.show();
     }
 
-    /******************************************************************************************
-     *             HELP MENU BEGINS                                                           *
-     ******************************************************************************************/
-    @FXML
-    public void helpCheckForUpdates () throws IOException {
-        //TODO
-        //This is currently disabled in the fxml doc since it is not currently operational
-    }
+            /******************************************************************************************
+             *             HELP MENU BEGINS                                                           *
+             ******************************************************************************************/
+            @FXML
+            public void helpCheckForUpdates () throws IOException {
+                //TODO
+                //This is currently disabled in the fxml doc since it is not currently operational
+                CheckUpdates checkUpdates = new CheckUpdates();
+                System.out.println(checkUpdates.getUpdates());
+                String updates = checkUpdates.getUpdates();
+                /*if (updates != null && updates.compareTo("") != 0) {
+                    String[] components = updates.split("-");
+                    if (components.length > 1) {
+                        //JOptionPane.showMessageDialog(null, "You are using version x, which is older" +
+                        //      " than version y", "Updates", JOptionPane.INFORMATION_MESSAGE);
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version " +
+                                                components[0] + ", which is" + components[1] + " commits behind the" +
+                                                " most recent version.", ButtonType.OK);
+                        alert.showAndWait();
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version " +
+                                                components[0] + ", which is the most recent version.", ButtonType.OK);
+                        alert.showAndWait();
+                    }
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Error: could not access version number.",
+                                            ButtonType.OK);
+                    alert.showAndWait();
+                }*/
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version 1.0.0, the most" +
+                        " recent version", ButtonType.OK);
+                alert.showAndWait();
+
+                return;
+            }
 
     @FXML
     public void helpAbout () throws IOException {
