@@ -29,6 +29,7 @@ import org.ispiefp.app.util.UserPreferences;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
@@ -55,6 +56,8 @@ public class SettingsViewController {
     @FXML private CheckBox hasLibEFPButton;
     @FXML private CheckBox hasGAMESSButton;
     @FXML private ChoiceBox scheduler;
+    @FXML private TextField addQueueField;
+    @FXML private ChoiceBox defaultQueue;
 
     /*Fields for persistent scene */
     @FXML private VBox settingsBox;
@@ -231,6 +234,7 @@ public class SettingsViewController {
         username.setText(si.getUsername());
         password.setText(si.getPassword());
         scheduler.setValue(si.getScheduler());
+        defaultQueue.getItems().setAll(si.getQueues());
         if (si.hasGAMESS()) {
             hasGAMESSButton.setSelected(true);
             GAMESSInstallationPath.setText(si.getGamessPath());
@@ -244,6 +248,32 @@ public class SettingsViewController {
         } else {
             hasLibEFPButton.setSelected(false);
             libEFPInstallationPath.setDisable(true);
+        }
+    }
+
+    @FXML
+    private void addNewQueue(){
+        try{
+            ServerInfo si = UserPreferences.getServers().get(alias.getText());
+            si.addQueue(addQueueField.getText());
+        } catch(NullPointerException e){
+            System.err.println("Caught a null pointer exception. Alias likely null");
+        } catch (NoSuchElementException e){
+            System.err.println("The server has not yet been saved and therefore does not exist in the hashmap");
+            defaultQueue.getItems().add(addQueueField.getText());
+        }
+    }
+
+    @FXML
+    private void deleteQueue(){
+        try{
+            ServerInfo si = UserPreferences.getServers().get(alias.getText());
+            si.deleteQueue(addQueueField.getText());
+        } catch(NullPointerException e){
+            System.err.println("Caught a null pointer exception. Alias likely null");
+        } catch (NoSuchElementException e){
+            System.err.println("The server has not yet been saved and therefore does not exist in the hashmap");
+            defaultQueue.getItems().remove(addQueueField.getText());
         }
     }
 
