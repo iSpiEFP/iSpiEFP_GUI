@@ -20,7 +20,7 @@
         <AnchorPane fx:id="anchor" minHeight="400.0" minWidth="900.0" prefHeight="700.0" prefWidth="1200.0">
             <VBox prefHeight="679.0" prefWidth="248.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <TreeView fx:id="menuTree" prefHeight="655.0" prefWidth="248.0" showRoot="false">
-                    <TreeItem fx:id="topLeveLSettings" value="Settings">
+                    <TreeItem fx:id="topLeveLSettings" value="Settings" >
                         <children>
                             <TreeItem fx:id="defaultPaths" value="Default Paths" />
                             <TreeItem fx:id="serverSettings" value="Servers">

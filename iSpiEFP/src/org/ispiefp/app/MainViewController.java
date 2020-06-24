@@ -13,12 +13,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
+import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.util.*;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
@@ -32,7 +36,10 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -134,7 +141,8 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    public ListView historyListView;
+    @FXML private TreeView historyTreeView;
+    @FXML private TreeItem historyRoot;
 
     //private UserPreferences userPrefs = new UserPreferences();
 
@@ -174,6 +182,43 @@ public class MainViewController {
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
 
+        /* Populate the historyTreeView */
+        JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
+        historyRoot.setValue("Jobs");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        Date currentTime = new Date();
+        System.out.println(currentTime.getTime());
+        for (int i = 0; i < jobsMonitor.getJobs().size(); i++){
+            JobManager jm = jobsMonitor.getJobs().get(i);
+            Text idText = new Text(jm.getJobID());
+            TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
+            TreeItem<Text> jobStatusTreeItem = new TreeItem<>(null);
+            if (jm.getStatus().equalsIgnoreCase("COMPLETE")){
+                Text statusText = new Text("Status: " + jm.getStatus());
+                statusText.setFill(Color.GREEN);
+                jobStatusTreeItem = new TreeItem<>(statusText);
+            } else {
+                try {
+                    Date submissionTime = dateFormatter.parse(jm.getDate());
+                    long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
+                    long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
+                    long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
+                    remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
+                    long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
+                    remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
+                    long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
+
+                    String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
+                    Text timeText = new Text(runningTimeString);
+                    timeText.setFill(Color.GOLD);
+                    jobStatusTreeItem = new TreeItem<>(timeText);
+                } catch (ParseException e) {
+                    System.err.println("Was unable to parse the time of submission in its current format");
+                }
+            }
+            historyRoot.getChildren().add(jobIDTreeItem);
+            jobIDTreeItem.getChildren().add(jobStatusTreeItem);
+        }
     }
 
     /**

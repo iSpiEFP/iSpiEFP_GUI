@@ -685,7 +685,7 @@ public class libEFPInputController implements Initializable {
             currentTime = dateFormat.format(date).toString();
             submission.submit(subScriptCont.getUsersSubmissionScript());
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), time, "QUEUE", "LIBEFP");
+            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), currentTime, "QUEUE", "LIBEFP");
             UserPreferences.getJobsMonitor().addJob(jobManager);
 //            UserPreferences.getJobsMonitor().run();
             Stage currentStage = (Stage) root.getScene().getWindow();

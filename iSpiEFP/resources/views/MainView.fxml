@@ -172,7 +172,9 @@
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <ListView fx:id="historyListView" />
+                <TreeView fx:id="historyListView">
+                    <TreeItem fx:id="historyRoot" expanded="true" />
+                </TreeView>
             </VBox>
             <SplitPane fx:id="middleRightSplitPane" dividerPositions="0.5">
                 <Pane fx:id="middlePane" />
