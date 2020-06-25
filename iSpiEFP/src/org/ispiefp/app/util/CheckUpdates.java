@@ -35,6 +35,7 @@ public class CheckUpdates {
 //                }
 //                versions[0] += temp;
 //            }
+
             versions[0] = br.readLine();
             br.close();
             fr.close();
