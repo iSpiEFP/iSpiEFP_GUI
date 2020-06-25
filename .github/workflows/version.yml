@@ -7,7 +7,7 @@ name: updateVersion
 # that matches the regular expression below
 on:
   push:
-    tags: '[0-9].[0-9].*'
+    tags: '*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,4 +25,4 @@ jobs:
     - name: Update version file
       run: |
         rm iSpiEFP/resources/userVersion.txt
-        echo $(git describe) > iSpiEFP/resources/userVersion.txt
+        echo $(git tag) > iSpiEFP/resources/userVersion.txt
