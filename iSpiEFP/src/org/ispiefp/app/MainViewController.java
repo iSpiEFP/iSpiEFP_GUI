@@ -784,17 +784,14 @@ public class MainViewController {
                 }
                 Alert alert;
                 if (versions[0].compareTo(versions[1]) == 0) {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "You are using version " +
-                            versions[0] + ", which is the most recent version.", ButtonType.OK);
+                    alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                                      + versions[0], ButtonType.OK);
                 } else {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "You are using version " +
-                            versions[0] + ", while the most recent version is " + versions[1], ButtonType.OK);
+                    alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                                      versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
                 }
                 alert.showAndWait();
-//                Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version 1.0.0, the most" +
-//                        " recent version", ButtonType.OK);
-//                alert.showAndWait();
-
+                //jmolMainPanel.repaint();
                 return;
             }
 

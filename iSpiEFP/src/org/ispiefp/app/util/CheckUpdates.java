@@ -27,7 +27,17 @@ public class CheckUpdates {
             File file = new File("iSpiEFP/resources/userVersion.txt");
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
+//            String temp;
+//            while (true) {
+//                temp = br.readLine();
+//                if (temp == null) {
+//                    break;
+//                }
+//                versions[0] += temp;
+//            }
             versions[0] = br.readLine();
+            br.close();
+            fr.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
