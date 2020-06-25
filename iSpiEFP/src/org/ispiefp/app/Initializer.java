@@ -36,7 +36,6 @@ public class Initializer {
         bundleManager.manageLocal();
         UserPreferences preferences = new UserPreferences();
         preferences.initializePreferences();
-        UserPreferences.clearJobsMonitor();
         Main.fragmentTree = new LocalFragmentTree();
         generateMetas(UserPreferences.getUserParameterPath());
         addMetasToTree();

@@ -100,7 +100,7 @@ public class JobsMonitor implements Runnable {
     }
 
     public void saveRecord(JobManager jm){
-        records.get(jm.getJobID()).setStatus("COMPLETE");
+        records.get (jm.getJobID()).setStatus("COMPLETE");
         records.get(jm.getJobID()).setOutputFilePath(jm.getOutputFilename());
         records.get(jm.getJobID()).setStdoutputFilePath(jm.getStdoutputFilename());
     }

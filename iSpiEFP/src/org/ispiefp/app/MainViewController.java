@@ -4,6 +4,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -183,42 +184,73 @@ public class MainViewController {
         libefpButton.setDisable(true);
 
         /* Populate the historyTreeView */
-        JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
-        historyRoot.setValue("Jobs");
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-        Date currentTime = new Date();
-        System.out.println(currentTime.getTime());
-        for (int i = 0; i < jobsMonitor.getJobs().size(); i++){
-            JobManager jm = jobsMonitor.getJobs().get(i);
-            Text idText = new Text(jm.getJobID());
-            TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
-            TreeItem<Text> jobStatusTreeItem = new TreeItem<>(null);
-            if (jm.getStatus().equalsIgnoreCase("COMPLETE")){
-                Text statusText = new Text("Status: " + jm.getStatus());
-                statusText.setFill(Color.GREEN);
-                jobStatusTreeItem = new TreeItem<>(statusText);
-            } else {
-                try {
-                    Date submissionTime = dateFormatter.parse(jm.getDate());
-                    long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
-                    long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
-                    long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
-                    remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
-                    long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
-                    remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
-                    long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
+        class HistoryTreeUpdater extends Task<TreeView<String>> {
+            private TreeView<String> t;
+            private HashMap<String, TreeItem> tMap;
 
-                    String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
-                    Text timeText = new Text(runningTimeString);
-                    timeText.setFill(Color.GOLD);
-                    jobStatusTreeItem = new TreeItem<>(timeText);
-                } catch (ParseException e) {
-                    System.err.println("Was unable to parse the time of submission in its current format");
+            public HistoryTreeUpdater(TreeView<String> s){
+                t = s;
+                tMap = new HashMap<>();
+            }
+
+            /*
+            It is key to remember in this function the indices of the informative children nodes for a jo. I list them here:
+            0 - job status
+             */
+            @Override
+            protected TreeView<String> call() throws Exception {
+                JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
+                historyRoot.setValue("Jobs");
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
+                System.out.printf("Size of tMap is currently %d%n", tMap.size());
+                while (true){
+                    if (tMap.size() < jobsMonitor.getJobs().size()){
+                        for (int i = 0; i < jobsMonitor.getJobs().size(); i++){
+                            JobManager jm = jobsMonitor.getJobs().get(i);
+                            Text idText = new Text(jm.getJobID());
+                            TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
+                            historyRoot.getChildren().add(jobIDTreeItem);
+                            if (!tMap.containsKey(jobsMonitor.getJobs().get(i).getJobID())){
+                                tMap.put(jobsMonitor.getJobs().get(i).getJobID(), jobIDTreeItem);
+                                jobIDTreeItem.getChildren().add(0, new TreeItem<Text>());
+                            }
+                        }
+                    }
+                    Date currentTime = new Date();
+                    for (int i = 0; i < jobsMonitor.getJobs().size(); i++){
+                        JobManager jm = jobsMonitor.getJobs().get(i);
+                        TreeItem<Text> jobIDTreeItem = tMap.get(jm.getJobID());
+                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
+                        if (jm.getStatus().equalsIgnoreCase("COMPLETE")){
+                            Text statusText = new Text("Status: " + jm.getStatus());
+                            statusText.setFill(Color.GREEN);
+                            jobStatusTreeItem.setValue(statusText);
+                        } else {
+                            try {
+                                Date submissionTime = dateFormatter.parse(jm.getDate());
+                                long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
+                                long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
+                                long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
+                                remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
+                                long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
+                                remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
+                                long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
+
+                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
+                                Text timeText = new Text(runningTimeString);
+                                timeText.setFill(Color.GOLD);
+                                jobStatusTreeItem.setValue(timeText);
+                            } catch (ParseException e) {
+                                System.err.println("Was unable to parse the time of submission in its current format");
+                            }
+                        }
+                    }
                 }
             }
-            historyRoot.getChildren().add(jobIDTreeItem);
-            jobIDTreeItem.getChildren().add(jobStatusTreeItem);
         }
+        Task<TreeView<String>> historyTreeUpdater = new HistoryTreeUpdater(historyTreeView);
+        new Thread(historyTreeUpdater).start();
     }
 
     /**
