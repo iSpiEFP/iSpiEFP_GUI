@@ -774,35 +774,24 @@ public class MainViewController {
              *             HELP MENU BEGINS                                                           *
              ******************************************************************************************/
             @FXML
-            public void helpCheckForUpdates () throws IOException {
+            public void helpCheckForUpdates() throws IOException {
                 //TODO
                 //This is currently disabled in the fxml doc since it is not currently operational
                 CheckUpdates checkUpdates = new CheckUpdates();
-                System.out.println(checkUpdates.getUpdates());
-                String updates = checkUpdates.getUpdates();
-                /*if (updates != null && updates.compareTo("") != 0) {
-                    String[] components = updates.split("-");
-                    if (components.length > 1) {
-                        //JOptionPane.showMessageDialog(null, "You are using version x, which is older" +
-                        //      " than version y", "Updates", JOptionPane.INFORMATION_MESSAGE);
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version " +
-                                                components[0] + ", which is" + components[1] + " commits behind the" +
-                                                " most recent version.", ButtonType.OK);
-                        alert.showAndWait();
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version " +
-                                                components[0] + ", which is the most recent version.", ButtonType.OK);
-                        alert.showAndWait();
-                    }
+                String[] versions = checkUpdates.getVersions();
+                if (versions.length != 2) {
+                    throw new IOException();
+                }
+                Alert alert;
+                if (versions[0].compareTo(versions[1]) == 0) {
+                    alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                                      + versions[0], ButtonType.OK);
                 } else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "Error: could not access version number.",
-                                            ButtonType.OK);
-                    alert.showAndWait();
-                }*/
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are using version 1.0.0, the most" +
-                        " recent version", ButtonType.OK);
+                    alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                                      versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
+                }
                 alert.showAndWait();
-
+                //jmolMainPanel.repaint();
                 return;
             }
 

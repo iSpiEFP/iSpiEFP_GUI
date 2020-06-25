@@ -89,7 +89,7 @@
 
                     <Menu mnemonicParsing="false" text="Help">
                         <items>
-                            <MenuItem disable="true" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
+                            <MenuItem disable="false" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
                             <MenuItem mnemonicParsing="false" onAction="#helpAbout" text="About" />
                             <SeparatorMenuItem mnemonicParsing="false" />
                             <MenuItem mnemonicParsing="false" onAction="#helpJmolWiki" text="Jmol Wiki" />
