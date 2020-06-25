@@ -1,0 +1,28 @@
+# This workflow updates the file containing the version number
+# on any push that contains a tag with a version number
+
+name: updateVersion
+
+# Controls when the action will run. Triggers the workflow on any push
+# that matches the regular expression below
+on:
+  push:
+    tags: '[0-9].[0-9].*'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "updateVersionFile"
+  updateVersionFile:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    # Updates the file using the runners shell
+    - name: Update version file
+      run: |
+        rm resources/userVersion.txt
+        echo $(git describe) > resources/userVersion.txt
