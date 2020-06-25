@@ -25,4 +25,4 @@ jobs:
     - name: Update version file
       run: |
         rm ./iSpiEFP/resources/userVersion.txt
-    # echo $(git tag) > ./iSpiEFP/resources/userVersion.txt
+        echo $(git tag) > ./iSpiEFP/resources/userVersion.txt
