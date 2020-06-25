@@ -24,6 +24,7 @@ import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.submission.JobsMonitor;
+import org.ispiefp.app.submission.SubmissionRecord;
 import org.ispiefp.app.util.*;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
@@ -40,6 +41,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
@@ -200,35 +203,44 @@ public class MainViewController {
             @Override
             protected TreeView<String> call() throws Exception {
                 JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
+                HashSet<String> accountedForJobs = new HashSet<>();
+                ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
                 historyRoot.setValue("Jobs");
                 SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                 System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
                 System.out.printf("Size of tMap is currently %d%n", tMap.size());
+                System.out.printf("Size of records is currently %d%n", records.size());
                 while (true){
-                    if (tMap.size() < jobsMonitor.getJobs().size()){
-                        for (int i = 0; i < jobsMonitor.getJobs().size(); i++){
-                            JobManager jm = jobsMonitor.getJobs().get(i);
-                            Text idText = new Text(jm.getJobID());
-                            TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
-                            historyRoot.getChildren().add(jobIDTreeItem);
-                            if (!tMap.containsKey(jobsMonitor.getJobs().get(i).getJobID())){
-                                tMap.put(jobsMonitor.getJobs().get(i).getJobID(), jobIDTreeItem);
-                                jobIDTreeItem.getChildren().add(0, new TreeItem<Text>());
+                    if (tMap.size() < records.size()){
+                        Enumeration<String> recordEnumeration = records.keys();
+                        while (recordEnumeration.hasMoreElements()){
+                            String currentRecordName = recordEnumeration.nextElement();
+                            if (!accountedForJobs.contains(currentRecordName)) {
+                                accountedForJobs.add(currentRecordName);
+                                Text idText = new Text(currentRecordName);
+                                TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
+                                historyRoot.getChildren().add(jobIDTreeItem);
+                                if (!tMap.containsKey(currentRecordName)) {
+                                    tMap.put(currentRecordName, jobIDTreeItem);
+                                    jobIDTreeItem.getChildren().add(0, new TreeItem<Text>());
+                                }
                             }
                         }
                     }
                     Date currentTime = new Date();
-                    for (int i = 0; i < jobsMonitor.getJobs().size(); i++){
-                        JobManager jm = jobsMonitor.getJobs().get(i);
-                        TreeItem<Text> jobIDTreeItem = tMap.get(jm.getJobID());
+                    Enumeration<String> recordEnumeration = records.keys();
+                    while (recordEnumeration.hasMoreElements()){
+                        String currentRecordName = recordEnumeration.nextElement();
+                        SubmissionRecord currentRecord = records.get(currentRecordName);
+                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
                         TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
-                        if (jm.getStatus().equalsIgnoreCase("COMPLETE")){
-                            Text statusText = new Text("Status: " + jm.getStatus());
+                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")){
+                            Text statusText = new Text("Status: " + currentRecord.getStatus());
                             statusText.setFill(Color.GREEN);
                             jobStatusTreeItem.setValue(statusText);
                         } else {
                             try {
-                                Date submissionTime = dateFormatter.parse(jm.getDate());
+                                Date submissionTime = dateFormatter.parse(currentRecord.getTime());
                                 long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
                                 long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
                                 long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
@@ -246,11 +258,21 @@ public class MainViewController {
                             }
                         }
                     }
+                    Thread.sleep(500);
                 }
             }
         }
         Task<TreeView<String>> historyTreeUpdater = new HistoryTreeUpdater(historyTreeView);
         new Thread(historyTreeUpdater).start();
+        MenuItem deleteRecordOption = new MenuItem("Delete Job");
+        deleteRecordOption.setOnAction(action -> {
+            UserPreferences.getJobsMonitor().deleteRecord(
+                    UserPreferences.getJobsMonitor().getRecords().get(
+                            ((TreeItem<Text>)historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText()
+            ));
+            System.out.println("Selected item is of class: " + ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText());
+        });
+        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption));
     }
 
     /**

@@ -172,7 +172,7 @@
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <TreeView fx:id="historyListView">
+                <TreeView fx:id="historyTreeView">
                     <TreeItem fx:id="historyRoot" expanded="true" />
                 </TreeView>
             </VBox>

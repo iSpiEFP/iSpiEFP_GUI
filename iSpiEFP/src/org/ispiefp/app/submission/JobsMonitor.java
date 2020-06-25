@@ -100,7 +100,7 @@ public class JobsMonitor implements Runnable {
     }
 
     public void saveRecord(JobManager jm){
-        records.get (jm.getJobID()).setStatus("COMPLETE");
+        records.get(jm.getJobID()).setStatus("COMPLETE");
         records.get(jm.getJobID()).setOutputFilePath(jm.getOutputFilename());
         records.get(jm.getJobID()).setStdoutputFilePath(jm.getStdoutputFilename());
     }
@@ -115,7 +115,6 @@ public class JobsMonitor implements Runnable {
 
     public void deleteRecord(SubmissionRecord record){
         records.remove(record.getJob_id());
-//        jobs.remove()
     }
 
 //    public void connectSubmissionToJobManager(SubmissionRecord record, JobManager jm){
