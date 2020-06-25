@@ -24,5 +24,5 @@ jobs:
     # Updates the file using the runners shell
     - name: Update version file
       run: |
-        rm resources/userVersion.txt
-        echo $(git describe) > resources/userVersion.txt
+        rm iSpiEFP/resources/userVersion.txt
+        echo $(git describe) > iSpiEFP/resources/userVersion.txt
