@@ -38,7 +38,7 @@
 
         </GridPane>
         <VBox prefHeight="-Infinity" prefWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Preview" style="-fx-font-size: 20px" />
+            <Text fx:id="currentlyVisualizedFile" text="Currently Visualized File: None" style="-fx-font-size: 20px" />
             <Pane fx:id="previewPane" VBox.vgrow="ALWAYS"/>
         </VBox>
         <TextArea fx:id="fileContentsTextArea" prefHeight="244.0" prefWidth="600.0"

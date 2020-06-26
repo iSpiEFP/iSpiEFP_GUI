@@ -22,6 +22,7 @@ public class JobViewController {
     @FXML private Text finishTime;
     @FXML private Text outputFile;
     @FXML private Text errorFile;
+    @FXML private Text currentlyVisualizedFile;
 
     /* Fields controlling drop down options */
     @FXML private ComboBox<String> usedEFPFiles;
@@ -71,6 +72,7 @@ public class JobViewController {
         String fileContents = null;
         try {
             fileContents = FileUtils.readFileToString(new File(filePath), "UTF-8");
+            currentlyVisualizedFile.setText("Currently Visualized File: " + filePath);
         } catch(IOException e) {
             System.err.printf("Could not read the file: %s%n", filePath);
         }
