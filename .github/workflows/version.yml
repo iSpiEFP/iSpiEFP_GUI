@@ -25,4 +25,14 @@ jobs:
     - name: Update version file
       run: |
         rm ./iSpiEFP/resources/userVersion.txt
-    # echo $(git tag) > ./iSpiEFP/resources/userVersion.txt
+        echo $(git tag) > ./iSpiEFP/resources/userVersion.txt
+    - name: Commiting changes
+      run: |
+        git config --local user.name  ${{ github.actor }}
+        git add ./libraryMeta.json
+        git commit -m "automated re-building of libraryMeta.json"
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        force: true
