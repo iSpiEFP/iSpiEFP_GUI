@@ -993,22 +993,28 @@ stage.show();
 
     public void VisualizeLibEFPResultFile() {
         try {
-            File outFile = new File("test.out");
+            File outFile = new File("iSpiEFP/w6b2_md.out");
             File tempOutFile = new File("testTemp.xyz");
 
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
             BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
 
             boolean finalState = false;
+            boolean singlePointState = false;
             int count = 0;
             String finalOut = "";
+            int maxStep = 0;
 
             while (true) {
                 String line = bufferedReader.readLine();
                 if (line == null) break;
+                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
                 else if (line.contains("FINAL STATE")) finalState = true;
+                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) finalState = true;
                 else if (line.contains("RESTART DATA")) finalState = false;
-                else if (finalState) {
+                else if (line.contains("SINGLE POINT ENERGY JOB")) singlePointState = true;
+                else if (line.contains("ENERGY COMPONENTS (ATOMIC UNITS)")) singlePointState = false;
+                else if (finalState || singlePointState) {
                     if (!line.contains("GEOMETRY") && !line.equals("")) {
                         String[] unprocessedLine = line.split(" ");
                         for (String s : unprocessedLine) {
