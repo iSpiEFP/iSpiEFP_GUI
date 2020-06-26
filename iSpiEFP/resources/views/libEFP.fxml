@@ -15,18 +15,19 @@
 <?import javafx.scene.control.Label?>
 
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
-<TabPane minHeight="500.0" minWidth="600.0" fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.libEFPInputController">
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.VBox?>
+<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.libEFPInputController">
     <Tab text="main">
         <VBox maxWidth="Infinity" spacing="10">
-<!--        <SplitPane dividerPositions="0.5, 0.5" maxHeight="Infinity" maxWidth="Infinity" orientation="VERTICAL"
-                prefHeight="460.0" prefWidth="600.0">-->
-<!--            <padding>-->
-<!--                <Insets bottom="8.0"/>-->
-<!--            </padding>-->
+            <!--        <SplitPane dividerPositions="0.5, 0.5" maxHeight="Infinity" maxWidth="Infinity" orientation="VERTICAL"
+                            prefHeight="460.0" prefWidth="600.0">-->
+            <!--            <padding>-->
+            <!--                <Insets bottom="8.0"/>-->
+            <!--            </padding>-->
             <!--                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="120.0" prefWidth="160.0">-->
             <!--                    <children>-->
             <!--                        <Text layoutX="34.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Load a Preset:" />-->
@@ -125,7 +126,7 @@
                 <Button mnemonicParsing="false" onAction="#deletePreset" text="Delete Preset">
                 </Button>
             </HBox>
-<!--        </SplitPane>-->
+            <!--        </SplitPane>-->
         </VBox>
     </Tab>
 
