@@ -264,13 +264,36 @@ public class MainViewController {
         }
         Task<TreeView<String>> historyTreeUpdater = new HistoryTreeUpdater(historyTreeView);
         new Thread(historyTreeUpdater).start();
+
+        /* Create "Delete Job" context menu option */
         MenuItem deleteRecordOption = new MenuItem("Delete Job");
         deleteRecordOption.setOnAction(action -> {
-            UserPreferences.getJobsMonitor().deleteRecord(
-                    UserPreferences.getJobsMonitor().getRecords().get(
-                            ((TreeItem<Text>)historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText()
-            ));
-            System.out.println("Selected item is of class: " + ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText());
+            try {
+                String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
+                /* 1. Kill the job on the server if it is running todo */
+                /* 2. Remove it from the list of jobs on the jobsMonitor */
+                //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
+                CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
+                for (int i = 0; i < runningJobs.size(); i++) {
+                    if (runningJobs.get(i).getJobID().equals(jobID)) runningJobs.remove(i);
+                }
+                /* 3. Remove it's record from the jobsMonitor's submission record */
+                UserPreferences.getJobsMonitor().deleteRecord(
+                        UserPreferences.getJobsMonitor().getRecords().get(jobID));
+                /* 4. Remove it from the history pane */
+                historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
+                System.out.println("Selected item is of class: " + ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText());
+            } catch (ClassCastException e){
+                //This is a cheap solution to the issue of the user being able to right click the root node.
+            }
+            });
+
+        /* Create "View Job Information" Context Menu Option */
+        MenuItem viewJobInfoOption = new MenuItem("View Job Info");
+        viewJobInfoOption.setOnAction(action -> {
+            String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
+            /* Pull up a view displaying all information about the job */
+            
         });
         historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption));
     }
