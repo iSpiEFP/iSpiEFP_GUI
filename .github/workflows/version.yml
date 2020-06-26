@@ -29,8 +29,8 @@ jobs:
     - name: Commiting changes
       run: |
         git config --local user.name  ${{ github.actor }}
-        git add ./libraryMeta.json
-        git commit -m "automated re-building of libraryMeta.json"
+        git add ./iSpiEFP/resources/userVersion.txt
+        git commit -m "Automated update of version file"
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
