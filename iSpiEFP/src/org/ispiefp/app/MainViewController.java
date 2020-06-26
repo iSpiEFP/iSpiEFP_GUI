@@ -30,8 +30,7 @@ import org.ispiefp.app.visualizer.JmolPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
@@ -1011,6 +1010,59 @@ stage.show();
     public void libefp() {
         System.out.println("libefp button");
         //TODO need to call libefp constructor
+    }
+
+    public void VisualizeLibEFPResultFile() {
+        try {
+            File outFile = new File("iSpiEFP/w6b2_md.out");
+            File tempOutFile = new File("testTemp.xyz");
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
+
+            boolean finalState = false;
+            boolean singlePointState = false;
+            int count = 0;
+            String finalOut = "";
+            int maxStep = 0;
+
+            while (true) {
+                String line = bufferedReader.readLine();
+                if (line == null) break;
+                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
+                else if (line.contains("FINAL STATE")) finalState = true;
+                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) finalState = true;
+                else if (line.contains("RESTART DATA")) finalState = false;
+                else if (line.contains("SINGLE POINT ENERGY JOB")) singlePointState = true;
+                else if (line.contains("ENERGY COMPONENTS (ATOMIC UNITS)")) singlePointState = false;
+                else if (finalState || singlePointState) {
+                    if (!line.contains("GEOMETRY") && !line.equals("")) {
+                        String[] unprocessedLine = line.split(" ");
+                        for (String s : unprocessedLine) {
+                            if (s.equals("")) continue;
+                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
+                            else finalOut += s;
+                            finalOut += " ";
+                        }
+                        finalOut += '\n';
+                        count++;
+                    }
+                }
+            }
+
+            finalOut = count + "\n" + "comment\n" + finalOut;
+
+            bufferedWriter.write(finalOut);
+            bufferedWriter.close();
+            bufferedReader.close();
+
+            jmolMainPanel.removeAll();
+            jmolMainPanel.openFile(tempOutFile);
+
+            tempOutFile.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /******************************************************************************************

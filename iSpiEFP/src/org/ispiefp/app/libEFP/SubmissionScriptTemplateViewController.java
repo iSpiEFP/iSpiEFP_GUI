@@ -153,7 +153,7 @@ import java.util.ResourceBundle;
         @FXML
         public void setMemory(){
             try{
-            submission.setMem(Integer.parseInt(memory.getText()));
+                submission.setMem(Integer.parseInt(memory.getText()));
             } catch (NumberFormatException e){
                 if (memory.getText().length() == 0) memory.setText("");
                 else memory.setText(memory.getText(0, memory.getText().length() - 1));
