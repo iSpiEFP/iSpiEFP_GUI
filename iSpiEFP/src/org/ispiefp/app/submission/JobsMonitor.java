@@ -13,7 +13,6 @@ import static java.lang.Thread.sleep;
 public class JobsMonitor implements Runnable {
     private CopyOnWriteArrayList<JobManager> jobs;
     private ConcurrentHashMap<String, SubmissionRecord> records;
-    private ConcurrentHashMap<SubmissionRecord, JobManager> record2managerMap;
     private int MAX_RECORDS = 15;
     private int numRecords = 0;
 
@@ -22,28 +21,20 @@ public class JobsMonitor implements Runnable {
         jobs = gson.fromJson(jobsJson, JobsMonitor.class).jobs;
         records = gson.fromJson(jobsJson, JobsMonitor.class).records;
         numRecords = records.entrySet().size();
-        Enumeration<SubmissionRecord> recordsEnumeration = records.elements();
-//        while (recordsEnumeration.hasMoreElements()){
-//            SubmissionRecord currentRecord = recordsEnumeration.nextElement();
-//            if (jobs.contains(currentRecord)){
-//                record2managerMap.put(currentRecord, )
-//            }
-//        }
     }
 
     public JobsMonitor(){
         jobs = new CopyOnWriteArrayList<>();
         records = new ConcurrentHashMap<>();
-        record2managerMap = new ConcurrentHashMap<>();
     }
 
     public void addJob(JobManager jm){
         jobs.add(jm);
         SubmissionRecord record = new SubmissionRecord(jm.getTitle(), jm.getStatus(), jm.getDate(), jm.getJobID());
         records.put(jm.getJobID(), record);
+        record.setJobManager(jm);
         if (numRecords == MAX_RECORDS){
             //todo Add some method of removing the oldest record.
-
         }
         else numRecords++;
         jm.watchJobStatus();
@@ -58,6 +49,11 @@ public class JobsMonitor implements Runnable {
                 for (JobManager jm : jobs) {
                     try {
                         if (jm.checkStatus(jm.getJobID())) {
+                            /* Check if the stdout file is empty (success) */
+                            if (checkForError(jm)){
+                                records.get(jm.getJobID()).setStatus("COMPLETE");
+                            }
+                            else records.get(jm.getJobID()).setStatus("ERROR");
                             retrieveJob(jm);
                             saveRecord(jm);
                             completedJobs.add(jm);
@@ -99,8 +95,17 @@ public class JobsMonitor implements Runnable {
         System.out.println(fileContents);
     }
 
+    public boolean checkForError(JobManager jm){
+        String fileContents = "";
+        try {
+            fileContents = jm.getRemoteFile(jm.getStdoutputFilename());
+        } catch (IOException e){ System.err.println("Was unable to retrieve the file for the completed job"); }
+        System.out.println("Attempting to print the retrieved file:");
+        System.out.println(fileContents);
+        return fileContents.isEmpty();
+    }
+
     public void saveRecord(JobManager jm){
-        records.get(jm.getJobID()).setStatus("COMPLETE");
         records.get(jm.getJobID()).setOutputFilePath(jm.getOutputFilename());
         records.get(jm.getJobID()).setStdoutputFilePath(jm.getStdoutputFilename());
     }

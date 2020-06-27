@@ -168,7 +168,7 @@ public class SelectRMSDController {
         currentMetaDatas.clear();
         currentViewerFragmentIndex++;
         offerNextFragmentSelection();
-    }
+        }
 
     /**
      * Updates the view to handle the user's selection for the next viewerFragment

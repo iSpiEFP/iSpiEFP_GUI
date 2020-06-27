@@ -235,10 +235,13 @@ public class MainViewController {
                         SubmissionRecord currentRecord = records.get(currentRecordName);
                         TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
                         TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
-                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")){
+                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
                             Text statusText = new Text("Status: " + currentRecord.getStatus());
                             statusText.setFill(Color.GREEN);
                             jobStatusTreeItem.setValue(statusText);
+                        } else if (currentRecord.getStatus().equalsIgnoreCase("ERROR")) {
+                            Text statusText = new Text("Status: " + currentRecord.getStatus());
+                            statusText.setFill(Color.RED);
                         } else {
                             try {
                                 Date submissionTime = dateFormatter.parse(currentRecord.getTime());
