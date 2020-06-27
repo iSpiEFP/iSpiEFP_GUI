@@ -1,6 +1,7 @@
 package org.ispiefp.app.server;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class ServerInfo implements Serializable{
 
@@ -13,12 +14,14 @@ public class ServerInfo implements Serializable{
     private String libEFPPath;
     private String gamessPath;
     private String scheduler;
+    private ArrayList<String> queues;
 
     public ServerInfo(String entryname, boolean dummy){
         this.entryname = entryname;
     }
 
     public ServerInfo(String definedString){ //separates each term with a ;%;
+        queues = new ArrayList<>();
         String[] parsedTerms = definedString.split(";%;");
         entryname = parsedTerms[0];
         hostname = parsedTerms[1];
@@ -29,9 +32,13 @@ public class ServerInfo implements Serializable{
         libEFPPath = parsedTerms[6];
         gamessPath = parsedTerms[7];
         scheduler = parsedTerms[8];
-
-
-
+        if (parsedTerms.length > 9) {
+            String queueString = parsedTerms[9];
+            String[] parsedQueues = queueString.split("#@#");
+            for (int i = 0; i < parsedQueues.length; i++) {
+                queues.add(parsedQueues[i]);
+            }
+        }
     }
 
     public void setEntryname(String entryname) {
@@ -70,6 +77,14 @@ public class ServerInfo implements Serializable{
         this.scheduler = scheduler;
     }
 
+    public void addQueue(String queueName){
+        queues.add(queueName);
+    }
+
+    public void deleteQueue(String queueName){
+        queues.remove(queueName);
+    }
+
     public String getEntryname() {
         return entryname;
     }
@@ -106,6 +121,8 @@ public class ServerInfo implements Serializable{
         return scheduler;
     }
 
+    public ArrayList<String> getQueues() { return queues; }
+
     public String getServerInfoDefinedString(){
         StringBuilder sb = new StringBuilder();
         sb.append(entryname);
@@ -125,6 +142,11 @@ public class ServerInfo implements Serializable{
         sb.append(gamessPath);
         sb.append(";%;");
         sb.append(scheduler);
+        sb.append(";%;");
+        for(String queue : queues){
+            sb.append(queue);
+            sb.append("#@#");
+        }
         return sb.toString();
     }
 }

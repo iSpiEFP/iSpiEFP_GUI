@@ -49,10 +49,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         Thread mainThread = Thread.currentThread();
-        Main.setPrimaryStage(primaryStage);
-        Main.getPrimaryStage().setTitle("iSpiEFP");
-        showMainView();
-
         Initializer initializer = new Initializer();
         initializer.init();
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -62,6 +58,9 @@ public class Main extends Application {
             }
         });
 
+        Main.setPrimaryStage(primaryStage);
+        Main.getPrimaryStage().setTitle("iSpiEFP");
+        showMainView();
         //get User Default Browser
         hostServices = getHostServices();
 

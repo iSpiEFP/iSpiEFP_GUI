@@ -267,7 +267,7 @@ public class libEFPInputController implements Initializable {
         List<String> pol_solver_string = new ArrayList<String>();
         pol_solver_string.add("iterative");
         pol_solver_string.add("direct");
-        pol_solver.setItems(FXCollections.observableList(pol_damp_string));
+        pol_solver.setItems(FXCollections.observableList(pol_solver_string));
         pol_solver.setValue("iterative");
 
         List<String> ensemble_string = new ArrayList<String>();
@@ -682,12 +682,11 @@ public class libEFPInputController implements Initializable {
 
             String time = currentTime; //equivalent but in different formats
             dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-            currentTime = dateFormat.format(date).toString();
             submission.submit(subScriptCont.getUsersSubmissionScript());
+            currentTime = dateFormat.format(date).toString();
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), time, "QUEUE", "LIBEFP");
+            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), currentTime, "QUEUE", "LIBEFP");
             UserPreferences.getJobsMonitor().addJob(jobManager);
-//            UserPreferences.getJobsMonitor().run();
             Stage currentStage = (Stage) root.getScene().getWindow();
             currentStage.close();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -892,7 +891,7 @@ public class libEFPInputController implements Initializable {
                 }
                 String RMSDString = ExecutePython.runPythonScript(
                         "calculate_rmsd.py",
-                        String.format("%s %s", fragmentXYZFile.getAbsolutePath(), viewerFragmentXYZFile.getAbsolutePath())
+                        String.format("--reorder %s %s", fragmentXYZFile.getAbsolutePath(), viewerFragmentXYZFile.getAbsolutePath())
                 );
                 if (RMSDString.contains("OUTPUT")) {
                     String [] parsedString = RMSDString.split("null");
