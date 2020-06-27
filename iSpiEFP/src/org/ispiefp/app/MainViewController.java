@@ -23,6 +23,7 @@ import javafx.stage.StageStyle;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.submission.JobViewController;
 import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.submission.SubmissionRecord;
 import org.ispiefp.app.util.*;
@@ -292,10 +293,30 @@ public class MainViewController {
         MenuItem viewJobInfoOption = new MenuItem("View Job Info");
         viewJobInfoOption.setOnAction(action -> {
             String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
+            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
             /* Pull up a view displaying all information about the job */
-            
+            try {
+                Stage stage = new Stage();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/JobView.fxml"));
+                JobViewController jobViewController = new JobViewController(records.get(jobID));
+                loader.setController(jobViewController);
+                Parent p = loader.load();
+
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setTitle("Job Information");
+                stage.setScene(new Scene(p));
+
+                try {
+                    stage.showAndWait();
+                } catch (Exception e) {
+                    System.err.println("Unable to open new view");
+                }
+            } catch (IOException e){
+                System.err.println("Was unable to locate the view");
+                e.printStackTrace();
+            }
         });
-        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption));
+        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption));
     }
 
     /**

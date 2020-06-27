@@ -6,8 +6,7 @@
 <?import java.lang.Double?>
 <?import javafx.scene.text.Text?>
 <AnchorPane minHeight="0.0" minWidth="0.0" fx:id="root" prefHeight="500.0"
-            prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.ispiefp.app.submission.JobViewController">
+            prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <GridPane AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10"
               AnchorPane.bottomAnchor="47" AnchorPane.topAnchor="47" hgap="10">
         <columnConstraints>

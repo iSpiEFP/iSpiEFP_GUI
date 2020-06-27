@@ -29,7 +29,7 @@ public class JobViewController {
 
     /* Fields controlling jmol interaction */
     @FXML private Pane previewPane;
-    private final JmolMainPanel jmolPreviewPanel;
+//    private final JmolMainPanel jmolPreviewPanel;
 
 
     /* Fields controlling file content visualization */
@@ -44,7 +44,7 @@ public class JobViewController {
     public JobViewController(SubmissionRecord record){
         super();
         this.record = record;
-        jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
+//        jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
     }
 
     public void initialize(){
@@ -56,8 +56,8 @@ public class JobViewController {
         finishTime.setText("Running...");
         outputFile.setText(record.getOutputFilePath());
         errorFile.setText(record.getStdoutputFilePath());
-        ObservableList<String> observableEFPFiles = FXCollections.observableArrayList(record.getUsedEfpFilepaths());
-        usedEFPFiles.setItems(observableEFPFiles);
+//        ObservableList<String> observableEFPFiles = FXCollections.observableArrayList(record.getUsedEfpFilepaths());
+//        usedEFPFiles.setItems(observableEFPFiles);
 
         visualizeInputButton.setOnAction(action -> populateTextArea(usedEFPFiles.getSelectionModel().getSelectedItem(), true));
         visualizeOutputButton.setOnAction(action -> populateTextArea(outputFile.getText(), true));
