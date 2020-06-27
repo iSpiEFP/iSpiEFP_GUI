@@ -147,7 +147,8 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    public ListView historyListView;
+    @FXML private TreeView historyTreeView;
+    @FXML private TreeItem historyRoot;
 
     //private UserPreferences userPrefs = new UserPreferences();
 
