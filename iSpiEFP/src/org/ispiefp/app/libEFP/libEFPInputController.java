@@ -267,7 +267,7 @@ public class libEFPInputController implements Initializable {
         List<String> pol_solver_string = new ArrayList<String>();
         pol_solver_string.add("iterative");
         pol_solver_string.add("direct");
-        pol_solver.setItems(FXCollections.observableList(pol_damp_string));
+        pol_solver.setItems(FXCollections.observableList(pol_solver_string));
         pol_solver.setValue("iterative");
 
         List<String> ensemble_string = new ArrayList<String>();
