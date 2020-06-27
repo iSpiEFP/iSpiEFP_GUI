@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -146,8 +147,7 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    @FXML private TreeView historyTreeView;
-    @FXML private TreeItem historyRoot;
+    public ListView historyListView;
 
     //private UserPreferences userPrefs = new UserPreferences();
 
@@ -664,12 +664,16 @@ public class MainViewController {
     }
 
     public void editSelectAll() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos on");
         jmolMainPanel.viewer.runScript("select all");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void editSelectNone() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos off");
         jmolMainPanel.viewer.runScript("select none");
+        jmolMainPanel.repaint();
     }
 
     /******************************************************************************************
@@ -712,7 +716,8 @@ public class MainViewController {
 
     @FXML
     public void viewCenter() throws IOException {
-        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+//        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+        jmolMainPanel.viewer.runScript("moveto 0 {0 0 1} 0");
         jmolMainPanel.repaint();
     }
 
@@ -911,14 +916,30 @@ public class MainViewController {
         stage.show();
     }
 
-    /******************************************************************************************
-     *             HELP MENU BEGINS                                                           *
-     ******************************************************************************************/
-    @FXML
-    public void helpCheckForUpdates () throws IOException {
-        //TODO
-        //This is currently disabled in the fxml doc since it is not currently operational
-    }
+            /******************************************************************************************
+             *             HELP MENU BEGINS                                                           *
+             ******************************************************************************************/
+            @FXML
+            public void helpCheckForUpdates() throws IOException {
+                //TODO
+                //This is currently disabled in the fxml doc since it is not currently operational
+                CheckUpdates checkUpdates = new CheckUpdates();
+                String[] versions = checkUpdates.getVersions();
+                if (versions.length != 2) {
+                    throw new IOException();
+                }
+                Alert alert;
+                if (versions[0].compareTo(versions[1]) == 0) {
+                    alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                                      + versions[0], ButtonType.OK);
+                } else {
+                    alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                                      versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
+                }
+                alert.showAndWait();
+                //jmolMainPanel.repaint();
+                return;
+            }
 
     @FXML
     public void helpAbout () throws IOException {
@@ -1136,6 +1157,59 @@ stage.show();
     public void libefp() {
         System.out.println("libefp button");
         //TODO need to call libefp constructor
+    }
+
+    public void VisualizeLibEFPResultFile() {
+        try {
+            File outFile = new File("iSpiEFP/w6b2_md.out");
+            File tempOutFile = new File("testTemp.xyz");
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
+
+            boolean finalState = false;
+            boolean singlePointState = false;
+            int count = 0;
+            String finalOut = "";
+            int maxStep = 0;
+
+            while (true) {
+                String line = bufferedReader.readLine();
+                if (line == null) break;
+                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
+                else if (line.contains("FINAL STATE")) finalState = true;
+                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) finalState = true;
+                else if (line.contains("RESTART DATA")) finalState = false;
+                else if (line.contains("SINGLE POINT ENERGY JOB")) singlePointState = true;
+                else if (line.contains("ENERGY COMPONENTS (ATOMIC UNITS)")) singlePointState = false;
+                else if (finalState || singlePointState) {
+                    if (!line.contains("GEOMETRY") && !line.equals("")) {
+                        String[] unprocessedLine = line.split(" ");
+                        for (String s : unprocessedLine) {
+                            if (s.equals("")) continue;
+                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
+                            else finalOut += s;
+                            finalOut += " ";
+                        }
+                        finalOut += '\n';
+                        count++;
+                    }
+                }
+            }
+
+            finalOut = count + "\n" + "comment\n" + finalOut;
+
+            bufferedWriter.write(finalOut);
+            bufferedWriter.close();
+            bufferedReader.close();
+
+            jmolMainPanel.removeAll();
+            jmolMainPanel.openFile(tempOutFile);
+
+            tempOutFile.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /******************************************************************************************

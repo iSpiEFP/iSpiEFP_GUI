@@ -13,6 +13,7 @@
                         <items>
                             <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
                             <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
+<!--                            <MenuItem mnemonicParsing="false" onAction="#VisualizeLibEFPResultFile" text="Testing" />-->
                             <Menu fx:id="openRecentMenu" mnemonicParsing="false" onAction="#populateOpenRecentMenu" text="Open Recent">
                                 <!--<fx:define>-->
                                 <!--<ContextMenu fx:id="cmTF">-->
@@ -89,7 +90,7 @@
 
                     <Menu mnemonicParsing="false" text="Help">
                         <items>
-                            <MenuItem disable="true" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
+                            <MenuItem disable="false" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
                             <MenuItem mnemonicParsing="false" onAction="#helpAbout" text="About" />
                             <SeparatorMenuItem mnemonicParsing="false" />
                             <MenuItem mnemonicParsing="false" onAction="#helpJmolWiki" text="Jmol Wiki" />
