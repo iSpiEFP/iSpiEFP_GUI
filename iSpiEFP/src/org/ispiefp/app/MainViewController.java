@@ -993,14 +993,14 @@ stage.show();
 
     public void VisualizeLibEFPResultFile() {
         try {
-            File outFile = new File("iSpiEFP/w6b2_md.out");
+            File outFile = new File("iSpiEFP/w6b2_energy.out");
             File tempOutFile = new File("testTemp.xyz");
 
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
             BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
 
-            boolean finalState = false;
-            boolean singlePointState = false;
+            boolean startOfGeometry = false;
+            boolean moleculeRead = false;
             int count = 0;
             String finalOut = "";
             int maxStep = 0;
@@ -1009,14 +1009,16 @@ stage.show();
                 String line = bufferedReader.readLine();
                 if (line == null) break;
                 else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
-                else if (line.contains("FINAL STATE")) finalState = true;
-                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) finalState = true;
-                else if (line.contains("RESTART DATA")) finalState = false;
-                else if (line.contains("SINGLE POINT ENERGY JOB")) singlePointState = true;
-                else if (line.contains("ENERGY COMPONENTS (ATOMIC UNITS)")) singlePointState = false;
-                else if (finalState || singlePointState) {
-                    if (!line.contains("GEOMETRY") && !line.equals("")) {
-                        String[] unprocessedLine = line.split(" ");
+                else if (line.contains("FINAL STATE")) startOfGeometry = true;
+                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
+                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
+                else if (startOfGeometry) {
+                    line = line.replaceAll(" +", " ");
+                    String[] unprocessedLine = line.split(" ");
+                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
+                        if (moleculeRead) break;
+                    } else {
+                        moleculeRead = true;
                         for (String s : unprocessedLine) {
                             if (s.equals("")) continue;
                             else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
@@ -1029,7 +1031,7 @@ stage.show();
                 }
             }
 
-            finalOut = count + "\n" + "comment\n" + finalOut;
+            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
 
             bufferedWriter.write(finalOut);
             bufferedWriter.close();
