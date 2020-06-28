@@ -5,8 +5,9 @@ import java.io.*;
 public class LibEFPtoCSV {
     //private final String[] files = {"opt_1.out", "pbc_1.out", "w6b2_energy.out"};
     private final int ENERGIES = 6; // the number of different energy calculations, excluding total
-    private final int WHITESPACE = 34;
-    private final int AUXILIARY = 3; // the auxiliary columns that may have additional information
+    private final int TOTAL_ENERGY_WHITESPACE = 34; // the leading whitespace in a total energy file
+    private final int PAIRWISE_WHITESPACE = 44; // the leading whitespace in a pairwise energy file
+    //private final int AUXILIARY = 3; // the auxiliary columns that may have additional information
 
     /* This method takes as a parameter a file name and gets the necessary information to create a string to write to
        a CSV file. The string is in the format "geometry_number,electrostatic,polarization,dispersion,
@@ -33,9 +34,32 @@ public class LibEFPtoCSV {
                     break;
                 }
 
-                /* Get the energy results once we reach the key line */
+                /* Get the energy results once we reach the key line,
+                 * filtering based on pairwise or not
+                 */
 
-                if (line.contains("ENERGY COMPONENTS")) {
+                if (line.contains("PAIRWISE ENERGY COMPONENTS")) {
+                    csvString += "0,";
+                    csvString += geometries;
+                    geometries ++;
+                    csvString += ",";
+                    for (int i = 0; i < this.ENERGIES; i++) {
+                        csvString += getLineInformation(bufferedReader, this.PAIRWISE_WHITESPACE);
+                        if (i != this.ENERGIES - 1) {
+                            csvString += ",";
+                        }
+                    }
+                    csvString += "\n";
+                } else if (line.contains("LATTICE ENERGY COMPONENTS")) {
+                    csvString += "0,-1,";
+                    for (int i = 0; i < this.ENERGIES; i++) {
+                        csvString += getLineInformation(bufferedReader, this.PAIRWISE_WHITESPACE);
+                        if (i != this.ENERGIES - 1) {
+                            csvString += ",";
+                        }
+                    }
+                    csvString += "\n";
+                } else if (line.contains("ENERGY COMPONENTS")) {
 
                     /* add to the first column the iteration and a comma */
 
@@ -49,14 +73,14 @@ public class LibEFPtoCSV {
                     */
 
                     for (int i = 0; i < this.ENERGIES; i++) {
-                        csvString += getLineInformation(bufferedReader);
+                        csvString += getLineInformation(bufferedReader, this.TOTAL_ENERGY_WHITESPACE);
                         csvString += ",";
                     }
                     bufferedReader.readLine(); // read the empty line
 
                     /* get the total energy */
 
-                    csvString += getLineInformation(bufferedReader);
+                    csvString += getLineInformation(bufferedReader, this.TOTAL_ENERGY_WHITESPACE);
                     csvString += ",";
 
                     /* read the two blank lines */
@@ -80,7 +104,7 @@ public class LibEFPtoCSV {
                            we have just read. Skip the beginning whitespace.
                          */
 
-                        for (int i = this.WHITESPACE; i < line.length(); i++) {
+                        for (int i = this.TOTAL_ENERGY_WHITESPACE; i < line.length(); i++) {
                             if (line.charAt(i) != ' ') {
                                 csvString += line.charAt(i);
                             }
@@ -89,12 +113,12 @@ public class LibEFPtoCSV {
 
                         /* Get the information for the second auxiliary column as normal */
 
-                        csvString += getLineInformation(bufferedReader);
+                        csvString += getLineInformation(bufferedReader, this.TOTAL_ENERGY_WHITESPACE);
                         csvString += ",";
 
                         /* Get the information for the last auxiliary column and add a newline */
 
-                        csvString += getLineInformation(bufferedReader);
+                        csvString += getLineInformation(bufferedReader, this.TOTAL_ENERGY_WHITESPACE);
                         csvString += "\n";
                     } else if (line.contains("KINETIC ENERGY")) {
                         csvString += "2,";
@@ -103,7 +127,7 @@ public class LibEFPtoCSV {
                            we have just read. Skip the beginning whitespace.
                          */
 
-                        for (int i = this.WHITESPACE; i < line.length(); i++) {
+                        for (int i = this.TOTAL_ENERGY_WHITESPACE; i < line.length(); i++) {
                             if (line.charAt(i) != ' ') {
                                 csvString += line.charAt(i);
                             }
@@ -112,12 +136,12 @@ public class LibEFPtoCSV {
 
                         /* Get the information for the second auxiliary column as normal */
 
-                        csvString += getLineInformation(bufferedReader);
+                        csvString += getLineInformation(bufferedReader, this.TOTAL_ENERGY_WHITESPACE);
                         csvString += ",";
 
                         /* Get the information for the last auxiliary column and add a newline */
 
-                        csvString += getLineInformation(bufferedReader);
+                        csvString += getLineInformation(bufferedReader, this.TOTAL_ENERGY_WHITESPACE);
                         csvString += "\n";
                     } else {
                         csvString += "0,-1,-1,-1\n";
@@ -130,8 +154,8 @@ public class LibEFPtoCSV {
         return csvString;
     }
 
-    private String getLineInformation(BufferedReader bufferedReader) throws IOException {
-        bufferedReader.skip(this.WHITESPACE);
+    private String getLineInformation(BufferedReader bufferedReader, int whitespace) throws IOException {
+        bufferedReader.skip(whitespace);
         String line = bufferedReader.readLine();
         if (line.charAt(0) == ' ') {
             return line.substring(1);
