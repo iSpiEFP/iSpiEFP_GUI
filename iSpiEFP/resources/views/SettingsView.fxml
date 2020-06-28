@@ -14,12 +14,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ComboBox?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
     <top>
         <AnchorPane fx:id="anchor" minHeight="400.0" minWidth="900.0" prefHeight="700.0" prefWidth="1200.0">
             <VBox prefHeight="679.0" prefWidth="248.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <TreeView fx:id="menuTree" prefHeight="655.0" prefWidth="248.0" showRoot="false">
-                    <TreeItem fx:id="topLeveLSettings" value="Settings">
+                    <TreeItem fx:id="topLeveLSettings" value="Settings" >
                         <children>
                             <TreeItem fx:id="defaultPaths" value="Default Paths" />
                             <TreeItem fx:id="serverSettings" value="Servers">
@@ -67,6 +68,16 @@
                     <PasswordField fx:id="password" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
                 </HBox>
                 <Separator />
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="80.0" text="Add Queue:" />
+                    <TextField fx:id="addQueueField" maxHeight="31.0" maxWidth="200" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="150" />
+                    <Button fx:id="saveQueueButton" onAction="#addNewQueue" text="Save Queue" />
+                    <Button fx:id="deleteQueueButton" onAction="#deleteQueue" text="Delete Queue" />
+                </HBox>
+                <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="100" text="Default Queue:" />
+                    <ChoiceBox fx:id="defaultQueue" />
+                </HBox>
                 <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Server Options" />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
                     <CheckBox fx:id="hasLibEFPButton" onAction="#enableLibEFPPath" text="libEFP installed?" />

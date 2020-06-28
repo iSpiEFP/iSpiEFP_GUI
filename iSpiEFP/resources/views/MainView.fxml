@@ -13,6 +13,7 @@
                         <items>
                             <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
                             <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
+<!--                            <MenuItem mnemonicParsing="false" onAction="#VisualizeLibEFPResultFile" text="Testing" />-->
                             <Menu fx:id="openRecentMenu" mnemonicParsing="false" onAction="#populateOpenRecentMenu" text="Open Recent">
                                 <!--<fx:define>-->
                                 <!--<ContextMenu fx:id="cmTF">-->
@@ -172,7 +173,9 @@
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <ListView fx:id="historyListView" />
+                <TreeView fx:id="historyTreeView">
+                    <TreeItem fx:id="historyRoot" expanded="true" />
+                </TreeView>
             </VBox>
             <SplitPane fx:id="middleRightSplitPane" dividerPositions="0.5">
                 <Pane fx:id="middlePane" />
