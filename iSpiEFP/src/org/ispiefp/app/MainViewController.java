@@ -517,12 +517,16 @@ public class MainViewController {
     }
 
     public void editSelectAll() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos on");
         jmolMainPanel.viewer.runScript("select all");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void editSelectNone() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos off");
         jmolMainPanel.viewer.runScript("select none");
+        jmolMainPanel.repaint();
     }
 
     /******************************************************************************************
@@ -565,7 +569,8 @@ public class MainViewController {
 
     @FXML
     public void viewCenter() throws IOException {
-        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+//        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+        jmolMainPanel.viewer.runScript("moveto 0 {0 0 1} 0");
         jmolMainPanel.repaint();
     }
 
@@ -764,14 +769,30 @@ public class MainViewController {
         stage.show();
     }
 
-    /******************************************************************************************
-     *             HELP MENU BEGINS                                                           *
-     ******************************************************************************************/
-    @FXML
-    public void helpCheckForUpdates () throws IOException {
-        //TODO
-        //This is currently disabled in the fxml doc since it is not currently operational
-    }
+            /******************************************************************************************
+             *             HELP MENU BEGINS                                                           *
+             ******************************************************************************************/
+            @FXML
+            public void helpCheckForUpdates() throws IOException {
+                //TODO
+                //This is currently disabled in the fxml doc since it is not currently operational
+                CheckUpdates checkUpdates = new CheckUpdates();
+                String[] versions = checkUpdates.getVersions();
+                if (versions.length != 2) {
+                    throw new IOException();
+                }
+                Alert alert;
+                if (versions[0].compareTo(versions[1]) == 0) {
+                    alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                                      + versions[0], ButtonType.OK);
+                } else {
+                    alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                                      versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
+                }
+                alert.showAndWait();
+                //jmolMainPanel.repaint();
+                return;
+            }
 
     @FXML
     public void helpAbout () throws IOException {
