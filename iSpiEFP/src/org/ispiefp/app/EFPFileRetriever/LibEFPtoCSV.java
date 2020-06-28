@@ -7,6 +7,13 @@ public class LibEFPtoCSV {
     private final int ENERGIES = 6; // the number of different energy calculations, excluding total
     private final int AUXILIARY = 3; // the auxiliary columns that may have additional information
 
+    /* This method takes as a parameter a file name and gets the necessary information to create a string to write to
+       a CSV file. The string is in the format "geometry_number,electrostatic,polarization,dispersion,
+       exchange_repulsion,point_charges,charge_penetration,total,identifier," followed by either "-1,-1,-1\n" (empty),
+        "energy_change,RMS_gradient,maximum_gradient\n" (geometry optimization), or
+        "kinetic_energy,invariant,temperature\n" (molecular dynamics)
+     */
+
     public String getCSVString(String fileName) {
         String csvString = new String();
        File file = new File(fileName);
@@ -68,6 +75,14 @@ public class LibEFPtoCSV {
                    bufferedReader.readLine();
                    bufferedReader.readLine();
                    line = bufferedReader.readLine();
+
+                   /* Depending on the following lines, get the correct information and signify what the columns
+                      correspond to:
+                      0 = no additional information
+                      1 = geometry optimization
+                      2 = molecular dynamics
+                      These values are the identifier descibed above
+                    */
                    if (line.contains("ENERGY CHANGE")) {
                        csvString += "1,";
                        for (int i = 0; i < AUXILIARY; i++) {
