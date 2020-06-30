@@ -1014,7 +1014,7 @@ stage.show();
 
     public void VisualizeLibEFPResultFile() {
         try {
-            File outFile = new File("iSpiEFP/w6b2_energy.out");
+            File outFile = new File("iSpiEFP/pbc_1.out");
             File tempOutFile = new File("testTemp.xyz");
 
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
