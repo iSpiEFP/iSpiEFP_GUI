@@ -162,5 +162,20 @@ public class LibEFPtoCSV {
         } else {
             return line;
         }
+//        String line = bufferedReader.readLine();
+//        String[] components = line.split(" ");
+//        String csvLine = new String();
+//        for (int i = 0; i < components.length; i++) {
+//            try {
+//                if (components[i].compareTo("") != 0) {
+//                    Double.parseDouble(components[i]);
+//                    line += Double.parseDouble(components[i]);
+//                    line += ",";
+//                }
+//            } catch (NumberFormatException nfe) {
+//
+//            }
+//        }
+//        return csvLine;
     }
 }
