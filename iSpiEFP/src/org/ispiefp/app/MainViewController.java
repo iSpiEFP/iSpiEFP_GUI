@@ -147,7 +147,8 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    public ListView historyListView;
+    public TreeView historyTreeView;
+    TreeItem<String> historyRoot;
 
     //private UserPreferences userPrefs = new UserPreferences();
 
@@ -220,7 +221,7 @@ public class MainViewController {
                                 accountedForJobs.add(currentRecordName);
                                 Text idText = new Text(currentRecordName);
                                 TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
-                                historyRoot.getChildren().add(jobIDTreeItem);
+                                //historyRoot.getChildren().add(jobIDTreeItem);
                                 if (!tMap.containsKey(currentRecordName)) {
                                     tMap.put(currentRecordName, jobIDTreeItem);
                                     jobIDTreeItem.getChildren().add(0, new TreeItem<Text>());
