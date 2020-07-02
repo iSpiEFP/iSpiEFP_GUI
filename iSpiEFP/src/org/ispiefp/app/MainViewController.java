@@ -4,7 +4,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -14,18 +13,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
-import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.submission.JobViewController;
-import org.ispiefp.app.submission.JobsMonitor;
-import org.ispiefp.app.submission.SubmissionRecord;
 import org.ispiefp.app.util.*;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
@@ -39,13 +32,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.io.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -187,139 +174,6 @@ public class MainViewController {
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
 
-        /* Populate the historyTreeView */
-        class HistoryTreeUpdater extends Task<TreeView<String>> {
-            private TreeView<String> t;
-            private HashMap<String, TreeItem> tMap;
-
-            public HistoryTreeUpdater(TreeView<String> s){
-                t = s;
-                tMap = new HashMap<>();
-            }
-
-            /*
-            It is key to remember in this function the indices of the informative children nodes for a jo. I list them here:
-            0 - job status
-             */
-            @Override
-            protected TreeView<String> call() throws Exception {
-                JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
-                HashSet<String> accountedForJobs = new HashSet<>();
-                ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
-                historyRoot.setValue("Jobs");
-                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
-                System.out.printf("Size of tMap is currently %d%n", tMap.size());
-                System.out.printf("Size of records is currently %d%n", records.size());
-                while (true){
-                    if (tMap.size() < records.size()){
-                        Enumeration<String> recordEnumeration = records.keys();
-                        while (recordEnumeration.hasMoreElements()){
-                            String currentRecordName = recordEnumeration.nextElement();
-                            if (!accountedForJobs.contains(currentRecordName)) {
-                                accountedForJobs.add(currentRecordName);
-                                Text idText = new Text(currentRecordName);
-                                TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
-                                historyRoot.getChildren().add(jobIDTreeItem);
-                                if (!tMap.containsKey(currentRecordName)) {
-                                    tMap.put(currentRecordName, jobIDTreeItem);
-                                    jobIDTreeItem.getChildren().add(0, new TreeItem<Text>());
-                                }
-                            }
-                        }
-                    }
-                    Date currentTime = new Date();
-                    Enumeration<String> recordEnumeration = records.keys();
-                    while (recordEnumeration.hasMoreElements()){
-                        String currentRecordName = recordEnumeration.nextElement();
-                        SubmissionRecord currentRecord = records.get(currentRecordName);
-                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
-                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
-                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
-                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-                            statusText.setFill(Color.GREEN);
-                            jobStatusTreeItem.setValue(statusText);
-                        } else if (currentRecord.getStatus().equalsIgnoreCase("ERROR")) {
-                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-                            statusText.setFill(Color.RED);
-                        } else {
-                            try {
-                                Date submissionTime = dateFormatter.parse(currentRecord.getTime());
-                                long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
-                                long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
-                                long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
-                                remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
-                                long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
-                                remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
-                                long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
-
-                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
-                                Text timeText = new Text(runningTimeString);
-                                timeText.setFill(Color.GOLD);
-                                jobStatusTreeItem.setValue(timeText);
-                            } catch (ParseException e) {
-                                System.err.println("Was unable to parse the time of submission in its current format");
-                            }
-                        }
-                    }
-                    Thread.sleep(500);
-                }
-            }
-        }
-        Task<TreeView<String>> historyTreeUpdater = new HistoryTreeUpdater(historyTreeView);
-        new Thread(historyTreeUpdater).start();
-
-        /* Create "Delete Job" context menu option */
-        MenuItem deleteRecordOption = new MenuItem("Delete Job");
-        deleteRecordOption.setOnAction(action -> {
-            try {
-                String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
-                /* 1. Kill the job on the server if it is running todo */
-                /* 2. Remove it from the list of jobs on the jobsMonitor */
-                //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
-                CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
-                for (int i = 0; i < runningJobs.size(); i++) {
-                    if (runningJobs.get(i).getJobID().equals(jobID)) runningJobs.remove(i);
-                }
-                /* 3. Remove it's record from the jobsMonitor's submission record */
-                UserPreferences.getJobsMonitor().deleteRecord(
-                        UserPreferences.getJobsMonitor().getRecords().get(jobID));
-                /* 4. Remove it from the history pane */
-                historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
-                System.out.println("Selected item is of class: " + ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText());
-            } catch (ClassCastException e){
-                //This is a cheap solution to the issue of the user being able to right click the root node.
-            }
-            });
-
-        /* Create "View Job Information" Context Menu Option */
-        MenuItem viewJobInfoOption = new MenuItem("View Job Info");
-        viewJobInfoOption.setOnAction(action -> {
-            String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
-            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
-            /* Pull up a view displaying all information about the job */
-            try {
-                Stage stage = new Stage();
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/JobView.fxml"));
-                JobViewController jobViewController = new JobViewController(records.get(jobID));
-                loader.setController(jobViewController);
-                Parent p = loader.load();
-
-                stage.initModality(Modality.APPLICATION_MODAL);
-                stage.setTitle("Job Information");
-                stage.setScene(new Scene(p));
-
-                try {
-                    stage.showAndWait();
-                } catch (Exception e) {
-                    System.err.println("Unable to open new view");
-                }
-            } catch (IOException e){
-                System.err.println("Was unable to locate the view");
-                e.printStackTrace();
-            }
-        });
-        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption));
     }
 
     /**
@@ -531,7 +385,7 @@ public class MainViewController {
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
-       // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
 
         try {
@@ -856,22 +710,22 @@ public class MainViewController {
 
     @FXML
     public void calculateLibefpHistory () throws IOException {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/views/submissionHistory.fxml"
-                    )
-            );
-            Stage stage = new Stage(StageStyle.DECORATED);
-            stage.setScene(
-                    new Scene(
-                            loader.load()
-                    )
-            );
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(
+                        "/views/submissionHistory.fxml"
+                )
+        );
+        Stage stage = new Stage(StageStyle.DECORATED);
+        stage.setScene(
+                new Scene(
+                        loader.load()
+                )
+        );
         SubmissionHistoryController controller = loader.getController();
         stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Submission History");
-            stage.show();
-        }
+        stage.setTitle("Submission History");
+        stage.show();
+    }
 
 
     @FXML
@@ -916,30 +770,30 @@ public class MainViewController {
         stage.show();
     }
 
-            /******************************************************************************************
-             *             HELP MENU BEGINS                                                           *
-             ******************************************************************************************/
-            @FXML
-            public void helpCheckForUpdates() throws IOException {
-                //TODO
-                //This is currently disabled in the fxml doc since it is not currently operational
-                CheckUpdates checkUpdates = new CheckUpdates();
-                String[] versions = checkUpdates.getVersions();
-                if (versions.length != 2) {
-                    throw new IOException();
-                }
-                Alert alert;
-                if (versions[0].compareTo(versions[1]) == 0) {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
-                                      + versions[0], ButtonType.OK);
-                } else {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
-                                      versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
-                }
-                alert.showAndWait();
-                //jmolMainPanel.repaint();
-                return;
-            }
+    /******************************************************************************************
+     *             HELP MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void helpCheckForUpdates() throws IOException {
+        //TODO
+        //This is currently disabled in the fxml doc since it is not currently operational
+        CheckUpdates checkUpdates = new CheckUpdates();
+        String[] versions = checkUpdates.getVersions();
+        if (versions.length != 2) {
+            throw new IOException();
+        }
+        Alert alert;
+        if (versions[0].compareTo(versions[1]) == 0) {
+            alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                    + versions[0], ButtonType.OK);
+        } else {
+            alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                    versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
+        }
+        alert.showAndWait();
+        //jmolMainPanel.repaint();
+        return;
+    }
 
     @FXML
     public void helpAbout () throws IOException {
@@ -1157,61 +1011,6 @@ stage.show();
     public void libefp() {
         System.out.println("libefp button");
         //TODO need to call libefp constructor
-    }
-
-    public void VisualizeLibEFPResultFile() {
-        try {
-            File outFile = new File("iSpiEFP/pbc_1.out");
-            File tempOutFile = new File("testTemp.xyz");
-
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
-
-            boolean startOfGeometry = false;
-            boolean moleculeRead = false;
-            int count = 0;
-            String finalOut = "";
-            int maxStep = 0;
-
-            while (true) {
-                String line = bufferedReader.readLine();
-                if (line == null) break;
-                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
-                else if (line.contains("FINAL STATE")) startOfGeometry = true;
-                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
-                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
-                else if (startOfGeometry) {
-                    line = line.replaceAll(" +", " ");
-                    String[] unprocessedLine = line.split(" ");
-                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
-                        if (moleculeRead) break;
-                    } else {
-                        moleculeRead = true;
-                        for (String s : unprocessedLine) {
-                            if (s.equals("")) continue;
-                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
-                            else finalOut += s;
-                            finalOut += " ";
-                        }
-                        finalOut += '\n';
-                        count++;
-                    }
-                }
-            }
-
-            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
-
-            bufferedWriter.write(finalOut);
-            bufferedWriter.close();
-            bufferedReader.close();
-
-            jmolMainPanel.removeAll();
-            jmolMainPanel.openFile(tempOutFile);
-
-            tempOutFile.delete();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /******************************************************************************************
