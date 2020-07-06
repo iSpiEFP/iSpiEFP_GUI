@@ -2,6 +2,7 @@ package org.ispiefp.app;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -10,8 +11,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -19,6 +22,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.StringConverter;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.util.*;
@@ -36,8 +40,8 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.xml.crypto.Data;
 
 import javafx.scene.image.Image;
@@ -57,6 +61,7 @@ public class MainViewController {
     private static final Image center = new Image(Main.class.getResource("/images/center.png").toString());
     private static final Image selectAll = new Image(Main.class.getResource("/images/select_all.png").toString());
     private static final Image build = new Image(Main.class.getResource("/images/build.png").toString());
+    private static final Image chartUsageInfo = new Image(Main.class.getResource("/images/baseline_info_black_18dp.png").toString());
 
     private static String lastOpenedFile = new String();
     private static String lastOpenedFileName = new String();
@@ -67,6 +72,8 @@ public class MainViewController {
     private ProgressIndicator pit = new ProgressIndicator();
 
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
+    private double upperXBound;
+    private double upperYBound;
     private double maxXVal;
     private double maxYVal;
     private boolean xPressed;
@@ -131,6 +138,7 @@ public class MainViewController {
 
     @FXML
     private Menu openRecentMenu;
+
 
     // All the analysis buttons
     public Button analysisGeometries;
@@ -387,7 +395,7 @@ public class MainViewController {
         stage.setScene(new Scene(fragmentSelector));
 
         try {
-            stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+            stage.showAndWait();
         }
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
@@ -919,39 +927,6 @@ stage.show();
         }
     }
 
-//    public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart, NumberAxis xAxis, NumberAxis yAxis) {
-//        dataSeries.getData().clear();
-//        lineChart.getData().clear();
-//
-//        xAxis.setLabel("Geometry");
-//        yAxis.setLabel("Energy");
-//
-//        lineChart = new LineChart(xAxis, yAxis);
-//        dataSeries.getData().add(new XYChart.Data(1, 60));
-//        dataSeries.getData().add(new XYChart.Data(2, 40));
-//        dataSeries.getData().add(new XYChart.Data(3, 25));
-//        dataSeries.getData().add(new XYChart.Data(4, 20));
-//        try {
-//            lineChart.getData().add(dataSeries);
-//        }
-//        catch (IllegalArgumentException e) {
-//            System.out.println("Duplicate series Exception caught");
-//        }
-//    }
-public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
-    dataSeries.getData().clear();
-
-    XYChart.Data dataPt = new XYChart.Data(1, 60);
-
-    dataSeries.getData().add(new XYChart.Data(1, 60));
-    dataSeries.getData().add(new XYChart.Data(2, 40));
-    dataSeries.getData().add(new XYChart.Data(3, 25));
-    dataSeries.getData().add(new XYChart.Data(4, 20));
-    lineChart.getData().add(dataSeries);
-
-//    Tooltip.install(dataSeries.getNode(), new Tooltip("(" + dataSeries.getNode()));
-   // dataSeries.getNode().setOnMouseClicked();
-}
     @FXML
     public void showGeomAnalysis() {
         Stage stage = new Stage();
@@ -962,9 +937,8 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Energy");
 
-
         LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
-        geomVsEnergyChart.setTitle("Geometry vs. Energy");
+        geomVsEnergyChart.setTitle("Energy vs. Geometry");
 
         GridPane geomGrid = new GridPane();
         geomGrid.setPadding(new Insets(10, 10, 10, 10));
@@ -982,8 +956,15 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         autosizeBtn.setPrefWidth(120);
         autosizeBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                xAxis.setAutoRanging(true);
-                yAxis.setAutoRanging(true);
+//                xAxis.setAutoRanging(true);
+//                yAxis.setAutoRanging(true);
+
+                int xPow = getExponent(maxXVal);
+                int yPow = getExponent(maxYVal);
+
+                xAxis.setUpperBound(maxXVal + Math.pow(10, xPow));
+                yAxis.setUpperBound(maxYVal + Math.pow(10, yPow));
+
             }
         }));
 
@@ -998,26 +979,63 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         Button rightArrowBtn = new Button();
         rightArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
 
+        ToggleButton chartInfoButton = new ToggleButton();
+
+        chartInfoButton.setText("");
+        chartInfoButton.setGraphic(new ImageView(chartUsageInfo));
+
+        chartInfoButton.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Info!");
+                alert.setHeaderText("Number Entry Error");
+                alert.setContentText("Info");
+                alert.showAndWait();
+            }
+        }));
         HBox navBtnsHBox = new HBox(10);
 
         XYChart.Series series = new XYChart.Series();
         series.setName("Dummy Vals");
 
 
-        series.getData().add(new XYChart.Data<Number, Number>(1, 60));
-        series.getData().add(new XYChart.Data<Number, Number>(2, 40));
-        series.getData().add(new XYChart.Data<Number, Number>(3, 25));
-        series.getData().add(new XYChart.Data<Number, Number>(4, 20));
+        XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(1, 60);
+        XYChart.Data<Number, Number> data2 = new XYChart.Data<Number, Number>(2, 40);
+        XYChart.Data<Number, Number> data3 = new XYChart.Data<Number, Number>(3, 25);
+        XYChart.Data<Number, Number> data4 = new XYChart.Data<Number, Number>(4, 20);
+
+
+        series.getData().add(data1);
+        series.getData().add(data2);
+        series.getData().add(data3);
+        series.getData().add(data4);
 
         maxYVal = 60;
-        maxXVal = 4;
+        maxXVal = 7;
 
+        upperXBound = maxXVal + 1;
+        upperYBound = maxYVal + 10;
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(0);
         xAxis.setUpperBound(maxXVal + 1);
         xAxis.setTickUnit(1);
 
         geomVsEnergyChart.getData().add(series);
+
+        Tooltip.install(data1.getNode(), new Tooltip("(" + data1.getXValue() + ", " + data1.getYValue() + ")"));
+        Tooltip.install(data2.getNode(), new Tooltip("(" + data2.getXValue() + ", " + data2.getYValue() + ")"));
+        Tooltip.install(data3.getNode(), new Tooltip("(" + data3.getXValue() + ", " + data3.getYValue() + ")"));
+        Tooltip.install(data4.getNode(), new Tooltip("(" + data4.getXValue() + ", " + data4.getYValue() + ")"));
+
+        Tooltip.install(xAxis, new Tooltip("Drag right to double scale, drag left to half scale"));
+        Tooltip.install(yAxis, new Tooltip("Drag up to double scale, drag down to half scale"));
+//        data1.getNode().setOnMouseClicked( ((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                System.out.println("Node pressed");
+//                lastXPosition = event.getSceneX();
+//
+//            }
+//        })));
 
 
 //        for (XYChart.Data<Number, Number> data: series.getData()) {
@@ -1030,21 +1048,21 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 xPressed = true;
-                System.out.println("X Axis pressed");
+              //  System.out.println("X Axis pressed");
                 lastXPosition = event.getSceneX();
             }
         }));
 
         xAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                System.out.println("X Axis dragged");
+               // System.out.println("X Axis dragged");
                 //If the user drags right
                 if (xPressed) {
                     if (event.getSceneX() - lastXPosition >= 20.0) {
                         xAxis.setAutoRanging(false);
-                        double tempMaxXVal = maxXVal * 2;
+                        double tempMaxXVal = upperXBound * 2;
                         xAxis.setUpperBound(tempMaxXVal);
-                        maxXVal *= 2;
+                        upperXBound *= 2;
 
                         xPressed = false;
                         System.out.println("Finished right drag logic");
@@ -1052,8 +1070,8 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
                     } else if (lastXPosition - event.getSceneX() >= 20.0) {
                         xAxis.setAutoRanging(false);
                         //xAxis.setTickUnit();
-                        xAxis.setUpperBound(Math.ceil(maxXVal / 2));
-                        maxXVal /= 2;
+                        xAxis.setUpperBound(Math.ceil(upperXBound / 2));
+                        upperXBound /= 2;
                         xPressed = false;
 
                     }
@@ -1061,9 +1079,21 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
             }
         }));
 
+//        xAxis.setTickLabelFormatter(new StringConverter<Number>() {
+//            @Override
+//            public String toString(Number object) {
+//                return object.intValue() + "";
+//            }
+//
+//            @Override
+//            public Number fromString(String string) {
+//                return 0;
+//            }
+//        });
+
         yAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                System.out.println("Y Axis pressed");
+               // System.out.println("Y Axis pressed");
                 lastYPosition = event.getSceneY();
                 yPressed = true;
             }
@@ -1072,21 +1102,21 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         yAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
 
-                System.out.println("Y Axis dragged");
+              //  System.out.println("Y Axis dragged");
                 //If the user drags right
                 if (yPressed) {
                     if (lastYPosition - event.getSceneY() >= 20.0) {
                         yAxis.setAutoRanging(false);
                       //  yAxis.setTickUnit(30);
-                        yAxis.setUpperBound(maxYVal * 2);
-                        maxYVal *= 2;
+                        yAxis.setUpperBound(upperYBound * 2);
+                        upperYBound *= 2;
                         yPressed = false;
                         System.out.println("Finished up drag logic");
                     }
                     else if (event.getSceneY() - lastYPosition >= 20.0) {
                         yAxis.setAutoRanging(false);
-                        yAxis.setUpperBound(maxYVal / 2);
-                        maxYVal /= 2;
+                        yAxis.setUpperBound(upperYBound / 2);
+                        upperYBound /= 2;
                         yPressed = false;
                     }
                 }
@@ -1098,12 +1128,12 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         HBox yHBox = new HBox(10);
         HBox scaleBtnsHBox = new HBox(10);
 
-        Label xLabel = new Label("Set X Bound");
+        Label xLabel = new Label("Set Custom X Bound");
         TextField xAxeInput = new TextField();
         xAxeInput.setPromptText("Current X axis Tick unit: " + xAxis.getTickUnit());
         xHBox.getChildren().addAll(xLabel, xAxeInput);
 
-        Label yLabel = new Label("Set Y Bound");
+        Label yLabel = new Label("Set Custom Y Bound");
         TextField yAxeInput = new TextField();
         yAxeInput.setPromptText("Current Y axis Tick unit: " + yAxis.getTickUnit());
         yHBox.getChildren().addAll(yLabel, yAxeInput);
@@ -1111,19 +1141,72 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         Button scaleBtn = new Button("Scale");
         scaleBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                System.out.println("X Field text: " + xAxeInput.getText());
-                System.out.println("y Field text: " + yAxeInput.getText());
+                xAxis.setAutoRanging(false);
+                yAxis.setAutoRanging(false);
 
-                xAxis.setUpperBound(Double.parseDouble(xAxeInput.getText()));
-                yAxis.setUpperBound(Double.parseDouble(yAxeInput.getText()));
+                try {
+
+                    Double parsedXInput = Double.parseDouble(xAxeInput.getText());
+                    Double parsedYInput = Double.parseDouble(xAxeInput.getText());
+
+//                    if (parsedXInput < 0.0|| parsedYInput < 0.0) {
+//                        showErrorDialog("Please make sure the scale values are greater than zero!");
+//                    }
+
+
+                    xAxis.setUpperBound(Double.parseDouble(xAxeInput.getText()));
+                    yAxis.setUpperBound(Double.parseDouble(yAxeInput.getText()));
+
+                }
+                catch (NumberFormatException e) {
+                    showErrorDialog("Please make sure the scale values are valid numbers!");
+                }
+
 
             }
         }));
 
+
+        Button saveAsPNGBtn = new Button("Save as PNG");
+        saveAsPNGBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+
+                WritableImage chartPNG = geomVsEnergyChart.snapshot(new SnapshotParameters(), null);
+                String home = System.getProperty("user.home");
+
+                System.out.println("Home: " + home);
+                TextInputDialog pngDialog = new TextInputDialog("chart_snapshot");
+                pngDialog.setTitle("Name Your File");
+                pngDialog.setHeaderText("File Name");
+                pngDialog.setContentText("Please name your file (no extension) or use the default: ");
+
+                Optional<String> result = pngDialog.showAndWait();
+
+                File file = new File(home + "/Documents/" + result.get() + ".png");
+                System.out.println("File name: " + file.getAbsolutePath());
+
+                try {
+                    ImageIO.write(SwingFXUtils.fromFXImage(chartPNG, null), "png", file);
+                }
+                catch (Exception e) {
+                    System.out.println("PNG Exception");
+                }
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("File Saved!");
+                alert.setContentText("Your file has been saved! It is located in the Documents folder at: " + file.getAbsolutePath());
+                alert.showAndWait();
+
+            }
+        }));
+
+        //Button saveAsCSVButton = new Button()
+
+
         scaleBtnsHBox.getChildren().addAll(scaleBtn, autosizeBtn);
         axesEditVBox.getChildren().addAll(xHBox, yHBox, scaleBtnsHBox);
 
-        navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn);
+        navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn, chartInfoButton, saveAsPNGBtn);
 
         GridPane.setConstraints(list, 0, 0);
         GridPane.setConstraints(geomVsEnergyChart, 1, 0);
@@ -1137,6 +1220,25 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
 
     }
 
+    public int getExponent(double bound) {
+        int pow = 0;
+        int boundInt = (int) bound;
+
+        boundInt /= 10;
+        while (boundInt != 0) {
+            pow++;
+            boundInt /= 10;
+        }
+        return pow;
+    }
+
+    public void showErrorDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error!");
+        alert.setHeaderText("Number Entry Error");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     @FXML
     public void showEnergyAnalysis() {
@@ -1166,6 +1268,7 @@ public void redrawGraph(XYChart.Series dataSeries, LineChart lineChart) {
         Scene scene = new Scene(vBox, 800, 800);
 
         scene.getStylesheets().add("bar_styles.css");
+
 
         dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
         dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
