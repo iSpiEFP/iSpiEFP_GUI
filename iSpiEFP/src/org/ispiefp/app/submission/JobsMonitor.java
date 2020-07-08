@@ -1,8 +1,11 @@
 package org.ispiefp.app.submission;
 
 import com.google.gson.Gson;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.server.JobManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -87,12 +90,29 @@ public class JobsMonitor implements Runnable {
     }
 
     public void retrieveJob(JobManager jm){
-        String fileContents = "";
+        String outputFileContents = "";
+        String errorFileContents = "";
+        String outputFilePath = jm.getOutputFilename();
+        String errorFilePath = jm.getStdoutputFilename();
+        String outputFileName = outputFilePath.substring(outputFilePath.lastIndexOf(File.separatorChar) + 1);
+        String errorFileName = errorFilePath.substring(errorFilePath.lastIndexOf(File.separatorChar) + 1);
         try {
-            fileContents = jm.getRemoteFile(jm.getOutputFilename());
-        } catch (IOException e){ System.err.println("Was unable to retrieve the file for the completed job"); }
-        System.out.println("Attempting to print the retrieved file:");
-        System.out.println(fileContents);
+            outputFileContents = jm.getRemoteFile(jm.getOutputFilename());
+            errorFileContents = jm.getRemoteFile(jm.getStdoutputFilename());
+        } catch (IOException e){ System.err.println("Was unable to retrieve the files for the completed job"); }
+        File outputFile = new File(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
+        try {
+            FileUtils.writeStringToFile(outputFile, outputFileContents, "UTF-8");
+        } catch (IOException e){
+            System.err.println("Was unable to write the output file locally");
+        }
+        File errorFile = new File(jm.getLocalWorkingDirectory() + File.separator + errorFileName);
+        try {
+            FileUtils.writeStringToFile(errorFile, errorFileContents, "UTF-8");
+        } catch (IOException e){
+            System.err.println("Was unable to write the error file locally");
+        }
+
     }
 
     public boolean checkForError(JobManager jm){
