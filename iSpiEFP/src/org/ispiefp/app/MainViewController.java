@@ -220,11 +220,11 @@ public class MainViewController {
                             if (!accountedForJobs.contains(currentRecordName)) {
                                 accountedForJobs.add(currentRecordName);
                                 Text idText = new Text(currentRecordName);
-                                TreeItem<Text> jobIDTreeItem = new TreeItem<>(idText);
+                                TreeItem<String> jobIDTreeItem = new TreeItem<>(idText.toString());
                                 historyRoot.getChildren().add(jobIDTreeItem);
                                 if (!tMap.containsKey(currentRecordName)) {
                                     tMap.put(currentRecordName, jobIDTreeItem);
-                                    jobIDTreeItem.getChildren().add(0, new TreeItem<Text>());
+                                    jobIDTreeItem.getChildren().add(0, new TreeItem<>());
                                 }
                             }
                         }
@@ -291,7 +291,7 @@ public class MainViewController {
             } catch (ClassCastException e){
                 //This is a cheap solution to the issue of the user being able to right click the root node.
             }
-            });
+        });
 
         /* Create "View Job Information" Context Menu Option */
         MenuItem viewJobInfoOption = new MenuItem("View Job Info");
@@ -532,7 +532,7 @@ public class MainViewController {
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
-       // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
 
         try {
@@ -857,22 +857,22 @@ public class MainViewController {
 
     @FXML
     public void calculateLibefpHistory () throws IOException {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/views/submissionHistory.fxml"
-                    )
-            );
-            Stage stage = new Stage(StageStyle.DECORATED);
-            stage.setScene(
-                    new Scene(
-                            loader.load()
-                    )
-            );
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(
+                        "/views/submissionHistory.fxml"
+                )
+        );
+        Stage stage = new Stage(StageStyle.DECORATED);
+        stage.setScene(
+                new Scene(
+                        loader.load()
+                )
+        );
         SubmissionHistoryController controller = loader.getController();
         stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Submission History");
-            stage.show();
-        }
+        stage.setTitle("Submission History");
+        stage.show();
+    }
 
 
     @FXML
@@ -917,30 +917,30 @@ public class MainViewController {
         stage.show();
     }
 
-            /******************************************************************************************
-             *             HELP MENU BEGINS                                                           *
-             ******************************************************************************************/
-            @FXML
-            public void helpCheckForUpdates() throws IOException {
-                //TODO
-                //This is currently disabled in the fxml doc since it is not currently operational
-                CheckUpdates checkUpdates = new CheckUpdates();
-                String[] versions = checkUpdates.getVersions();
-                if (versions.length != 2) {
-                    throw new IOException();
-                }
-                Alert alert;
-                if (versions[0].compareTo(versions[1]) == 0) {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
-                                      + versions[0], ButtonType.OK);
-                } else {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
-                                      versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
-                }
-                alert.showAndWait();
-                //jmolMainPanel.repaint();
-                return;
-            }
+    /******************************************************************************************
+     *             HELP MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void helpCheckForUpdates() throws IOException {
+        //TODO
+        //This is currently disabled in the fxml doc since it is not currently operational
+        CheckUpdates checkUpdates = new CheckUpdates();
+        String[] versions = checkUpdates.getVersions();
+        if (versions.length != 2) {
+            throw new IOException();
+        }
+        Alert alert;
+        if (versions[0].compareTo(versions[1]) == 0) {
+            alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                    + versions[0], ButtonType.OK);
+        } else {
+            alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                    versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
+        }
+        alert.showAndWait();
+        //jmolMainPanel.repaint();
+        return;
+    }
 
     @FXML
     public void helpAbout () throws IOException {
@@ -1162,14 +1162,14 @@ stage.show();
 
     public void VisualizeLibEFPResultFile() {
         try {
-            File outFile = new File("iSpiEFP/w6b2_md.out");
+            File outFile = new File("iSpiEFP/pbc_1.out");
             File tempOutFile = new File("testTemp.xyz");
 
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
             BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
 
-            boolean finalState = false;
-            boolean singlePointState = false;
+            boolean startOfGeometry = false;
+            boolean moleculeRead = false;
             int count = 0;
             String finalOut = "";
             int maxStep = 0;
@@ -1178,14 +1178,16 @@ stage.show();
                 String line = bufferedReader.readLine();
                 if (line == null) break;
                 else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
-                else if (line.contains("FINAL STATE")) finalState = true;
-                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) finalState = true;
-                else if (line.contains("RESTART DATA")) finalState = false;
-                else if (line.contains("SINGLE POINT ENERGY JOB")) singlePointState = true;
-                else if (line.contains("ENERGY COMPONENTS (ATOMIC UNITS)")) singlePointState = false;
-                else if (finalState || singlePointState) {
-                    if (!line.contains("GEOMETRY") && !line.equals("")) {
-                        String[] unprocessedLine = line.split(" ");
+                else if (line.contains("FINAL STATE")) startOfGeometry = true;
+                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
+                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
+                else if (startOfGeometry) {
+                    line = line.replaceAll(" +", " ");
+                    String[] unprocessedLine = line.split(" ");
+                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
+                        if (moleculeRead) break;
+                    } else {
+                        moleculeRead = true;
                         for (String s : unprocessedLine) {
                             if (s.equals("")) continue;
                             else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
@@ -1198,7 +1200,7 @@ stage.show();
                 }
             }
 
-            finalOut = count + "\n" + "comment\n" + finalOut;
+            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
 
             bufferedWriter.write(finalOut);
             bufferedWriter.close();

@@ -32,7 +32,7 @@ jobs:
         git add ./iSpiEFP/resources/userVersion.txt
         git commit -m "Automated update of version file"
     - name: Push changes
-      uses: ad-m/github-push-action@master
+      uses: ad-m/github-push-action@TestCheckForUpdates
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         force: true
