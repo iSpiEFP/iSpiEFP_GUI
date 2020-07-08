@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -67,7 +68,6 @@ public class libEFPInputController implements Initializable {
 
     @FXML
     private ComboBox<String> format;
-
 
     @FXML
     private ComboBox<String> elec_damp;
@@ -144,6 +144,8 @@ public class libEFPInputController implements Initializable {
     @FXML
     private ComboBox<String> server;
 
+    @FXML private TextField localWorkingDirectory;
+    @FXML Button findButton;
     @FXML
     private Button nextButton;
 
@@ -415,7 +417,9 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
-        if (!server.getSelectionModel().isEmpty()) nextButton.setDisable(false);
+        if (!server.getSelectionModel().isEmpty() ||
+                (new File(localWorkingDirectory.getText()).exists() &&
+                        new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
     }
 
     public void generatelibEFPInputFile() {
@@ -685,7 +689,9 @@ public class libEFPInputController implements Initializable {
             submission.submit(subScriptCont.getUsersSubmissionScript());
             currentTime = dateFormat.format(date).toString();
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), currentTime, "QUEUE", "LIBEFP");
+            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
+                    localWorkingDirectory.getText(), submission.outputFilename, title.getText(),
+                    currentTime, "QUEUE", "LIBEFP");
             UserPreferences.getJobsMonitor().addJob(jobManager);
             Stage currentStage = (Stage) root.getScene().getWindow();
             currentStage.close();
@@ -907,6 +913,16 @@ public class libEFPInputController implements Initializable {
             }
         }
         return rmsdMap;
+    }
+
+    public void findDirectory(){
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select a Working Directory for Job: " + title.getText());
+        directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        Stage currStage = (Stage) root.getScene().getWindow();
+
+        File file = directoryChooser.showDialog(currStage);
+        localWorkingDirectory.setText(file.getAbsolutePath());
     }
 
     // Handle SSH case later

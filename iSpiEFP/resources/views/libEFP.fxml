@@ -64,7 +64,7 @@
                 <Label text="Load a Preset:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                 <ComboBox fx:id="presets" maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"
                           promptText="None Selected"/>
-                <Label text="Title:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label text="Job Title:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                 <TextField fx:id="title" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="3"
                            onAction="#updatelibEFPInputText" promptText="Enter title"/>
                 <Label text="Run Type:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
@@ -91,8 +91,11 @@
                           onAction="#updatelibEFPInputText"/>
                 <Label text="Auto submission: " GridPane.rowIndex="6" GridPane.columnIndex="2"/>
                 <ComboBox fx:id="auto_sub" maxWidth="Infinity" GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+                <Label text="Target Directory: " GridPane.rowIndex="7"  GridPane.columnIndex="0" />
+                <TextField fx:id="localWorkingDirectory" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+                <Button fx:id="findButton" text="Find" GridPane.rowIndex="7" GridPane.columnIndex="2" onAction="#findDirectory" />
                 <TextArea fx:id="libEFPInputTextArea" maxWidth="Infinity"
-                          GridPane.rowIndex="7" GridPane.columnIndex="0" GridPane.columnSpan="4" GridPane.rowSpan="3">
+                          GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="4" GridPane.rowSpan="3">
                 </TextArea>
                 <columnConstraints>
                     <ColumnConstraints percentWidth="20" hgrow="ALWAYS"/>
