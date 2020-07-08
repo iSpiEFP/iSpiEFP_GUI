@@ -385,7 +385,7 @@ public class MainViewController {
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
-       // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
 
         try {
@@ -710,22 +710,22 @@ public class MainViewController {
 
     @FXML
     public void calculateLibefpHistory () throws IOException {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/views/submissionHistory.fxml"
-                    )
-            );
-            Stage stage = new Stage(StageStyle.DECORATED);
-            stage.setScene(
-                    new Scene(
-                            loader.load()
-                    )
-            );
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(
+                        "/views/submissionHistory.fxml"
+                )
+        );
+        Stage stage = new Stage(StageStyle.DECORATED);
+        stage.setScene(
+                new Scene(
+                        loader.load()
+                )
+        );
         SubmissionHistoryController controller = loader.getController();
         stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Submission History");
-            stage.show();
-        }
+        stage.setTitle("Submission History");
+        stage.show();
+    }
 
 
     @FXML
@@ -770,30 +770,30 @@ public class MainViewController {
         stage.show();
     }
 
-            /******************************************************************************************
-             *             HELP MENU BEGINS                                                           *
-             ******************************************************************************************/
-            @FXML
-            public void helpCheckForUpdates() throws IOException {
-                //TODO
-                //This is currently disabled in the fxml doc since it is not currently operational
-                CheckUpdates checkUpdates = new CheckUpdates();
-                String[] versions = checkUpdates.getVersions();
-                if (versions.length != 2) {
-                    throw new IOException();
-                }
-                Alert alert;
-                if (versions[0].compareTo(versions[1]) == 0) {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
-                                      + versions[0], ButtonType.OK);
-                } else {
-                    alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
-                                      versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
-                }
-                alert.showAndWait();
-                //jmolMainPanel.repaint();
-                return;
-            }
+    /******************************************************************************************
+     *             HELP MENU BEGINS                                                           *
+     ******************************************************************************************/
+    @FXML
+    public void helpCheckForUpdates() throws IOException {
+        //TODO
+        //This is currently disabled in the fxml doc since it is not currently operational
+        CheckUpdates checkUpdates = new CheckUpdates();
+        String[] versions = checkUpdates.getVersions();
+        if (versions.length != 2) {
+            throw new IOException();
+        }
+        Alert alert;
+        if (versions[0].compareTo(versions[1]) == 0) {
+            alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                    + versions[0], ButtonType.OK);
+        } else {
+            alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                    versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
+        }
+        alert.showAndWait();
+        //jmolMainPanel.repaint();
+        return;
+    }
 
     @FXML
     public void helpAbout () throws IOException {
