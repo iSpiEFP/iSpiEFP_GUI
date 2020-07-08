@@ -161,6 +161,8 @@ public class LibEFPtoCSV {
                     }
                 }
             }
+            bufferedReader.close();
+            fileReader.close();
             if (type == Type.REGULAR) {
                 csvString[TOTAL_INDEX] = "Geometry #,Electrostatic,Polarization,Dispersion,Exchange-repusion,Point charges," +
                         "Charge-penetration,Total\n" + csvString[TOTAL_INDEX];
