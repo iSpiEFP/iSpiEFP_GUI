@@ -33,12 +33,15 @@ public class JobManager implements Runnable {
     private String type;
     private String outputFilename;
     private String stdoutputFilename;
+    private String localWorkingDirectory;
     private transient Connection conn;
 
-    public JobManager(String username, String password, String hostname, String jobID, String title, String date, String status, String type) {
+    public JobManager(String username, String password, String hostname, String localWorkingDirectory,
+                      String jobID, String title, String date, String status, String type) {
         this.username = username;
         this.password = password;
         this.hostname = hostname;
+        this.localWorkingDirectory = localWorkingDirectory;
         this.jobID = jobID;
         this.title = title;
         this.date = date;
@@ -122,7 +125,7 @@ public class JobManager implements Runnable {
      * Start a thread that watches a specific job and send a notification when the jobs completes
      */
     public void watchJobStatus() {
-        (new Thread(new JobManager(this.username, this.password, this.hostname, this.jobID, this.title, this.date, this.status, this.type))).start();
+        (new Thread(new JobManager(this.username, this.password, this.hostname, this.localWorkingDirectory, this.jobID, this.title, this.date, this.status, this.type))).start();
     }
 
     /*
@@ -429,6 +432,10 @@ public class JobManager implements Runnable {
         return hostname;
     }
 
+    public String getLocalWorkingDirectory() {
+        return localWorkingDirectory;
+    }
+
     public String getJobID() {
         return jobID;
     }
@@ -471,6 +478,10 @@ public class JobManager implements Runnable {
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
+    }
+
+    public void setLocalWorkingDirectory(String localWorkingDirectory) {
+        this.localWorkingDirectory = localWorkingDirectory;
     }
 
     public void setJobID(String jobID) {
