@@ -1,9 +1,9 @@
 package org.ispiefp.app.libEFP;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import org.ispiefp.app.visualizer.JmolMainPanel;
+import org.jmol.api.JmolViewer;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -632,5 +632,35 @@ public class OutputFile {
                 }
             }
         } finally { br.close(); }
+    }
+
+    public void viewState(JmolMainPanel jmolViewer, int index) {
+        State state = states.get(index);
+        State.Geometry geometry = state.getGeometry();
+        String finalOut = "";
+        File tempOutFile = new File("testTemp.xyz");
+        BufferedWriter bufferedWriter = null;
+        try {
+            bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        for(State.Geometry.Atom atom : geometry.getAtoms()){
+            finalOut += String.format("%s %s\n",
+                    atom.atomID.substring(1).replaceAll("[0-9]", ""),
+                    String.format("%f %f %f", atom.x, atom.y, atom.z));
+        }
+        finalOut = geometry.getAtoms().size() + "\n\n" + finalOut;
+        if (bufferedWriter != null) {
+            try {
+                bufferedWriter.write(finalOut);
+                bufferedWriter.close();
+                jmolViewer.removeAll();
+                jmolViewer.openFile(tempOutFile);
+                tempOutFile.delete();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
     }
 }
