@@ -54,8 +54,8 @@ public class JobViewController {
             //todo Add finish time as a field
         }
         finishTime.setText("Running...");
-        outputFile.setText(record.getOutputFilePath());
-        errorFile.setText(record.getStdoutputFilePath());
+        outputFile.setText(record.getLocalOutputFilePath());
+        errorFile.setText(record.getLocalStdoutputFilePath());
 //        ObservableList<String> observableEFPFiles = FXCollections.observableArrayList(record.getUsedEfpFilepaths());
 //        usedEFPFiles.setItems(observableEFPFiles);
 

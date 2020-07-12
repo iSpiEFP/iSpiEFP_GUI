@@ -1,8 +1,8 @@
 #!/bin/csh
-#SBATCH -o iSpiClient/Libefp/output/meth.stdout
+#SBATCH -o iSpiClient/Libefp/output/test3.stdout
 #SBATCH -A debug
 #SBATCH -N 1
 #SBATCH -n 20
 #SBATCH -t 00:30:00
 #SBATCH --mem=1000
-/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/meth.in > iSpiClient/Libefp/output/meth.out
+/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/input/test3.in > iSpiClient/Libefp/output/test3.out
