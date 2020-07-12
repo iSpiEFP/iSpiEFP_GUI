@@ -10,6 +10,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import org.apache.commons.io.FileUtils;
+import org.ispiefp.app.libEFP.OutputFile;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class JobViewController {
 
     /* Fields controlling jmol interaction */
     @FXML private Pane previewPane;
-//    private final JmolMainPanel jmolPreviewPanel;
+    private JmolMainPanel jmolPreviewPanel;
 
 
     /* Fields controlling file content visualization */
@@ -44,10 +45,10 @@ public class JobViewController {
     public JobViewController(SubmissionRecord record){
         super();
         this.record = record;
-//        jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
     }
 
     public void initialize(){
+        jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
         jobName.setText(record.getJob_id());
         submissionTime.setText(record.getTime());
         if (record.getStatus().equalsIgnoreCase("complete")){
@@ -80,7 +81,14 @@ public class JobViewController {
         else fileContentsTextArea.setText("Was unable to open the file");
 
         if (isVisualizable){
-            //todo make the visualizable file display in the preview pane.
+            OutputFile outfile;
+            try {
+                outfile = new OutputFile(filePath);
+            } catch (IOException e){
+                e.printStackTrace();
+                return;
+            }
+            outfile.viewState(jmolPreviewPanel, outfile.getStates().size() - 1);
         }
     }
 }

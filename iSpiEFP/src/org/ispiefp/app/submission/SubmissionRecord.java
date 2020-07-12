@@ -81,9 +81,9 @@ public class SubmissionRecord {
     public void setJobManager(JobManager jobManager) {
         this.jobManager = jobManager;
         localOutputFilePath = jobManager.getLocalWorkingDirectory() +
-                jobManager.getOutputFilename().substring(jobManager.getOutputFilename().lastIndexOf(File.separator) + 1);
+                jobManager.getOutputFilename().substring(jobManager.getOutputFilename().lastIndexOf(File.separator));
         localStdoutputFilePath = jobManager.getLocalWorkingDirectory() +
-                jobManager.getStdoutputFilename().substring(jobManager.getStdoutputFilename().lastIndexOf(File.separator) + 1);
+                jobManager.getStdoutputFilename().substring(jobManager.getStdoutputFilename().lastIndexOf(File.separator));
     }
 
     public void setStatus(String status) {
