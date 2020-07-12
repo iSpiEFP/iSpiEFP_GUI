@@ -147,8 +147,8 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    @FXML private TreeView historyTreeView;
-    @FXML private TreeItem historyRoot;
+    @FXML private TreeView<String> historyTreeView;
+    @FXML private TreeItem<String> historyRoot;
 
     //private UserPreferences userPrefs = new UserPreferences();
 
@@ -274,7 +274,7 @@ public class MainViewController {
         MenuItem deleteRecordOption = new MenuItem("Delete Job");
         deleteRecordOption.setOnAction(action -> {
             try {
-                String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
+                String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
                 /* 1. Kill the job on the server if it is running todo */
                 /* 2. Remove it from the list of jobs on the jobsMonitor */
                 //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
@@ -287,7 +287,7 @@ public class MainViewController {
                         UserPreferences.getJobsMonitor().getRecords().get(jobID));
                 /* 4. Remove it from the history pane */
                 historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
-                System.out.println("Selected item is of class: " + ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText());
+                System.out.println("Selected item is of class: " + ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue());
             } catch (ClassCastException e){
                 //This is a cheap solution to the issue of the user being able to right click the root node.
             }
@@ -296,7 +296,7 @@ public class MainViewController {
         /* Create "View Job Information" Context Menu Option */
         MenuItem viewJobInfoOption = new MenuItem("View Job Info");
         viewJobInfoOption.setOnAction(action -> {
-            String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
+            String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
             ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
             /* Pull up a view displaying all information about the job */
             try {
