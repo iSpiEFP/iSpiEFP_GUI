@@ -1,5 +1,7 @@
 package org.ispiefp.app.submission;
 
+import org.ispiefp.app.server.JobManager;
+
 import java.util.ArrayList;
 
 public class SubmissionRecord {
@@ -8,6 +10,7 @@ public class SubmissionRecord {
     private String status;
     private String time;
     private String job_id;
+    private JobManager jobManager;
 
     /* Optional Fields */
     private String outputFilePath;
@@ -30,6 +33,10 @@ public class SubmissionRecord {
 
     public String getName() {
         return job_id;
+    }
+
+    public JobManager getJobManager() {
+        return jobManager;
     }
 
     public String getStatus() {
@@ -62,6 +69,10 @@ public class SubmissionRecord {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setJobManager(JobManager jobManager) {
+        this.jobManager = jobManager;
     }
 
     public void setStatus(String status) {

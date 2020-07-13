@@ -543,7 +543,7 @@ public class gamessInputController implements Initializable {
                     outToServer.close();
 
                     //poll for job finishing
-                    JobManager jobManager = new JobManager(username, password, hostname, jobID, title, time, "QUEUE",
+                    JobManager jobManager = new JobManager(username, password, hostname, null, jobID, title, time, "QUEUE",
                             "GAMESS");
                     jobManager.watchJobStatus();
 

@@ -20,7 +20,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.ispiefp.app.EFPFileRetriever.LibEFPtoCSV;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -35,7 +34,6 @@ import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 import org.ispiefp.app.visualizer.JmolPanel;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -49,7 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -148,8 +147,8 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    public TreeView historyTreeView;
-    TreeItem<String> historyRoot;
+    @FXML private TreeView historyTreeView;
+    @FXML private TreeItem historyRoot;
 
     //private UserPreferences userPrefs = new UserPreferences();
 
@@ -194,7 +193,7 @@ public class MainViewController {
             private TreeView<String> t;
             private HashMap<String, TreeItem> tMap;
 
-            public HistoryTreeUpdater(TreeView<String> s) {
+            public HistoryTreeUpdater(TreeView<String> s){
                 t = s;
                 tMap = new HashMap<>();
             }
@@ -213,10 +212,10 @@ public class MainViewController {
                 System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
                 System.out.printf("Size of tMap is currently %d%n", tMap.size());
                 System.out.printf("Size of records is currently %d%n", records.size());
-                while (true) {
-                    if (tMap.size() < records.size()) {
+                while (true){
+                    if (tMap.size() < records.size()){
                         Enumeration<String> recordEnumeration = records.keys();
-                        while (recordEnumeration.hasMoreElements()) {
+                        while (recordEnumeration.hasMoreElements()){
                             String currentRecordName = recordEnumeration.nextElement();
                             if (!accountedForJobs.contains(currentRecordName)) {
                                 accountedForJobs.add(currentRecordName);
@@ -232,7 +231,7 @@ public class MainViewController {
                     }
                     Date currentTime = new Date();
                     Enumeration<String> recordEnumeration = records.keys();
-                    while (recordEnumeration.hasMoreElements()) {
+                    while (recordEnumeration.hasMoreElements()){
                         String currentRecordName = recordEnumeration.nextElement();
                         SubmissionRecord currentRecord = records.get(currentRecordName);
                         TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
@@ -289,7 +288,7 @@ public class MainViewController {
                 /* 4. Remove it from the history pane */
                 historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
                 System.out.println("Selected item is of class: " + ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText());
-            } catch (ClassCastException e) {
+            } catch (ClassCastException e){
                 //This is a cheap solution to the issue of the user being able to right click the root node.
             }
         });
@@ -316,57 +315,12 @@ public class MainViewController {
                 } catch (Exception e) {
                     System.err.println("Unable to open new view");
                 }
-            } catch (IOException e) {
+            } catch (IOException e){
                 System.err.println("Was unable to locate the view");
                 e.printStackTrace();
             }
         });
-        MenuItem exportCSVOption = new MenuItem("Export to CSV");
-        exportCSVOption.setOnAction(action -> {
-//            LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
-//            String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
-//            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
-//            JobViewController jobViewController = new JobViewController(records.get(jobID));
-
-            String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
-            /* 1. Kill the job on the server if it is running todo */
-            /* 2. Remove it from the list of jobs on the jobsMonitor */
-            //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
-            CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
-            for (int i = 0; i < runningJobs.size(); i++) {
-                if (runningJobs.get(i).getJobID().equals(jobID)) {
-                    LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
-                    String[] csvFiles = libEFPtoCSV.getCSVString(runningJobs.get(i).getOutputFilename());
-                    for (int j = 0; j < csvFiles.length; j++) {
-                        if (csvFiles[j] != null) {
-                            FileChooser fileChooser = new FileChooser();
-                            fileChooser.setTitle("Save CSV File");
-                            fileChooser.setInitialDirectory(new File
-                                    (new File(runningJobs.get(i).getOutputFilename()).getParent()));
-                            Stage currStage = (Stage) root.getScene().getWindow();
-                            File file;
-                            if (j == 0) {
-                                file = new File(fileChooser.showOpenDialog(currStage).getAbsolutePath()
-                                                + "_ene.csv");
-                            } else {
-                                file = new File(fileChooser.showOpenDialog(currStage).getAbsolutePath() +
-                                                "_pw.csv");
-                            }
-                            try {
-                                FileWriter fileWriter = new FileWriter(file);
-                                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                                bufferedWriter.write(csvFiles[i]);
-                                bufferedWriter.close();
-                                fileWriter.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption, exportCSVOption));
+        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption));
     }
 
     /**
@@ -409,7 +363,7 @@ public class MainViewController {
                 new File(System.getProperty("user.home"))
         );
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.*"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"  ),
                 new FileChooser.ExtensionFilter("XYZ", "*.xyz"),
                 new FileChooser.ExtensionFilter("PDB", "*.pdb")
         );
@@ -442,7 +396,9 @@ public class MainViewController {
             rec_files = getRecentFileAggStr().split("::");
             System.out.println("Rec files array in fileOpen: " + Arrays.toString(rec_files));
             populateOpenRecentMenu(); //populates menu w/ rec_files, it's global so not passed as parameter
-        } else {
+        }
+
+        else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("File Does Not Exist");
@@ -476,7 +432,8 @@ public class MainViewController {
                         appendToRecentFilesStr(mi.getText());
                         fileOpenFromPath(mi.getText());
                         repopulate();
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         System.out.println("Exception in fileOpenPath");
                         e.printStackTrace();
                     }
@@ -504,7 +461,8 @@ public class MainViewController {
                         fileOpenFromPath(mi.getText());
                         repopulate();
 
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         System.out.println("Exception in fileOpenPath");
                     }
                 }
@@ -539,9 +497,12 @@ public class MainViewController {
                 libefpButton.setDisable(true);
             }
 
-        } catch (IOException e) {
+        }
+
+        catch (IOException e) {
             System.out.println("IOException");
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("General Exception");
             e.printStackTrace();
         }
@@ -567,7 +528,8 @@ public class MainViewController {
 
         try {
             stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
         // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
@@ -599,7 +561,7 @@ public class MainViewController {
         }
     }
 
-    public void openSettings() throws IOException {
+    public void openSettings() throws IOException{
         Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
@@ -608,27 +570,29 @@ public class MainViewController {
 
         try {
             stage.showAndWait();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.err.println("SHOW AND WAIT ERROR IN MAIN");
         }
     }
 
 
-    public void selectFragment() throws IOException {
+    public void selectFragment() throws IOException{
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
                 "You will only be able to select from " +
                 "fragments whose parameters are contained within your user parameters directory.";
-        if (!VerifyPython.isValidPython()) {
+        if (!VerifyPython.isValidPython()){
             VerifyPython.raisePythonError();
             return;
         }
-        if (!CheckInternetConnection.checkInternetConnection()) {
+        if (!CheckInternetConnection.checkInternetConnection()){
             Alert alert = new Alert(Alert.AlertType.WARNING,
                     noInternetWarning,
                     ButtonType.OK);
             alert.showAndWait();
             fragmentOpen();
-        } else fragmentOpen();
+        }
+        else fragmentOpen();
     }
 
     /**
@@ -647,7 +611,7 @@ public class MainViewController {
         alert.setContentText("Are you sure you want to exit?");
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
+        if (result.get() == ButtonType.OK){
             // ... user chose OK
             System.out.println("Stage is closing");
             Main.getPrimaryStage().close();
@@ -854,7 +818,7 @@ public class MainViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
-        if (jmolMainPanel.getFragmentComponents() == null) {
+        if (jmolMainPanel.getFragmentComponents() == null){
             String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
                     " calculations on. Add something to the system before attempting to perform libEFP calculations.";
             Alert alert = new Alert(Alert.AlertType.WARNING,
@@ -892,7 +856,7 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateLibefpHistory() throws IOException {
+    public void calculateLibefpHistory () throws IOException {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource(
                         "/views/submissionHistory.fxml"
@@ -912,14 +876,14 @@ public class MainViewController {
 
 
     @FXML
-    public void calculateGamessSetup() throws IOException {
+    public void calculateGamessSetup () throws IOException {
         //TODO this should open the gamess setup page
         //This is currently disabled in the fxml doc since it is not currently operational
 
     }
 
     @FXML
-    public void calculateGamessHistory() throws IOException {
+    public void calculateGamessHistory () throws IOException {
         LoginForm loginForm = new LoginForm("GAMESS");
         boolean authorized = loginForm.authenticate();
         if (authorized) {
@@ -944,7 +908,7 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateEditServers() throws IOException {
+    public void calculateEditServers () throws IOException {
         Parent serversList = FXMLLoader.load(getClass().getResource("/views/ServersList.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
@@ -979,17 +943,17 @@ public class MainViewController {
     }
 
     @FXML
-    public void helpAbout() throws IOException {
+    public void helpAbout () throws IOException {
         Main.hostServices.showDocument("https://www.chem.purdue.edu/Slipchenko/");
     }
 
     @FXML
-    public void helpJmolWiki() throws IOException {
+    public void helpJmolWiki () throws IOException {
         Main.hostServices.showDocument("http://jmol.sourceforge.net/");
     }
 
     @FXML
-    public void helpJmolConsole() throws IOException {
+    public void helpJmolConsole () throws IOException {
         //create window for console
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JFrame consoleFrame = new JFrame();
@@ -1054,7 +1018,7 @@ stage.show();
      * Handle Selection Toggle Button. Select all atoms and highlight
      */
     @FXML
-    public void toggleSelection() {
+    public void toggleSelection () {
         if (selectionButton.isSelected()) {
             jmolMainPanel.viewer.runScript("selectionHalos on");
             jmolMainPanel.viewer.runScript("select all");
@@ -1070,7 +1034,7 @@ stage.show();
      * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
      */
     @FXML
-    public void toggleHalo() {
+    public void toggleHalo () {
         if (haloButton.isSelected()) {
             System.out.println("on");
             jmolMainPanel.viewer.runScript("selectionHalos on");
@@ -1086,7 +1050,7 @@ stage.show();
      * Handle Snip Button. Turn on and off ability to fragment molecules by clicking on bonds
      */
     @FXML
-    public void toggleSnip() {
+    public void toggleSnip () {
         if (snipButton.isSelected()) {
             jmolMainPanel.viewer.runScript("set bondpicking true");
             jmolMainPanel.viewer.runScript("set picking deletebond");

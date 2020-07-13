@@ -19,12 +19,10 @@ import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 import org.ispiefp.app.visualizer.JmolPanel;
 import org.ispiefp.app.visualizer.ViewerHelper;
+import org.jmol.modelset.Atom;
 import org.jmol.viewer.Viewer;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -39,22 +37,22 @@ import java.util.*;
 public class SelectRMSDController {
 
     /* The table from which the user will be selecting the parameters they want to use for a given viewer fragment. *
-    *  Has 3 columns:                                                                                               *
-    *   1. The name of the fragment as defined by the metaData                                                      *
-    *   2. The file name which contains the parameters. Can be a local file or a remote file                        *
-    *   3. The RMSD computed between this library fragment and the current viewer fragment                          */
+     *  Has 3 columns:                                                                                               *
+     *   1. The name of the fragment as defined by the metaData                                                      *
+     *   2. The file name which contains the parameters. Can be a local file or a remote file                        *
+     *   3. The RMSD computed between this library fragment and the current viewer fragment                          */
 
     @FXML
     private TableView<MetaData> libraryFragments;
 
-        @FXML
-        private TableColumn fragmentName;
+    @FXML
+    private TableColumn fragmentName;
 
-        @FXML
-        private TableColumn fragmentFile;
+    @FXML
+    private TableColumn fragmentFile;
 
-        @FXML
-        private TableColumn RMSD;
+    @FXML
+    private TableColumn RMSD;
 
     /* The box which will contain a preview of the fragment for which the user is selecting parameters */
     @FXML
@@ -161,7 +159,7 @@ public class SelectRMSDController {
 
     public void handleSelection(){
         System.out.printf("Viewer Fragment Index is %d%n", currentViewerFragmentIndex);
-         selectedMetaDatas.put(validIndices.get(currentViewerFragmentIndex),
+        selectedMetaDatas.put(validIndices.get(currentViewerFragmentIndex),
                 libraryFragments.getSelectionModel().getSelectedItem());
         libraryFragments.getItems().clear();
         fragmentObservableList.clear();
@@ -189,6 +187,7 @@ public class SelectRMSDController {
         File xyzFile;
         try {
             xyzFile = createTempXYZFileFromViewer(index);
+            previewPanel.removeAll();
             previewPanel.openFile(xyzFile);
             if (!xyzFile.delete()) {
                 System.err.println("Was unable to delete the created xyzFile");
@@ -233,22 +232,14 @@ public class SelectRMSDController {
             ArrayList<Integer> atoms = getGroups(viewerFragments).get(fragmentIndex);
             //Write number of atoms not including dummy atoms in XYZ file
             bw.write(String.format("%d%n%n", atoms.size()));
-            System.out.println(atoms.size());
-            System.out.println();
-            for (int atom_num : atoms) {
-                org.jmol.modelset.Atom atom = mainJmolViewer.ms.at[atom_num];
-                bw.write(String.format("%s\t%.5f\t%.5f\t%.5f%n",
-                        atom.getAtomName(),
-                        ViewerHelper.convertAngstromToBohr(atom.x),
-                        ViewerHelper.convertAngstromToBohr(atom.y),
-                        ViewerHelper.convertAngstromToBohr(atom.z)
-                ));
-                System.out.println(String.format("%s\t%.5f\t%.5f\t%.5f",
-                        atom.getAtomName(),
-                        ViewerHelper.convertAngstromToBohr(atom.x),
-                        ViewerHelper.convertAngstromToBohr(atom.y),
-                        ViewerHelper.convertAngstromToBohr(atom.z)
-                ));
+//            System.out.println(atoms.size());
+//            System.out.println();
+            for (int i = 0; i < atoms.size(); i++) {
+                Atom atom = mainJmolViewer.ms.getAtom(i);
+                String fileLine = String.format("%s %.5f %.5f %.5f%n",
+                        atom.getAtomName().replaceAll("[0-9]", ""), atom.x, atom.y, atom.z);
+                bw.write(fileLine);
+//                System.out.println(fileLine);
             }
         }
         finally {

@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -67,7 +68,6 @@ public class libEFPInputController implements Initializable {
 
     @FXML
     private ComboBox<String> format;
-
 
     @FXML
     private ComboBox<String> elec_damp;
@@ -144,6 +144,8 @@ public class libEFPInputController implements Initializable {
     @FXML
     private ComboBox<String> server;
 
+    @FXML private TextField localWorkingDirectory;
+    @FXML Button findButton;
     @FXML
     private Button nextButton;
 
@@ -267,7 +269,7 @@ public class libEFPInputController implements Initializable {
         List<String> pol_solver_string = new ArrayList<String>();
         pol_solver_string.add("iterative");
         pol_solver_string.add("direct");
-        pol_solver.setItems(FXCollections.observableList(pol_damp_string));
+        pol_solver.setItems(FXCollections.observableList(pol_solver_string));
         pol_solver.setValue("iterative");
 
         List<String> ensemble_string = new ArrayList<String>();
@@ -415,7 +417,9 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
-        if (!server.getSelectionModel().isEmpty()) nextButton.setDisable(false);
+        if (!server.getSelectionModel().isEmpty() ||
+                (new File(localWorkingDirectory.getText()).exists() &&
+                        new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
     }
 
     public void generatelibEFPInputFile() {
@@ -682,12 +686,13 @@ public class libEFPInputController implements Initializable {
 
             String time = currentTime; //equivalent but in different formats
             dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-            currentTime = dateFormat.format(date).toString();
             submission.submit(subScriptCont.getUsersSubmissionScript());
+            currentTime = dateFormat.format(date).toString();
             userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(), submission.outputFilename, title.getText(), time, "QUEUE", "LIBEFP");
+            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
+                    localWorkingDirectory.getText(), submission.outputFilename, title.getText(),
+                    currentTime, "QUEUE", "LIBEFP");
             UserPreferences.getJobsMonitor().addJob(jobManager);
-//            UserPreferences.getJobsMonitor().run();
             Stage currentStage = (Stage) root.getScene().getWindow();
             currentStage.close();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -892,7 +897,7 @@ public class libEFPInputController implements Initializable {
                 }
                 String RMSDString = ExecutePython.runPythonScript(
                         "calculate_rmsd.py",
-                        String.format("%s %s", fragmentXYZFile.getAbsolutePath(), viewerFragmentXYZFile.getAbsolutePath())
+                        String.format("--reorder %s %s", fragmentXYZFile.getAbsolutePath(), viewerFragmentXYZFile.getAbsolutePath())
                 );
                 if (RMSDString.contains("OUTPUT")) {
                     String [] parsedString = RMSDString.split("null");
@@ -908,6 +913,16 @@ public class libEFPInputController implements Initializable {
             }
         }
         return rmsdMap;
+    }
+
+    public void findDirectory(){
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select a Working Directory for Job: " + title.getText());
+        directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        Stage currStage = (Stage) root.getScene().getWindow();
+
+        File file = directoryChooser.showDialog(currStage);
+        localWorkingDirectory.setText(file.getAbsolutePath());
     }
 
     // Handle SSH case later
