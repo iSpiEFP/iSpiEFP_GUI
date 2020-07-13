@@ -2,6 +2,7 @@ package org.ispiefp.app.submission;
 
 import org.ispiefp.app.server.JobManager;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class SubmissionRecord {
@@ -14,7 +15,9 @@ public class SubmissionRecord {
 
     /* Optional Fields */
     private String outputFilePath;
+    private String localOutputFilePath;
     private String stdoutputFilePath;
+    private String localStdoutputFilePath;
     private ArrayList<String> usedEfpFilepaths;
 
 
@@ -63,6 +66,10 @@ public class SubmissionRecord {
         return usedEfpFilepaths;
     }
 
+    public String getLocalOutputFilePath() { return localOutputFilePath; }
+
+    public String getLocalStdoutputFilePath() { return localStdoutputFilePath; }
+
     public void setJob_id(String job_id) {
         this.job_id = job_id;
     }
@@ -73,6 +80,10 @@ public class SubmissionRecord {
 
     public void setJobManager(JobManager jobManager) {
         this.jobManager = jobManager;
+        localOutputFilePath = jobManager.getLocalWorkingDirectory() +
+                jobManager.getOutputFilename().substring(jobManager.getOutputFilename().lastIndexOf(File.separator));
+        localStdoutputFilePath = jobManager.getLocalWorkingDirectory() +
+                jobManager.getStdoutputFilename().substring(jobManager.getStdoutputFilename().lastIndexOf(File.separator));
     }
 
     public void setStatus(String status) {
