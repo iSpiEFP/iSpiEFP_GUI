@@ -147,8 +147,8 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    @FXML private TreeView historyTreeView;
-    @FXML private TreeItem historyRoot;
+    @FXML private TreeView<String> historyTreeView;
+    @FXML private TreeItem<String> historyRoot;
 
     //private UserPreferences userPrefs = new UserPreferences();
 
@@ -219,8 +219,8 @@ public class MainViewController {
                             String currentRecordName = recordEnumeration.nextElement();
                             if (!accountedForJobs.contains(currentRecordName)) {
                                 accountedForJobs.add(currentRecordName);
-                                Text idText = new Text(currentRecordName);
-                                TreeItem<String> jobIDTreeItem = new TreeItem<>(idText.toString());
+//                                Text idText = new Text(currentRecordName);
+                                TreeItem<String> jobIDTreeItem = new TreeItem<>(currentRecordName);
                                 historyRoot.getChildren().add(jobIDTreeItem);
                                 if (!tMap.containsKey(currentRecordName)) {
                                     tMap.put(currentRecordName, jobIDTreeItem);
@@ -234,15 +234,19 @@ public class MainViewController {
                     while (recordEnumeration.hasMoreElements()){
                         String currentRecordName = recordEnumeration.nextElement();
                         SubmissionRecord currentRecord = records.get(currentRecordName);
-                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
-                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
+                        TreeItem<String> jobIDTreeItem = tMap.get(currentRecordName);
+//                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
+                        TreeItem<String> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
+//                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
                         if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
-                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-                            statusText.setFill(Color.GREEN);
-                            jobStatusTreeItem.setValue(statusText);
+//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
+//                            statusText.setFill(Color.GREEN);
+                            jobStatusTreeItem.setValue(currentRecord.getStatus());
+//                            jobStatusTreeItem.setValue(statusText);
                         } else if (currentRecord.getStatus().equalsIgnoreCase("ERROR")) {
-                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-                            statusText.setFill(Color.RED);
+//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
+//                            statusText.setFill(Color.RED);
+                            jobStatusTreeItem.setValue(currentRecord.getStatus());
                         } else {
                             try {
                                 Date submissionTime = dateFormatter.parse(currentRecord.getTime());
@@ -255,9 +259,10 @@ public class MainViewController {
                                 long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
 
                                 String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
-                                Text timeText = new Text(runningTimeString);
-                                timeText.setFill(Color.GOLD);
-                                jobStatusTreeItem.setValue(timeText);
+//                                Text timeText = new Text(runningTimeString);
+//                                timeText.setFill(Color.GOLD);
+//                                jobStatusTreeItem.setValue(timeText);
+                                jobStatusTreeItem.setValue(runningTimeString);
                             } catch (ParseException e) {
                                 System.err.println("Was unable to parse the time of submission in its current format");
                             }
@@ -274,7 +279,7 @@ public class MainViewController {
         MenuItem deleteRecordOption = new MenuItem("Delete Job");
         deleteRecordOption.setOnAction(action -> {
             try {
-                String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
+                String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
                 /* 1. Kill the job on the server if it is running todo */
                 /* 2. Remove it from the list of jobs on the jobsMonitor */
                 //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
@@ -287,7 +292,7 @@ public class MainViewController {
                         UserPreferences.getJobsMonitor().getRecords().get(jobID));
                 /* 4. Remove it from the history pane */
                 historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
-                System.out.println("Selected item is of class: " + ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText());
+                System.out.println("Selected item is of class: " + ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue());
             } catch (ClassCastException e){
                 //This is a cheap solution to the issue of the user being able to right click the root node.
             }
@@ -296,8 +301,12 @@ public class MainViewController {
         /* Create "View Job Information" Context Menu Option */
         MenuItem viewJobInfoOption = new MenuItem("View Job Info");
         viewJobInfoOption.setOnAction(action -> {
-            String jobID = ((TreeItem<Text>) historyTreeView.getSelectionModel().getSelectedItem()).getValue().getText();
+//            viewJobInfoOption.setDisable(true);
+            String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
             ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
+            if (records.get(jobID).getStatus().equals("RUNNING")){
+                viewJobInfoOption.setDisable(true);
+            }
             /* Pull up a view displaying all information about the job */
             try {
                 Stage stage = new Stage();
@@ -318,6 +327,21 @@ public class MainViewController {
             } catch (IOException e){
                 System.err.println("Was unable to locate the view");
                 e.printStackTrace();
+            }
+        });
+        MenuItem exportCSVOption = new MenuItem("Export to CSV");
+        exportCSVOption.setOnAction(action -> {
+            String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
+            /* 1. Kill the job on the server if it is running todo */
+            /* 2. Remove it from the list of jobs on the jobsMonitor */
+            //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
+            CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
+            for (int i = 0; i < runningJobs.size(); i++) {
+                if (runningJobs.get(i).getJobID().equals(jobID)) {
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save CSV File");
+                    fileChooser.setInitialDirectory(new File(""));
+                }
             }
         });
         historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption));
