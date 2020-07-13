@@ -39,7 +39,10 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.xml.crypto.Data;
@@ -49,6 +52,7 @@ import javafx.scene.image.ImageView;
 
 import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
 import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
+import static org.junit.Assert.assertTrue;
 
 public class MainViewController {
 
@@ -1029,22 +1033,7 @@ stage.show();
 
         Tooltip.install(xAxis, new Tooltip("Drag right to double scale, drag left to half scale"));
         Tooltip.install(yAxis, new Tooltip("Drag up to double scale, drag down to half scale"));
-//        data1.getNode().setOnMouseClicked( ((new EventHandler<MouseEvent>() {
-//            public void handle(MouseEvent event) {
-//                System.out.println("Node pressed");
-//                lastXPosition = event.getSceneX();
-//
-//            }
-//        })));
 
-
-//        for (XYChart.Data<Number, Number> data: series.getData()) {
-//
-//        }
-
-//        for (int i = 0; i < series.getData().size(); i++) {
-//            Tooltip.install(t, new Tooltip("(" + series.getData().get(0) + ", " + series.getData().get(1) + ")"));
-//        }
         xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 xPressed = true;
@@ -1153,6 +1142,15 @@ stage.show();
 //                        showErrorDialog("Please make sure the scale values are greater than zero!");
 //                    }
 
+                    /*
+                    Tasks 7/6/20
+
+                    - Offer to save at the out file initially
+                    - Format csv into columns, not rows
+                    - Give titles for each column
+                    - For prev and next buttons, you are plotting the "step number" on the x axis and total energy
+                    on the y axis
+                     */
 
                     xAxis.setUpperBound(Double.parseDouble(xAxeInput.getText()));
                     yAxis.setUpperBound(Double.parseDouble(yAxeInput.getText()));
@@ -1200,13 +1198,44 @@ stage.show();
             }
         }));
 
-        //Button saveAsCSVButton = new Button()
+        Button saveAsCSVButton = new Button("Save as CSV File");
 
+        List<String[]> dataLines = new ArrayList<>();
+
+//        dataLines.add(new String[] {"1", "2", "3", "4"});
+//        dataLines.add(new String[] {"60", "40", "25", "20"});
+
+        dataLines.add(new String[] {"Geometry Data"});
+        dataLines.add(new String[] {"X", "Y"});
+        dataLines.add(new String[] {"1", "60"});
+        dataLines.add(new String[] {"2", "40"});
+        dataLines.add(new String[] {"3", "25"});
+        dataLines.add(new String[] {"4", "20"});
+
+        saveAsCSVButton.setOnMouseClicked((new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                try {
+
+                    TextInputDialog csvDialog = new TextInputDialog("geom_data");
+                    csvDialog.setTitle("Name Your File");
+                    csvDialog.setHeaderText("File Name");
+                    csvDialog.setContentText("Please name your file (no extension) or use the default: ");
+
+                    Optional<String> result = csvDialog.showAndWait();
+
+
+                    givenDataArray_whenConvertToCSV_thenOutputCreated(dataLines, result.get());
+                }
+                catch (Exception e) {
+                    System.out.println("CSV Exception");
+                }
+            }
+            }));
 
         scaleBtnsHBox.getChildren().addAll(scaleBtn, autosizeBtn);
         axesEditVBox.getChildren().addAll(xHBox, yHBox, scaleBtnsHBox);
 
-        navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn, chartInfoButton, saveAsPNGBtn);
+        navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn, chartInfoButton, saveAsPNGBtn, saveAsCSVButton);
 
         GridPane.setConstraints(list, 0, 0);
         GridPane.setConstraints(geomVsEnergyChart, 1, 0);
@@ -1218,6 +1247,30 @@ stage.show();
         stage.setScene(gridScene);
         stage.show();
 
+    }
+    public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String fileName) throws IOException {
+
+        File csvOutputFile = new File(fileName + ".csv");
+    try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
+    }
+    assertTrue(csvOutputFile.exists());
+    }
+
+
+
+    public String convertToCSV(String[] data) {
+        return Stream.of(data)
+                .map(this::escapeSpecialCharacters)
+                .collect(Collectors.joining(","));
+    }
+
+    public String escapeSpecialCharacters(String data) {
+        String escapedData = data.replaceAll("\\R", " ");
+        if (data.contains(",") || data.contains("\"") || data.contains("'")) {
+            data = data.replace("\"", "\"\"");
+            escapedData = "\"" + data + "\"";
+        }
+        return escapedData;
     }
 
     public int getExponent(double bound) {
