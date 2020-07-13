@@ -656,6 +656,17 @@ public class libEFPInputController implements Initializable {
                 IOUtils.copy(in, scpos);
                 in.close();
                 scpos.close();
+                //Wait for each file to actually be on the server
+                while (true) {
+                    try {
+                        SCPInputStream scpis = null;
+                        scpis = scp.get("./iSpiClient/Libefp/fraglib/" + filename);
+                        scpis.close();
+                    } catch (IOException e) {
+                        continue;
+                    }
+                    break;
+                }
             }
 
 
