@@ -542,96 +542,116 @@ public class OutputFile {
                     case "print_pbc":
                         print_pbc = line1.split(" ")[1].equals("true");
                         break;
-                    case "INITIAL": //Starting state
-                    case "STATE": //Intermediate state
-                    case "FINAL": //Final state
-                        br.readLine(); //Consume empty line
-                        br.readLine(); //Consume GEOMETRY(ANGSTROMS)
-                        br.readLine(); //Consume empty line
-                        State initialState = new State();
-                        while (!(line1 = br.readLine()).equals("")) {
-                            String[] atomLineArray = line1.split(" ");
-                            String atomID = atomLineArray[0];
-                            double x = Double.parseDouble(atomLineArray[1]);
-                            double y = Double.parseDouble(atomLineArray[2]);
-                            double z = Double.parseDouble(atomLineArray[3]);
-                            initialState.geometry.addAtom(atomID, x, y, z);
-                        }
-                        while (br.readLine().equals("")) ;
-                        //Begin RESTART DATA
-                        br.readLine(); //Consume RESTART DATA
-                        br.readLine(); //Consume empty line
-                        while (!(line1 = br.readLine()).equals("")) {
-                            //BufferedReader should be focused on the first line of the fragment
-                            line2 = br.readLine();
-                            initialState.restartData.addFragment(line1, line2);
-                            br.readLine(); //Consume emptyLine;
-                        }
-                        //Begin ENERGY COMPONENTS (ATOMIC UNITS)
-                        br.readLine(); //Consume ENERGY COMPONENTS (ATOMIC UNITS)
-                        br.readLine(); //Consume emptyLine
-
-                        double eEnergy = 0.0;
-                        double pEnergy = 0.0;
-                        double dEnergy = 0.0;
-                        double xrEnergy = 0.0;
-                        double pcEnergy = 0.0;
-                        double cpEnergy = 0.0;
-                        double totalEnergy = 0.0;
-                        double energyChange = 0.0;
-                        double rmsGradient = 0.0;
-                        double maxGradient = 0.0;
-                        while (true) {
-                            boolean finished = false;
-                            line1 = br.readLine();
-                            String[] energyStringArray = line1.split(" ");
-                            switch (energyStringArray[0]) {
-                                case "ELECTROSTATIC":
-                                    eEnergy = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "POLARIZATION":
-                                    pEnergy = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "DISPERSION":
-                                    dEnergy = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "EXCHANGE":
-                                    xrEnergy = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "POINT":
-                                    pcEnergy = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "CHARGE":
-                                    cpEnergy = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "TOTAL":
-                                    totalEnergy = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "ENERGY":
-                                    energyChange = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "RMS":
-                                    rmsGradient = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                case "MAXIMUM":
-                                    maxGradient = Double.parseDouble(energyStringArray[2]);
-                                    break;
-                                default:
-                                    continue;
-                            }
-                            if (finished) {
-                                initialState.setEnergyComponents(eEnergy, pEnergy, dEnergy, xrEnergy, pcEnergy, cpEnergy,
-                                        totalEnergy, energyChange, rmsGradient, maxGradient);
-                                states.add(initialState);
-                                br.readLine(); //Consume emptyLine
-                                br.readLine(); //Consume emptyLine
-                                break;
-                            }
-                        }
+                    case "MOLECULAR":
+                        parseMolecularDynamicsJob(br, line1);
                         break;
+                    case "ENERGY":
+                    default:
+                        continue;
                 }
             }
-        } finally { br.close(); }
+        }catch (IOException e){
+            System.err.println("Error while parsing");
+        } finally {
+            br.close();
+        }
+    }
+
+    public void parseMolecularDynamicsJob(BufferedReader br, String currentLine) throws IOException {
+        do {
+            if (currentLine.equals("")) continue;
+            String keyword = currentLine.split(" ")[0];
+
+            switch (keyword) {
+                case "INITIAL": //Starting state
+                case "STATE": //Intermediate state
+                case "FINAL": //Final state
+                    br.readLine(); //Consume empty line
+                    br.readLine(); //Consume GEOMETRY(ANGSTROMS)
+                    br.readLine(); //Consume empty line
+                    State initialState = new State();
+                    while (!(currentLine = br.readLine()).equals("")) {
+                        String[] atomLineArray = currentLine.split(" ");
+                        String atomID = atomLineArray[0];
+                        double x = Double.parseDouble(atomLineArray[1]);
+                        double y = Double.parseDouble(atomLineArray[2]);
+                        double z = Double.parseDouble(atomLineArray[3]);
+                        initialState.geometry.addAtom(atomID, x, y, z);
+                    }
+                    while (br.readLine().equals("")) ;
+                    //Begin RESTART DATA
+                    br.readLine(); //Consume RESTART DATA
+                    br.readLine(); //Consume empty line
+                    while (!(currentLine = br.readLine()).equals("")) {
+                        //BufferedReader should be focused on the first line of the fragment
+                        String line2 = br.readLine();
+                        initialState.restartData.addFragment(currentLine, line2);
+                        br.readLine(); //Consume emptyLine;
+                    }
+                    //Begin ENERGY COMPONENTS (ATOMIC UNITS)
+                    br.readLine(); //Consume ENERGY COMPONENTS (ATOMIC UNITS)
+                    br.readLine(); //Consume emptyLine
+
+                    double eEnergy = 0.0;
+                    double pEnergy = 0.0;
+                    double dEnergy = 0.0;
+                    double xrEnergy = 0.0;
+                    double pcEnergy = 0.0;
+                    double cpEnergy = 0.0;
+                    double totalEnergy = 0.0;
+                    double energyChange = 0.0;
+                    double rmsGradient = 0.0;
+                    double maxGradient = 0.0;
+                    while (true) {
+                        boolean finished = false;
+                        currentLine = br.readLine();
+                        String[] energyStringArray = currentLine.split(" ");
+                        switch (energyStringArray[0]) {
+                            case "ELECTROSTATIC":
+                                eEnergy = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "POLARIZATION":
+                                pEnergy = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "DISPERSION":
+                                dEnergy = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "EXCHANGE":
+                                xrEnergy = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "POINT":
+                                pcEnergy = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "CHARGE":
+                                cpEnergy = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "TOTAL":
+                                totalEnergy = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "ENERGY":
+                                energyChange = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "RMS":
+                                rmsGradient = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            case "MAXIMUM":
+                                maxGradient = Double.parseDouble(energyStringArray[2]);
+                                break;
+                            default:
+                                continue;
+                        }
+                        if (finished) {
+                            initialState.setEnergyComponents(eEnergy, pEnergy, dEnergy, xrEnergy, pcEnergy, cpEnergy,
+                                    totalEnergy, energyChange, rmsGradient, maxGradient);
+                            states.add(initialState);
+                            br.readLine(); //Consume emptyLine
+                            br.readLine(); //Consume emptyLine
+                            break;
+                        }
+                    }
+                    break;
+            }
+        } while ((currentLine = br.readLine()) != null);
     }
 
     public void viewState(JmolMainPanel jmolViewer, int index) {
