@@ -20,6 +20,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.ispiefp.app.EFPFileRetriever.LibEFPtoCSV;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -340,11 +341,35 @@ public class MainViewController {
                 if (runningJobs.get(i).getJobID().equals(jobID)) {
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Save CSV File");
-                    fileChooser.setInitialDirectory(new File(""));
+                    fileChooser.setInitialDirectory(new File(new File(runningJobs.get(i).getOutputFilename()).getParent()));
+                    Stage currStage = (Stage) root.getScene().getWindow();
+                    File file = fileChooser.showOpenDialog(currStage);
+                    if (file != null) {
+                        LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
+                        String[] sheets = libEFPtoCSV.getCSVString(runningJobs.get(i).getOutputFilename());
+                        for (int j = 0; j < sheets.length; j++) {
+                            if (sheets[j] != null) {
+                                try {
+                                    FileWriter fileWriter;
+                                    if (j == 0) {
+                                        fileWriter = new FileWriter(file + "_ene.out");
+                                    } else {
+                                        fileWriter = new FileWriter(file + "_pw.out");
+                                    }
+                                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                                    bufferedWriter.write(sheets[j]);
+                                    bufferedWriter.close();
+                                    fileWriter.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });
-        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption));
+        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption, exportCSVOption));
     }
 
     /**
