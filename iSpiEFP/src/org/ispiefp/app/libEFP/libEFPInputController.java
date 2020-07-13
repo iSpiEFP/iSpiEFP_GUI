@@ -790,6 +790,18 @@ public class libEFPInputController implements Initializable {
         } catch (IOException e){
             System.err.println("Was unable to write to input file area");
         }
+        cutoff.setValue(cp.getcutoff());
+        cutoff_radius.setText(cp.getcutoff_radius().toString());
+        boundary_condition.setValue(cp.getboundary_condition());
+        boxsize_x.setText(cp.getboxsize_x().toString());
+        boxsize_y.setText(cp.getboxsize_y().toString());
+        boxsize_z.setText(cp.getboxsize_z().toString());
+        boxsize_alpha.setText(cp.getboxsize_alpha().toString());
+        boxsize_beta.setText(cp.getboxsize_beta().toString());
+        boxsize_gamma.setText(cp.getboxsize_gamma().toString());
+        pairwise_analysis.setValue(cp.getpairwise_analysis());
+        ligand.setText(cp.getligand().toString());
+        optimization.setText(cp.getoptimization().toString());
     }
 
     /**

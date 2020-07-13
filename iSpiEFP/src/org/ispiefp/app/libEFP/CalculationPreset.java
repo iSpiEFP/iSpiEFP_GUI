@@ -138,4 +138,56 @@ public class CalculationPreset {
     public String getPolSolver() {
         return polSolver;
     }
+
+    public String getcutoff() {
+        return cutoff;
+    }
+
+    public Float  getcutoff_radius() {
+        return cutoff_radius;
+    }
+
+    public String getboundary_condition() {
+        return boundary_condition;
+    }
+
+    public Float getboxsize_x() {
+        return boxsize_x;
+    }
+
+    public Float getboxsize_y() {
+        return boxsize_y;
+    }
+
+    public Float getboxsize_z() {
+        return boxsize_z;
+    }
+
+    public Float getboxsize_alpha() {
+        return boxsize_alpha;
+    }
+
+    public Float getboxsize_beta() {
+        return boxsize_beta;
+    }
+
+    public Float getboxsize_gamma() {
+        return boxsize_gamma;
+    }
+
+    public String getpairwise_analysis() {
+        return pairwise_analysis;
+    }
+
+    public Integer getligand() {
+        return ligand;
+    }
+
+    public Integer getoptimization() {
+        return optimization;
+    }
+
+
+
+
 }
