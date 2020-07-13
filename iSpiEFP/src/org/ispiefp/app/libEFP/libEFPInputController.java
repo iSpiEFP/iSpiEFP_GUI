@@ -82,6 +82,43 @@ public class libEFPInputController implements Initializable {
     private ComboBox<String> pol_solver;
 
     @FXML
+    private ComboBox<String> cutoff;
+
+    @FXML
+    private TextField cutoff_radius;
+
+    @FXML
+    private ComboBox<String> boundary_condition;
+
+    @FXML
+    private TextField boxsize_x;
+
+    @FXML
+    private TextField boxsize_y;
+
+    @FXML
+    private TextField boxsize_z;
+
+    @FXML
+    private TextField boxsize_alpha;
+
+    @FXML
+    private TextField boxsize_beta;
+
+    @FXML
+    private TextField boxsize_gamma;
+
+    @FXML
+    private ComboBox<String> pairwise_analysis;
+
+    @FXML
+    private TextField ligand;
+
+    @FXML
+    private TextField optimization;
+
+
+    @FXML
     private TextArea libEFPInputTextArea;
 
     @FXML
@@ -711,7 +748,19 @@ public class libEFPInputController implements Initializable {
                 disp_damp.getSelectionModel().getSelectedItem(),
                 terms,
                 pol_damp.getSelectionModel().getSelectedItem(),
-                pol_solver.getSelectionModel().getSelectedItem()
+                pol_solver.getSelectionModel().getSelectedItem(),
+                cutoff.getSelectionModel().getSelectedItem(),
+                Float.parseFloat(cutoff_radius.getText()),
+                boundary_condition.getSelectionModel().getSelectedItem(),
+                Float.parseFloat(boxsize_x.getText()),
+                Float.parseFloat(boxsize_y.getText()),
+                Float.parseFloat(boxsize_z.getText()),
+                Float.parseFloat(boxsize_alpha.getText()),
+                Float.parseFloat(boxsize_beta.getText()),
+                Float.parseFloat(boxsize_gamma.getText()),
+                pairwise_analysis.getSelectionModel().getSelectedItem(),
+                Integer.parseInt(ligand.getText()),
+                Integer.parseInt(optimization.getText())
         );
         UserPreferences.addLibEFPPreset(savedType);
         presets.getItems().add(savedType.getTitle());

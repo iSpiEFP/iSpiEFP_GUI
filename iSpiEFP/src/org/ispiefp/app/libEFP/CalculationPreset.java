@@ -1,5 +1,7 @@
 package org.ispiefp.app.libEFP;
 
+import javafx.scene.layout.FlowPane;
+
 public class CalculationPreset {
     private String title;
     private String runType;
@@ -9,6 +11,18 @@ public class CalculationPreset {
     private Boolean[] terms; // [<elec>, <pol>, <disp>, <xr>]
     private String polDamp;
     private String polSolver;
+    private String cutoff;
+    private Float cutoff_radius;
+    private String boundary_condition;
+    private Float boxsize_x;
+    private Float boxsize_y;
+    private Float boxsize_z;
+    private Float boxsize_alpha;
+    private Float boxsize_beta;
+    private Float boxsize_gamma;
+    private String pairwise_analysis;
+    private Integer ligand;
+    private Integer optimization;
 
     public CalculationPreset(String definedString){ //separates each term with a ;%;
         String[] parsedTerms = definedString.split(";%;");
@@ -33,7 +47,19 @@ public class CalculationPreset {
             String dispDamp,
             Boolean[] terms,
             String polDamp,
-            String polSolver
+            String polSolver,
+            String cutoff,
+            Float cutoff_radius,
+            String boundary_consition,
+            Float boxsize_x,
+            Float boxsize_y,
+            Float boxsize_z,
+            Float boxsize_alpha,
+            Float boxsize_beta,
+            Float boxsize_gamma,
+            String pairwise_analysis,
+            Integer ligand,
+            Integer optimization
     ){
         this.title = title;
         this.runType = runType;
@@ -43,6 +69,18 @@ public class CalculationPreset {
         this.terms = terms;
         this.polDamp = polDamp;
         this.polSolver = polSolver;
+        this.cutoff=cutoff;
+        this.cutoff_radius=cutoff_radius;
+        this.boundary_condition=boundary_consition;
+        this.boxsize_x=boxsize_x;
+        this.boxsize_y=boxsize_y;
+        this.boxsize_z=boxsize_z;
+        this.boxsize_alpha=boxsize_alpha;
+        this.boxsize_beta=boxsize_beta;
+        this.boxsize_gamma=boxsize_gamma;
+        this.pairwise_analysis=pairwise_analysis;
+        this.ligand=ligand;
+        this.optimization=optimization;
     }
 
     public String getCalculationPresetDefinedString(){
@@ -65,6 +103,7 @@ public class CalculationPreset {
         sb.append(";%;");
         sb.append(polSolver);
         sb.append(";%;");
+
         return sb.toString();
     }
 

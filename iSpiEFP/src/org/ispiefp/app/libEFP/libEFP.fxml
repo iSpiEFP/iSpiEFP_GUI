@@ -21,7 +21,7 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="586.0" prefWidth="600.0">
                     <children>
                   <Text layoutX="23.0" layoutY="375.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pairwise analysis" />
-                  <ComboBox layoutX="150.0" layoutY="357.0" prefWidth="150.0" />
+                  <ComboBox fx:id="pairwise_analysis" layoutX="150.0" layoutY="357.0" prefWidth="150.0" />
                   <Text layoutX="27.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Load a preset" />
                   <ComboBox fx:id="run_type1" layoutX="133.0" layoutY="76.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="114.0" />
                         <Text layoutX="22.0" layoutY="60.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title:" />
@@ -43,7 +43,7 @@
                         <Text layoutX="300.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto Submission: " />
                         <ComboBox fx:id="auto_sub" layoutX="424.0" layoutY="436.0" prefHeight="27.0" prefWidth="105.0" />
                         <TextArea fx:id="libEFPInputTextArea" layoutX="36.0" layoutY="468.0" prefHeight="122.0" prefWidth="536.0" />
-                  <TextField fx:id="title1" layoutX="189.0" layoutY="398.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="246.0" />
+                  <TextField fx:id="optimization" layoutX="189.0" layoutY="398.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="246.0" />
                   <Line endX="700.0" layoutX="0.0" layoutY="240.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
                   <Line endX="700.0" layoutX="10.0" layoutY="110.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
                   <Line endX="700.0" layoutX="10.0" layoutY="350.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
@@ -51,28 +51,28 @@
                         <Line endX="700.0" layoutX="10.0" layoutY="200.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
                         <Line endX="700.0" layoutX="10.0" layoutY="430.0" opacity="0.2" startX="-100.0" strokeMiterLimit="100.0" />
                   <Text layoutX="332.0" layoutY="375.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ligand:" />
-                  <TextField fx:id="title11" layoutX="432.0" layoutY="356.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="119.0" />
+                  <TextField fx:id="ligand" layoutX="432.0" layoutY="356.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="119.0" />
                   <Text layoutX="22.0" layoutY="141.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Short-range dampings" wrappingWidth="177.43310546875" />
                   <Text layoutX="22.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Long-range dampings" wrappingWidth="177.43310546875" />
                   <Text layoutX="178.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" text="cutoff" wrappingWidth="42.43310546875" />
-                  <ComboBox fx:id="elec_damp1" layoutX="236.0" layoutY="207.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="28.0" promptText="0" />
+                  <ComboBox fx:id="cutoff" layoutX="236.0" layoutY="207.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="28.0" promptText="0" />
                   <Text layoutX="304.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" text="cutoff Radius" wrappingWidth="102.43310546875" />
-                  <TextField fx:id="title12" layoutX="406.0" layoutY="207.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="171.0" />
+                  <TextField fx:id="cutoff_radius" layoutX="406.0" layoutY="207.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="171.0" />
                   <Text layoutX="22.0" layoutY="265.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Periodic boundary conditions" wrappingWidth="193.43310546875" />
-                  <ComboBox fx:id="elec_damp11" layoutX="247.0" layoutY="247.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="28.0" promptText="0" />
+                  <ComboBox fx:id="boundary_condition" layoutX="247.0" layoutY="247.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="28.0" promptText="0" />
                   <Text layoutX="94.0" layoutY="298.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Box size" wrappingWidth="64.43310546875" />
                   <Text layoutX="188.0" layoutY="298.0" strokeType="OUTSIDE" strokeWidth="0.0" text="x" wrappingWidth="22.43310546875" />
-                  <TextField fx:id="title121" layoutX="211.0" layoutY="280.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
+                  <TextField fx:id="boxsize_x" layoutX="211.0" layoutY="280.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
                   <Text layoutX="289.0" layoutY="298.0" strokeType="OUTSIDE" strokeWidth="0.0" text="y" wrappingWidth="22.43310546875" />
-                  <TextField fx:id="title1211" layoutX="319.0" layoutY="280.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
+                  <TextField fx:id="boxsize_y" layoutX="319.0" layoutY="280.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
                   <Text layoutX="399.0" layoutY="298.0" strokeType="OUTSIDE" strokeWidth="0.0" text="z" wrappingWidth="22.43310546875" />
-                  <TextField fx:id="title12111" layoutX="432.0" layoutY="280.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
+                  <TextField fx:id="boxsize_z" layoutX="432.0" layoutY="280.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
                   <Text layoutX="188.0" layoutY="332.0" strokeType="OUTSIDE" strokeWidth="0.0" text="α" wrappingWidth="22.43310546875" />
-                  <TextField fx:id="title1212" layoutX="211.0" layoutY="314.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
+                  <TextField fx:id="boxsize_alpha" layoutX="211.0" layoutY="314.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
                   <Text layoutX="286.0" layoutY="332.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" β" wrappingWidth="22.43310546875" />
-                  <TextField fx:id="title12121" layoutX="319.0" layoutY="314.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
+                  <TextField fx:id="boxsize_beta" layoutX="319.0" layoutY="314.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
                   <Text layoutX="395.0" layoutY="332.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" γ" wrappingWidth="22.43310546875" />
-                  <TextField fx:id="title121211" layoutX="432.0" layoutY="314.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
+                  <TextField fx:id="boxsize_gamma" layoutX="432.0" layoutY="314.0" onAction="#updatelibEFPInputText" prefHeight="27.0" prefWidth="50.0" />
 
                     </children>
                     <padding>
