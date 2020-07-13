@@ -80,10 +80,11 @@ public class SubmissionRecord {
 
     public void setJobManager(JobManager jobManager) {
         this.jobManager = jobManager;
+        /* Characters hard coded because server side is Linux */
         localOutputFilePath = jobManager.getLocalWorkingDirectory() +
-                jobManager.getOutputFilename().substring(jobManager.getOutputFilename().lastIndexOf(File.separator));
+                jobManager.getOutputFilename().substring(jobManager.getOutputFilename().lastIndexOf('/'));
         localStdoutputFilePath = jobManager.getLocalWorkingDirectory() +
-                jobManager.getStdoutputFilename().substring(jobManager.getStdoutputFilename().lastIndexOf(File.separator));
+                jobManager.getStdoutputFilename().substring(jobManager.getStdoutputFilename().lastIndexOf('/'));
     }
 
     public void setStatus(String status) {

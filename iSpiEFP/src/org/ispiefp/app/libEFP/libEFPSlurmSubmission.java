@@ -82,7 +82,8 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
             in.close();
             scpos.close();
             Session s = con.openSession();
-            String queueCommand = String.format("sbatch %s%n", REMOTE_LIBEFP_IN + remoteFileName);
+            //todo: Eventually someone will need to remove the hard coded "\n" below and replace it with the line delimiter of the SERVER not the user's computer. Look at uname command.
+            String queueCommand = String.format("sbatch %s\n", REMOTE_LIBEFP_IN + remoteFileName);
             s.execCommand(queueCommand);
             System.out.println("Executed command: " + queueCommand);
             s.close();
