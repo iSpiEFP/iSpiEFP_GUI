@@ -419,7 +419,7 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
         if (!server.getSelectionModel().isEmpty() ||
                 (new File(localWorkingDirectory.getText()).exists() &&
-                        new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
+                            new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
     }
 
     public void generatelibEFPInputFile() {
