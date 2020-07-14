@@ -511,6 +511,7 @@ public class OutputFile {
     }
 
     public OutputFile(String filepath) throws IOException {
+        states = new ArrayList<>();
         File outFile = new File(filepath);
         BufferedReader br = new BufferedReader(new FileReader(outFile));
         String line1 = "";
@@ -673,7 +674,7 @@ public class OutputFile {
     private void parseMolecularDynamicsJob(BufferedReader br, String currentLine) throws IOException {
         do {
             if (currentLine.equals("")) continue;
-            String keyword = currentLine.split(" ")[0];
+            String keyword = currentLine.trim().split(" ")[0];
             MolecularDynamicsState currentState = new MolecularDynamicsState();
             switch (keyword) {
                 case "INITIAL": //Starting state
@@ -683,7 +684,7 @@ public class OutputFile {
                     br.readLine(); //Consume GEOMETRY(ANGSTROMS)
                     br.readLine(); //Consume empty line
                     while (!(currentLine = br.readLine()).equals("")) {
-                        String[] atomLineArray = currentLine.split(" ");
+                        String[] atomLineArray = getTokens(currentLine);
                         String atomID = atomLineArray[0];
                         double x = Double.parseDouble(atomLineArray[1]);
                         double y = Double.parseDouble(atomLineArray[2]);
@@ -719,7 +720,7 @@ public class OutputFile {
                     while (true) {
                         boolean finished = false;
                         currentLine = br.readLine();
-                        String[] energyStringArray = currentLine.split(" ");
+                        String[] energyStringArray = getTokens(currentLine);
                         switch (energyStringArray[0]) {
                             case "ELECTROSTATIC":
                                 eEnergy = Double.parseDouble(energyStringArray[2]);
@@ -731,13 +732,13 @@ public class OutputFile {
                                 dEnergy = Double.parseDouble(energyStringArray[2]);
                                 break;
                             case "EXCHANGE":
-                                xrEnergy = Double.parseDouble(energyStringArray[2]);
+                                xrEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "POINT":
-                                pcEnergy = Double.parseDouble(energyStringArray[2]);
+                                pcEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "CHARGE":
-                                cpEnergy = Double.parseDouble(energyStringArray[2]);
+                                cpEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "TOTAL":
                                 totalEnergy = Double.parseDouble(energyStringArray[2]);
@@ -772,7 +773,7 @@ public class OutputFile {
     private void parseEnergyMinimizationJob(BufferedReader br, String currentLine) throws IOException {
         do {
             if (currentLine.equals("")) continue;
-            String keyword = currentLine.split(" ")[0];
+            String keyword = currentLine.trim().split(" ")[0];
 
             switch (keyword) {
                 case "INITIAL": //Starting state
@@ -783,7 +784,7 @@ public class OutputFile {
                     br.readLine(); //Consume empty line
                     State currentState = new StaticState();
                     while (!(currentLine = br.readLine()).equals("")) {
-                        String[] atomLineArray = currentLine.split(" ");
+                        String[] atomLineArray = getTokens(currentLine);
                         String atomID = atomLineArray[0];
                         double x = Double.parseDouble(atomLineArray[1]);
                         double y = Double.parseDouble(atomLineArray[2]);
@@ -817,7 +818,7 @@ public class OutputFile {
                     while (true) {
                         boolean finished = false;
                         currentLine = br.readLine();
-                        String[] energyStringArray = currentLine.split(" ");
+                        String[] energyStringArray = getTokens(currentLine);
                         switch (energyStringArray[0]) {
                             case "ELECTROSTATIC":
                                 eEnergy = Double.parseDouble(energyStringArray[2]);
@@ -829,13 +830,13 @@ public class OutputFile {
                                 dEnergy = Double.parseDouble(energyStringArray[2]);
                                 break;
                             case "EXCHANGE":
-                                xrEnergy = Double.parseDouble(energyStringArray[2]);
+                                xrEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "POINT":
-                                pcEnergy = Double.parseDouble(energyStringArray[2]);
+                                pcEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "CHARGE":
-                                cpEnergy = Double.parseDouble(energyStringArray[2]);
+                                cpEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "TOTAL":
                                 totalEnergy = Double.parseDouble(energyStringArray[2]);
@@ -869,14 +870,14 @@ public class OutputFile {
     private void parseSinglePointEnergyJob(BufferedReader br, String currentLine) throws IOException {
         do {
             if (currentLine.equals("")) continue;
-            String keyword = currentLine.split(" ")[0];
+            String keyword = currentLine.trim().split(" ")[0];
             State currentState = new StaticState();
 
             switch (keyword) {
                 case "GEOMETRY": //Starting state
                     br.readLine(); //Consume empty line
                     while (!(currentLine = br.readLine()).equals("")) {
-                        String[] atomLineArray = currentLine.split(" ");
+                        String[] atomLineArray = getTokens(currentLine);
                         String atomID = atomLineArray[0];
                         double x = Double.parseDouble(atomLineArray[1]);
                         double y = Double.parseDouble(atomLineArray[2]);
@@ -897,7 +898,7 @@ public class OutputFile {
                     while (true) {
                         boolean finished = false;
                         currentLine = br.readLine();
-                        String[] energyStringArray = currentLine.split(" ");
+                        String[] energyStringArray = getTokens(currentLine);
                         switch (energyStringArray[0]) {
                             case "ELECTROSTATIC":
                                 eEnergy = Double.parseDouble(energyStringArray[2]);
@@ -909,13 +910,13 @@ public class OutputFile {
                                 dEnergy = Double.parseDouble(energyStringArray[2]);
                                 break;
                             case "EXCHANGE":
-                                xrEnergy = Double.parseDouble(energyStringArray[2]);
+                                xrEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "POINT":
-                                pcEnergy = Double.parseDouble(energyStringArray[2]);
+                                pcEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "CHARGE":
-                                cpEnergy = Double.parseDouble(energyStringArray[2]);
+                                cpEnergy = Double.parseDouble(energyStringArray[3]);
                                 break;
                             case "TOTAL":
                                 totalEnergy = Double.parseDouble(energyStringArray[2]);
@@ -934,6 +935,10 @@ public class OutputFile {
                     break;
             }
         } while ((currentLine = br.readLine()) != null);
+    }
+
+    public String[] getTokens(String line){
+        return line.trim().split("[ ]+");
     }
 
     public void viewState(JmolMainPanel jmolViewer, int index) {
