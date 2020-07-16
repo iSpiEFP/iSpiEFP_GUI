@@ -333,6 +333,10 @@ public class MainViewController {
         MenuItem exportCSVOption = new MenuItem("Export to CSV");
         exportCSVOption.setOnAction(action -> {
             String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
+            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
+            if (records.get(jobID).getStatus().equals("RUNNING")){
+                viewJobInfoOption.setDisable(true);
+            }
             /* 1. Kill the job on the server if it is running todo */
             /* 2. Remove it from the list of jobs on the jobsMonitor */
             //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
@@ -341,20 +345,21 @@ public class MainViewController {
                 if (runningJobs.get(i).getJobID().equals(jobID)) {
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Save CSV File");
-                    fileChooser.setInitialDirectory(new File(new File(runningJobs.get(i).getOutputFilename()).getParent()));
+                    fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+                    //fileChooser.setInitialDirectory(new File(new File(runningJobs.get(i).getOutputFilename()).getParent()));
                     Stage currStage = (Stage) root.getScene().getWindow();
-                    File file = fileChooser.showOpenDialog(currStage);
+                    File file = fileChooser.showSaveDialog(currStage);
                     if (file != null) {
                         LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
-                        String[] sheets = libEFPtoCSV.getCSVString(runningJobs.get(i).getOutputFilename());
+                        String[] sheets = libEFPtoCSV.getCSVString("iSpiEFP/src/org/ispiefp/app/w6b2_pairwise.out");//libEFPtoCSV.getCSVString(runningJobs.get(i).getOutputFilename());
                         for (int j = 0; j < sheets.length; j++) {
                             if (sheets[j] != null) {
                                 try {
                                     FileWriter fileWriter;
                                     if (j == 0) {
-                                        fileWriter = new FileWriter(file + "_ene.out");
+                                        fileWriter = new FileWriter(file + "_ene.txt");
                                     } else {
-                                        fileWriter = new FileWriter(file + "_pw.out");
+                                        fileWriter = new FileWriter(file + "_pw.txt");
                                     }
                                     BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                                     bufferedWriter.write(sheets[j]);
