@@ -18,10 +18,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.stage.*;
 import javafx.util.StringConverter;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
@@ -933,6 +930,13 @@ stage.show();
 
     @FXML
     public void showGeomAnalysis() {
+
+        /*
+        Tasks 7/13/20
+        - Make it an auxiliary panel to the right
+        - On focused point, clikc on and show values
+
+         */
         Stage stage = new Stage();
         stage.setTitle("Geometry Analysis");
 
@@ -1068,18 +1072,6 @@ stage.show();
             }
         }));
 
-//        xAxis.setTickLabelFormatter(new StringConverter<Number>() {
-//            @Override
-//            public String toString(Number object) {
-//                return object.intValue() + "";
-//            }
-//
-//            @Override
-//            public Number fromString(String string) {
-//                return 0;
-//            }
-//        });
-
         yAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                // System.out.println("Y Axis pressed");
@@ -1090,8 +1082,6 @@ stage.show();
 
         yAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-
-              //  System.out.println("Y Axis dragged");
                 //If the user drags right
                 if (yPressed) {
                     if (lastYPosition - event.getSceneY() >= 20.0) {
@@ -1172,7 +1162,7 @@ stage.show();
                 WritableImage chartPNG = geomVsEnergyChart.snapshot(new SnapshotParameters(), null);
                 String home = System.getProperty("user.home");
 
-                System.out.println("Home: " + home);
+                // System.out.println("Home: " + home);
                 TextInputDialog pngDialog = new TextInputDialog("chart_snapshot");
                 pngDialog.setTitle("Name Your File");
                 pngDialog.setHeaderText("File Name");
@@ -1181,7 +1171,18 @@ stage.show();
                 Optional<String> result = pngDialog.showAndWait();
 
                 File file = new File(home + "/Documents/" + result.get() + ".png");
-                System.out.println("File name: " + file.getAbsolutePath());
+
+
+//                try {
+//                    jmolMainPanel.openFile(file2);
+//
+//
+//                }
+//                catch(Exception e) {
+//                    System.out.print("HAHAH");
+//                }
+
+                //System.out.println("File name: " + file.getAbsolutePath());
 
                 try {
                     ImageIO.write(SwingFXUtils.fromFXImage(chartPNG, null), "png", file);
@@ -1189,6 +1190,7 @@ stage.show();
                 catch (Exception e) {
                     System.out.println("PNG Exception");
                 }
+
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setHeaderText("File Saved!");
@@ -1221,13 +1223,44 @@ stage.show();
                     csvDialog.setHeaderText("File Name");
                     csvDialog.setContentText("Please name your file (no extension) or use the default: ");
 
-                    Optional<String> result = csvDialog.showAndWait();
+                    Optional<String> result1 = csvDialog.showAndWait();
 
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Output Directory");
+                    alert.setHeaderText("Choose a directory");
+                    alert.setContentText("Would you like to ");
 
-                    givenDataArray_whenConvertToCSV_thenOutputCreated(dataLines, result.get());
+                    ButtonType buttonTypeOne = new ButtonType("Choose Directory");
+                    ButtonType buttonTypeTwo = new ButtonType("Use Documents as Default");
+                    ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                    alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo,  buttonTypeCancel);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    File selectedDirectory;
+                    String csvPath = "Empty";
+                    if (result.get() == buttonTypeOne){
+                        // ... user chose "One"
+                        DirectoryChooser directoryChooser = new DirectoryChooser();
+                        String h1 = System.getProperty("user.home");
+                        directoryChooser.setInitialDirectory(new File(h1));
+                        selectedDirectory = directoryChooser.showDialog(stage);
+                        csvPath = selectedDirectory.getAbsolutePath();
+
+                    } else if (result.get() == buttonTypeTwo) {
+                        // ... user chose "Two"
+                        String home = System.getProperty("user.home");
+                        csvPath = home + "/Documents/";
+
+                    }  else {
+                        // ... user chose CANCEL or closed the dialog
+                    }
+
+                    givenDataArray_whenConvertToCSV_thenOutputCreated(dataLines, csvPath, result1.get());
                 }
                 catch (Exception e) {
-                    System.out.println("CSV Exception");
+                    System.out.println("CSV filechooser fail Exception");
+                    e.printStackTrace();
                 }
             }
             }));
@@ -1248,9 +1281,10 @@ stage.show();
         stage.show();
 
     }
-    public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String fileName) throws IOException {
+    public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
 
-        File csvOutputFile = new File(fileName + ".csv");
+
+        File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
     try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
     }
     assertTrue(csvOutputFile.exists());
