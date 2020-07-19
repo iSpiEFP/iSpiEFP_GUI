@@ -143,9 +143,11 @@ public class ServerInfo implements Serializable{
         sb.append(";%;");
         sb.append(scheduler);
         sb.append(";%;");
-        for(String queue : queues){
-            sb.append(queue);
-            sb.append("#@#");
+        if (queues != null) {
+            for (String queue : queues) {
+                sb.append(queue);
+                sb.append("#@#");
+            }
         }
         return sb.toString();
     }
