@@ -381,7 +381,7 @@ public class libEFPInputController implements Initializable {
         sb.append("pol_damp " + pol_damp.getValue() + "\n");
         sb.append("disp_damp " + disp_damp.getValue() + "\n");
         sb.append("pol_driver " + pol_solver.getValue() + "\n");
-        sb.append("fraglib_path ../fraglib/\n");
+        sb.append("fraglib_path iSpiClient/Libefp/fraglib\n");
         sb.append("userlib_path iSpiClient/Libefp/fraglib\n");
 
 
