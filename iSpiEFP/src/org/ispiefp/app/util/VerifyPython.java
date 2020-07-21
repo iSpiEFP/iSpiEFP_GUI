@@ -34,6 +34,16 @@ public class VerifyPython {
             alert.showAndWait();
             return false;
         }
+        if (scriptOutput == null){
+            String invalidPythonPath = "The path to your python interpreter specified in your settings is either an " +
+                    "invalid path or is not a path to a python interpreter. You will be unable to select a fragment" +
+                    " until this field is updated in your settings.";
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    invalidPythonPath,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return false;
+        }
         if (scriptOutput.equals("invalid python version")){
             String invalidPythonVersionError = "Your selected python interpreter is not at least version number 3.0 " +
                     "Please select a different python interpreter.";
