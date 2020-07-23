@@ -46,10 +46,8 @@ public class ExecutePython {
                     jarLocation = new File(ExecutePython.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
                     Path path = Paths.get(jarLocation);
                     URI uri = new URI("jar", path.toUri().toString(), null);
-
                     Map<String, String> env = new HashMap<>();
                     env.put("create", "true");
-
                     fileSystem = FileSystems.newFileSystem(uri, env);
                     InputStream is = ExecutePython.class.getResourceAsStream("/scripts/" + scriptName);
                     script = File.createTempFile("pythonScript", null);
