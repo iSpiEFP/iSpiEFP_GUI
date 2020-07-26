@@ -2,6 +2,7 @@ package org.ispiefp.app;
 
 import javafx.application.Application;
 import javafx.application.HostServices;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -51,12 +52,17 @@ public class Main extends Application {
         Thread mainThread = Thread.currentThread();
         Initializer initializer = new Initializer();
         initializer.init();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run(){
-                UserPreferences.setJobsMonitor(UserPreferences.getJobsMonitor().toJson());
-                try{ mainThread.join(); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-        });
+//        Runtime.getRuntime().addShutdownHook(new Thread() {
+//            public void run() {
+//                UserPreferences.setJobsMonitor(UserPreferences.getJobsMonitor().toJson());
+//                try {
+//                    mainThread.join();
+//                } catch (InterruptedException e) {
+//                    System.out.println("here");
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 
         Main.setPrimaryStage(primaryStage);
         Main.getPrimaryStage().setTitle("iSpiEFP");
@@ -68,6 +74,14 @@ public class Main extends Application {
         //terms.show();
 
         System.out.println("33366running...");
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+//        UserPreferences.setJobsMonitor(UserPreferences.getJobsMonitor().toJson());
+        UserPreferences.clearJobsMonitor();
+        System.exit(0);
     }
 
     /**
@@ -84,7 +98,7 @@ public class Main extends Application {
         getPrimaryStage().setOnCloseRequest(new EventHandler<javafx.stage.WindowEvent>() {
             public void handle(javafx.stage.WindowEvent we) {
                 System.out.println("Stage is closing");
-                System.exit(0);
+                Platform.exit();
             }
         });
         getPrimaryStage().setResizable(true);
