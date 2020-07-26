@@ -3,6 +3,7 @@ package org.ispiefp.app.submission;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.ispiefp.app.libEFP.OutputFile;
 import org.ispiefp.app.server.JobManager;
 
 import java.io.File;
@@ -101,6 +102,11 @@ public class JobsMonitor implements Runnable {
             errorFileContents = jm.getRemoteFile(jm.getStdoutputFilename());
         } catch (IOException e){ System.err.println("Was unable to retrieve the files for the completed job"); }
         File outputFile = new File(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
+        try {
+            OutputFile out = new OutputFile(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         try {
             FileUtils.writeStringToFile(outputFile, outputFileContents, "UTF-8");
         } catch (IOException e){

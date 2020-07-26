@@ -419,7 +419,7 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
         if (!server.getSelectionModel().isEmpty() ||
                 (new File(localWorkingDirectory.getText()).exists() &&
-                        new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
+                            new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
     }
 
     public void generatelibEFPInputFile() {
@@ -656,6 +656,17 @@ public class libEFPInputController implements Initializable {
                 IOUtils.copy(in, scpos);
                 in.close();
                 scpos.close();
+                //Wait for each file to actually be on the server
+                while (true) {
+                    try {
+                        SCPInputStream scpis = null;
+                        scpis = scp.get("./iSpiClient/Libefp/fraglib/" + filename);
+                        scpis.close();
+                    } catch (IOException e) {
+                        continue;
+                    }
+                    break;
+                }
             }
 
 
