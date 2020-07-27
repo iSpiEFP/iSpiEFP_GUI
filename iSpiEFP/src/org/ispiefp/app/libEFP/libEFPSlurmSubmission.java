@@ -68,6 +68,7 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
         try {
             /* Write the submission script to the server */
             File submissionScript = createSubmissionScript(input);
+            submissionScript.deleteOnExit();
             Connection con = new Connection(hostname);
             con.connect();
             boolean isAuthenticated = con.authenticateWithPassword(username, password);
