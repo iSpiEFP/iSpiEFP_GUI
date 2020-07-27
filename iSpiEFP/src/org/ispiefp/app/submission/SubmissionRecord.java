@@ -1,10 +1,25 @@
 package org.ispiefp.app.submission;
 
+import org.ispiefp.app.server.JobManager;
+
+import java.io.File;
+import java.util.ArrayList;
+
 public class SubmissionRecord {
+    /* Mandatory Fields */
     private String name;
     private String status;
     private String time;
     private String job_id;
+    private JobManager jobManager;
+
+    /* Optional Fields */
+    private String outputFilePath;
+    private String localOutputFilePath;
+    private String stdoutputFilePath;
+    private String localStdoutputFilePath;
+    private ArrayList<String> usedEfpFilepaths;
+
 
     public SubmissionRecord(String name, String status, String time) {
         this.name = name;
@@ -20,7 +35,11 @@ public class SubmissionRecord {
     }
 
     public String getName() {
-        return name;
+        return job_id;
+    }
+
+    public JobManager getJobManager() {
+        return jobManager;
     }
 
     public String getStatus() {
@@ -35,6 +54,22 @@ public class SubmissionRecord {
         return job_id;
     }
 
+    public String getOutputFilePath() {
+        return outputFilePath;
+    }
+
+    public String getStdoutputFilePath() {
+        return stdoutputFilePath;
+    }
+
+    public ArrayList<String> getUsedEfpFilepaths() {
+        return usedEfpFilepaths;
+    }
+
+    public String getLocalOutputFilePath() { return localOutputFilePath; }
+
+    public String getLocalStdoutputFilePath() { return localStdoutputFilePath; }
+
     public void setJob_id(String job_id) {
         this.job_id = job_id;
     }
@@ -43,11 +78,32 @@ public class SubmissionRecord {
         this.name = name;
     }
 
+    public void setJobManager(JobManager jobManager) {
+        this.jobManager = jobManager;
+        /* Characters hard coded because server side is Linux */
+        localOutputFilePath = jobManager.getLocalWorkingDirectory() +
+                jobManager.getOutputFilename().substring(jobManager.getOutputFilename().lastIndexOf('/'));
+        localStdoutputFilePath = jobManager.getLocalWorkingDirectory() +
+                jobManager.getStdoutputFilename().substring(jobManager.getStdoutputFilename().lastIndexOf('/'));
+    }
+
     public void setStatus(String status) {
         this.status = status;
     }
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public void setOutputFilePath(String outputFilePath) {
+        this.outputFilePath = outputFilePath;
+    }
+
+    public void setStdoutputFilePath(String stdoutputFilePath) {
+        this.stdoutputFilePath = stdoutputFilePath;
+    }
+
+    public void setUsedEfpFilepaths(ArrayList<String> usedEfpFilepaths) {
+        this.usedEfpFilepaths = usedEfpFilepaths;
     }
 }

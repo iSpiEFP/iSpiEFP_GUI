@@ -1,17 +1,17 @@
 package org.ispiefp.app;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
 import javafx.embed.swing.SwingFXUtils;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
+import javafx.scene.*;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
@@ -19,11 +19,18 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.*;
-import javafx.util.StringConverter;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.ispiefp.app.libEFP.OutputFile;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
+import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.submission.JobViewController;
+import org.ispiefp.app.submission.JobsMonitor;
+import org.ispiefp.app.submission.SubmissionRecord;
 import org.ispiefp.app.util.*;
-import org.jmol.awtjs.swing.Grid;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
@@ -41,9 +48,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.xml.crypto.Data;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.io.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -151,9 +163,14 @@ public class MainViewController {
     // History and Project List View
     public ListView historyListView;
     private String[] rec_files;
+    @FXML private TreeView<String> historyTreeView;
+    @FXML private TreeItem<String> historyRoot;
 
+
+    //NOTE: These variables are only modified by showGeomAnalysis()
     double lastXPosition;
     double lastYPosition;
+    String currUnitLabelStr;
 
     Scene gridScene;
 
@@ -190,6 +207,148 @@ public class MainViewController {
         //TODO refactor the libefp button this exact phrase is also located in openFile MainViewController
         libefpButton.setDisable(true);
 
+        /* Populate the historyTreeView */
+        class HistoryTreeUpdater extends Task<TreeView<String>> {
+            private TreeView<String> t;
+            private HashMap<String, TreeItem> tMap;
+
+            public HistoryTreeUpdater(TreeView<String> s){
+                t = s;
+                tMap = new HashMap<>();
+            }
+
+            /*
+            It is key to remember in this function the indices of the informative children nodes for a jo. I list them here:
+            0 - job status
+             */
+            @Override
+            protected TreeView<String> call() throws Exception {
+                JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
+                HashSet<String> accountedForJobs = new HashSet<>();
+                ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
+                historyRoot.setValue("Jobs");
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
+                System.out.printf("Size of tMap is currently %d%n", tMap.size());
+                System.out.printf("Size of records is currently %d%n", records.size());
+                while (true){
+                    if (tMap.size() < records.size()){
+                        Enumeration<String> recordEnumeration = records.keys();
+                        while (recordEnumeration.hasMoreElements()){
+                            String currentRecordName = recordEnumeration.nextElement();
+                            if (!accountedForJobs.contains(currentRecordName)) {
+                                accountedForJobs.add(currentRecordName);
+//                                Text idText = new Text(currentRecordName);
+                                TreeItem<String> jobIDTreeItem = new TreeItem<>(currentRecordName);
+                                historyRoot.getChildren().add(jobIDTreeItem);
+                                if (!tMap.containsKey(currentRecordName)) {
+                                    tMap.put(currentRecordName, jobIDTreeItem);
+                                    jobIDTreeItem.getChildren().add(0, new TreeItem<>());
+                                }
+                            }
+                        }
+                    }
+                    Date currentTime = new Date();
+                    Enumeration<String> recordEnumeration = records.keys();
+                    while (recordEnumeration.hasMoreElements()){
+                        String currentRecordName = recordEnumeration.nextElement();
+                        SubmissionRecord currentRecord = records.get(currentRecordName);
+                        TreeItem<String> jobIDTreeItem = tMap.get(currentRecordName);
+//                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
+                        TreeItem<String> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
+//                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
+                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
+//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
+//                            statusText.setFill(Color.GREEN);
+                            jobStatusTreeItem.setValue(currentRecord.getStatus());
+//                            jobStatusTreeItem.setValue(statusText);
+                        } else if (currentRecord.getStatus().equalsIgnoreCase("ERROR")) {
+//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
+//                            statusText.setFill(Color.RED);
+                            jobStatusTreeItem.setValue(currentRecord.getStatus());
+                        } else {
+                            try {
+                                Date submissionTime = dateFormatter.parse(currentRecord.getTime());
+                                long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
+                                long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
+                                long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
+                                remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
+                                long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
+                                remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
+                                long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
+
+                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
+//                                Text timeText = new Text(runningTimeString);
+//                                timeText.setFill(Color.GOLD);
+//                                jobStatusTreeItem.setValue(timeText);
+                                jobStatusTreeItem.setValue(runningTimeString);
+                            } catch (ParseException e) {
+                                System.err.println("Was unable to parse the time of submission in its current format");
+                            }
+                        }
+                    }
+                    Thread.sleep(500);
+                }
+            }
+        }
+        Task<TreeView<String>> historyTreeUpdater = new HistoryTreeUpdater(historyTreeView);
+        new Thread(historyTreeUpdater).start();
+
+        /* Create "Delete Job" context menu option */
+        MenuItem deleteRecordOption = new MenuItem("Delete Job");
+        deleteRecordOption.setOnAction(action -> {
+            try {
+                String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
+                /* 1. Kill the job on the server if it is running todo */
+                /* 2. Remove it from the list of jobs on the jobsMonitor */
+                //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
+                CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
+                for (int i = 0; i < runningJobs.size(); i++) {
+                    if (runningJobs.get(i).getJobID().equals(jobID)) runningJobs.remove(i);
+                }
+                /* 3. Remove it's record from the jobsMonitor's submission record */
+                UserPreferences.getJobsMonitor().deleteRecord(
+                        UserPreferences.getJobsMonitor().getRecords().get(jobID));
+                /* 4. Remove it from the history pane */
+                historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
+                System.out.println("Selected item is of class: " + ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue());
+            } catch (ClassCastException e){
+                //This is a cheap solution to the issue of the user being able to right click the root node.
+            }
+        });
+
+        /* Create "View Job Information" Context Menu Option */
+        MenuItem viewJobInfoOption = new MenuItem("View Job Info");
+        viewJobInfoOption.setOnAction(action -> {
+//            viewJobInfoOption.setDisable(true);
+            String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
+            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
+            if (records.get(jobID).getStatus().equals("RUNNING")){
+                viewJobInfoOption.setDisable(true);
+            }
+            /* Pull up a view displaying all information about the job */
+            try {
+                Stage stage = new Stage();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/JobView.fxml"));
+                JobViewController jobViewController = new JobViewController(records.get(jobID));
+                loader.setController(jobViewController);
+                Parent p = loader.load();
+
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setTitle("Job Information");
+                stage.setScene(new Scene(p));
+
+                try {
+                    stage.showAndWait();
+                } catch (Exception e) {
+                    System.err.println("Unable to open new view");
+                }
+            } catch (IOException e){
+                System.err.println("Was unable to locate the view");
+                e.printStackTrace();
+            }
+        });
+        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption));
     }
 
     /**
@@ -401,6 +560,7 @@ public class MainViewController {
         catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
+
         File xyzFile;
 
         try {
@@ -533,12 +693,16 @@ public class MainViewController {
     }
 
     public void editSelectAll() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos on");
         jmolMainPanel.viewer.runScript("select all");
+        jmolMainPanel.repaint();
     }
 
     @FXML
     public void editSelectNone() throws IOException {
+        jmolMainPanel.viewer.runScript("selectionHalos off");
         jmolMainPanel.viewer.runScript("select none");
+        jmolMainPanel.repaint();
     }
 
     /******************************************************************************************
@@ -581,7 +745,8 @@ public class MainViewController {
 
     @FXML
     public void viewCenter() throws IOException {
-        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+//        jmolMainPanel.viewer.runScript("moveto 0 0 0 0 0 100");
+        jmolMainPanel.viewer.runScript("moveto 0 {0 0 1} 0");
         jmolMainPanel.repaint();
     }
 
@@ -681,6 +846,15 @@ public class MainViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
+        if (jmolMainPanel.getFragmentComponents() == null){
+            String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
+                    " calculations on. Add something to the system before attempting to perform libEFP calculations.";
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noFragmentsSelectedWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         FXMLLoader libEFPSubmissionLoader = new FXMLLoader(getClass().getResource("/views/libEFP.fxml"));
         //libEFPInputController libEFPCont = new libEFPInputController(getFragmentEFPFiles());
         Parent libEFPSubmissionParent = libEFPSubmissionLoader.load();
@@ -711,26 +885,21 @@ public class MainViewController {
 
     @FXML
     public void calculateLibefpHistory () throws IOException {
-        LoginForm loginForm = new LoginForm("LIBEFP");
-        boolean authorized = loginForm.authenticate();
-        if (authorized) {
-            SubmissionHistoryController controller = new SubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "views/submissionHistory.fxml"
-                    )
-            );
-            loader.setController(controller);
-            Stage stage = new Stage(StageStyle.DECORATED);
-            stage.setScene(
-                    new Scene(
-                            loader.load()
-                    )
-            );
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Submission History");
-            stage.show();
-        }
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(
+                        "/views/submissionHistory.fxml"
+                )
+        );
+        Stage stage = new Stage(StageStyle.DECORATED);
+        stage.setScene(
+                new Scene(
+                        loader.load()
+                )
+        );
+        SubmissionHistoryController controller = loader.getController();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Submission History");
+        stage.show();
     }
 
 
@@ -780,9 +949,25 @@ public class MainViewController {
      *             HELP MENU BEGINS                                                           *
      ******************************************************************************************/
     @FXML
-    public void helpCheckForUpdates () throws IOException {
+    public void helpCheckForUpdates() throws IOException {
         //TODO
         //This is currently disabled in the fxml doc since it is not currently operational
+        CheckUpdates checkUpdates = new CheckUpdates();
+        String[] versions = checkUpdates.getVersions();
+        if (versions.length != 2) {
+            throw new IOException();
+        }
+        Alert alert;
+        if (versions[0].compareTo(versions[1]) == 0) {
+            alert = new Alert(Alert.AlertType.INFORMATION, "You are up to date.\nVersion: "
+                    + versions[0], ButtonType.OK);
+        } else {
+            alert = new Alert(Alert.AlertType.INFORMATION, "Update available: Version " +
+                    versions[1] + "\nCurrently using: Version " + versions[0], ButtonType.OK);
+        }
+        alert.showAndWait();
+        //jmolMainPanel.repaint();
+        return;
     }
 
     @FXML
@@ -929,29 +1114,51 @@ stage.show();
     }
 
     @FXML
-    public void showGeomAnalysis() {
+    public void showGeomAnalysis() throws IOException {
 
-        /*
-        Tasks 7/13/20
-        - Make it an auxiliary panel to the right
-        - On focused point, clikc on and show values
 
-         */
+        OutputFile of = new OutputFile("This");
+        ArrayList states = of.getStates();
+
+
+
+
+
         Stage stage = new Stage();
         stage.setTitle("Geometry Analysis");
 
+
+        HashMap<Integer, Integer> graphDataMap = new HashMap<>();
+        currUnitLabelStr = "hartrees";
+        //boolean isDefaultUnit = true;
+        //Initial setup of chart
         NumberAxis xAxis = new NumberAxis();
         xAxis.setLabel("Geometry");
         NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Energy");
+        yAxis.setLabel("Energy " + "(" + currUnitLabelStr + ")");
 
         LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
         geomVsEnergyChart.setTitle("Energy vs. Geometry");
+        geomVsEnergyChart.setLegendVisible(false);
+
+        XYChart.Series series = new XYChart.Series();
+        series.setName("Dummy Vals");
+
+        graphDataMap.put(1, 60);
+        graphDataMap.put(2, 40);
+        graphDataMap.put(3, 25);
+        graphDataMap.put(4, 20);
+
+        for (Integer key : graphDataMap.keySet()) {
+            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(key, graphDataMap.get(key));
+            series.getData().add(data1);
+
+        }
+
+        //End chart setup
 
         GridPane geomGrid = new GridPane();
         geomGrid.setPadding(new Insets(10, 10, 10, 10));
-        //geomGrid.setHgap(10);
-      //  geomGrid.setVgap(10);
 
         ListView<String> list = new ListView<String>();
         ObservableList<String> items = FXCollections.observableArrayList (
@@ -964,9 +1171,6 @@ stage.show();
         autosizeBtn.setPrefWidth(120);
         autosizeBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-//                xAxis.setAutoRanging(true);
-//                yAxis.setAutoRanging(true);
-
                 int xPow = getExponent(maxXVal);
                 int yPow = getExponent(maxYVal);
 
@@ -976,6 +1180,68 @@ stage.show();
             }
         }));
 
+        String[] unit_types = {"hartrees", "kcals/mol", "kJ/mol", "cm-1"};
+
+        Label unitsSelectLabel = new Label("Select Units");
+
+        ComboBox unitsSelectCombBox = new ComboBox(FXCollections
+                .observableArrayList(unit_types));
+
+        HashMap<Integer, Integer> convertedUnitsMap = new HashMap<>();
+        EventHandler<ActionEvent> unitSelectedEvent =
+                new EventHandler<ActionEvent>() {
+                    public void handle(ActionEvent e)
+                    {
+                        int maxXUnit = 0;
+                        int maxYUnit = 0;
+                        yAxis.setLabel("Energy (" + unitsSelectCombBox.getValue() + ")");
+
+                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
+                            //Do nothing
+                            for (Integer key : graphDataMap.keySet()) {
+                                convertedUnitsMap.put(key, graphDataMap.get(key));
+
+                                    if (key > maxXUnit) {
+                                        maxXUnit = key;
+                                    }
+//                                    if (convertedUnitsMap.get(key) > )
+                            }
+                        }
+
+                        if (unitsSelectCombBox.getValue().equals("kcal/mol")) {
+                            for (Integer key : graphDataMap.keySet()) {
+                                    convertedUnitsMap.put(key, graphDataMap.get(key) * 628);
+
+//                                    if (key > maxXUnit) {
+//                                        maxXUnit = key;
+//                                    }
+//                                    if (convertedUnitsMap.get(key) > )
+                                }
+                        }
+
+                        else if (unitsSelectCombBox.getValue().equals("kJ/mol")) {
+                            for (Integer key : graphDataMap.keySet()) {
+                                convertedUnitsMap.put(key, graphDataMap.get(key) * 2626);
+                            }
+                        }
+
+                        else if (unitsSelectCombBox.getValue().equals("cm-1"))  {
+                            for (Integer key : graphDataMap.keySet()) {
+                                convertedUnitsMap.put(key, graphDataMap.get(key) * 219475);
+                            }
+                        }
+
+                        series.getData().clear();
+                        for (Integer key : convertedUnitsMap.keySet()) {
+                            series.getData().add(new XYChart.Data<Number, Number>(key, convertedUnitsMap.get(key)));
+                        }
+
+                    }
+                };
+
+        unitsSelectCombBox.setOnAction(unitSelectedEvent);
+
+        unitsSelectCombBox.getSelectionModel().selectFirst();
         Button leftArrowBtn = new Button();
         leftArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
         leftArrowBtn.setRotate(180);
@@ -1003,21 +1269,6 @@ stage.show();
         }));
         HBox navBtnsHBox = new HBox(10);
 
-        XYChart.Series series = new XYChart.Series();
-        series.setName("Dummy Vals");
-
-
-        XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(1, 60);
-        XYChart.Data<Number, Number> data2 = new XYChart.Data<Number, Number>(2, 40);
-        XYChart.Data<Number, Number> data3 = new XYChart.Data<Number, Number>(3, 25);
-        XYChart.Data<Number, Number> data4 = new XYChart.Data<Number, Number>(4, 20);
-
-
-        series.getData().add(data1);
-        series.getData().add(data2);
-        series.getData().add(data3);
-        series.getData().add(data4);
-
         maxYVal = 60;
         maxXVal = 7;
 
@@ -1028,12 +1279,12 @@ stage.show();
         xAxis.setUpperBound(maxXVal + 1);
         xAxis.setTickUnit(1);
 
-        geomVsEnergyChart.getData().add(series);
+        geomVsEnergyChart.getData().add(series); //TODO:
 
-        Tooltip.install(data1.getNode(), new Tooltip("(" + data1.getXValue() + ", " + data1.getYValue() + ")"));
-        Tooltip.install(data2.getNode(), new Tooltip("(" + data2.getXValue() + ", " + data2.getYValue() + ")"));
-        Tooltip.install(data3.getNode(), new Tooltip("(" + data3.getXValue() + ", " + data3.getYValue() + ")"));
-        Tooltip.install(data4.getNode(), new Tooltip("(" + data4.getXValue() + ", " + data4.getYValue() + ")"));
+//        Tooltip.install(data1.getNode(), new Tooltip("(" + data1.getXValue() + ", " + data1.getYValue() + ")"));
+//        Tooltip.install(data2.getNode(), new Tooltip("(" + data2.getXValue() + ", " + data2.getYValue() + ")"));
+//        Tooltip.install(data3.getNode(), new Tooltip("(" + data3.getXValue() + ", " + data3.getYValue() + ")"));
+//        Tooltip.install(data4.getNode(), new Tooltip("(" + data4.getXValue() + ", " + data4.getYValue() + ")"));
 
         Tooltip.install(xAxis, new Tooltip("Drag right to double scale, drag left to half scale"));
         Tooltip.install(yAxis, new Tooltip("Drag up to double scale, drag down to half scale"));
@@ -1041,15 +1292,12 @@ stage.show();
         xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 xPressed = true;
-              //  System.out.println("X Axis pressed");
                 lastXPosition = event.getSceneX();
             }
         }));
 
         xAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-               // System.out.println("X Axis dragged");
-                //If the user drags right
                 if (xPressed) {
                     if (event.getSceneX() - lastXPosition >= 20.0) {
                         xAxis.setAutoRanging(false);
@@ -1074,7 +1322,6 @@ stage.show();
 
         yAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-               // System.out.println("Y Axis pressed");
                 lastYPosition = event.getSceneY();
                 yPressed = true;
             }
@@ -1086,11 +1333,10 @@ stage.show();
                 if (yPressed) {
                     if (lastYPosition - event.getSceneY() >= 20.0) {
                         yAxis.setAutoRanging(false);
-                      //  yAxis.setTickUnit(30);
                         yAxis.setUpperBound(upperYBound * 2);
                         upperYBound *= 2;
                         yPressed = false;
-                        System.out.println("Finished up drag logic");
+                       // System.out.println("Finished up drag logic");
                     }
                     else if (event.getSceneY() - lastYPosition >= 20.0) {
                         yAxis.setAutoRanging(false);
@@ -1171,18 +1417,6 @@ stage.show();
                 Optional<String> result = pngDialog.showAndWait();
 
                 File file = new File(home + "/Documents/" + result.get() + ".png");
-
-
-//                try {
-//                    jmolMainPanel.openFile(file2);
-//
-//
-//                }
-//                catch(Exception e) {
-//                    System.out.print("HAHAH");
-//                }
-
-                //System.out.println("File name: " + file.getAbsolutePath());
 
                 try {
                     ImageIO.write(SwingFXUtils.fromFXImage(chartPNG, null), "png", file);
@@ -1266,7 +1500,9 @@ stage.show();
             }));
 
         scaleBtnsHBox.getChildren().addAll(scaleBtn, autosizeBtn);
-        axesEditVBox.getChildren().addAll(xHBox, yHBox, scaleBtnsHBox);
+        HBox unitsHBox = new HBox(10);
+        unitsHBox.getChildren().addAll(unitsSelectLabel, unitsSelectCombBox);
+        axesEditVBox.getChildren().addAll(xHBox, yHBox, scaleBtnsHBox, unitsHBox);
 
         navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn, chartInfoButton, saveAsPNGBtn, saveAsCSVButton);
 
@@ -1446,6 +1682,61 @@ stage.show();
     public void libefp() {
         System.out.println("libefp button");
         //TODO need to call libefp constructor
+    }
+
+    public void VisualizeLibEFPResultFile() {
+        try {
+            File outFile = new File("iSpiEFP/pbc_1.out");
+            File tempOutFile = new File("testTemp.xyz");
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
+
+            boolean startOfGeometry = false;
+            boolean moleculeRead = false;
+            int count = 0;
+            String finalOut = "";
+            int maxStep = 0;
+
+            while (true) {
+                String line = bufferedReader.readLine();
+                if (line == null) break;
+                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
+                else if (line.contains("FINAL STATE")) startOfGeometry = true;
+                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
+                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
+                else if (startOfGeometry) {
+                    line = line.replaceAll(" +", " ");
+                    String[] unprocessedLine = line.split(" ");
+                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
+                        if (moleculeRead) break;
+                    } else {
+                        moleculeRead = true;
+                        for (String s : unprocessedLine) {
+                            if (s.equals("")) continue;
+                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
+                            else finalOut += s;
+                            finalOut += " ";
+                        }
+                        finalOut += '\n';
+                        count++;
+                    }
+                }
+            }
+
+            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
+
+            bufferedWriter.write(finalOut);
+            bufferedWriter.close();
+            bufferedReader.close();
+
+            jmolMainPanel.removeAll();
+            jmolMainPanel.openFile(tempOutFile);
+
+            tempOutFile.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /******************************************************************************************

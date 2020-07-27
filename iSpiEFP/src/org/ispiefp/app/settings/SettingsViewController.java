@@ -29,6 +29,8 @@ import org.ispiefp.app.util.UserPreferences;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.NoSuchElementException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
@@ -55,6 +57,8 @@ public class SettingsViewController {
     @FXML private CheckBox hasLibEFPButton;
     @FXML private CheckBox hasGAMESSButton;
     @FXML private ChoiceBox scheduler;
+    @FXML private TextField addQueueField;
+    @FXML private ChoiceBox defaultQueue;
 
     /*Fields for persistent scene */
     @FXML private VBox settingsBox;
@@ -231,6 +235,7 @@ public class SettingsViewController {
         username.setText(si.getUsername());
         password.setText(si.getPassword());
         scheduler.setValue(si.getScheduler());
+        defaultQueue.getItems().setAll(si.getQueues());
         if (si.hasGAMESS()) {
             hasGAMESSButton.setSelected(true);
             GAMESSInstallationPath.setText(si.getGamessPath());
@@ -248,6 +253,32 @@ public class SettingsViewController {
     }
 
     @FXML
+    private void addNewQueue(){
+        try{
+            ServerInfo si = UserPreferences.getServers().get(alias.getText());
+            si.addQueue(addQueueField.getText());
+        } catch(NullPointerException e){
+            System.err.println("Caught a null pointer exception. Alias likely null");
+        } catch (NoSuchElementException e){
+            System.err.println("The server has not yet been saved and therefore does not exist in the hashmap");
+            defaultQueue.getItems().add(addQueueField.getText());
+        }
+    }
+
+    @FXML
+    private void deleteQueue(){
+        try{
+            ServerInfo si = UserPreferences.getServers().get(alias.getText());
+            si.deleteQueue(addQueueField.getText());
+        } catch(NullPointerException e){
+            System.err.println("Caught a null pointer exception. Alias likely null");
+        } catch (NoSuchElementException e){
+            System.err.println("The server has not yet been saved and therefore does not exist in the hashmap");
+            defaultQueue.getItems().remove(addQueueField.getText());
+        }
+    }
+
+    @FXML
     private void enableLibEFPPath() {
         libEFPInstallationPath.setDisable(!hasLibEFPButton.isSelected());
     }
@@ -257,10 +288,33 @@ public class SettingsViewController {
         GAMESSInstallationPath.setDisable(!hasGAMESSButton.isSelected());
     }
 
+    //ArrayList<String> all_server_names = new ArrayList<>();
+
     @FXML
     private void saveServer() {
+
         UserPreferences.removeServer(alias.getText());
         ServerInfo si = new ServerInfo(alias.getText(), true);
+
+        if (username.getText().equals("")){
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    String.format("The username is not entered"),
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+        if (hostname.getText().equals("")){
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        String.format("The hostname is not entered"),
+                        ButtonType.OK);
+                alert.showAndWait();
+        }
+        if (scheduler.getValue().toString().equals("null")){
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        String.format("The scheduler is not entered"),
+                        ButtonType.OK);
+                alert.showAndWait();
+        }
+
         si.setHostname(hostname.getText());
         si.setUsername(username.getText());
         si.setPassword(password.getText());
@@ -278,7 +332,15 @@ public class SettingsViewController {
         } else {
             si.setHasGAMESS(false);
         }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                String.format("Server saved"),
+                ButtonType.OK);
+        alert.showAndWait();
+
         UserPreferences.addServer(si);
+
+
+
     }
 
     @FXML
@@ -337,10 +399,34 @@ public class SettingsViewController {
         Optional<String> result = dialog.showAndWait();
 
         if (result.isPresent()){
-            servers.getChildren().add(new TreeItem<>(result.get()));
+            //servers.getChildren().add(new TreeItem<>(result.get()));
             openServerSettings();
             ServerInfo si = new ServerInfo(result.get(), true);
-            UserPreferences.addServer(si);
+            boolean duplicated_server_name = false;
+            for (String serverName : UserPreferences.getServers().keySet()) {
+                //System.out.println(serverName);
+                if (serverName.equals(si.getEntryname())){
+                    duplicated_server_name=true;
+                    break;
+                }
+
+            }
+            //System.out.println(duplicated_server_name);
+            if (duplicated_server_name==false){
+                servers.getChildren().add(new TreeItem<>(result.get()));
+                //System.out.println("caught!");
+                UserPreferences.addServer(si);
+
+            }else{
+                //System.out.println("caught!");
+                //UserPreferences.removeServer(si.getEntryname());
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        String.format("The server is already exist, please use another server name"),
+                        ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+            //UserPreferences.addServer(si);
         }
     }
 

@@ -89,7 +89,7 @@
 
                     <Menu mnemonicParsing="false" text="Help">
                         <items>
-                            <MenuItem disable="true" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
+                            <MenuItem disable="false" mnemonicParsing="false" onAction="#helpCheckForUpdates" text="Check for Updates..." />
                             <MenuItem mnemonicParsing="false" onAction="#helpAbout" text="About" />
                             <SeparatorMenuItem mnemonicParsing="false" />
                             <MenuItem mnemonicParsing="false" onAction="#helpJmolWiki" text="Jmol Wiki" />
@@ -172,7 +172,9 @@
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <ListView fx:id="historyListView" />
+                <TreeView fx:id="historyTreeView">
+                    <TreeItem fx:id="historyRoot" expanded="true" />
+                </TreeView>
             </VBox>
             <SplitPane fx:id="middleRightSplitPane" dividerPositions="0.5">
                 <Pane fx:id="middlePane" />

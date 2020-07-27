@@ -1,0 +1,38 @@
+# This workflow updates the file containing the version number
+# on any push that contains a tag with a version number
+
+name: updateVersion
+
+# Controls when the action will run. Triggers the workflow on any push
+# that matches the regular expression below
+on:
+  push:
+    tags: '*'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "updateVersionFile"
+  updateVersionFile:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    # Updates the file using the runners shell
+    - name: Update version file
+      run: |
+        rm ./iSpiEFP/resources/userVersion.txt
+        echo $(git tag) > ./iSpiEFP/resources/userVersion.txt
+    - name: Commiting changes
+      run: |
+        git config --local user.name  ${{ github.actor }}
+        git add ./iSpiEFP/resources/userVersion.txt
+        git commit -m "Automated update of version file"
+    - name: Push changes
+      uses: ad-m/github-push-action@TestCheckForUpdates
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        force: true
