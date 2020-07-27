@@ -375,8 +375,8 @@ public class libEFPInputController implements Initializable {
         sb.append("pol_damp " + pol_damp.getValue() + "\n");
         sb.append("disp_damp " + disp_damp.getValue() + "\n");
         sb.append("pol_driver " + pol_solver.getValue() + "\n");
-        sb.append("fraglib_path iSpiClient/Libefp/fraglib\n");
-        sb.append("userlib_path iSpiClient/Libefp/fraglib\n");
+        sb.append("fraglib_path iSpiClient/Libefp/jobs/" + title.getText() + "/fraglib\n");
+        sb.append("userlib_path iSpiClient/Libefp/jobs/" + title.getText() + "/fraglib\n");
 
 
         if (run_type.getValue().equals("md")) {
@@ -603,6 +603,9 @@ public class libEFPInputController implements Initializable {
         }
         username = submission.username;
         password = submission.password;
+        submission.setOutputFilename(title.getText());
+        submission.setInputFilename(title.getText());
+        submission.setSchedulerOutputName(title.getText());
 
         /* Show submission script options */
         FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
