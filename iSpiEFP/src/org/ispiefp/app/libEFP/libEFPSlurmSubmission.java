@@ -14,8 +14,8 @@ import java.util.UUID;
 public class libEFPSlurmSubmission extends libEFPSubmission {
 
     public libEFPSlurmSubmission(ServerInfo server, String queueName, int numNodes,
-                                 int numProcessors, String walltime, int mem){
-        super(server);
+                                 int numProcessors, String walltime, int mem, String jobName){
+        super(server, jobName);
 //        submitString = "/usr/pbs/bin/qsub ${JOB_NAME}.run";
 //        queryString = "/usr/pbs/bin/qstat -f ${JOB_ID}";
 //        killString = "/usr/pbs/bin/qdel ${JOB_ID}";
@@ -29,13 +29,14 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
         this.mem = mem;
     }
 
-    public libEFPSlurmSubmission(ServerInfo server){
-        super(server);
+    public libEFPSlurmSubmission(ServerInfo server, String jobName){
+        super(server, jobName);
     }
 
     File createSubmissionScript(String input) throws IOException {
         File submissionScript = new File("submission.slurm");
         FileUtils.writeStringToFile(submissionScript, input, Charset.forName("UTF-8"));
+        submissionScript.deleteOnExit();
         return submissionScript;
     }
 
@@ -65,6 +66,7 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
     public String submit(String input) {
         String jobID = UUID.randomUUID().toString();
         try {
+            /* Write the submission script to the server */
             File submissionScript = createSubmissionScript(input);
             Connection con = new Connection(hostname);
             con.connect();
@@ -75,12 +77,13 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
                 return "Error: User could not be authenticated";
             }
             SCPClient scp = con.createSCPClient();
-            String remoteFileName = "submission_" + jobID + ".slurm";
+            String remoteFileName = jobName + ".slurm";
             SCPOutputStream scpos = scp.put(remoteFileName, submissionScript.length(), REMOTE_LIBEFP_IN, "0666");
             FileInputStream in = new FileInputStream(submissionScript);
             IOUtils.copy(in, scpos);
             in.close();
             scpos.close();
+            /* Reopen the session and call sbatch on the submission script */
             Session s = con.openSession();
             //todo: Eventually someone will need to remove the hard coded "\n" below and replace it with the line delimiter of the SERVER not the user's computer. Look at uname command.
             String queueCommand = String.format("sbatch %s\n", REMOTE_LIBEFP_IN + remoteFileName);

@@ -1,8 +1,6 @@
 package org.ispiefp.app.libEFP;
 
 import ch.ethz.ssh2.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -18,11 +16,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
-import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
-import org.ispiefp.app.loginPack.LoginForm;
-import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.*;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
@@ -32,12 +27,10 @@ import org.ispiefp.app.visualizer.ViewerHelper;
 import org.jmol.viewer.Viewer;
 
 import java.io.*;
-import java.net.Socket;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.io.File;
 
@@ -144,8 +137,10 @@ public class libEFPInputController implements Initializable {
     @FXML
     private ComboBox<String> server;
 
-    @FXML private TextField localWorkingDirectory;
-    @FXML Button findButton;
+    @FXML
+    private TextField localWorkingDirectory;
+    @FXML
+    Button findButton;
     @FXML
     private Button nextButton;
 
@@ -190,7 +185,7 @@ public class libEFPInputController implements Initializable {
         // initWorkingDir();
     }
 
-    public libEFPInputController(){
+    public libEFPInputController() {
         super();
         this.workingDirectoryPath = LocalBundleManager.workingDirectory;
         this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + File.separator;  //storage for db incoming efp files
@@ -338,13 +333,12 @@ public class libEFPInputController implements Initializable {
 
 
         //Initializing server field
-        if (UserPreferences.getServers().keySet().size() < 1){
+        if (UserPreferences.getServers().keySet().size() < 1) {
             Alert alert = new Alert(Alert.AlertType.WARNING,
                     "You have not configured any servers. Please go to your settings and add a server before proceeding.",
                     ButtonType.OK);
             alert.showAndWait();
-        }
-        else {
+        } else {
             server.getItems().setAll(UserPreferences.getServers().keySet());
         }
         // Adding listener to presets
@@ -353,7 +347,7 @@ public class libEFPInputController implements Initializable {
         available_presets.addAll(UserPreferences.getLibEFPPresetNames());
         presets.getItems().addAll(available_presets);
         presets.valueProperty().addListener(((observable, oldValue, newValue) -> {
-            if (newValue != null){
+            if (newValue != null) {
                 loadPreset(UserPreferences.getLibEFPPresets().get(newValue));
             }
         }));
@@ -419,7 +413,7 @@ public class libEFPInputController implements Initializable {
         libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
         if (!server.getSelectionModel().isEmpty() ||
                 (new File(localWorkingDirectory.getText()).exists() &&
-                            new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
+                        new File(localWorkingDirectory.getText()).isDirectory())) nextButton.setDisable(false);
     }
 
     public void generatelibEFPInputFile() {
@@ -453,27 +447,27 @@ public class libEFPInputController implements Initializable {
 
     /**
      * Written by Ryan DeRue
-     *
+     * <p>
      * This method is called from the controller which initialized this controller. By calling this function,
      * each of the fragments in the viewer have their RMSD computed against fragments whose chemical formula
      * match in the list of available fragments. It then uses this information to populate the libEFP Input text
      * areas. Currently it uses the first available fragment with a sufficiently small RMSD.
-     *
+     * <p>
      * Confusing variables:
-     *   1. viewerFragments ArrayList<ArrayList<Integer>>
-     *       An ArrayList<Integer> is the internal representation jmol uses for fragments. This variable is an
-     *       ArrayList of all of those representations.
-     *   2. viewerFragmentMap Map<Integer, Map<String, String>>
-     *       Maps the viewerFragment index of a fragment to a map whose keys are the name of a fragment
-     *       that matches on chemical formula and values are the computed RMSD values of this fragment against
-     *       the viewerFragment as a String.
-     *
+     * 1. viewerFragments ArrayList<ArrayList<Integer>>
+     * An ArrayList<Integer> is the internal representation jmol uses for fragments. This variable is an
+     * ArrayList of all of those representations.
+     * 2. viewerFragmentMap Map<Integer, Map<String, String>>
+     * Maps the viewerFragment index of a fragment to a map whose keys are the name of a fragment
+     * that matches on chemical formula and values are the computed RMSD values of this fragment against
+     * the viewerFragment as a String.
+     * <p>
      * TODO: Create a list of fragments that matched on chemical formula and their RMSDs and let user pick.
      */
     public void initEfpFiles() throws IOException {
         efpFiles = new ArrayList<>();
         ArrayList<Integer> validIndices = new ArrayList<>();
-        for (int i = 0; i < viewerFragments.size(); i++){
+        for (int i = 0; i < viewerFragments.size(); i++) {
             if (viewerFragmentMap.get(i).keySet().size() > 0) validIndices.add(i);
         }
         if (validIndices.size() > 0) {
@@ -515,7 +509,7 @@ public class libEFPInputController implements Initializable {
             libEFPInputTextArea.setText(getlibEFPInputText() + "\n" + coordinates);
             libEFPInputTextArea2.setText(getlibEFPInputText() + "\n" + coordinates);
             libEFPInputTextArea3.setText(getlibEFPInputText() + "\n" + coordinates);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -601,15 +595,16 @@ public class libEFPInputController implements Initializable {
         selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
         if (selectedServer.getScheduler().equals("SLURM")) {
-            submission = new libEFPSlurmSubmission(selectedServer);
+            submission = new libEFPSlurmSubmission(selectedServer, title.getText());
         }
         //TODO: Handle case of PBS and Torque
         else if (selectedServer.getScheduler().equals("PBS")) {
-            submission = new libEFPSlurmSubmission(selectedServer);
+            submission = new libEFPSlurmSubmission(selectedServer, title.getText());
         }
         username = submission.username;
         password = submission.password;
 
+        /* Show submission script options */
         FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
         Parent subScriptParent = subScriptViewLoader.load();
         SubmissionScriptTemplateViewController subScriptCont = subScriptViewLoader.getController();
@@ -619,99 +614,65 @@ public class libEFPInputController implements Initializable {
         stage.setTitle("Submission Script Options");
         stage.setScene(new Scene(subScriptParent));
         stage.showAndWait();
+        /* Check if user closed the options without hitting submit */
         if (!subScriptCont.isSubmitted()) return;
-        Connection con = new Connection(selectedServer.getHostname());
-        con.connect();
-        boolean authorized = con.authenticateWithPassword(username, password);
-        if (authorized) {
-            createInputFile(submission.inputFilePath, this.libEFPInputsDirectory);
-            Thread.sleep(100);
-            System.out.println("sending these efp files:");
-            for (File file : efpFiles) {
-                System.out.println(file.getName());
-            }
-            SCPClient scp = con.createSCPClient();
 
-
-            SCPOutputStream scpos = scp.put(submission.inputFilePath, new File(this.libEFPInputsDirectory + submission.inputFilePath).length(), "./iSpiClient/Libefp/input", "0666");
-            FileInputStream in = new FileInputStream(new File(this.libEFPInputsDirectory + submission.inputFilePath));
-
-
-            IOUtils.copy(in, scpos);
-            in.close();
-            scpos.close();
-            System.out.println("sent config file");
-
-
-            Session sess = con.openSession();
-            sess.close();
-
-            for (File file : efpFiles) {
-                SCPClient scpClient = con.createSCPClient();
-                String filename = file.getName().substring(0, file.getName().indexOf('.') + 4);
-                filename = filename.toLowerCase();
-                scpos = scpClient.put(filename, file.length(), "./iSpiClient/Libefp/fraglib", "0666");
-                System.out.printf("Creating new FIS: %s%s%n", this.efpFileDirectoryPath, filename);
-                in = new FileInputStream(file);
-                IOUtils.copy(in, scpos);
-                in.close();
-                scpos.close();
-                //Wait for each file to actually be on the server
-                while (true) {
-                    try {
-                        SCPInputStream scpis = null;
-                        scpis = scp.get("./iSpiClient/Libefp/fraglib/" + filename);
-                        scpis.close();
-                    } catch (IOException e) {
-                        continue;
-                    }
-                    break;
-                }
-            }
-
-
-
-            DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
-            Date date = new Date();
-            String currentTime = dateFormat.format(date).toString();
-
-
-            InputStream stdout = new StreamGobbler(sess.getStdout());
-            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-            String clusterjobID = "";
-            while (true) {
-                String line = br.readLine();
-                if (line == null)
-                    break;
-                System.out.println(line);
-                String[] tokens = line.split("\\.");
-                if (tokens[0].matches("\\d+")) {
-                    clusterjobID = tokens[0];
-                }
-            }
-            System.out.println(clusterjobID);
-            br.close();
-            stdout.close();
-            sess.close();
-            con.close();
-
-            String time = currentTime; //equivalent but in different formats
-            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-            submission.submit(subScriptCont.getUsersSubmissionScript());
-            currentTime = dateFormat.format(date).toString();
-            userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-            JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
-                    localWorkingDirectory.getText(), submission.outputFilename, title.getText(),
-                    currentTime, "QUEUE", "LIBEFP");
-            UserPreferences.getJobsMonitor().addJob(jobManager);
-            Stage currentStage = (Stage) root.getScene().getWindow();
-            currentStage.close();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Libefp Submission");
-            alert.setHeaderText(null);
-            alert.setContentText("Job submitted to cluster successfully.");
-            alert.showAndWait();
+        /* Create the job workspace */
+        submission.createJobWorkspace(title.getText());
+        /* Send input files */
+        createInputFile(submission.inputFilePath, this.libEFPInputsDirectory);
+        File inputFile = new File(this.libEFPInputsDirectory + submission.inputFilePath);
+        if (!submission.sendInputFile(inputFile)) {
+            System.err.println("Was unable to send the input file to the server");
+            return;
         }
+
+        /* Send EFP files */
+        if (!submission.sendEFPFiles(efpFiles)) {
+            System.err.println("Was unable to send EFP files to the server");
+            return;
+        }
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+        Date date = new Date();
+        String currentTime = dateFormat.format(date).toString();
+//
+//        Session sess
+//        InputStream stdout = new StreamGobbler(sess.getStdout());
+//        BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+//        String clusterjobID = "";
+//        while (true) {
+//            String line = br.readLine();
+//            if (line == null)
+//                break;
+//            System.out.println(line);
+//            String[] tokens = line.split("\\.");
+//            if (tokens[0].matches("\\d+")) {
+//                clusterjobID = tokens[0];
+//            }
+//        }
+//        System.out.println(clusterjobID);
+//        br.close();
+//        stdout.close();
+//        sess.close();
+//        con.close();
+
+        String time = currentTime; //equivalent but in different formats
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        submission.submit(subScriptCont.getUsersSubmissionScript());
+        currentTime = dateFormat.format(date).toString();
+//        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
+        JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
+                localWorkingDirectory.getText(), submission.outputFilename, title.getText(),
+                currentTime, "QUEUE", "LIBEFP");
+        UserPreferences.getJobsMonitor().addJob(jobManager);
+        Stage currentStage = (Stage) root.getScene().getWindow();
+        currentStage.close();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Libefp Submission");
+        alert.setHeaderText(null);
+        alert.setContentText("Job submitted to cluster successfully.");
+        alert.showAndWait();
     }
 
     public void saveCalculationType() {
@@ -739,6 +700,7 @@ public class libEFPInputController implements Initializable {
      * This method loads every non coordinate field of the libEFP setup with one of the user's saved calculations
      * whose options are saved in the CalculationPreset class which is passed. Is backed by the UserPreferences
      * Java class.
+     *
      * @param cp CalculationPreset class containing the user's options
      */
     @FXML
@@ -751,10 +713,12 @@ public class libEFPInputController implements Initializable {
         pol_damp.setValue(cp.getPolDamp());
         pol_solver.setValue(cp.getPolSolver());
         terms.getCheckModel().clearChecks();
-        for (int i = 0; i < 4; i++){if (cp.getTerms()[i]) terms.getCheckModel().check(i);}
-        try{
+        for (int i = 0; i < 4; i++) {
+            if (cp.getTerms()[i]) terms.getCheckModel().check(i);
+        }
+        try {
             updatelibEFPInputText();
-        } catch (IOException e){
+        } catch (IOException e) {
             System.err.println("Was unable to write to input file area");
         }
     }
@@ -793,18 +757,19 @@ public class libEFPInputController implements Initializable {
      * eventually be used to create the actual input file that will be sent to run the calculation. The getGroups fxn
      * was already written when I started working on this class. I use it as a blackBox to interpret the viewerFragments
      * correctly.
-     *
+     * <p>
      * Confusing variables:
-     *   1. viewerFragments ArrayList<ArrayList<Integer>>
-     *       An ArrayList<Integer> is the internal representation jmol uses for fragments. This variable is an
-     *       ArrayList of all of those representations.
-     *   2. viewerFragmentMap Map<Integer, Map<MetaData, String>>
-     *       Maps the viewerFragment index of a fragment to a map whose keys are the metadata of a library fragment
-     *       that matches on chemical formula and values are the computed RMSD values of this fragment against
-     *       the viewerFragment as a String.
+     * 1. viewerFragments ArrayList<ArrayList<Integer>>
+     * An ArrayList<Integer> is the internal representation jmol uses for fragments. This variable is an
+     * ArrayList of all of those representations.
+     * 2. viewerFragmentMap Map<Integer, Map<MetaData, String>>
+     * Maps the viewerFragment index of a fragment to a map whose keys are the metadata of a library fragment
+     * that matches on chemical formula and values are the computed RMSD values of this fragment against
+     * the viewerFragment as a String.
+     *
      * @return The String populate the inputTextArea.
      */
-    private String generateInputText()  {
+    private String generateInputText() {
         StringBuilder sb = new StringBuilder();
         ArrayList<ArrayList> groups = getGroups(viewerFragments);
         int group_number = 0;
@@ -839,6 +804,7 @@ public class libEFPInputController implements Initializable {
      * Method creates a temporary xyz file for the viewerFragment whose index is passed to this function. This function
      * is primarily used for computing RMSDs against the xyz files of the library fragments. The created file will be
      * deleted when the program exits.
+     *
      * @param fragmentIndex The index of the fragment in the viewer
      * @return A java.io file containing the xyz coordinates of a viewerFragment.
      * @throws IOException if the file is not able to be created.
@@ -872,8 +838,7 @@ public class libEFPInputController implements Initializable {
                         ViewerHelper.convertAngstromToBohr(atom.z)
                 ));
             }
-        }
-        finally {
+        } finally {
             if (bw != null) bw.close();
         }
         return xyzFile;
@@ -883,16 +848,17 @@ public class libEFPInputController implements Initializable {
      * Written by Ryan DeRue
      * Method computes the RMSD between each of the fragments in the viewer and each of the fragments in the
      * local fragment tree
+     *
      * @return a Map containing each of the fragments mapped to their respective RMSD values which had an RMSD below 0.5
      */
-    private Map<MetaData, String> computeRMSD(int fragmentIndex){
+    private Map<MetaData, String> computeRMSD(int fragmentIndex) {
         Map<MetaData, String> rmsdMap = new HashMap<>(); /* Will be populated with all of the fragment names and      *
          * their respective RMSDs                                    */
         File fragmentXYZFile = null;
         File viewerFragmentXYZFile = null;
         try {
             viewerFragmentXYZFile = createTempXYZFileFromViewer(fragmentIndex);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Unable to create temporary xyz file of viewer fragment");
         }
@@ -911,7 +877,7 @@ public class libEFPInputController implements Initializable {
                         String.format("--reorder %s %s", fragmentXYZFile.getAbsolutePath(), viewerFragmentXYZFile.getAbsolutePath())
                 );
                 if (RMSDString.contains("OUTPUT")) {
-                    String [] parsedString = RMSDString.split("null");
+                    String[] parsedString = RMSDString.split("null");
                     RMSDString = parsedString[parsedString.length - 1].split("OUTPUT")[1];
                     RMSD = Double.parseDouble(RMSDString);
                 }
@@ -926,7 +892,7 @@ public class libEFPInputController implements Initializable {
         return rmsdMap;
     }
 
-    public void findDirectory(){
+    public void findDirectory() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select a Working Directory for Job: " + title.getText());
         directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -942,22 +908,22 @@ public class libEFPInputController implements Initializable {
         return jmolViewer;
     }
 
-    public void setJmolViewer(Viewer v){
+    public void setJmolViewer(Viewer v) {
         jmolViewer = v;
     }
 
-    public ArrayList<ArrayList<Integer>> getViewerFragments(){
+    public ArrayList<ArrayList<Integer>> getViewerFragments() {
         return viewerFragments;
     }
 
-    public void setViewerFragments(ArrayList<ArrayList<Integer>> frags){
+    public void setViewerFragments(ArrayList<ArrayList<Integer>> frags) {
         viewerFragments = frags;
-        for (int i = 0; i < viewerFragments.size(); i++){
+        for (int i = 0; i < viewerFragments.size(); i++) {
             viewerFragmentMap.put(i, computeRMSD(i));
         }
     }
 
-    public String getChemicalFormula(int fragmentIndex){
+    public String getChemicalFormula(int fragmentIndex) {
         ArrayList<Integer> atoms = getGroups(viewerFragments).get(fragmentIndex);
         HashMap<String, Integer> atomTypeMap = new HashMap<>();
         PriorityQueue<String> pq = new PriorityQueue<>();
@@ -968,7 +934,7 @@ public class libEFPInputController implements Initializable {
             atomTypeMap.put(atomName, numThatAtom);
         }
         Iterator<String> keysItr = atomTypeMap.keySet().iterator();
-        while (keysItr.hasNext()){
+        while (keysItr.hasNext()) {
             StringBuilder sb = new StringBuilder();
             String key = keysItr.next();
             sb.append(key);
@@ -976,7 +942,7 @@ public class libEFPInputController implements Initializable {
             pq.add(sb.toString());
         }
         String returnString = "";
-        while (!pq.isEmpty()){
+        while (!pq.isEmpty()) {
             returnString += pq.poll();
         }
         return returnString;
