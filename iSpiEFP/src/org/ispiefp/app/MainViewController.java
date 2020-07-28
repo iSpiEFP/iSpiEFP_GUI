@@ -334,6 +334,8 @@ public class MainViewController {
         exportCSVOption.setOnAction(action -> {
             String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
             ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
+            String localPath = new JobViewController(records.get(jobID)).getRecord().getLocalOutputFilePath();
+            System.out.println("\n\nlocalPath = " + localPath + "\n");
             if (records.get(jobID).getStatus().equals("RUNNING")){
                 exportCSVOption.setDisable(true);
             }
@@ -343,16 +345,22 @@ public class MainViewController {
             CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
             for (int i = 0; i < runningJobs.size(); i++) {
                 if (runningJobs.get(i).getJobID().equals(jobID)) {
+                    System.out.println("\n\noutput = " + runningJobs.get(i).getOutputFilename() + "\n");
+                    String output = runningJobs.get(i).getOutputFilename();
+                    System.out.println(localPath.substring(0, localPath.indexOf("/")));
+                    System.out.println(output.substring(output.lastIndexOf("/") + 1));
+                    String temp = localPath.substring(0, localPath.indexOf("/")) + File.separator + output;
+                    System.out.println("\n\ntemp = " + temp + "\n");
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Save CSV File");
-                    fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-                    //fileChooser.setInitialDirectory(new File(new File(runningJobs.get(i).getOutputFilename()).getParent()));
-                    String fileName = "Test";
+                    String path = runningJobs.get(i).getStdoutputFilename();
+                    String fileName = path.substring(path.lastIndexOf("/") + 1, path.indexOf("."));
+                    fileChooser.setInitialDirectory(new File(new File(localPath).getParent()));
                     fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
                     Stage currStage = (Stage) root.getScene().getWindow();
-                    //File file = fileChooser.showSaveDialog(currStage);
                         LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
-                        String[] sheets = libEFPtoCSV.getCSVString("iSpiEFP/src/org/ispiefp/app/w6b2_pairwise.out");
+                        String[] sheets = //libEFPtoCSV.getCSVString("iSpiEFP/src/org/ispiefp/app/opt_1.out");
+                        libEFPtoCSV.getCSVString(temp);
                         //String[] sheets = libEFPtoCSV.getCSVString(runningJobs.get(i).getOutputFilename());
                         for (int j = 0; j < sheets.length; j++) {
                             if (sheets[j] != null) {

@@ -69,6 +69,10 @@ public class JobViewController {
         this.record = record;
     }
 
+    public SubmissionRecord getRecord() {
+        return this.record;
+    }
+
     public void populateTextArea(String filePath, boolean isVisualizable){
         String fileContents = null;
         try {
