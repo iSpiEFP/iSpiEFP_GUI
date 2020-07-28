@@ -335,7 +335,7 @@ public class MainViewController {
             String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
             ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
             if (records.get(jobID).getStatus().equals("RUNNING")){
-                viewJobInfoOption.setDisable(true);
+                exportCSVOption.setDisable(true);
             }
             /* 1. Kill the job on the server if it is running todo */
             /* 2. Remove it from the list of jobs on the jobsMonitor */
@@ -347,20 +347,24 @@ public class MainViewController {
                     fileChooser.setTitle("Save CSV File");
                     fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
                     //fileChooser.setInitialDirectory(new File(new File(runningJobs.get(i).getOutputFilename()).getParent()));
+                    String fileName = "Test";
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
                     Stage currStage = (Stage) root.getScene().getWindow();
-                    File file = fileChooser.showSaveDialog(currStage);
-                    if (file != null) {
+                    //File file = fileChooser.showSaveDialog(currStage);
                         LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
-                        String[] sheets = libEFPtoCSV.getCSVString("iSpiEFP/src/org/ispiefp/app/w6b2_pairwise.out");//libEFPtoCSV.getCSVString(runningJobs.get(i).getOutputFilename());
+                        String[] sheets = libEFPtoCSV.getCSVString("iSpiEFP/src/org/ispiefp/app/w6b2_pairwise.out");
+                        //String[] sheets = libEFPtoCSV.getCSVString(runningJobs.get(i).getOutputFilename());
                         for (int j = 0; j < sheets.length; j++) {
                             if (sheets[j] != null) {
+                                if (j == 0) {
+                                    fileChooser.setInitialFileName(fileName + "_ene.csv");
+                                } else {
+                                    fileChooser.setInitialFileName(fileName + "_pw.csv");
+                                }
+                                File file = fileChooser.showSaveDialog(currStage);
+                                if (file != null) {
                                 try {
-                                    FileWriter fileWriter;
-                                    if (j == 0) {
-                                        fileWriter = new FileWriter(file + "_ene.txt");
-                                    } else {
-                                        fileWriter = new FileWriter(file + "_pw.txt");
-                                    }
+                                    FileWriter fileWriter = new FileWriter(file);
                                     BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                                     bufferedWriter.write(sheets[j]);
                                     bufferedWriter.close();
