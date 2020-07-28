@@ -1,20 +1,23 @@
 package org.ispiefp.app.libEFP;
 
 import ch.ethz.ssh2.*;
-import javafx.scene.layout.Pane;
-import org.apache.commons.io.FileUtils;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
+import javafx.util.Pair;
 import org.apache.commons.io.IOUtils;
-import org.ispiefp.app.installer.LocalBundleManager;
-import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.ServerInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class libEFPSubmission {
 
@@ -90,6 +93,44 @@ public abstract class libEFPSubmission {
                 return false;
             }
             Session s = con.openSession();
+            /* Check to see if a job directory of this name already exists */
+            boolean directoryExists = false;
+            try {
+                SFTPv3Client sftp = new SFTPv3Client(con);
+                List<SFTPv3DirectoryEntry> files = sftp.ls(jobDirectory);
+                System.err.println("This directory already exists");
+                Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
+                directoryAlreadyExistsDialog.setTitle("Warning: Directory Already Exists on Server");
+
+
+                // Set the button types.
+                ButtonType loginButtonType = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
+                directoryAlreadyExistsDialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+
+                String warningMessage = "A job with this title already exists on the server. If you press continue, that\n" +
+                        "job will be overwritten by the job you are now creating. Press cancel to go\nback and choose a " +
+                        "different name or continue to overwrite that job.";
+                Text warningText = new Text(warningMessage);
+
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setPadding(new Insets(20, 150, 10, 10));
+
+                grid.add(warningText, 0, 0);
+
+                directoryAlreadyExistsDialog.getDialogPane().setContent(grid);
+
+                Optional<ButtonType> choice = directoryAlreadyExistsDialog.showAndWait();
+
+                if (!choice.isPresent() || choice.get().getButtonData().isCancelButton()){
+                    System.err.println("User wants to rename the directory so as to not overwrite a job. Returning...");
+                    return false;
+                }
+
+            } catch(IOException e){
+                System.err.println("This directory does not exist");
+            }
             s.execCommand(command);
             System.out.println("Executed command: " + command);
             s.close();

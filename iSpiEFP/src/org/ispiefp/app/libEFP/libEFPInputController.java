@@ -621,7 +621,9 @@ public class libEFPInputController implements Initializable {
         if (!subScriptCont.isSubmitted()) return;
 
         /* Create the job workspace */
-        submission.createJobWorkspace(title.getText());
+        if (!submission.createJobWorkspace(title.getText())){
+            return;
+        }
         /* Send input files */
         createInputFile(submission.inputFilePath, this.libEFPInputsDirectory);
         File inputFile = new File(this.libEFPInputsDirectory + submission.inputFilePath);
