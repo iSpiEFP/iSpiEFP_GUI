@@ -571,11 +571,11 @@ public class MainViewController {
     }
 
     public void openSettings() throws IOException{
-        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
+        Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Settings");
-        stage.setScene(new Scene(fragmentSelector));
+        stage.setScene(new Scene(settingsView));
 
         try {
             stage.showAndWait();
