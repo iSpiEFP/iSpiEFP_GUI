@@ -75,8 +75,8 @@
                     </Menu>
                     <Menu mnemonicParsing="false" text="Calculate">
                         <items>
-                            <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
-                            <MenuItem disable="true" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
+                            <MenuItem mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
+                            <MenuItem mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
                             <Menu mnemonicParsing="false" text="Monitor Jobs">
                                 <items>
                                     <MenuItem mnemonicParsing="false" onAction="#calculateLibefpHistory" text="Libefp History" />

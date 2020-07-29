@@ -1,0 +1,123 @@
+EFPMD ver. 1.5.0
+Copyright (c) 2012-2017 Ilya Kaliman
+
+LIBEFP ver. 1.5.0
+Copyright (c) 2012-2017 Ilya Kaliman
+
+Journal References:
+  - Kaliman and Slipchenko, JCC 2013.
+    DOI: http://dx.doi.org/10.1002/jcc.23375
+  - Kaliman and Slipchenko, JCC 2015.
+    DOI: http://dx.doi.org/10.1002/jcc.23772
+
+Project web site: https://libefp.github.io/
+
+RUNNING 1 MPI PROCESSES WITH 8 OPENMP THREADS EACH
+WALL CLOCK TIME IS Thu May 21 16:30:06 2020
+
+SIMULATION SETTINGS
+
+run_type sp
+coord points
+terms elec pol disp xr
+elec_damp screen
+disp_damp overlap
+pol_damp tt
+pol_driver iterative
+enable_ff false
+enable_multistep false
+ff_geometry ff.xyz
+ff_parameters /Users/lyuda/LIBEFP/libefp_pbc/share/libefp/fraglib/params/amber99.prm
+single_params_file false
+efp_params_file params.efp
+enable_cutoff false
+swf_cutoff 10
+max_steps 100
+multistep_steps 1
+fraglib_path /Users/lyuda/LIBEFP/libefp_pbc/share/libefp/fraglib
+userlib_path ./
+enable_pbc false
+periodic_box 30.0 30.0 30.0 90.0 90.0 90.0
+opt_tol 0.0001
+gtest_tol 1e-06
+ref_energy 0
+hess_central false
+num_step_dist 0.001
+num_step_angle 0.01
+ensemble nve
+time_step 1
+print_step 1
+velocitize false
+temperature 300
+pressure 1
+thermostat_tau 1000
+barostat_tau 10000
+ligand 0
+enable_pairwise false
+print_pbc false
+
+
+SINGLE POINT ENERGY JOB
+
+
+    GEOMETRY (ANGSTROMS)
+
+A01C1                6.875881    -0.963149     4.264420
+A02C2                5.805451    -0.571045     3.462804
+A03C3                4.565260    -1.190745     3.604413
+A04C4                4.395500    -2.202549     4.547637
+A05C5                5.465931    -2.594652     5.349252
+A06C6                6.706121    -1.974952     5.207643
+A07H7                7.838305    -0.482272     4.154556
+A08H8                5.937180     0.214086     2.730889
+A09H9                3.734565    -0.886491     2.982361
+A10H10               3.433076    -2.683426     4.657501
+A11H11               5.334202    -3.379783     6.081167
+A12H12               7.536816    -2.279206     5.829695
+A01C1                8.789075     0.758929     1.332241
+A02C2                8.910271    -0.519562     0.791013
+A03C3                9.421241    -0.686324    -0.494775
+A04C4                9.811015     0.425404    -1.239337
+A05C5                9.689819     1.703895    -0.698110
+A06C6                9.178849     1.870657     0.587679
+A07H7                8.392557     0.888376     2.330033
+A08H8                8.607817    -1.382232     1.368772
+A09H9                9.515305    -1.678441    -0.914809
+A10H10              10.207533     0.295957    -2.237130
+A11H11               9.992273     2.566565    -1.275869
+A12H12               9.084784     2.862774     1.007712
+A01O1                4.176241     0.413652     0.892012
+A02H2                3.450559     1.017282     0.722639
+A03H3                4.803742     0.616581     0.195784
+A01O1                8.134623    -3.540201     0.021311
+A02H2                7.569381    -3.669047     0.785229
+A03H3                8.597273    -4.376390    -0.058775
+A01O1                6.348681    -3.696411     1.900384
+A02H2                6.483624    -3.391646     2.799595
+A03H3                5.578119    -3.204706     1.610328
+A01O1                4.459397    -2.439515     0.367893
+A02H2                4.142312    -1.566810     0.607716
+A03H3                4.889557    -2.297255    -0.477327
+A01O1                6.457227    -2.290838    -1.731062
+A02H2                6.441801    -2.579637    -2.645408
+A03H3                7.134876    -2.840882    -1.333678
+A01O1                6.132022     0.463587    -1.008297
+A02H2                6.949239     0.920233    -0.800206
+A03H3                6.424584    -0.411302    -1.270305
+
+
+    ENERGY COMPONENTS (ATOMIC UNITS)
+
+          ELECTROSTATIC ENERGY    -0.1420408364
+           POLARIZATION ENERGY    -0.0490741274
+             DISPERSION ENERGY    -0.0466061088
+     EXCHANGE REPULSION ENERGY     0.1331933374
+          POINT CHARGES ENERGY     0.0000000000
+     CHARGE PENETRATION ENERGY     0.0000000000
+
+                  TOTAL ENERGY    -0.1045277351
+
+
+SINGLE POINT ENERGY JOB COMPLETED SUCCESSFULLY
+WALL CLOCK TIME IS Thu May 21 16:30:06 2020
+TOTAL RUN TIME IS 0 SECONDS
