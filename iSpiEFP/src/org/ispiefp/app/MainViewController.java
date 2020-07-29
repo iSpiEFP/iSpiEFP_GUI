@@ -20,6 +20,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.ispiefp.app.gamess.gamessInputController;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -886,9 +887,31 @@ public class MainViewController {
 
     @FXML
     public void calculateGamessSetup () throws IOException {
-        //TODO this should open the gamess setup page
-        //This is currently disabled in the fxml doc since it is not currently operational
-
+        String noInternetWarning = "You are not currently connected to the internet.\n\n" +
+                "You will not be able to submit GAMESS jobs to a cluster.";
+        if (!CheckInternetConnection.checkInternetConnection()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noInternetWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+        if (jmolMainPanel.getFragmentComponents() == null){
+            String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
+                    " calculations on. Add something to the system before attempting to perform GAMESS calculations.";
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noFragmentsSelectedWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        FXMLLoader gamessSubmissionLoader = new FXMLLoader(getClass().getResource("/views/gamessInput.fxml"));
+        Parent gamessSubmissionParent = gamessSubmissionLoader.load();
+        gamessInputController gamessCont = gamessSubmissionLoader.getController();
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Select Fragment");
+        stage.setScene(new Scene(gamessSubmissionParent));
+        stage.showAndWait();
     }
 
     @FXML
