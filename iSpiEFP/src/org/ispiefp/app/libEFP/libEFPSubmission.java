@@ -97,7 +97,7 @@ public abstract class libEFPSubmission {
             boolean directoryExists = false;
             try {
                 SFTPv3Client sftp = new SFTPv3Client(con);
-                List<SFTPv3DirectoryEntry> files = sftp.ls(jobDirectory);
+                sftp.ls(jobDirectory);
                 System.err.println("This directory already exists");
                 Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
                 directoryAlreadyExistsDialog.setTitle("Warning: Directory Already Exists on Server");
