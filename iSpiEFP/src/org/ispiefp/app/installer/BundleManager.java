@@ -50,7 +50,7 @@ public class BundleManager {
         boolean packageReady = remoteBundleManager.checkIfPackageIsReady();
         //////////////////////
         //userIsMissingPackage = true; //tricked it for testing
-        //////////////////////
+        ////////////////////
         /*if(this.bundleType.equals(GAMESS)){
             System.out.println("Missing GAMESS Package");
             
