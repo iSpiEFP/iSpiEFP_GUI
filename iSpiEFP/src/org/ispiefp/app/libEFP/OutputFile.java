@@ -182,6 +182,8 @@ public class OutputFile {
 
                 public Fragment(String nameString, String coordString){
                     name = nameString.trim();
+                    System.out.println(nameString);
+                    System.out.println(coordString);
                     String[] coordsStringArray = coordString.trim().split("[ ]+");
                     for(int i = 0; i < 6; i++){
                         coords[i] = Double.parseDouble(coordsStringArray[i]);
@@ -694,7 +696,6 @@ public class OutputFile {
                     while (br.readLine().equals("")) ;
                     //Begin RESTART DATA
                     br.readLine(); //Consume RESTART DATA
-                    br.readLine(); //Consume empty line
                     while (!(currentLine = br.readLine()).equals("")) {
                         //BufferedReader should be focused on the first line of the fragment
                         String line2 = br.readLine();
