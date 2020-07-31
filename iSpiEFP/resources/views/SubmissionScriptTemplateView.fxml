@@ -13,7 +13,7 @@
     <SplitPane dividerPositions="0.25, 0.75" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="450.0" prefWidth="600.0">
         <items>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="121.0" prefWidth="600.0">
-                <children>
+            <children>
                     <Text layoutX="22.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Job Name:" />
                     <TextField fx:id="jobName" layoutX="100.0" layoutY="13.0" onAction="#setJobName" prefHeight="31.0" prefWidth="188.0" promptText="Enter title" />
                     <Text layoutX="300.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Queue Name:" />
@@ -31,7 +31,7 @@
                     <Insets bottom="8.0" />
                 </padding>
             </AnchorPane>
-            <TextArea fx:id="submissionScriptTextArea" prefHeight="244.0" prefWidth="600.0" />
+            <TextArea fx:id="submissionScriptTextArea" prefHeight="244.0" prefWidth="600.0" maxHeight="244.0" minHeight="244.0"/>
             <ButtonBar maxHeight="-Infinity">
                 <buttons>
                     <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleSubmit" text="Submit">
