@@ -383,6 +383,7 @@ public class MainViewController {
      * @throws UnrecognizedAtomException
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
+
         openRecentMenu.getItems().clear();
         // pit.setProgress(100);
         FileChooser fileChooser = new FileChooser();
@@ -1116,20 +1117,11 @@ stage.show();
     @FXML
     public void showGeomAnalysis() throws IOException {
 
-
-        OutputFile of = new OutputFile("This");
-        ArrayList states = of.getStates();
-
-
-
-
-
         Stage stage = new Stage();
         stage.setTitle("Geometry Analysis");
 
-
-        HashMap<Integer, Integer> graphDataMap = new HashMap<>();
-        currUnitLabelStr = "hartrees";
+        OutputFile of = new OutputFile("/Users/shaadhussain/Desktop/NewiSpiEFP/iSpiEFP_GUI/opt_1.out");
+        ArrayList<OutputFile.State> statesList = of.getStates();        currUnitLabelStr = "hartrees";
         //boolean isDefaultUnit = true;
         //Initial setup of chart
         NumberAxis xAxis = new NumberAxis();
@@ -1142,19 +1134,21 @@ stage.show();
         geomVsEnergyChart.setLegendVisible(false);
 
         XYChart.Series series = new XYChart.Series();
-        series.setName("Dummy Vals");
+        series.setName("PBC 1 Values");
 
-        graphDataMap.put(1, 60);
-        graphDataMap.put(2, 40);
-        graphDataMap.put(3, 25);
-        graphDataMap.put(4, 20);
 
-        for (Integer key : graphDataMap.keySet()) {
-            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(key, graphDataMap.get(key));
+//        for (Integer key : graphDataMap.keySet()) {
+//            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(key, graphDataMap.get(key));
+//            series.getData().add(data1);
+//
+//        }
+
+
+        //NOTE: TELL RYAN YOU MADE ENERGCOMPS AND STATE CLASSES "PUBLIC"
+        for (int i = 0; i < statesList.size(); i++) {
+            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(i, statesList.get(i).getEnergyComponents().getTotalEnergy());
             series.getData().add(data1);
-
         }
-
         //End chart setup
 
         GridPane geomGrid = new GridPane();
@@ -1196,40 +1190,40 @@ stage.show();
                         int maxYUnit = 0;
                         yAxis.setLabel("Energy (" + unitsSelectCombBox.getValue() + ")");
 
-                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
-                            //Do nothing
-                            for (Integer key : graphDataMap.keySet()) {
-                                convertedUnitsMap.put(key, graphDataMap.get(key));
-
-                                    if (key > maxXUnit) {
-                                        maxXUnit = key;
-                                    }
-//                                    if (convertedUnitsMap.get(key) > )
-                            }
-                        }
-
-                        if (unitsSelectCombBox.getValue().equals("kcal/mol")) {
-                            for (Integer key : graphDataMap.keySet()) {
-                                    convertedUnitsMap.put(key, graphDataMap.get(key) * 628);
-
+//                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
+//                            //Do nothing
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                convertedUnitsMap.put(key, graphDataMap.get(key));
+//
 //                                    if (key > maxXUnit) {
 //                                        maxXUnit = key;
 //                                    }
-//                                    if (convertedUnitsMap.get(key) > )
-                                }
-                        }
-
-                        else if (unitsSelectCombBox.getValue().equals("kJ/mol")) {
-                            for (Integer key : graphDataMap.keySet()) {
-                                convertedUnitsMap.put(key, graphDataMap.get(key) * 2626);
-                            }
-                        }
-
-                        else if (unitsSelectCombBox.getValue().equals("cm-1"))  {
-                            for (Integer key : graphDataMap.keySet()) {
-                                convertedUnitsMap.put(key, graphDataMap.get(key) * 219475);
-                            }
-                        }
+////                                    if (convertedUnitsMap.get(key) > )
+//                            }
+//                        }
+//
+//                        if (unitsSelectCombBox.getValue().equals("kcal/mol")) {
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                    convertedUnitsMap.put(key, graphDataMap.get(key) * 628);
+//
+////                                    if (key > maxXUnit) {
+////                                        maxXUnit = key;
+////                                    }
+////                                    if (convertedUnitsMap.get(key) > )
+//                                }
+//                        }
+//
+//                        else if (unitsSelectCombBox.getValue().equals("kJ/mol")) {
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                convertedUnitsMap.put(key, graphDataMap.get(key) * 2626);
+//                            }
+//                        }
+//
+//                        else if (unitsSelectCombBox.getValue().equals("cm-1"))  {
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                convertedUnitsMap.put(key, graphDataMap.get(key) * 219475);
+//                            }
+//                        }
 
                         series.getData().clear();
                         for (Integer key : convertedUnitsMap.keySet()) {
@@ -1270,7 +1264,7 @@ stage.show();
         HBox navBtnsHBox = new HBox(10);
 
         maxYVal = 60;
-        maxXVal = 7;
+        maxXVal = 0.5;
 
         upperXBound = maxXVal + 1;
         upperYBound = maxYVal + 10;

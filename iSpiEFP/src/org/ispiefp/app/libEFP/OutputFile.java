@@ -82,7 +82,7 @@ public class OutputFile {
      *  3. EnergyComponents - Breakdown of the total energy and its constituent components. Some run types will give
      *                        additional information such as the gradient change. These fields are 0 when irrelevant.
      */
-    abstract class State {
+    public abstract class State {
         private Geometry geometry;
         private RestartData restartData;
         private EnergyComponents energyComponents;
@@ -184,6 +184,7 @@ public class OutputFile {
                     name = nameString;
                     String[] coordsStringArray = coordString.split(" ");
                     for(int i = 0; i < 6; i++){
+                        //System.out.println("COORDS[" + i + "]: " + coords[i]);
                         coords[i] = Double.parseDouble(coordsStringArray[i]);
                     }
                 }
@@ -222,7 +223,7 @@ public class OutputFile {
             }
         }
 
-        class EnergyComponents {
+       public class EnergyComponents {
             private final double eEnergy;
             private final double pEnergy;
             private final double dEnergy;
@@ -581,7 +582,8 @@ public class OutputFile {
                         enable_cutoff = line1.split(" ")[1].equals("true");
                         break;
                     case "swf_cutoff":
-                        swf_cutoff = Integer.parseInt(line1.split(" ")[1]);
+                        //NOTE: YOU CHANGED THIS, TELL RYAN
+                        swf_cutoff = Double.parseDouble(line1.split(" ")[1]);
                         break;
                     case "max_steps":
                         max_steps = Long.parseLong(line1.split(" ")[1]);
