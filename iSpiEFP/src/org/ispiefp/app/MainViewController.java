@@ -1144,7 +1144,8 @@ stage.show();
         stage.setTitle("Geometry Analysis");
 
         OutputFile of = new OutputFile("/Users/shaadhussain/Desktop/NewiSpiEFP/iSpiEFP_GUI/opt_1.out");
-        ArrayList<OutputFile.State> statesList = of.getStates();        currUnitLabelStr = "hartrees";
+        ArrayList<OutputFile.State> statesList = of.getStates();
+        currUnitLabelStr = "hartrees";
         //boolean isDefaultUnit = true;
         //Initial setup of chart
         NumberAxis xAxis = new NumberAxis();
@@ -1166,12 +1167,18 @@ stage.show();
 //
 //        }
 
-
         //NOTE: TELL RYAN YOU MADE ENERGCOMPS AND STATE CLASSES "PUBLIC"
+        maxYVal = statesList.get(0).getEnergyComponents().getTotalEnergy();
         for (int i = 0; i < statesList.size(); i++) {
             XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(i, statesList.get(i).getEnergyComponents().getTotalEnergy());
+
+            if (statesList.get(i).getEnergyComponents().getTotalEnergy() > maxYVal) {
+                maxYVal = statesList.get(i).getEnergyComponents().getTotalEnergy();
+            }
             series.getData().add(data1);
         }
+        maxXVal = statesList.size();
+       // maxYVal =
         //End chart setup
 
         GridPane geomGrid = new GridPane();
@@ -1286,8 +1293,8 @@ stage.show();
         }));
         HBox navBtnsHBox = new HBox(10);
 
-        maxYVal = 60;
-        maxXVal = 0.5;
+//        maxYVal = 60;
+//        maxXVal = 0.5;
 
         upperXBound = maxXVal + 1;
         upperYBound = maxYVal + 10;
@@ -1386,10 +1393,7 @@ stage.show();
                 xAxis.setAutoRanging(false);
                 yAxis.setAutoRanging(false);
 
-                try {
-
-                    Double parsedXInput = Double.parseDouble(xAxeInput.getText());
-                    Double parsedYInput = Double.parseDouble(xAxeInput.getText());
+              //  try {
 
 //                    if (parsedXInput < 0.0|| parsedYInput < 0.0) {
 //                        showErrorDialog("Please make sure the scale values are greater than zero!");
@@ -1405,14 +1409,14 @@ stage.show();
                     on the y axis
                      */
 
-                    xAxis.setUpperBound(Double.parseDouble(xAxeInput.getText()));
-                    yAxis.setUpperBound(Double.parseDouble(yAxeInput.getText()));
-
-                }
-                catch (NumberFormatException e) {
-                    showErrorDialog("Please make sure the scale values are valid numbers!");
-                }
-
+                    if (!xAxeInput.getText().isEmpty()) {
+                        Double parsedXInput = Double.parseDouble(xAxeInput.getText());
+                        xAxis.setUpperBound(parsedXInput);
+                    }
+                    if (!yAxeInput.getText().isEmpty()) {
+                        Double parsedYInput = Double.parseDouble(yAxeInput.getText());
+                        yAxis.setUpperBound(parsedYInput);
+                    }
 
             }
         }));
