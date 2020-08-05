@@ -151,6 +151,7 @@ public class UserPreferences {
         /* Running LibEFP Jobs Inintialization */
         encodedString = userPrefs.get(LIBEFP_RJOBS_KEY, "check");
         if (!encodedString.equals("check")){
+//            userPrefs.remove(LIBEFP_RJOBS_KEY);
             jobsMonitor = new JobsMonitor(encodedString);
         }
         else jobsMonitor = new JobsMonitor();
