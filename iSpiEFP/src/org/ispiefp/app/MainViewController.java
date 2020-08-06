@@ -1,9 +1,5 @@
 package org.ispiefp.app;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -13,13 +9,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -28,12 +22,12 @@ import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.submission.SubmissionRecord;
 import org.ispiefp.app.util.*;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
-import org.ispiefp.app.database.DatabaseController;
+//import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.visualizer.JmolMainPanel;
-import org.ispiefp.app.visualizer.JmolPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -46,7 +40,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -788,31 +781,31 @@ public class MainViewController {
     /******************************************************************************************
      *             SEARCH MENU BEGINS                                                         *
      ******************************************************************************************/
-    @FXML
+//    @FXML
     /**
      * Handle Search Fragments button. Search the database for similar fragments to the current molecule
      */
-    public void searchFindEFPPublicDatabase() throws IOException {
-        if (!lastOpenedFile.isEmpty()) {
-            //set divider positions
-            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
-            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
-
-            //Runs auxiliary JmolViewer
-            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
-
-            //load aux table list
-            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
-            try {
-                //start database controller actions
-                DBcontroller.run();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("No file was opened");
-        }
-    }
+//    public void searchFindEFPPublicDatabase() throws IOException {
+//        if (!lastOpenedFile.isEmpty()) {
+//            //set divider positions
+//            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
+//            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
+//
+//            //Runs auxiliary JmolViewer
+//            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
+//
+//            //load aux table list
+//            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
+//            try {
+//                //start database controller actions
+//                DBcontroller.run();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            System.out.println("No file was opened");
+//        }
+//    }
 
     /******************************************************************************************
      *             CALCULATE MENU BEGINS                                                      *
@@ -888,6 +881,31 @@ public class MainViewController {
     public void calculateGamessSetup () throws IOException {
         //TODO this should open the gamess setup page
         //This is currently disabled in the fxml doc since it is not currently operational
+        String noInternetWarning = "You are not currently connected to the internet.\n\n" +
+                "You will not be able to submit libEFP jobs to a cluster.";
+        if (!CheckInternetConnection.checkInternetConnection()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noInternetWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+        if (jmolMainPanel.getFragmentComponents() == null){
+            String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
+                    " calculations on. Add something to the system before attempting to perform libEFP calculations.";
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noFragmentsSelectedWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        FXMLLoader gamessSubmissionLoader = new FXMLLoader(getClass().getResource("/views/gamessInput.fxml"));
+        Parent gamessSubmissionParent = gamessSubmissionLoader.load();
+        GamessInputController gamessInputController = gamessSubmissionLoader.getController();
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Select Fragment");
+        stage.setScene(new Scene(gamessSubmissionParent));
+        stage.showAndWait();
 
     }
 
