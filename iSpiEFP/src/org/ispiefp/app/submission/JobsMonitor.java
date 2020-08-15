@@ -73,6 +73,28 @@ public class JobsMonitor implements Runnable {
         }
     }
 
+    public void runOnce() {
+        for (JobManager jm : jobs) jm.watchJobStatus();
+        System.out.println("Rechecking jobs");
+        ArrayList<JobManager> completedJobs = new ArrayList<>();
+        for (JobManager jm : jobs) {
+            try {
+                if (jm.checkStatus(jm.getJobID())) {
+                    /* Check if the stdout file is empty (success) */
+                    if (checkForError(jm)) {
+                        records.get(jm.getJobID()).setStatus("COMPLETE");
+                    } else records.get(jm.getJobID()).setStatus("ERROR");
+                    retrieveJob(jm);
+                    saveRecord(jm);
+                    completedJobs.add(jm);
+                }
+            } catch (IOException e) {
+                System.err.printf("Was unable to monitor job: %s", jm.getJobID());
+            }
+        }
+        jobs.removeAll(completedJobs);
+    }
+
     public void start() {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {

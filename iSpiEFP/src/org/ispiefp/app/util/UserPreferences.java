@@ -297,6 +297,12 @@ public class UserPreferences {
         jobsMonitor.run();
     }
 
+    public static void setJobsMonitorBeforeExit(String jsonString){
+        userPrefs.put(LIBEFP_RJOBS_KEY, jsonString);
+        jobsMonitor = new JobsMonitor(jsonString);
+        jobsMonitor.runOnce();
+    }
+
     public static void clearJobsMonitor(){
         userPrefs.remove(LIBEFP_RJOBS_KEY);
     }
