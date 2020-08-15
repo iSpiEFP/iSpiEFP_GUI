@@ -1,7 +1,12 @@
 package org.ispiefp.app.installer;
 
 import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.StreamGobbler;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
@@ -15,6 +20,7 @@ public class BundleManager {
     private String bundleType;
     private String workingDirectory;
     private Connection conn;
+    private String LibEFPPath;
 
     private final String LOCAL = "LOCAL";
     private final String GAMESS = "GAMESS";
@@ -33,6 +39,48 @@ public class BundleManager {
         this.hostname = hostname;
         this.bundleType = bundleType;
         this.conn = conn;
+    }
+
+    public BundleManager(String username, String password, String hostname, String bundleType, Connection conn, String LibEFPPath) {
+        this.username = username;
+        this.password = password;
+        this.hostname = hostname;
+        this.bundleType = bundleType;
+        this.conn = conn;
+        this.LibEFPPath = LibEFPPath;
+    }
+
+    public boolean validateLibEFPPath() {
+        try {
+            StringBuilder outputString = new StringBuilder();
+            Connection conn = this.conn;
+
+            Session sess = conn.openSession();
+            System.out.println(this.LibEFPPath);
+            sess.execCommand("exec tcsh ");
+//            sess.execCommand("exec tcsh | echo $0 | /depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd");
+//            sess.execCommand("echo hello");
+
+            InputStream stdout = new StreamGobbler(sess.getStdout());
+            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+
+            System.out.println("===========================asdfkj");
+
+            String line = br.readLine();
+            while (line != null) {
+                System.out.println("reading");
+                outputString.append(line);
+                line = br.readLine();
+            }
+            System.out.println(outputString);
+
+            br.close();
+            sess.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void manageLocal() {

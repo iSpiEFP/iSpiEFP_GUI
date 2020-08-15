@@ -491,11 +491,21 @@ public class SettingsViewController {
                     password.getText(),
                     hostname.getText(),
                     "LIBEFP",
-                    connection);
+                    connection,
+                    libEFPInstallationPath.getText());
             if (!libEFPBundleManager.manageRemote()) {
                 Alert alert = new Alert(Alert.AlertType.WARNING,
                         String.format(
                                 "Was able to connect to the remote, but was unable to verify the libEFP installation at %s",
+                                libEFPInstallationPath.getText()),
+                        ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+            if (!libEFPBundleManager.validateLibEFPPath()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING,
+                        String.format(
+                                "libEFP is not installed at %s",
                                 libEFPInstallationPath.getText()),
                         ButtonType.OK);
                 alert.showAndWait();
