@@ -610,8 +610,6 @@ public class MainViewController {
         }
     }
 
-    public void openSettings() throws IOException {
-        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
     public void openSettings() throws IOException{
         Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
