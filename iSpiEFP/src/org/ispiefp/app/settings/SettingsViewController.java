@@ -10,10 +10,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
@@ -26,6 +28,7 @@ import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.UserPreferences;
+import org.jmol.c.HB;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +38,12 @@ import java.util.Optional;
 import java.util.prefs.Preferences;
 
 public class SettingsViewController {
+
+    public ComboBox<String> signInMethodComboBox;
+    public HBox passwordHBox;
+    public HBox fileLocationHBox;
+    public Label passwordLabel;
+
     /* Overarching Class Fields */
     private VBox currentVbox;
 
@@ -95,6 +104,9 @@ public class SettingsViewController {
     public void initialize() {
         initializePaths();
         initializeServers();
+        signInMethodComboBox.getItems().addAll("SSH Key", "Password");
+        signInMethodComboBox.getSelectionModel().select(0);
+        SignInMethodChanged(null);
         scheduler.getItems().addAll("PBS", "SLURM", "TORQUE");
         menuTree.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
             @Override
@@ -253,7 +265,7 @@ public class SettingsViewController {
         alias.setText(si.getEntryname());
         hostname.setText(si.getHostname());
         username.setText(si.getUsername());
-        password.setText(si.getPassword());
+//        password.setText(si.getPassword());
         scheduler.setValue(si.getScheduler());
         defaultQueue.getItems().setAll(si.getQueues() == null ? new String[]{} : si.getQueues());
         if (si.hasGAMESS()) {
@@ -540,6 +552,33 @@ public class SettingsViewController {
                     "Authenticated",
                     ButtonType.OK);
             alert.showAndWait();
+        }
+    }
+
+    public void SignInMethodChanged(ActionEvent event) {
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setMaxHeight(31);
+        passwordField.setMaxWidth(624);
+        passwordField.setMinHeight(Double.NEGATIVE_INFINITY);
+        passwordField.setMinWidth(Double.NEGATIVE_INFINITY);
+        passwordField.setPrefHeight(31);
+        passwordField.setPrefWidth(475);
+        
+        TextField textField = new TextField();
+        textField.setMaxHeight(31);
+        textField.setMaxWidth(624);
+        textField.setMinHeight(Double.NEGATIVE_INFINITY);
+        textField.setMinWidth(Double.NEGATIVE_INFINITY);
+        textField.setPrefHeight(31);
+        textField.setPrefWidth(475);
+
+        if (signInMethodComboBox.getValue().equals("SSH Key")) {
+            passwordLabel.setText("SSH Key Location: ");
+            passwordHBox.getChildren().set(1, textField);
+        } else {
+            passwordLabel.setText("Password: ");
+            passwordHBox.getChildren().set(1, passwordField);
         }
     }
 }

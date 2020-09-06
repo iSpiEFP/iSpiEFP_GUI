@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.stage.FileChooser?>
 
 <?import javafx.scene.control.ComboBox?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
@@ -35,11 +36,11 @@
             </VBox>
             <VBox fx:id="pathsBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Directory containing user generated parameters" textAlignment="CENTER" />
-                <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />
                 <Button onAction="#selectParameterDirectory" text="Find" />
                 <Separator />
                 <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Path to Python interpreter" textAlignment="CENTER" />
-                <TextField fx:id="pythonPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                <TextField fx:id="pythonPathField" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />
                 <Button onAction="#selectPythonPath" text="Find" />
                 <Separator />
                 <HBox alignment="BOTTOM_RIGHT" spacing="10.0">
@@ -50,22 +51,28 @@
             <VBox fx:id="serversBox" prefHeight="655.0" prefWidth="624.0" spacing="10.0" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
                     <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Server Alias:" />
-                    <TextField fx:id="alias" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                    <TextField fx:id="alias" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />
                 </HBox>
                 <Separator />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
                     <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Hostname:" />
-                    <TextField fx:id="hostname" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                    <TextField fx:id="hostname" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />
                 </HBox>
                 <Separator />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
                     <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Username:" />
-                    <TextField fx:id="username" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                    <TextField fx:id="username" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />
                 </HBox>
                 <Separator />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
-                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Password:" />
-                    <PasswordField fx:id="password" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="536.0" />
+                    <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Sign In Method:" />
+                    <HBox maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" >
+                        <ComboBox fx:id="signInMethodComboBox" onAction="#SignInMethodChanged"/>
+                    </HBox>
+                </HBox>
+                <HBox fx:id="passwordHBox" alignment="BOTTOM_LEFT" spacing="10.0">
+                    <Label fx:id="passwordLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Password:" />
+                    <PasswordField fx:id="password" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />
                 </HBox>
                 <Separator />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
