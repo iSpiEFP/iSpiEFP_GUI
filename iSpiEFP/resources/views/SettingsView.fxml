@@ -72,7 +72,7 @@
                 </HBox>
                 <HBox fx:id="passwordHBox" alignment="BOTTOM_LEFT" spacing="10.0">
                     <Label fx:id="passwordLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Password:" />
-                    <PasswordField fx:id="password" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />
+<!--                    <PasswordField fx:id="password" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />-->
                 </HBox>
                 <Separator />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
