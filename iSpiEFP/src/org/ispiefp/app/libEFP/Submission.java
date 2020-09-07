@@ -2,13 +2,11 @@ package org.ispiefp.app.libEFP;
 
 import ch.ethz.ssh2.*;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
-import javafx.util.Pair;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.server.ServerInfo;
 
@@ -16,10 +14,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-public abstract class libEFPSubmission {
+public abstract class Submission {
 
     /* Refers to the type of scheduling system that the server the job was submitted to uses */
     private enum SchedulingType{
@@ -27,6 +24,8 @@ public abstract class libEFPSubmission {
         SLURM,
         TORQUE
     }
+    /* Class specific fields */
+    String submissionType;
     /* Server commands and fields */
     SchedulingType type;
     String schedulingScript;
@@ -49,6 +48,7 @@ public abstract class libEFPSubmission {
     String walltime;
     int mem;
     String efpmdPath;
+    String gamessPath;
     String inputFilePath;
     String outputFilename;
 
@@ -57,32 +57,51 @@ public abstract class libEFPSubmission {
     public String REMOTE_LIBEFP_IN;
     public String REMOTE_LIBEFP_OUT;
     public String REMOTE_LIBEFP_FRAGS;
+    public static String REMOTE_GAMESS_DIR = "iSpiClient/Gamess/";
+    public static String REMOTE_GAMESS_JOBS = REMOTE_GAMESS_DIR + "jobs/";
+    public String REMOTE_GAMESS_IN;
+    public String REMOTE_GAMESS_OUT;
 
-    public libEFPSubmission(ServerInfo server, String jobName){
+    public Submission(ServerInfo server, String jobName, String submissionType){
+        assert(submissionType.equalsIgnoreCase("LIBEFP") || submissionType.equalsIgnoreCase("GAMESS"));
+        this.submissionType = submissionType;
         hostname = server.getHostname();
         username = server.getUsername();
         password = server.getPassword();
         if (server.hasLibEFP()){
             efpmdPath = server.getLibEFPPath();
         }
+        if (server.hasGAMESS()){
+            gamessPath = server.getGamessPath();
+        }
         this.jobName = jobName;
         REMOTE_LIBEFP_FRAGS = REMOTE_LIBEFP_JOBS + jobName + "/fraglib/";
         REMOTE_LIBEFP_OUT = REMOTE_LIBEFP_JOBS + jobName +"/output/";
         REMOTE_LIBEFP_IN = REMOTE_LIBEFP_JOBS + jobName +"/input/";
+        REMOTE_GAMESS_OUT = REMOTE_GAMESS_JOBS + jobName + "/output/";
+        REMOTE_GAMESS_IN = REMOTE_GAMESS_JOBS + jobName + "/input/";
+        setInputFilename(jobName);
+        setOutputFilename(jobName);
+        setSchedulerOutputName(jobName);
     }
 
-    public libEFPSubmission(){
+    public Submission(){
         super();
     }
-    abstract String submit(String input);
+    public abstract String submit(String input);
     abstract File createSubmissionScript(String input) throws IOException;
-    abstract String getSubmissionScriptText();
+    public abstract String getLibEFPSubmissionScriptText();
+    public abstract String getGAMESSSubmissionScriptText();
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
     public boolean createJobWorkspace(String jobID){
         String jobDirectory = getJobDirectory(jobID);
-        String command = String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib",
-                jobDirectory, jobDirectory);
+        String command = submissionType.equalsIgnoreCase("LIBEFP") ?
+                String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib", jobDirectory, jobDirectory) :
+                String.format("mkdir %s; cd %s; mkdir input; mkdir output;", jobDirectory, jobDirectory);
+        setInputFilename(jobID);
+        setOutputFilename(jobID);
+        setSchedulerOutputName(jobID);
         try {
             Connection con = new Connection(hostname);
             con.connect();
@@ -147,13 +166,13 @@ public abstract class libEFPSubmission {
         if (authorized) {
             /* Copy input file to the server */
             SCPClient scp = con.createSCPClient();
-            SCPOutputStream scpos = scp.put(inputFilePath, inputFile.length(), REMOTE_LIBEFP_IN, "0666");
+            SCPOutputStream scpos = scp.put(inputFilePath, inputFile.length(), getJobInputDirectory(), "0666");
             FileInputStream in = new FileInputStream(inputFile);
             IOUtils.copy(in, scpos);
             //Wait for each file to actually be on the server
             while (true) {
                 try {
-                    SCPInputStream scpis = scp.get(REMOTE_LIBEFP_IN + inputFile.getName());
+                    SCPInputStream scpis = scp.get(getJobInputDirectory() + inputFile.getName());
                     scpis.close();
                 } catch (IOException e) {
                     continue;
@@ -252,13 +271,16 @@ public abstract class libEFPSubmission {
         this.username = username;
     }
 
-    public void setInputFilename(String filename){ this.inputFilePath = filename + ".in"; }
+    public void setInputFilename(String filename){ this.inputFilePath = submissionType.equalsIgnoreCase("LIBEFP") ?
+            filename + ".in" : filename + ".inp"; }
 
     public void setOutputFilename(String outputFilename) { this.outputFilename = outputFilename + ".out"; }
 
     public void setSchedulerOutputName(String filename) { this.schedulerOutputName = filename + ".err"; }
 
-    public String getJobDirectory(String jobName){ return REMOTE_LIBEFP_JOBS + jobName + "/"; }
+    public String getJobDirectory(String jobName){ return submissionType.equalsIgnoreCase("LIBEFP") ?
+            REMOTE_LIBEFP_JOBS + jobName + "/" :
+            REMOTE_GAMESS_JOBS + jobName + "/"; }
 
     public String getUsername() { return username; }
 
@@ -268,9 +290,13 @@ public abstract class libEFPSubmission {
 
     public String getJobName() { return jobName; }
 
+    public String getInputFilePath() { return inputFilePath; }
+
     public String getOutputFilename() { return outputFilename; }
 
     public String getSchedulerOutputName() { return schedulerOutputName; }
+
+    public String getSubmissionType() { return submissionType; }
 
     public void setQueueName(String name){ queueName = name; }
 
@@ -282,9 +308,11 @@ public abstract class libEFPSubmission {
 
     public void setMem(int mem) { this.mem = mem; }
 
-    public String getJobInputDirectory() { return REMOTE_LIBEFP_IN; }
+    public String getJobInputDirectory() { return submissionType.equalsIgnoreCase("LIBEFP") ?
+            REMOTE_LIBEFP_IN : REMOTE_GAMESS_IN; }
 
-    public String getJobOutputDirectory() { return REMOTE_LIBEFP_OUT; }
+    public String getJobOutputDirectory() { return submissionType.equalsIgnoreCase("LIBEFP") ?
+            REMOTE_LIBEFP_OUT : REMOTE_GAMESS_OUT; }
 
     public String getJobFragmentDirectory() { return REMOTE_LIBEFP_JOBS; }
 }

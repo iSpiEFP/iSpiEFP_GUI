@@ -901,6 +901,7 @@ public class MainViewController {
         FXMLLoader gamessSubmissionLoader = new FXMLLoader(getClass().getResource("/views/gamessInput.fxml"));
         Parent gamessSubmissionParent = gamessSubmissionLoader.load();
         GamessInputController gamessInputController = gamessSubmissionLoader.getController();
+        gamessInputController.setXyzFile(JmolHandler.createTempXYZFileFromViewer(jmolMainPanel, 0));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");

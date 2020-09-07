@@ -5,14 +5,23 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javajs.util.P3;
+import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.libEFP.Submission;
+import org.ispiefp.app.libEFP.SubmissionScriptTemplateViewController;
+import org.ispiefp.app.libEFP.slurmSubmission;
+import org.ispiefp.app.server.*;
+import org.ispiefp.app.util.UserPreferences;
 import org.jmol.modelset.Bond;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.MainViewController;
@@ -21,10 +30,6 @@ import org.jmol.viewer.Viewer;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.ispiefp.app.loginPack.LoginForm;
-import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.server.ServerConfigController;
-import org.ispiefp.app.server.ServerDetails;
-import org.ispiefp.app.server.iSpiEFPServer;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 
 import java.io.*;
@@ -44,40 +49,116 @@ import java.util.zip.ZipOutputStream;
  */
 public class GamessInputController implements Initializable {
 
-    @FXML private Parent root;
+    @FXML
+    private Parent root;
 
-    @FXML private TextField title;
+    @FXML
+    private TextField title;
 
-    @FXML private TextField gBasis;
+    @FXML
+    private TextField gBasis;
 
-    @FXML private CheckBox customBasis;
+    @FXML
+    private CheckBox customBasis;
 
-    @FXML private TextField customBasisPath;
+    @FXML
+    private TextField customBasisPath;
 
-    @FXML private Button findCustomBasis;
+    @FXML
+    private Button findCustomBasis;
 
-    @FXML private ComboBox<String> server;
+    @FXML
+    private ComboBox<String> server;
 
-    @FXML private TextField localWorkingDirectory;
+    @FXML
+    private TextField localWorkingDirectory;
 
-    @FXML private Button findButton;
+    @FXML
+    private Button findButton;
 
-    @FXML private TextArea gamessInputTextArea;
+    @FXML
+    private TextArea gamessInputTextArea;
 
-    @FXML private ComboBox<String> serversList;
+    @FXML
+    private ComboBox<String> serversList;
 
+    private File xyzFile;
 
-    public GamessInputController(){
+    private String chosenBasisFilepath;
 
+    private HashMap<String, String> atomicCharges;
+
+    public GamessInputController() {
+        atomicCharges = new HashMap<>();
+        atomicCharges.put("H", "1");
+        atomicCharges.put("C", "6");
+        atomicCharges.put("N", "7");
+        atomicCharges.put("O", "8");
+        atomicCharges.put("F", "9");
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (UserPreferences.getServers().keySet().size() < 1) {
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    "You have not configured any servers. Please go to your settings and add a server before proceeding.",
+                    ButtonType.OK);
+            alert.showAndWait();
+        } else {
+            server.getItems().setAll(UserPreferences.getServers().keySet());
+        }
 
+        gBasis.setText("n31 ngauss=6 ndfunc=1 diffsp=.t.");
+        toggleBasis();
+
+        gBasis.textProperty().addListener((observable, oldValue, newValue) -> {
+            setgBasis();
+        });
+
+        localWorkingDirectory.textProperty().addListener((observable, oldValue, newValue) -> {
+            setLocalWorkingDirectory();
+        });
+
+        customBasisPath.textProperty().addListener((observable, oldValue, newValue) -> {
+            setCustomBasisPath();
+        });
     }
 
-    @FXML private void updateGamessInputText(){
-
+    @FXML
+    private void updateGamessInputText() {
+        StringBuilder inputTextBuilder = new StringBuilder();
+        String controlLine = " $contrl units=angs local=boys runtyp=makefp coord=cart icut=11 $end\n";
+        String systemLine = " $system timlim=99999 mwords=200 $end\n";
+        String selfConsistentFieldLine = " $scf dirscf=.t. soscf=.f. diis=.t. conv=1.0d-06 $end\n";
+        String dampingLine = " $damp ifttyp(1)=2,0 iftfix(1)=1,1 thrsh=500.0 $end\n";
+        String basisLine = customBasis.isSelected() ? String.format(" $basis extfil=%s\n", customBasisPath.getText()) :
+                String.format(" $basis gbasis=%s\n", gBasis.getText());
+        String makeEFPLine = " $makefp chtr=.f. disp7=.f. $end\n";
+        inputTextBuilder.append(controlLine);
+        inputTextBuilder.append(systemLine);
+        inputTextBuilder.append(selfConsistentFieldLine);
+        inputTextBuilder.append(dampingLine);
+        inputTextBuilder.append(basisLine);
+        inputTextBuilder.append(makeEFPLine);
+        inputTextBuilder.append("\n $data\n\n");
+        if (xyzFile != null) {
+            try {
+                String fragmentName = xyzFile.getName().substring(0, xyzFile.getName().indexOf('.') - 4);
+                BufferedReader br = new BufferedReader(new FileReader(xyzFile));
+                Integer numLines = Integer.parseInt(br.readLine());
+                br.readLine(); //Consume commentLine;
+                inputTextBuilder.append(String.format("C1\n", fragmentName));
+                for (int i = 1; i < numLines; i++) {
+                    String[] parsedLine = br.readLine().split("\\s+");
+                    inputTextBuilder.append(String.format("%s  %s  %s  %s  %s\n",
+                            parsedLine[0], atomicCharges.get(parsedLine[0].replaceAll("[^A-Za-z]", "")), parsedLine[1],
+                            parsedLine[2], parsedLine[3]));
+                }
+            } catch (IOException e) {
+                System.err.println("Was unable to open xyz file to create GAMESS template");
+            }
+        }
+        gamessInputTextArea.setText(inputTextBuilder.toString());
     }
 
     public void findDirectory() {
@@ -88,6 +169,16 @@ public class GamessInputController implements Initializable {
 
         File file = directoryChooser.showDialog(currStage);
         localWorkingDirectory.setText(file.getAbsolutePath());
+    }
+
+    @ FXML public void findFile(){
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select a Working Directory for Job: " + title.getText());
+        fc.setInitialDirectory(new File(System.getProperty("user.home")));
+        Stage currStage = (Stage) root.getScene().getWindow();
+
+        File file = fc.showOpenDialog(currStage);
+        chosenBasisFilepath = file.getAbsolutePath();
     }
 
     public void generateGamessInputFile() {
@@ -119,10 +210,122 @@ public class GamessInputController implements Initializable {
         }
     }
 
-    @FXML private void handleSubmit(){
+    @FXML
+    private void handleSubmit() throws IOException {
+        Submission submission = null; /* Submitter responsible for dealing with server scheduling system */
+        String password = null;             /* Password of the user for the server */
+        String username = null;             /* Username of the user for the server */
+        String jobID = null;                /* JobID for the job the user submits  */
 
+        ServerInfo selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
+
+        if (selectedServer.getScheduler().equals("SLURM")) {
+            submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
+        }
+        //TODO: Handle case of PBS and Torque
+        else if (selectedServer.getScheduler().equals("PBS")) {
+            submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
+        }
+        username = submission.getUsername();
+        password = submission.getPassword();
+
+        /* Create the job workspace */
+        if (!submission.createJobWorkspace(title.getText())){
+            return;
+        }
+
+        /* Show submission script options */
+        FXMLLoader subScriptViewLoader = new FXMLLoader(getClass().getResource("/views/SubmissionScriptTemplateView.fxml"));
+        Parent subScriptParent = subScriptViewLoader.load();
+        SubmissionScriptTemplateViewController subScriptCont = subScriptViewLoader.getController();
+        subScriptCont.setSubmission(submission);
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Submission Script Options");
+        stage.setScene(new Scene(subScriptParent));
+        stage.showAndWait();
+        /* Check if user closed the options without hitting submit */
+        if (!subScriptCont.isSubmitted()) return;
+
+        /* Send input file */
+        File inputFile = createInputFile(submission.getInputFilePath());
+        if (!submission.sendInputFile(inputFile)) {
+            System.err.println("Was unable to send the input file to the server");
+            return;
+        }
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+        Date date = new Date();
+        String currentTime = dateFormat.format(date).toString();
+
+        String time = currentTime; //equivalent but in different formats
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        submission.submit(subScriptCont.getUsersSubmissionScript());
+        currentTime = dateFormat.format(date).toString();
+        JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
+                localWorkingDirectory.getText(), submission.getOutputFilename(), title.getText(),
+                currentTime, "QUEUE", "LIBEFP");
+        UserPreferences.getJobsMonitor().addJob(jobManager);
+        Stage currentStage = (Stage) root.getScene().getWindow();
+        currentStage.close();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("GAMESS Submission");
+        alert.setHeaderText(null);
+        alert.setContentText("Job submitted to cluster successfully.");
+        alert.showAndWait();
     }
-//    private ArrayList<ArrayList<Atom>> connections;
+
+    private File createInputFile(String inputFileName) {
+        BufferedWriter output = null;
+        File file;
+        try {
+            file = new File(inputFileName);
+            file.deleteOnExit();
+            output = new BufferedWriter(new FileWriter(file));
+            output.write(gamessInputTextArea.getText());
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return file;
+    }
+
+    public void setXyzFile(File xyzFile) {
+        this.xyzFile = xyzFile;
+        updateGamessInputText();
+    }
+
+    @FXML
+    private void toggleBasis() {
+        if (customBasis.isSelected()) {
+            gBasis.setDisable(true);
+            customBasisPath.setDisable(false);
+            findButton.setDisable(false);
+        } else {
+            customBasisPath.setDisable(true);
+            findButton.setDisable(true);
+            gBasis.setDisable(false);
+        }
+    }
+
+    public void setCustomBasisPath() {
+        updateGamessInputText();
+    }
+
+    public void setgBasis() {
+        updateGamessInputText();
+    }
+
+    public void setTitle() {
+        updateGamessInputText();
+    }
+
+    public void setLocalWorkingDirectory() {
+        updateGamessInputText();
+    }
+
+    //    private ArrayList<ArrayList<Atom>> connections;
 //    private ArrayList<Atom> atoms;
 //    private ArrayList<ArrayList> final_lists = new ArrayList<ArrayList>();
 //    // TODO: change this to use hashmap

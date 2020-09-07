@@ -17,13 +17,14 @@
             <ComboBox fx:id="server" maxWidth="Infinity" onAction="#updateGamessInputText" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="Target Directory: " GridPane.columnIndex="0" GridPane.rowIndex="3" />
             <TextField fx:id="localWorkingDirectory" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Button fx:id="findButton" onAction="#findDirectory" text="Find" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Button onAction="#findDirectory" text="Find" GridPane.columnIndex="2" GridPane.rowIndex="3" />
             <Separator GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="4" />
             <Label text="Basis Set Settings" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label text="Use Custom Basis Set?" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-            <CheckBox fx:id="customBasis" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <CheckBox fx:id="customBasis" GridPane.columnIndex="1" GridPane.rowIndex="6" onAction="#toggleBasis"/>
             <Label text="Path to Custom Basis Set:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
             <TextField fx:id="customBasisPath" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Button fx:id="findButton" onAction="#findFile" text="Find" GridPane.columnIndex="2" GridPane.rowIndex="7" />
             <Label text="GBasis:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
             <TextField fx:id="gBasis" GridPane.columnIndex="1" GridPane.rowIndex="8" />
             <Separator GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="9" />
