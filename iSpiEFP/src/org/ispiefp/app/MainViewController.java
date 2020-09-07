@@ -1,5 +1,6 @@
 package org.ispiefp.app;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -662,7 +663,7 @@ public class MainViewController {
             // ... user chose OK
             System.out.println("Stage is closing");
             Main.getPrimaryStage().close();
-            System.exit(0);
+            Platform.exit();
         } else {
             // ... user chose CANCEL or closed the dialog
             System.out.println("User cancelled. Stage not closing");
