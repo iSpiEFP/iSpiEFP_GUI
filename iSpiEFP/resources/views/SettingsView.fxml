@@ -16,6 +16,8 @@
 <?import javafx.stage.FileChooser?>
 
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.Region?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
     <top>
         <AnchorPane fx:id="anchor" minHeight="400.0" minWidth="900.0" prefHeight="700.0" prefWidth="1200.0">
@@ -66,13 +68,16 @@
                 <Separator />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">
                     <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Sign In Method:" />
-                    <HBox maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" >
-                        <ComboBox fx:id="signInMethodComboBox" onAction="#SignInMethodChanged"/>
+                    <HBox alignment="CENTER_LEFT" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" >
+                        <ComboBox fx:id="signInMethodComboBox" onAction="#SignInMethodChanged" />
+                        <Region prefWidth="15"/>
+                        <CheckBox alignment="CENTER" fx:id="sshFileEncrypted" visible="false">
+                        </CheckBox>
+                        <Label fx:id="sshFileEncryptedLabel" text="SSH Key File Encrypted?" alignment="CENTER" visible="false" />
                     </HBox>
                 </HBox>
                 <HBox fx:id="passwordHBox" alignment="BOTTOM_LEFT" spacing="10.0">
                     <Label fx:id="passwordLabel" alignment="CENTER" prefHeight="21.0" prefWidth="633.0" text="Password:" />
-<!--                    <PasswordField fx:id="password" maxHeight="31.0" maxWidth="624" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="475.0" />-->
                 </HBox>
                 <Separator />
                 <HBox alignment="BOTTOM_LEFT" spacing="10.0">

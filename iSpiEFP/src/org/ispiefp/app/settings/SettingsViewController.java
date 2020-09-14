@@ -4,7 +4,6 @@ import ch.ethz.ssh2.Connection;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -32,8 +31,14 @@ public class SettingsViewController {
     public ComboBox<String> signInMethodComboBox;
     public HBox passwordHBox;
     public Label passwordLabel;
+    public CheckBox sshFileEncrypted;
+    public Label sshFileEncryptedLabel;
+    public Button fileChooser;
     private PasswordField signInPasswordField;
     private TextField signInFileLocationField;
+
+    private String tempPassword;
+    private String tempSshFileLocation;
 
     /* Overarching Class Fields */
     private VBox currentVbox;
@@ -128,15 +133,25 @@ public class SettingsViewController {
 
         signInFileLocationField = new TextField();
         signInFileLocationField.setMaxHeight(31);
-        signInFileLocationField.setMaxWidth(624);
+        signInFileLocationField.setMaxWidth(600);
         signInFileLocationField.setMinHeight(Double.NEGATIVE_INFINITY);
         signInFileLocationField.setMinWidth(Double.NEGATIVE_INFINITY);
         signInFileLocationField.setPrefHeight(31);
-        signInFileLocationField.setPrefWidth(475);
+        signInFileLocationField.setPrefWidth(445);
+
+        fileChooser = new Button();
+        fileChooser.setText("...");
+        fileChooser.setPrefWidth(20);
+        fileChooser.setOnAction(event -> {
+            FileChooser chooser = new FileChooser();
+            chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            File file = chooser.showOpenDialog(fileChooser.getScene().getWindow());
+            signInFileLocationField.setText(file.getAbsolutePath());
+        });
 
         signInMethodComboBox.getItems().addAll("SSH Key", "Password");
         signInMethodComboBox.getSelectionModel().select(0);
-        SignInMethodChanged(null);
+        SignInMethodChanged();
     }
 
     private void initializePaths() {
@@ -274,7 +289,16 @@ public class SettingsViewController {
         alias.setText(si.getEntryname());
         hostname.setText(si.getHostname());
         username.setText(si.getUsername());
-//        password.setText(si.getPassword());
+        if (si.isSshKeyMethod()) {
+            signInMethodComboBox.getSelectionModel().select(0);
+            SignInMethodChanged();
+            signInFileLocationField.setText(si.getSshKeyLocation());
+            sshFileEncrypted.setSelected(si.isSshFileEncrypted());
+        } else {
+            signInMethodComboBox.getSelectionModel().select(1);
+            SignInMethodChanged();
+            signInPasswordField.setText(si.getPassword());
+        }
         scheduler.setValue(si.getScheduler());
         defaultQueue.getItems().setAll(si.getQueues() == null ? new String[]{} : si.getQueues());
         if (si.hasGAMESS()) {
@@ -361,7 +385,14 @@ public class SettingsViewController {
 
         si.setHostname(hostname.getText());
         si.setUsername(username.getText());
-        si.setPassword(signInPasswordField.getText());
+        if (signInMethodComboBox.getSelectionModel().getSelectedItem().equals("SSH Key")) {
+            si.setSshKeyMethod(true);
+            si.setSshFileEncrypted(sshFileEncrypted.isSelected());
+            si.setSshKeyLocation(signInFileLocationField.getText());
+        } else {
+            si.setSshKeyMethod(false);
+            si.setPassword(signInPasswordField.getText());
+        }
         si.setScheduler(scheduler.getValue().toString());
 
         if (hasLibEFPButton.isSelected()) {
@@ -381,9 +412,8 @@ public class SettingsViewController {
                 ButtonType.OK);
         alert.showAndWait();
 
+
         UserPreferences.addServer(si);
-
-
     }
 
     @FXML
@@ -565,16 +595,34 @@ public class SettingsViewController {
         }
     }
 
-    public void SignInMethodChanged(ActionEvent event) {
-
+    public void SignInMethodChanged() {
+        tempPassword = signInPasswordField.getText();
+        tempSshFileLocation = signInFileLocationField.getText();
         if (signInMethodComboBox.getValue().equals("SSH Key")) {
             passwordLabel.setText("SSH Key Location: ");
-            if (passwordHBox.getChildren().size() < 2) passwordHBox.getChildren().add(signInFileLocationField);
-            else passwordHBox.getChildren().set(1, signInFileLocationField);
+            if (passwordHBox.getChildren().size() < 2) passwordHBox.getChildren().addAll(signInFileLocationField, fileChooser);
+            else if (passwordHBox.getChildren().size() == 2) {
+                passwordHBox.getChildren().set(1, signInFileLocationField);
+                passwordHBox.getChildren().add(fileChooser);
+            } else {
+                passwordHBox.getChildren().set(1, signInFileLocationField);
+                passwordHBox.getChildren().set(2, fileChooser);
+            }
+            signInFileLocationField.setText(tempSshFileLocation);
+            sshFileEncrypted.setVisible(true);
+            sshFileEncryptedLabel.setVisible(true);
         } else {
             passwordLabel.setText("Password: ");
-            if (passwordHBox.getChildren().size() < 2) passwordHBox.getChildren().add(signInPasswordField);
-            else passwordHBox.getChildren().set(1, signInPasswordField);
+            if (passwordHBox.getChildren().size() < 2) passwordHBox.getChildren().addAll(signInPasswordField);
+            else if (passwordHBox.getChildren().size() == 2) {
+                passwordHBox.getChildren().set(1, signInPasswordField);
+            } else {
+                passwordHBox.getChildren().set(1, signInPasswordField);
+                passwordHBox.getChildren().remove(2);
+            }
+            signInPasswordField.setText(tempPassword);
+            sshFileEncrypted.setVisible(false);
+            sshFileEncryptedLabel.setVisible(false);
         }
     }
 }
