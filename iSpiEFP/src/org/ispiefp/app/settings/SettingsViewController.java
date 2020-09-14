@@ -144,8 +144,14 @@ public class SettingsViewController {
         fileChooser.setPrefWidth(20);
         fileChooser.setOnAction(event -> {
             FileChooser chooser = new FileChooser();
-            chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-            File file = chooser.showOpenDialog(fileChooser.getScene().getWindow());
+            File file;
+            try {
+                chooser.setInitialDirectory(new File(System.getProperty("user.home") + "/.ssh"));
+                file = chooser.showOpenDialog(fileChooser.getScene().getWindow());
+            } catch (Exception e) {
+                chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+                file = chooser.showOpenDialog(fileChooser.getScene().getWindow());
+            }
             signInFileLocationField.setText(file.getAbsolutePath());
         });
 
@@ -267,7 +273,7 @@ public class SettingsViewController {
 
     private void initializeServers() {
         servers.getChildren().clear();
-        System.out.println(UserPreferences.getServers().keySet());
+//        System.out.println(UserPreferences.getServers().keySet());
         for (String serverName : UserPreferences.getServers().keySet()) {
             servers.getChildren().add(new TreeItem<>(serverName));
         }
