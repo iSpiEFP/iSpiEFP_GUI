@@ -206,7 +206,7 @@ public class UserPreferences {
         String [] simpleString = encodedString.split("%@%");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < simpleString.length; i++){
-            System.out.println(simpleString[i]);
+//            System.out.println(simpleString[i]);
             if (simpleString[i].split(";%;")[0].equals(name)) continue;
             sb.append(simpleString[i]);
             if (i != simpleString.length - 1) sb.append("%@%");
