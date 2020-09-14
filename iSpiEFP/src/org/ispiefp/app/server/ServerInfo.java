@@ -9,6 +9,9 @@ public class ServerInfo implements Serializable{
     private String hostname;
     private String username;
     private String password;
+    private String sshKeyLocation;
+    private boolean sshFileEncrypted; // true if encrypted
+    private boolean sshKeyMethod; // true if user is using ssh key, false if user is using password
     private boolean hasLibEFP;
     private boolean hasGAMESS;
     private String libEFPPath;
@@ -21,22 +24,50 @@ public class ServerInfo implements Serializable{
     }
 
     public ServerInfo(String definedString){ //separates each term with a ;%;
-        queues = new ArrayList<>();
-        String[] parsedTerms = definedString.split(";%;");
-        entryname = parsedTerms[0];
-        hostname = parsedTerms[1];
-        username = parsedTerms[2];
-        password = parsedTerms[3];
-        hasLibEFP = parsedTerms[4].equals("true");
-        hasGAMESS = parsedTerms[5].equals("true");
-        libEFPPath = parsedTerms[6];
-        gamessPath = parsedTerms[7];
-        scheduler = parsedTerms[8];
-        if (parsedTerms.length > 9) {
-            String queueString = parsedTerms[9];
-            String[] parsedQueues = queueString.split("#@#");
-            for (int i = 0; i < parsedQueues.length; i++) {
-                queues.add(parsedQueues[i]);
+        try {
+            // new version
+            queues = new ArrayList<>();
+            String[] parsedTerms = definedString.split(";%;");
+            entryname = parsedTerms[0];
+            hostname = parsedTerms[1];
+            username = parsedTerms[2];
+            sshKeyMethod = parsedTerms[3].equals("true");
+            sshFileEncrypted = parsedTerms[4].equals("true");
+            if (sshKeyMethod) sshKeyLocation = parsedTerms[5];
+            else password = parsedTerms[5];
+            hasLibEFP = parsedTerms[6].equals("true");
+            hasGAMESS = parsedTerms[7].equals("true");
+            libEFPPath = parsedTerms[8];
+            gamessPath = parsedTerms[9];
+            scheduler = parsedTerms[10];
+            if (parsedTerms.length > 11) {
+                String queueString = parsedTerms[11];
+                String[] parsedQueues = queueString.split("#@#");
+                for (int i = 0; i < parsedQueues.length; i++) {
+                    queues.add(parsedQueues[i]);
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // old version
+            queues = new ArrayList<>();
+            String[] parsedTerms = definedString.split(";%;");
+            entryname = parsedTerms[0];
+            hostname = parsedTerms[1];
+            username = parsedTerms[2];
+            sshKeyMethod = false;
+            sshFileEncrypted = false;
+            password = parsedTerms[3];
+            hasLibEFP = parsedTerms[4].equals("true");
+            hasGAMESS = parsedTerms[5].equals("true");
+            libEFPPath = parsedTerms[6];
+            gamessPath = parsedTerms[7];
+            scheduler = parsedTerms[8];
+            if (parsedTerms.length > 9) {
+                String queueString = parsedTerms[9];
+                String[] parsedQueues = queueString.split("#@#");
+                for (int i = 0; i < parsedQueues.length; i++) {
+                    queues.add(parsedQueues[i]);
+                }
             }
         }
     }
@@ -123,6 +154,30 @@ public class ServerInfo implements Serializable{
 
     public ArrayList<String> getQueues() { return queues; }
 
+    public String getSshKeyLocation() {
+        return sshKeyLocation;
+    }
+
+    public void setSshKeyLocation(String sshKeyLocation) {
+        this.sshKeyLocation = sshKeyLocation;
+    }
+
+    public boolean isSshFileEncrypted() {
+        return sshFileEncrypted;
+    }
+
+    public void setSshFileEncrypted(boolean sshFileEncrypted) {
+        this.sshFileEncrypted = sshFileEncrypted;
+    }
+
+    public boolean isSshKeyMethod() {
+        return sshKeyMethod;
+    }
+
+    public void setSshKeyMethod(boolean sshKeyMethod) {
+        this.sshKeyMethod = sshKeyMethod;
+    }
+
     public String getServerInfoDefinedString(){
         StringBuilder sb = new StringBuilder();
         sb.append(entryname);
@@ -131,8 +186,17 @@ public class ServerInfo implements Serializable{
         sb.append(";%;");
         sb.append(username);
         sb.append(";%;");
-        sb.append(password);
+        sb.append(sshKeyMethod);
         sb.append(";%;");
+        sb.append(sshFileEncrypted);
+        sb.append(";%;");
+        if (sshKeyMethod) {
+            sb.append(sshKeyLocation);
+            sb.append(";%;");
+        } else {
+            sb.append(password);
+            sb.append(";%;");
+        }
         sb.append(hasLibEFP);
         sb.append(";%;");
         sb.append(hasGAMESS);
