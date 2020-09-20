@@ -586,7 +586,7 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-        libEFPSubmission submission = null; /* Submitter responsible for dealing with server scheduling system */
+        Submission submission = null; /* Submitter responsible for dealing with server scheduling system */
         String password = null;             /* Password of the user for the server */
         String username = null;             /* Username of the user for the server */
         String jobID = null;                /* JobID for the job the user submits  */

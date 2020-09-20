@@ -46,6 +46,7 @@ public class Connection {
                 */
                 if (isprotectedKey) keyPassword = promptForPassword();
                 activeConnection.connect();
+                System.out.printf("Opening the PEM file at: %s%n", server.getSshKeyLocation());
                 return activeConnection.authenticateWithPublicKey(server.getUsername(), new File(server.getSshKeyLocation()), keyPassword);
             }
             else {
