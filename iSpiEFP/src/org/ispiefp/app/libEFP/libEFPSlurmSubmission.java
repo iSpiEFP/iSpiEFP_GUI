@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.server.ServerInfo;
+import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.UserPreferences;
 
 import java.io.*;
@@ -69,9 +70,8 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
             /* Write the submission script to the server */
             File submissionScript = createSubmissionScript(input);
             submissionScript.deleteOnExit();
-            Connection con = new Connection(hostname);
-            con.connect();
-            boolean isAuthenticated = con.authenticateWithPassword(username, password);
+            org.ispiefp.app.util.Connection con = new Connection(server);
+            boolean isAuthenticated = con.connect();
             if (!isAuthenticated) {
                 System.err.println("Was unable to authenticate user");
                 con.close();

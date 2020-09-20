@@ -11,6 +11,7 @@ import javafx.scene.text.Text;
 import javafx.util.Pair;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.server.ServerInfo;
+import org.ispiefp.app.util.Connection;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +29,7 @@ public abstract class libEFPSubmission {
         TORQUE
     }
     /* Server commands and fields */
+    ServerInfo server;
     SchedulingType type;
     String schedulingScript;
     String hostname;
@@ -59,6 +61,7 @@ public abstract class libEFPSubmission {
     public String REMOTE_LIBEFP_FRAGS;
 
     public libEFPSubmission(ServerInfo server, String jobName){
+        this.server = server;
         hostname = server.getHostname();
         username = server.getUsername();
         password = server.getPassword();
@@ -84,19 +87,13 @@ public abstract class libEFPSubmission {
         String command = String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib",
                 jobDirectory, jobDirectory);
         try {
-            Connection con = new Connection(hostname);
+            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server);
             con.connect();
-            boolean isAuthenticated = con.authenticateWithPassword(username, password);
-            if (!isAuthenticated) {
-                System.err.println("Was unable to authenticate user");
-                con.close();
-                return false;
-            }
-            Session s = con.openSession();
+            Session s = con.getActiveConnection().openSession();
             /* Check to see if a job directory of this name already exists */
             boolean directoryExists = false;
             try {
-                SFTPv3Client sftp = new SFTPv3Client(con);
+                SFTPv3Client sftp = new SFTPv3Client(con.getActiveConnection());
                 sftp.ls(jobDirectory);
                 System.err.println("This directory already exists");
                 Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
@@ -141,9 +138,8 @@ public abstract class libEFPSubmission {
     }
 
     public boolean sendInputFile(File inputFile) throws IOException {
-        Connection con = new Connection(hostname);
-        con.connect();
-        boolean authorized = con.authenticateWithPassword(username, password);
+        org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server);
+        boolean authorized = con.connect();
         if (authorized) {
             /* Copy input file to the server */
             SCPClient scp = con.createSCPClient();
@@ -175,9 +171,8 @@ public abstract class libEFPSubmission {
     }
 
     public boolean sendEFPFiles(ArrayList<File> efpFiles) throws IOException {
-        Connection con = new Connection(hostname);
-        con.connect();
-        boolean authorized = con.authenticateWithPassword(username, password);
+        org.ispiefp.app.util.Connection con = new Connection(server);
+        boolean authorized = con.connect();
         if (authorized) {
             for (File file : efpFiles) {
                 SCPClient scpClient = con.createSCPClient();

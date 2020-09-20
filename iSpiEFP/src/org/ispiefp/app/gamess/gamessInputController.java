@@ -14,6 +14,7 @@ import javafx.scene.control.TextArea;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javajs.util.P3;
+import org.ispiefp.app.util.UserPreferences;
 import org.jmol.modelset.Bond;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.MainViewController;
@@ -27,6 +28,7 @@ import org.ispiefp.app.server.ServerConfigController;
 import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.iSpiEFPServer;
 import org.ispiefp.app.visualizer.JmolMainPanel;
+import org.ispiefp.app.util.Connection;
 
 import java.io.*;
 import java.net.Socket;
@@ -102,6 +104,10 @@ public class gamessInputController implements Initializable {
             }
         }
         generateGamessInputFiles();
+    }
+
+    public gamessInputController(){
+        super();
     }
 
     /**
@@ -447,10 +453,8 @@ public class gamessInputController implements Initializable {
             boolean authorized = loginForm.authenticate();
 
             if (authorized) {
-                Connection conn = loginForm.getConnection(authorized);
-
-                String username = loginForm.getUsername();
-                String password = loginForm.getPassword();
+                org.ispiefp.app.util.Connection conn = new Connection(UserPreferences.getServers().get(selectedServer.getServerName()));
+                conn.connect();
 
                 ArrayList jobids = new ArrayList();
 
@@ -524,8 +528,8 @@ public class gamessInputController implements Initializable {
                     // send over job data to database
                     String query = "Submit";
                     query += "$END$";
-                    query += username + "  " + hostname + "  " + jobID + "  " + title + "  " + time + "  " + "QUEUE"
-                            + "  " + "GAMESS";
+//                    query +=  + "  " + hostname + "  " + jobID + "  " + title + "  " + time + "  " + "QUEUE"
+//                            + "  " + "GAMESS";
                     query += "$ENDALL$";
 
                     // Socket client = new Socket(serverName, port);
