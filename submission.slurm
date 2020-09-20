@@ -1,8 +1,8 @@
 #!/bin/csh
-#SBATCH -o iSpiClient/Libefp/jobs/facebook/output/facebook.err
-#SBATCH -A debug
+#SBATCH -o iSpiClient/Gamess/jobs/test/output/test.err
+#SBATCH -A lslipche
 #SBATCH -N 1
 #SBATCH -n 20
 #SBATCH -t 00:30:00
 #SBATCH --mem=0
-/depot/lslipche/apps/iSpiEFP/packages/libefp/bin/efpmd iSpiClient/Libefp/jobs/facebook/input/facebook.in > iSpiClient/Libefp/jobs/facebook/output/facebook.out
+/depot/lslipche/apps/iSpiEFP/packages/gamess/gamess/rungms iSpiClient/Gamess/jobs/test/input/test.inp > iSpiClient/Gamess/jobs/test/output/test.out

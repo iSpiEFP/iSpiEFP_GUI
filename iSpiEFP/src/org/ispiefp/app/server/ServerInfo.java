@@ -155,6 +155,7 @@ public class ServerInfo implements Serializable{
     public ArrayList<String> getQueues() { return queues; }
 
     public String getSshKeyLocation() {
+        System.out.println(sshKeyLocation);
         return sshKeyLocation;
     }
 

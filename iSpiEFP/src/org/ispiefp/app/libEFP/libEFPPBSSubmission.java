@@ -12,7 +12,7 @@
 //import java.util.UUID;
 //
 ///* PBS scripts are executed from the home directory and should therefore use the entire path */
-//public class libEFPPBSSubmission extends libEFPSubmission {
+//public class libEFPPBSSubmission extends Submission {
 //
 //    public libEFPPBSSubmission(){
 //        submitString = "/usr/pbs/bin/qsub ${JOB_NAME}.run";

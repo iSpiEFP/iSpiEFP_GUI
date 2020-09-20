@@ -11,7 +11,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
-<?import org.controlsfx.control.CheckComboBox?>
 <?import javafx.scene.control.Label?>
 
 <?import javafx.scene.layout.GridPane?>
@@ -42,7 +41,6 @@
             <!--                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />-->
             <!--                        <Text layoutX="338.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />-->
             <!--                        <Text layoutX="338.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp" />-->
-            <!--                        <CheckComboBox fx:id="terms" layoutX="412.0" layoutY="86.0" prefHeight="25.0" prefWidth="103.0" />-->
             <!--                        <ComboBox fx:id="pol_damp" layoutX="412.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />-->
             <!--                        <Text layoutX="35.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />-->
             <!--                        <ComboBox fx:id="disp_damp" layoutX="133.0" layoutY="142.0" prefHeight="25.0" prefWidth="146.0" />-->
@@ -78,7 +76,6 @@
                           onAction="#updatelibEFPInputText" promptText="0"/>
                 <Label text="Terms:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
                 <Label text="Pol Damp:" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
-                <CheckComboBox fx:id="terms" maxWidth="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
                 <ComboBox fx:id="pol_damp" maxWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="3"
                           onAction="#updatelibEFPInputText" promptText="1"/>
                 <Label text="Disp Damp:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>

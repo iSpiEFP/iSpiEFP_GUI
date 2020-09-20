@@ -14,7 +14,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
@@ -587,7 +586,7 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-        libEFPSubmission submission = null; /* Submitter responsible for dealing with server scheduling system */
+        Submission submission = null; /* Submitter responsible for dealing with server scheduling system */
         String password = null;             /* Password of the user for the server */
         String username = null;             /* Username of the user for the server */
         String jobID = null;                /* JobID for the job the user submits  */
@@ -595,11 +594,11 @@ public class libEFPInputController implements Initializable {
         selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
         if (selectedServer.getScheduler().equals("SLURM")) {
-            submission = new libEFPSlurmSubmission(selectedServer, title.getText());
+            submission = new slurmSubmission(selectedServer, title.getText(), "LIBEFP");
         }
         //TODO: Handle case of PBS and Torque
         else if (selectedServer.getScheduler().equals("PBS")) {
-            submission = new libEFPSlurmSubmission(selectedServer, title.getText());
+            submission = new slurmSubmission(selectedServer, title.getText(), "LIBEFP");
         }
         username = submission.username;
         password = submission.password;
@@ -641,34 +640,14 @@ public class libEFPInputController implements Initializable {
         DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
         Date date = new Date();
         String currentTime = dateFormat.format(date).toString();
-//
-//        Session sess
-//        InputStream stdout = new StreamGobbler(sess.getStdout());
-//        BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-//        String clusterjobID = "";
-//        while (true) {
-//            String line = br.readLine();
-//            if (line == null)
-//                break;
-//            System.out.println(line);
-//            String[] tokens = line.split("\\.");
-//            if (tokens[0].matches("\\d+")) {
-//                clusterjobID = tokens[0];
-//            }
-//        }
-//        System.out.println(clusterjobID);
-//        br.close();
-//        stdout.close();
-//        sess.close();
-//        con.close();
 
         String time = currentTime; //equivalent but in different formats
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         submission.submit(subScriptCont.getUsersSubmissionScript());
         currentTime = dateFormat.format(date).toString();
 //        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-        JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
-                localWorkingDirectory.getText(), submission.outputFilename, title.getText(),
+        JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
+                submission.outputFilename, title.getText(),
                 currentTime, "QUEUE", "LIBEFP");
         UserPreferences.getJobsMonitor().addJob(jobManager);
         Stage currentStage = (Stage) root.getScene().getWindow();
