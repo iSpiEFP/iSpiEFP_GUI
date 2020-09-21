@@ -608,14 +608,6 @@ public class SettingsViewController {
         tempSshFileLocation = signInFileLocationField.getText();
         if (signInMethodComboBox.getValue().equals("SSH Key")) {
             passwordLabel.setText("SSH Key Location: ");
-//            if (passwordHBox.getChildren().size() < 2) passwordHBox.getChildren().addAll(signInFileLocationField, fileChooser);
-////            else if (passwordHBox.getChildren().size() == 2) {
-////                passwordHBox.getChildren().set(1, signInFileLocationField);
-////                passwordHBox.getChildren().add(fileChooser);
-////            } else {
-////                passwordHBox.getChildren().set(1, signInFileLocationField);
-////                passwordHBox.getChildren().set(2, fileChooser);
-////            }
             locationHBox.setVisible(true);
             signInPasswordField.setVisible(false);
             signInFileLocationField.setText(tempSshFileLocation);
@@ -623,13 +615,6 @@ public class SettingsViewController {
             sshFileEncryptedLabel.setVisible(true);
         } else {
             passwordLabel.setText("Password: ");
-//            if (locationHBox.getChildren().size() < 2) locationHBox.getChildren().addAll(signInPasswordField);
-//            else if (locationHBox.getChildren().size() == 2) {
-//                locationHBox.getChildren().set(1, signInPasswordField);
-//            } else {
-//                locationHBox.getChildren().set(1, signInPasswordField);
-//                locationHBox.getChildren().remove(2);
-//            }
             locationHBox.setVisible(false);
             signInPasswordField.setVisible(true);
             signInPasswordField.setText(tempPassword);
