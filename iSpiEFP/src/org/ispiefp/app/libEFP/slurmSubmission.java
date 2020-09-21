@@ -60,19 +60,21 @@ public class slurmSubmission extends Submission {
 
     public String getGAMESSSubmissionScriptText(){
         return String.format(
-                "#!/bin/csh\n" +
-                        "#SBATCH -o %s\n" +
+                        "#!/bin/csh\n" +
+                        "#SBATCH -D %s\n" +
+                        "#SBATCH -o ../output/%s\n" +
                         "#SBATCH -A %s\n" +
                         "#SBATCH -N %d\n" +
                         "#SBATCH -n %d\n" +
                         "#SBATCH -t %s\n" +
                         "#SBATCH --mem=%d\n" +
-                        "%s %s > %s\n",
-                REMOTE_GAMESS_OUT + schedulerOutputName,
+                        "%s %s > ../output/%s\n",
+                getJobInputDirectory(),
+                schedulerOutputName,
                 queueName, numNodes, numProcessors, walltime,
                 mem, gamessPath,
-                REMOTE_GAMESS_IN  + inputFilePath,
-                REMOTE_GAMESS_OUT + outputFilename
+                inputFilePath,
+                outputFilename
         );
     }
 

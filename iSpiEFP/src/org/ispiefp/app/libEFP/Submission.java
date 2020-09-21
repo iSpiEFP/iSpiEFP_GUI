@@ -279,7 +279,7 @@ public abstract class Submission {
     public void setSchedulerOutputName(String filename) { this.schedulerOutputName = filename + ".err"; }
 
     public String getJobDirectory(String jobName){ return submissionType.equalsIgnoreCase("LIBEFP") ?
-            REMOTE_LIBEFP_JOBS + jobName + "/" :
+                REMOTE_LIBEFP_JOBS + jobName + "/" :
             REMOTE_GAMESS_JOBS + jobName + "/"; }
 
     public String getUsername() { return username; }
