@@ -133,7 +133,7 @@ public class GamessInputController implements Initializable {
         String selfConsistentFieldLine = " $scf dirscf=.t. soscf=.f. diis=.t. conv=1.0d-06 $end\n";
         String dampingLine = " $damp ifttyp(1)=2,0 iftfix(1)=1,1 thrsh=500.0 $end\n";
         String basisLine = customBasis.isSelected() ? String.format(" $basis extfil=%s\n", customBasisPath.getText()) :
-                String.format(" $basis gbasis=%s\n", gBasis.getText());
+                String.format(" $basis gbasis=%s $end\n", gBasis.getText());
         String makeEFPLine = " $makefp chtr=.f. disp7=.f. $end\n";
         inputTextBuilder.append(controlLine);
         inputTextBuilder.append(systemLine);
@@ -159,6 +159,7 @@ public class GamessInputController implements Initializable {
                 System.err.println("Was unable to open xyz file to create GAMESS template");
             }
         }
+        inputTextBuilder.append(" $end\n");
         gamessInputTextArea.setText(inputTextBuilder.toString());
     }
 
