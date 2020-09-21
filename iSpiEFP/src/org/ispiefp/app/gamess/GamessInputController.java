@@ -21,6 +21,7 @@ import org.ispiefp.app.libEFP.Submission;
 import org.ispiefp.app.libEFP.SubmissionScriptTemplateViewController;
 import org.ispiefp.app.libEFP.slurmSubmission;
 import org.ispiefp.app.server.*;
+import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.UserPreferences;
 import org.jmol.modelset.Bond;
 import org.apache.commons.io.IOUtils;
@@ -226,11 +227,16 @@ public class GamessInputController implements Initializable {
         else if (selectedServer.getScheduler().equals("PBS")) {
             submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
         }
-        username = submission.getUsername();
-        password = submission.getPassword();
 
+        Connection con = new Connection(selectedServer, null);
+        if (!con.connect()){
+            System.err.println("Could not authenticate the user. Exiting submission...");
+            return;
+
+        }
+        String keyPassword = con.getKeyPassword();
         /* Create the job workspace */
-        if (!submission.createJobWorkspace(title.getText())){
+        if (!submission.createJobWorkspace(title.getText(), keyPassword)){
             return;
         }
 
@@ -249,7 +255,7 @@ public class GamessInputController implements Initializable {
 
         /* Send input file */
         File inputFile = createInputFile(submission.getInputFilePath());
-        if (!submission.sendInputFile(inputFile)) {
+        if (!submission.sendInputFile(inputFile, keyPassword)) {
             System.err.println("Was unable to send the input file to the server");
             return;
         }
@@ -260,11 +266,11 @@ public class GamessInputController implements Initializable {
 
         String time = currentTime; //equivalent but in different formats
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-        submission.submit(subScriptCont.getUsersSubmissionScript());
+        submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
         currentTime = dateFormat.format(date).toString();
-        JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
-                localWorkingDirectory.getText(), submission.getOutputFilename(), title.getText(),
-                currentTime, "QUEUE", "LIBEFP");
+        JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
+                submission.getOutputFilename(), title.getText(),
+                currentTime, "QUEUE", "LIBEFP", keyPassword);
         UserPreferences.getJobsMonitor().addJob(jobManager);
         Stage currentStage = (Stage) root.getScene().getWindow();
         currentStage.close();
