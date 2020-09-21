@@ -8,10 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -28,8 +25,9 @@ import java.util.Optional;
 
 public class SettingsViewController {
 
+    public HBox locationHBox;
+
     public ComboBox<String> signInMethodComboBox;
-    public HBox passwordHBox;
     public Label passwordLabel;
     public CheckBox sshFileEncrypted;
     public Label sshFileEncryptedLabel;
@@ -57,7 +55,7 @@ public class SettingsViewController {
 
     /* Fields for Server Settings */
     @FXML
-    private VBox serversBox;
+    private GridPane serversBox;
     @FXML
     private TextField alias;
     @FXML
@@ -96,6 +94,7 @@ public class SettingsViewController {
     private TreeItem<String> servers;
 
     public void initialize() {
+
         initializePaths();
         initializeServers();
         initializeSignInMethod();
@@ -124,20 +123,16 @@ public class SettingsViewController {
 
     private void initializeSignInMethod() {
         signInPasswordField = new PasswordField();
-        signInPasswordField.setMaxHeight(31);
-        signInPasswordField.setMaxWidth(624);
+        signInPasswordField.setMaxWidth(Double.MAX_VALUE);
         signInPasswordField.setMinHeight(Double.NEGATIVE_INFINITY);
         signInPasswordField.setMinWidth(Double.NEGATIVE_INFINITY);
-        signInPasswordField.setPrefHeight(31);
-        signInPasswordField.setPrefWidth(475);
+        GridPane.setConstraints(signInPasswordField, 1, 8);
 
         signInFileLocationField = new TextField();
-        signInFileLocationField.setMaxHeight(31);
-        signInFileLocationField.setMaxWidth(600);
+        signInFileLocationField.setMaxWidth(Double.MAX_VALUE);
         signInFileLocationField.setMinHeight(Double.NEGATIVE_INFINITY);
         signInFileLocationField.setMinWidth(Double.NEGATIVE_INFINITY);
-        signInFileLocationField.setPrefHeight(31);
-        signInFileLocationField.setPrefWidth(445);
+        HBox.setHgrow(signInFileLocationField, Priority.ALWAYS);
 
         fileChooser = new Button();
         fileChooser.setText("...");
@@ -154,6 +149,13 @@ public class SettingsViewController {
             }
             signInFileLocationField.setText(file.getAbsolutePath());
         });
+
+        locationHBox = new HBox(signInFileLocationField, fileChooser);
+        locationHBox.setMaxWidth(Double.MAX_VALUE);
+        locationHBox.setSpacing(10);
+        GridPane.setConstraints(locationHBox, 1, 8);
+
+        serversBox.getChildren().addAll(locationHBox, signInPasswordField);
 
         signInMethodComboBox.getItems().addAll("SSH Key", "Password");
         signInMethodComboBox.getSelectionModel().select(0);
@@ -606,26 +608,15 @@ public class SettingsViewController {
         tempSshFileLocation = signInFileLocationField.getText();
         if (signInMethodComboBox.getValue().equals("SSH Key")) {
             passwordLabel.setText("SSH Key Location: ");
-            if (passwordHBox.getChildren().size() < 2) passwordHBox.getChildren().addAll(signInFileLocationField, fileChooser);
-            else if (passwordHBox.getChildren().size() == 2) {
-                passwordHBox.getChildren().set(1, signInFileLocationField);
-                passwordHBox.getChildren().add(fileChooser);
-            } else {
-                passwordHBox.getChildren().set(1, signInFileLocationField);
-                passwordHBox.getChildren().set(2, fileChooser);
-            }
+            locationHBox.setVisible(true);
+            signInPasswordField.setVisible(false);
             signInFileLocationField.setText(tempSshFileLocation);
             sshFileEncrypted.setVisible(true);
             sshFileEncryptedLabel.setVisible(true);
         } else {
             passwordLabel.setText("Password: ");
-            if (passwordHBox.getChildren().size() < 2) passwordHBox.getChildren().addAll(signInPasswordField);
-            else if (passwordHBox.getChildren().size() == 2) {
-                passwordHBox.getChildren().set(1, signInPasswordField);
-            } else {
-                passwordHBox.getChildren().set(1, signInPasswordField);
-                passwordHBox.getChildren().remove(2);
-            }
+            locationHBox.setVisible(false);
+            signInPasswordField.setVisible(true);
             signInPasswordField.setText(tempPassword);
             sshFileEncrypted.setVisible(false);
             sshFileEncryptedLabel.setVisible(false);
