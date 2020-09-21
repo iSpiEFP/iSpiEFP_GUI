@@ -36,6 +36,7 @@ public class JobManager implements Runnable {
     private String localWorkingDirectory;
     private String remoteWorkingDirectory;
     private ServerInfo server;
+    private transient String keyPassword;
     private transient org.ispiefp.app.util.Connection conn;
 
     public JobManager(String username, String password, String hostname, String localWorkingDirectory, String jobID, String title,
@@ -56,7 +57,8 @@ public class JobManager implements Runnable {
         }
     }
 
-    public JobManager(ServerInfo si, String localWorkingDirectory, String jobID, String title, String date, String status, String type){
+    public JobManager(ServerInfo si, String localWorkingDirectory, String jobID, String title,
+                      String date, String status, String type, String keyPassword){
         server = si;
         this.localWorkingDirectory = localWorkingDirectory;
         this.jobID = jobID;
@@ -69,6 +71,7 @@ public class JobManager implements Runnable {
             outputFilename = remoteWorkingDirectory + "output/" + title + ".out";
             stdoutputFilename = remoteWorkingDirectory + "output/" + title + ".err";
         }
+        this.keyPassword = keyPassword;
     }
 
     public JobManager(String username, String password, String hostname, String type) {
@@ -94,7 +97,7 @@ public class JobManager implements Runnable {
     public boolean checkStatus(String jobID) throws IOException {
         boolean jobIsDone = false;
 
-        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server);
+        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
         SCPClient scp = conn.createSCPClient();
@@ -313,7 +316,7 @@ public class JobManager implements Runnable {
      * get output file from a lib efp job
      */
     public String getRemoteVmolOutput(String job_stamp, String type) throws IOException {
-        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(this.server);
+        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(this.server, keyPassword);
         conn.connect();
         String path = new String();
         if (type.equals("LIBEFP")) {
@@ -357,7 +360,7 @@ public class JobManager implements Runnable {
         StringBuilder sb = new StringBuilder();
 
         try {
-            conn = new org.ispiefp.app.util.Connection(server);
+            conn = new org.ispiefp.app.util.Connection(server, keyPassword);
             conn.connect();
 
             SCPClient scp = conn.createSCPClient();

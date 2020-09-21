@@ -20,6 +20,7 @@ import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.server.*;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.ExecutePython;
 import org.ispiefp.app.util.UserPreferences;
 import org.ispiefp.app.visualizer.ViewerHelper;
@@ -619,20 +620,27 @@ public class libEFPInputController implements Initializable {
         /* Check if user closed the options without hitting submit */
         if (!subScriptCont.isSubmitted()) return;
 
+        org.ispiefp.app.util.Connection con = new Connection(selectedServer, null);
+        if (!con.connect()){
+            System.err.println("Could not authenticate the user. Exiting submission...");
+            return;
+
+        }
+        String keyPassword = con.getKeyPassword();
         /* Create the job workspace */
-        if (!submission.createJobWorkspace(title.getText())){
+        if (!submission.createJobWorkspace(title.getText(), keyPassword)){
             return;
         }
         /* Send input files */
         createInputFile(submission.inputFilePath, this.libEFPInputsDirectory);
         File inputFile = new File(this.libEFPInputsDirectory + submission.inputFilePath);
-        if (!submission.sendInputFile(inputFile)) {
+        if (!submission.sendInputFile(inputFile, keyPassword)) {
             System.err.println("Was unable to send the input file to the server");
             return;
         }
 
         /* Send EFP files */
-        if (!submission.sendEFPFiles(efpFiles)) {
+        if (!submission.sendEFPFiles(efpFiles, keyPassword)) {
             System.err.println("Was unable to send EFP files to the server");
             return;
         }
@@ -643,12 +651,12 @@ public class libEFPInputController implements Initializable {
 
         String time = currentTime; //equivalent but in different formats
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-        submission.submit(subScriptCont.getUsersSubmissionScript());
+        submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
         currentTime = dateFormat.format(date).toString();
 //        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
         JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
                 submission.outputFilename, title.getText(),
-                currentTime, "QUEUE", "LIBEFP");
+                currentTime, "QUEUE", "LIBEFP", keyPassword);
         UserPreferences.getJobsMonitor().addJob(jobManager);
         Stage currentStage = (Stage) root.getScene().getWindow();
         currentStage.close();

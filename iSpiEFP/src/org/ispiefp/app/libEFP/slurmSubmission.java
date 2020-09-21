@@ -80,13 +80,13 @@ public class slurmSubmission extends Submission {
         this.inputFilePath = inputFilePath;
     }
 
-    public String submit(String input) {
+    public String submit(String input, String pemKey) {
         String jobID = UUID.randomUUID().toString();
         try {
             /* Write the submission script to the server */
             File submissionScript = createSubmissionScript(input);
             submissionScript.deleteOnExit();
-            org.ispiefp.app.util.Connection con = new Connection(server);
+            org.ispiefp.app.util.Connection con = new Connection(server, pemKey);
             boolean isAuthenticated = con.connect();
             if (!isAuthenticated) {
                 System.err.println("Was unable to authenticate user");

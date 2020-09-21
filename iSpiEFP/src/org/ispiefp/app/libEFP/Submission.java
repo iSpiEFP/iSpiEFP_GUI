@@ -91,13 +91,13 @@ public abstract class Submission {
     public Submission(){
         super();
     }
-    public abstract String submit(String input);
+    public abstract String submit(String input, String pemKey);
     abstract File createSubmissionScript(String input) throws IOException;
     public abstract String getLibEFPSubmissionScriptText();
     public abstract String getGAMESSSubmissionScriptText();
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
-    public boolean createJobWorkspace(String jobID){
+    public boolean createJobWorkspace(String jobID, String pemKey){
         String jobDirectory = getJobDirectory(jobID);
         String command = submissionType.equalsIgnoreCase("LIBEFP") ?
                 String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib", jobDirectory, jobDirectory) :
@@ -106,7 +106,7 @@ public abstract class Submission {
         setOutputFilename(jobID);
         setSchedulerOutputName(jobID);
         try {
-            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server);
+            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
             boolean isAuthenticated = con.connect();
             if (!isAuthenticated) {
                 System.err.println("Was unable to authenticate user");
@@ -161,8 +161,8 @@ public abstract class Submission {
         }
     }
 
-    public boolean sendInputFile(File inputFile) throws IOException {
-        org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server);
+    public boolean sendInputFile(File inputFile, String pemKey) throws IOException {
+        org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
         boolean authorized = con.connect();
         if (authorized) {
             /* Copy input file to the server */
@@ -194,8 +194,8 @@ public abstract class Submission {
         }
     }
 
-    public boolean sendEFPFiles(ArrayList<File> efpFiles) throws IOException {
-        org.ispiefp.app.util.Connection con = new Connection(server);
+    public boolean sendEFPFiles(ArrayList<File> efpFiles, String pemKey) throws IOException {
+        org.ispiefp.app.util.Connection con = new Connection(server, pemKey);
         boolean authorized = con.connect();
         if (authorized) {
             for (File file : efpFiles) {

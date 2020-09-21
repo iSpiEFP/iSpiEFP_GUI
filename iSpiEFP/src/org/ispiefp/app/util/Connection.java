@@ -24,14 +24,17 @@ public class Connection {
     private ch.ethz.ssh2.Connection activeConnection;
     private ServerInfo server;
 
-    public Connection(ServerInfo si)
+    public Connection(ServerInfo si, String keyPassword)
     {
         server = si;
         if (si.isSshKeyMethod()){
             isKeyBased = true;
             if (si.isSshFileEncrypted()) isprotectedKey = true;
+            if (keyPassword != null) this.keyPassword = keyPassword;
         }
     }
+
+
 
     public Connection(boolean isKeyBased){
         this.isKeyBased = isKeyBased;
@@ -44,7 +47,7 @@ public class Connection {
                 /* Prompt the user for their password, but do not save it to any data structure which will be stored.
                 keep it in main memory.
                 */
-                if (isprotectedKey) keyPassword = promptForPassword();
+                if (isprotectedKey && keyPassword == null) keyPassword = promptForPassword();
                 activeConnection.connect();
                 System.out.printf("Opening the PEM file at: %s%n", server.getSshKeyLocation());
                 return activeConnection.authenticateWithPublicKey(server.getUsername(), new File(server.getSshKeyLocation()), keyPassword);
@@ -79,7 +82,7 @@ public class Connection {
 
         // Enable/Disable login button depending on whether a username was entered.
         Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-        loginButton.setDisable(true);
+        loginButton.setDisable(false);
 
 
         grid.add(new Label("Password:"), 0, 0);
@@ -119,6 +122,9 @@ public class Connection {
         return activeConnection.openSession();
     }
 
+    public String getKeyPassword(){
+        return keyPassword;
+    }
     public ch.ethz.ssh2.Connection getActiveConnection() {
         return activeConnection;
     }
