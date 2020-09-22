@@ -1143,6 +1143,8 @@ stage.show();
         Stage stage = new Stage();
         stage.setTitle("Geometry Analysis");
 
+        ScrollPane geomScrollPane = new ScrollPane();
+
         OutputFile of = new OutputFile("/Users/shaadhussain/Desktop/NewiSpiEFP/iSpiEFP_GUI/opt_1.out");
         ArrayList<OutputFile.State> statesList = of.getStates();
         currUnitLabelStr = "hartrees";
@@ -1158,37 +1160,38 @@ stage.show();
         geomVsEnergyChart.setLegendVisible(false);
 
         XYChart.Series series = new XYChart.Series();
-        series.setName("PBC 1 Values");
+        series.setName("OPT1 1 Values");
 
+        ListView<String> list = new ListView<String>();
+//        ObservableList<String> items = FXCollections.observableArrayList (
+//                "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
+        ObservableList<String> items = FXCollections.observableArrayList ();
 
-//        for (Integer key : graphDataMap.keySet()) {
-//            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(key, graphDataMap.get(key));
-//            series.getData().add(data1);
-//
-//        }
-
-        //NOTE: TELL RYAN YOU MADE ENERGCOMPS AND STATE CLASSES "PUBLIC"
         maxYVal = statesList.get(0).getEnergyComponents().getTotalEnergy();
         for (int i = 0; i < statesList.size(); i++) {
             XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(i, statesList.get(i).getEnergyComponents().getTotalEnergy());
 
+//            Node node = data1.getNode();
+//            node.focusTraversableProperty().unbind();
+//            node.setFocusTraversable(true);
+
+            items.add(i + ": " + statesList.get(i).getEnergyComponents().getTotalEnergy());
             if (statesList.get(i).getEnergyComponents().getTotalEnergy() > maxYVal) {
                 maxYVal = statesList.get(i).getEnergyComponents().getTotalEnergy();
             }
             series.getData().add(data1);
+//            Node node = data1.getNode();
+//            node.focusTraversableProperty().unbind();
+//            node.setFocusTraversable(true);
         }
         maxXVal = statesList.size();
        // maxYVal =
         //End chart setup
+        list.setItems(items);
+        list.setMaxHeight(300);
 
         GridPane geomGrid = new GridPane();
         geomGrid.setPadding(new Insets(10, 10, 10, 10));
-
-        ListView<String> list = new ListView<String>();
-        ObservableList<String> items = FXCollections.observableArrayList (
-                "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
-        list.setItems(items);
-        list.setMaxHeight(300);
 
         Button autosizeBtn = new Button("Autosize");
 
@@ -1216,8 +1219,8 @@ stage.show();
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent e)
                     {
-                        int maxXUnit = 0;
-                        int maxYUnit = 0;
+//                        int maxXUnit = 0;
+//                        int maxYUnit = 0;
                         yAxis.setLabel("Energy (" + unitsSelectCombBox.getValue() + ")");
 
 //                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
@@ -1259,7 +1262,6 @@ stage.show();
                         for (Integer key : convertedUnitsMap.keySet()) {
                             series.getData().add(new XYChart.Data<Number, Number>(key, convertedUnitsMap.get(key)));
                         }
-
                     }
                 };
 
@@ -1293,16 +1295,17 @@ stage.show();
         }));
         HBox navBtnsHBox = new HBox(10);
 
+        geomScrollPane.setContent(geomVsEnergyChart);
 //        maxYVal = 60;
 //        maxXVal = 0.5;
 
         upperXBound = maxXVal + 1;
-        upperYBound = maxYVal + 10;
+        upperYBound = maxYVal + 5;
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(0);
         xAxis.setUpperBound(maxXVal + 1);
-        xAxis.setTickUnit(1);
-
+        //xAxis.setTickUnit(1);
+//NOTE: UNCOMMENT THIS^
         geomVsEnergyChart.getData().add(series); //TODO:
 
 //        Tooltip.install(data1.getNode(), new Tooltip("(" + data1.getXValue() + ", " + data1.getYValue() + ")"));
@@ -1421,7 +1424,6 @@ stage.show();
             }
         }));
 
-
         Button saveAsPNGBtn = new Button("Save as PNG");
         saveAsPNGBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
@@ -1532,15 +1534,14 @@ stage.show();
         GridPane.setConstraints(navBtnsHBox, 1, 2);
         //GridPane.setConstraints(axesEditVBox, 2, 4);
 
-        geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
+       // geomGrid.getChildren().addAll(list, geomScrollPane, navBtnsHBox);
+       geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
         gridScene = new Scene(geomGrid, 1000, 1000);
         stage.setScene(gridScene);
         stage.show();
 
     }
     public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
-
-
         File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
     try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
     }
