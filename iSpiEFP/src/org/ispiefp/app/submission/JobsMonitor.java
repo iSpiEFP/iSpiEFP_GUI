@@ -2,7 +2,6 @@ package org.ispiefp.app.submission;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.libEFP.OutputFile;
 import org.ispiefp.app.server.JobManager;
 

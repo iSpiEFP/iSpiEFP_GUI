@@ -38,43 +38,64 @@ public class SettingsViewController {
     /* Overarching Class Fields */
     private VBox currentVbox;
 
-    @FXML private AnchorPane anchor;
+    @FXML
+    private AnchorPane anchor;
 
     /* Fields for Path Settings */
-    @FXML private VBox pathsBox;
-    @FXML private TextField parameterPathField;
-    @FXML private TextField pythonPathField;
+    @FXML
+    private VBox pathsBox;
+    @FXML
+    private TextField parameterPathField;
+    @FXML
+    private TextField pythonPathField;
 
 
     /* Fields for Server Settings */
-    @FXML private VBox serversBox;
-    @FXML private TextField alias;
-    @FXML private TextField hostname;
-    @FXML private TextField username;
-    @FXML private PasswordField password;
-    @FXML private TextField libEFPInstallationPath;
-    @FXML private TextField GAMESSInstallationPath;
-    @FXML private CheckBox hasLibEFPButton;
-    @FXML private CheckBox hasGAMESSButton;
-    @FXML private ChoiceBox scheduler;
-    @FXML private TextField addQueueField;
-    @FXML private ChoiceBox defaultQueue;
+    @FXML
+    private VBox serversBox;
+    @FXML
+    private TextField alias;
+    @FXML
+    private TextField hostname;
+    @FXML
+    private TextField username;
+    @FXML
+    private PasswordField password;
+    @FXML
+    private TextField libEFPInstallationPath;
+    @FXML
+    private TextField GAMESSInstallationPath;
+    @FXML
+    private CheckBox hasLibEFPButton;
+    @FXML
+    private CheckBox hasGAMESSButton;
+    @FXML
+    private ChoiceBox scheduler;
+    @FXML
+    private TextField addQueueField;
+    @FXML
+    private ChoiceBox defaultQueue;
 
     /*Fields for persistent scene */
-    @FXML private VBox settingsBox;
-    @FXML private TreeView<String> menuTree;
-    @FXML private TreeItem topLeveLSettings;
-    @FXML private TreeItem<String> defaultPaths;
-    @FXML private TreeItem<String> serverSettings;
-    @FXML private TreeItem<String> addNew;
-    @FXML private TreeItem<String> servers;
+    @FXML
+    private VBox settingsBox;
+    @FXML
+    private TreeView<String> menuTree;
+    @FXML
+    private TreeItem topLeveLSettings;
+    @FXML
+    private TreeItem<String> defaultPaths;
+    @FXML
+    private TreeItem<String> serverSettings;
+    @FXML
+    private TreeItem<String> addNew;
+    @FXML
+    private TreeItem<String> servers;
 
     public void initialize() {
         initializePaths();
         initializeServers();
-        scheduler.getItems().add("PBS");
-        scheduler.getItems().add("SLURM");
-        scheduler.getItems().add("TORQUE");
+        scheduler.getItems().addAll("PBS", "SLURM", "TORQUE");
         menuTree.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
             @Override
             public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue, TreeItem<String> newValue) {
@@ -86,7 +107,8 @@ public class SettingsViewController {
                         addNewServer();
                         break;
                     default:
-                        if (UserPreferences.getServers().containsKey(newValue.getValue())){
+                        if (newValue.getValue() == null) break;
+                        if (UserPreferences.getServers().containsKey(newValue.getValue())) {
                             loadServer(UserPreferences.getServers().get(newValue.getValue()));
                         }
                 }
@@ -165,9 +187,8 @@ public class SettingsViewController {
     }
 
     private void openPathsSettings() {
-        currentVbox.setVisible(false);
         pathsBox.setVisible(true);
-        currentVbox = pathsBox;
+        serversBox.setVisible(false);
     }
 
 
@@ -222,10 +243,9 @@ public class SettingsViewController {
         }));
     }
 
-    private void openServerSettings(){
-        currentVbox.setVisible(false);
+    private void openServerSettings() {
         serversBox.setVisible(true);
-        currentVbox = serversBox;
+        pathsBox.setVisible(false);
     }
 
     private void loadServer(ServerInfo si) {
@@ -235,7 +255,7 @@ public class SettingsViewController {
         username.setText(si.getUsername());
         password.setText(si.getPassword());
         scheduler.setValue(si.getScheduler());
-        defaultQueue.getItems().setAll(si.getQueues());
+        defaultQueue.getItems().setAll(si.getQueues() == null ? new String[]{} : si.getQueues());
         if (si.hasGAMESS()) {
             hasGAMESSButton.setSelected(true);
             GAMESSInstallationPath.setText(si.getGamessPath());
@@ -253,26 +273,26 @@ public class SettingsViewController {
     }
 
     @FXML
-    private void addNewQueue(){
-        try{
+    private void addNewQueue() {
+        try {
             ServerInfo si = UserPreferences.getServers().get(alias.getText());
             si.addQueue(addQueueField.getText());
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             System.err.println("Caught a null pointer exception. Alias likely null");
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             System.err.println("The server has not yet been saved and therefore does not exist in the hashmap");
             defaultQueue.getItems().add(addQueueField.getText());
         }
     }
 
     @FXML
-    private void deleteQueue(){
-        try{
+    private void deleteQueue() {
+        try {
             ServerInfo si = UserPreferences.getServers().get(alias.getText());
             si.deleteQueue(addQueueField.getText());
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             System.err.println("Caught a null pointer exception. Alias likely null");
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             System.err.println("The server has not yet been saved and therefore does not exist in the hashmap");
             defaultQueue.getItems().remove(addQueueField.getText());
         }
@@ -296,23 +316,26 @@ public class SettingsViewController {
         UserPreferences.removeServer(alias.getText());
         ServerInfo si = new ServerInfo(alias.getText(), true);
 
-        if (username.getText().equals("")){
+        if (hostname.getText() == null || hostname.getText().equals("")) {
             Alert alert = new Alert(Alert.AlertType.ERROR,
-                    String.format("The username is not entered"),
+                    "The hostname is not entered. Please correct and save again.",
                     ButtonType.OK);
             alert.showAndWait();
+            return;
         }
-        if (hostname.getText().equals("")){
-                Alert alert = new Alert(Alert.AlertType.ERROR,
-                        String.format("The hostname is not entered"),
-                        ButtonType.OK);
-                alert.showAndWait();
+        if (username.getText() == null || username.getText().equals("")) {
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    "The username is not entered. Please correct and save again.",
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
         }
-        if (scheduler.getValue().toString().equals("null")){
-                Alert alert = new Alert(Alert.AlertType.ERROR,
-                        String.format("The scheduler is not entered"),
-                        ButtonType.OK);
-                alert.showAndWait();
+        if (scheduler.getValue() == null || scheduler.getValue().toString().equals("null")) {
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    "The scheduler is not entered. Please correct and save again.",
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
         }
 
         si.setHostname(hostname.getText());
@@ -338,7 +361,6 @@ public class SettingsViewController {
         alert.showAndWait();
 
         UserPreferences.addServer(si);
-
 
 
     }
@@ -398,30 +420,33 @@ public class SettingsViewController {
 
         Optional<String> result = dialog.showAndWait();
 
-        if (result.isPresent()){
+        if (result.isPresent()) {
             //servers.getChildren().add(new TreeItem<>(result.get()));
             openServerSettings();
             ServerInfo si = new ServerInfo(result.get(), true);
+            loadServer(si);
+
             boolean duplicated_server_name = false;
             for (String serverName : UserPreferences.getServers().keySet()) {
                 //System.out.println(serverName);
-                if (serverName.equals(si.getEntryname())){
-                    duplicated_server_name=true;
+                if (serverName.equals(si.getEntryname())) {
+                    duplicated_server_name = true;
                     break;
                 }
 
             }
             //System.out.println(duplicated_server_name);
-            if (duplicated_server_name==false){
-                servers.getChildren().add(new TreeItem<>(result.get()));
-                //System.out.println("caught!");
-                UserPreferences.addServer(si);
+            if (!duplicated_server_name) {
+                TreeItem<String> newServer = new TreeItem<>(result.get());
+                servers.getChildren().add(newServer);
+                menuTree.getSelectionModel().select(newServer);
+                Platform.runLater(() -> hostname.requestFocus());
 
-            }else{
+            } else {
                 //System.out.println("caught!");
                 //UserPreferences.removeServer(si.getEntryname());
                 Alert alert = new Alert(Alert.AlertType.ERROR,
-                        String.format("The server is already exist, please use another server name"),
+                        "The server is already exist, please use another server name",
                         ButtonType.OK);
                 alert.showAndWait();
                 return;
@@ -430,7 +455,7 @@ public class SettingsViewController {
         }
     }
 
-    private void clearServerForm(){
+    private void clearServerForm() {
         alias.setText("");
         hostname.setText("");
         username.setText("");
@@ -500,23 +525,17 @@ public class SettingsViewController {
                     "Authenticated and verified installation of LIBEFP and GAMESS",
                     ButtonType.OK);
             alert.showAndWait();
-        }
-
-        else if (hasLibEFPButton.isSelected()) {
+        } else if (hasLibEFPButton.isSelected()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                            "Authenticated and verified installation of LIBEFP",
+                    "Authenticated and verified installation of LIBEFP",
                     ButtonType.OK);
             alert.showAndWait();
-        }
-
-        else if (hasGAMESSButton.isSelected()) {
+        } else if (hasGAMESSButton.isSelected()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
                     "Authenticated and verified installation of GAMESS",
                     ButtonType.OK);
             alert.showAndWait();
-        }
-
-        else if (hasLibEFPButton.isSelected()) {
+        } else if (hasLibEFPButton.isSelected()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
                     "Authenticated",
                     ButtonType.OK);

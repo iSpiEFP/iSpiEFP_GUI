@@ -82,7 +82,7 @@ public class OutputFile {
      *  3. EnergyComponents - Breakdown of the total energy and its constituent components. Some run types will give
      *                        additional information such as the gradient change. These fields are 0 when irrelevant.
      */
-    abstract class State {
+    public abstract class State {
         private Geometry geometry;
         private RestartData restartData;
         private EnergyComponents energyComponents;
@@ -98,7 +98,7 @@ public class OutputFile {
          * ---
          * -> [<A01C1, 6.875881, -0.963149, 5.264420>, ... <A03C8, 4.497796, -0.815568, 4.878016>]
          */
-        class Geometry {
+        public class Geometry {
             private ArrayList<Atom> atoms;
 
             /**
@@ -114,7 +114,7 @@ public class OutputFile {
              * z=5.264420
              * };
              */
-            class Atom {
+            public class Atom {
                 private final String atomID;
                 private final double x;
                 private final double y;
@@ -172,18 +172,19 @@ public class OutputFile {
          * current state. In some cases this will include velocities, in others it will not. In cases where it will not,
          * the velocities ArrayList will be null
          */
-        class RestartData {
+        public class RestartData {
             private ArrayList<Fragment> fragments;
             private ArrayList<String> velocities;
 
-            class Fragment{
+            public class Fragment{
                 private final String name;
                 private final double[] coords = new double[6];
 
                 public Fragment(String nameString, String coordString){
-                    name = nameString;
-                    String[] coordsStringArray = coordString.split(" ");
+                    name = nameString.trim();
+                    String[] coordsStringArray = coordString.trim().split("[ ]+");
                     for(int i = 0; i < 6; i++){
+                        //System.out.println("COORDS[" + i + "]: " + coords[i]);
                         coords[i] = Double.parseDouble(coordsStringArray[i]);
                     }
                 }
@@ -222,7 +223,8 @@ public class OutputFile {
             }
         }
 
-        class EnergyComponents {
+       public class EnergyComponents {
+
             private final double eEnergy;
             private final double pEnergy;
             private final double dEnergy;
@@ -314,7 +316,7 @@ public class OutputFile {
         }
     }
 
-    class MolecularDynamicsState extends State {
+    public class MolecularDynamicsState extends State {
         private double kineticEnergy;
         private double invariant;
         private double temperature;
@@ -581,7 +583,8 @@ public class OutputFile {
                         enable_cutoff = line1.split(" ")[1].equals("true");
                         break;
                     case "swf_cutoff":
-                        swf_cutoff = Integer.parseInt(line1.split(" ")[1]);
+                        //NOTE: YOU CHANGED THIS, TELL RYAN
+                        swf_cutoff = Double.parseDouble(line1.split(" ")[1]);
                         break;
                     case "max_steps":
                         max_steps = Long.parseLong(line1.split(" ")[1]);
@@ -794,7 +797,7 @@ public class OutputFile {
                     while (br.readLine().equals(""));
                     //Begin RESTART DATA
                     br.readLine(); //Consume RESTART DATA
-                    br.readLine(); //Consume empty line
+//                    br.readLine(); //Consume empty line
                     while (!(currentLine = br.readLine()).equals("")) {
                         //BufferedReader should be focused on the first line of the fragment
                         String line2 = br.readLine();
@@ -849,6 +852,7 @@ public class OutputFile {
                                 break;
                             case "MAXIMUM":
                                 maxGradient = Double.parseDouble(energyStringArray[2]);
+                                finished = true;
                                 break;
                             default:
                                 continue;

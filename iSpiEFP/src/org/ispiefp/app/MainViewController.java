@@ -24,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.ispiefp.app.libEFP.OutputFile;
+import org.ispiefp.app.gamess.gamessInputController;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -383,6 +384,7 @@ public class MainViewController {
      * @throws UnrecognizedAtomException
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
+
         openRecentMenu.getItems().clear();
         // pit.setProgress(100);
         FileChooser fileChooser = new FileChooser();
@@ -590,11 +592,11 @@ public class MainViewController {
     }
 
     public void openSettings() throws IOException{
-        Parent fragmentSelector = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
+        Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Settings");
-        stage.setScene(new Scene(fragmentSelector));
+        stage.setScene(new Scene(settingsView));
 
         try {
             stage.showAndWait();
@@ -905,9 +907,31 @@ public class MainViewController {
 
     @FXML
     public void calculateGamessSetup () throws IOException {
-        //TODO this should open the gamess setup page
-        //This is currently disabled in the fxml doc since it is not currently operational
-
+        String noInternetWarning = "You are not currently connected to the internet.\n\n" +
+                "You will not be able to submit GAMESS jobs to a cluster.";
+        if (!CheckInternetConnection.checkInternetConnection()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noInternetWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+        if (jmolMainPanel.getFragmentComponents() == null){
+            String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
+                    " calculations on. Add something to the system before attempting to perform GAMESS calculations.";
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    noFragmentsSelectedWarning,
+                    ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        FXMLLoader gamessSubmissionLoader = new FXMLLoader(getClass().getResource("/views/gamessInput.fxml"));
+        Parent gamessSubmissionParent = gamessSubmissionLoader.load();
+        gamessInputController gamessCont = gamessSubmissionLoader.getController();
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Select Fragment");
+        stage.setScene(new Scene(gamessSubmissionParent));
+        stage.showAndWait();
     }
 
     @FXML
@@ -1116,19 +1140,13 @@ stage.show();
     @FXML
     public void showGeomAnalysis() throws IOException {
 
-
-        OutputFile of = new OutputFile("This");
-        ArrayList states = of.getStates();
-
-
-
-
-
         Stage stage = new Stage();
         stage.setTitle("Geometry Analysis");
 
+        ScrollPane geomScrollPane = new ScrollPane();
 
-        HashMap<Integer, Integer> graphDataMap = new HashMap<>();
+        OutputFile of = new OutputFile("/Users/shaadhussain/Desktop/NewiSpiEFP/iSpiEFP_GUI/opt_1.out");
+        ArrayList<OutputFile.State> statesList = of.getStates();
         currUnitLabelStr = "hartrees";
         //boolean isDefaultUnit = true;
         //Initial setup of chart
@@ -1142,29 +1160,38 @@ stage.show();
         geomVsEnergyChart.setLegendVisible(false);
 
         XYChart.Series series = new XYChart.Series();
-        series.setName("Dummy Vals");
+        series.setName("OPT1 1 Values");
 
-        graphDataMap.put(1, 60);
-        graphDataMap.put(2, 40);
-        graphDataMap.put(3, 25);
-        graphDataMap.put(4, 20);
+        ListView<String> list = new ListView<String>();
+//        ObservableList<String> items = FXCollections.observableArrayList (
+//                "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
+        ObservableList<String> items = FXCollections.observableArrayList ();
 
-        for (Integer key : graphDataMap.keySet()) {
-            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(key, graphDataMap.get(key));
+        maxYVal = statesList.get(0).getEnergyComponents().getTotalEnergy();
+        for (int i = 0; i < statesList.size(); i++) {
+            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(i, statesList.get(i).getEnergyComponents().getTotalEnergy());
+
+//            Node node = data1.getNode();
+//            node.focusTraversableProperty().unbind();
+//            node.setFocusTraversable(true);
+
+            items.add(i + ": " + statesList.get(i).getEnergyComponents().getTotalEnergy());
+            if (statesList.get(i).getEnergyComponents().getTotalEnergy() > maxYVal) {
+                maxYVal = statesList.get(i).getEnergyComponents().getTotalEnergy();
+            }
             series.getData().add(data1);
-
+//            Node node = data1.getNode();
+//            node.focusTraversableProperty().unbind();
+//            node.setFocusTraversable(true);
         }
-
+        maxXVal = statesList.size();
+       // maxYVal =
         //End chart setup
+        list.setItems(items);
+        list.setMaxHeight(300);
 
         GridPane geomGrid = new GridPane();
         geomGrid.setPadding(new Insets(10, 10, 10, 10));
-
-        ListView<String> list = new ListView<String>();
-        ObservableList<String> items = FXCollections.observableArrayList (
-                "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
-        list.setItems(items);
-        list.setMaxHeight(300);
 
         Button autosizeBtn = new Button("Autosize");
 
@@ -1192,50 +1219,49 @@ stage.show();
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent e)
                     {
-                        int maxXUnit = 0;
-                        int maxYUnit = 0;
+//                        int maxXUnit = 0;
+//                        int maxYUnit = 0;
                         yAxis.setLabel("Energy (" + unitsSelectCombBox.getValue() + ")");
 
-                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
-                            //Do nothing
-                            for (Integer key : graphDataMap.keySet()) {
-                                convertedUnitsMap.put(key, graphDataMap.get(key));
-
-                                    if (key > maxXUnit) {
-                                        maxXUnit = key;
-                                    }
-//                                    if (convertedUnitsMap.get(key) > )
-                            }
-                        }
-
-                        if (unitsSelectCombBox.getValue().equals("kcal/mol")) {
-                            for (Integer key : graphDataMap.keySet()) {
-                                    convertedUnitsMap.put(key, graphDataMap.get(key) * 628);
-
+//                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
+//                            //Do nothing
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                convertedUnitsMap.put(key, graphDataMap.get(key));
+//
 //                                    if (key > maxXUnit) {
 //                                        maxXUnit = key;
 //                                    }
-//                                    if (convertedUnitsMap.get(key) > )
-                                }
-                        }
-
-                        else if (unitsSelectCombBox.getValue().equals("kJ/mol")) {
-                            for (Integer key : graphDataMap.keySet()) {
-                                convertedUnitsMap.put(key, graphDataMap.get(key) * 2626);
-                            }
-                        }
-
-                        else if (unitsSelectCombBox.getValue().equals("cm-1"))  {
-                            for (Integer key : graphDataMap.keySet()) {
-                                convertedUnitsMap.put(key, graphDataMap.get(key) * 219475);
-                            }
-                        }
+////                                    if (convertedUnitsMap.get(key) > )
+//                            }
+//                        }
+//
+//                        if (unitsSelectCombBox.getValue().equals("kcal/mol")) {
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                    convertedUnitsMap.put(key, graphDataMap.get(key) * 628);
+//
+////                                    if (key > maxXUnit) {
+////                                        maxXUnit = key;
+////                                    }
+////                                    if (convertedUnitsMap.get(key) > )
+//                                }
+//                        }
+//
+//                        else if (unitsSelectCombBox.getValue().equals("kJ/mol")) {
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                convertedUnitsMap.put(key, graphDataMap.get(key) * 2626);
+//                            }
+//                        }
+//
+//                        else if (unitsSelectCombBox.getValue().equals("cm-1"))  {
+//                            for (Integer key : graphDataMap.keySet()) {
+//                                convertedUnitsMap.put(key, graphDataMap.get(key) * 219475);
+//                            }
+//                        }
 
                         series.getData().clear();
                         for (Integer key : convertedUnitsMap.keySet()) {
                             series.getData().add(new XYChart.Data<Number, Number>(key, convertedUnitsMap.get(key)));
                         }
-
                     }
                 };
 
@@ -1269,16 +1295,17 @@ stage.show();
         }));
         HBox navBtnsHBox = new HBox(10);
 
-        maxYVal = 60;
-        maxXVal = 7;
+        geomScrollPane.setContent(geomVsEnergyChart);
+//        maxYVal = 60;
+//        maxXVal = 0.5;
 
         upperXBound = maxXVal + 1;
-        upperYBound = maxYVal + 10;
+        upperYBound = maxYVal + 5;
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(0);
         xAxis.setUpperBound(maxXVal + 1);
-        xAxis.setTickUnit(1);
-
+        //xAxis.setTickUnit(1);
+//NOTE: UNCOMMENT THIS^
         geomVsEnergyChart.getData().add(series); //TODO:
 
 //        Tooltip.install(data1.getNode(), new Tooltip("(" + data1.getXValue() + ", " + data1.getYValue() + ")"));
@@ -1369,10 +1396,7 @@ stage.show();
                 xAxis.setAutoRanging(false);
                 yAxis.setAutoRanging(false);
 
-                try {
-
-                    Double parsedXInput = Double.parseDouble(xAxeInput.getText());
-                    Double parsedYInput = Double.parseDouble(xAxeInput.getText());
+              //  try {
 
 //                    if (parsedXInput < 0.0|| parsedYInput < 0.0) {
 //                        showErrorDialog("Please make sure the scale values are greater than zero!");
@@ -1388,18 +1412,17 @@ stage.show();
                     on the y axis
                      */
 
-                    xAxis.setUpperBound(Double.parseDouble(xAxeInput.getText()));
-                    yAxis.setUpperBound(Double.parseDouble(yAxeInput.getText()));
-
-                }
-                catch (NumberFormatException e) {
-                    showErrorDialog("Please make sure the scale values are valid numbers!");
-                }
-
+                    if (!xAxeInput.getText().isEmpty()) {
+                        Double parsedXInput = Double.parseDouble(xAxeInput.getText());
+                        xAxis.setUpperBound(parsedXInput);
+                    }
+                    if (!yAxeInput.getText().isEmpty()) {
+                        Double parsedYInput = Double.parseDouble(yAxeInput.getText());
+                        yAxis.setUpperBound(parsedYInput);
+                    }
 
             }
         }));
-
 
         Button saveAsPNGBtn = new Button("Save as PNG");
         saveAsPNGBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
@@ -1511,15 +1534,14 @@ stage.show();
         GridPane.setConstraints(navBtnsHBox, 1, 2);
         //GridPane.setConstraints(axesEditVBox, 2, 4);
 
-        geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
+       // geomGrid.getChildren().addAll(list, geomScrollPane, navBtnsHBox);
+       geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
         gridScene = new Scene(geomGrid, 1000, 1000);
         stage.setScene(gridScene);
         stage.show();
 
     }
     public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
-
-
         File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
     try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
     }

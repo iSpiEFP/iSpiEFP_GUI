@@ -16,8 +16,6 @@ import java.util.ResourceBundle;
         private boolean submitted = false;
 
         @FXML
-        private TextField jobName;
-        @FXML
         private TextField queue;
         @FXML
         private TextField numNodes;
@@ -42,17 +40,12 @@ import java.util.ResourceBundle;
 
         @Override
         public void initialize(URL location, ResourceBundle resources) {
-            jobName.setPromptText("My Job");
             queue.setPromptText("standby");
             numNodes.setPromptText("1");
             numProcs.setPromptText("20");
 
             walltime.setPromptText("hh:mm:ss");
             nextButton.setDisable(true);
-
-            jobName.textProperty().addListener((observable, ov, nv) -> {
-                setJobName();
-            });
 
             queue.textProperty().addListener((observable, ov, nv) -> {
                 setQueue();
@@ -83,7 +76,6 @@ import java.util.ResourceBundle;
 
         private void validateInput(){
             boolean valid =
-                    jobName.getText()  != "" &&
                             queue.getText()    != "" &&
                             numNodes.getText() != "" &&
                             numProcs.getText() != "" &&
@@ -106,14 +98,6 @@ import java.util.ResourceBundle;
             }
             nextButton.setDisable(false);
             return;
-        }
-
-        @FXML
-        public void setJobName(){
-            submission.setOutputFilename(jobName.getText());
-            submission.setInputFilename(jobName.getText());
-            submission.setSchedulerOutputName(jobName.getText());
-            updateSubmissionScriptText();
         }
 
         @FXML

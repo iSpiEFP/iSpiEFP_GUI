@@ -10,6 +10,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.libEFP.libEFPSubmission;
 
 import java.io.*;
 import java.net.Socket;
@@ -34,22 +35,24 @@ public class JobManager implements Runnable {
     private String outputFilename;
     private String stdoutputFilename;
     private String localWorkingDirectory;
+    private String remoteWorkingDirectory;
     private transient Connection conn;
 
-    public JobManager(String username, String password, String hostname, String localWorkingDirectory,
-                      String jobID, String title, String date, String status, String type) {
+    public JobManager(String username, String password, String hostname, String localWorkingDirectory, String jobID, String title,
+                      String date, String status, String type) {
         this.username = username;
         this.password = password;
         this.hostname = hostname;
-        this.localWorkingDirectory = localWorkingDirectory;
-        this.jobID = jobID;
         this.title = title;
+        this.localWorkingDirectory = localWorkingDirectory;
+        this.remoteWorkingDirectory = "iSpiClient/Libefp/jobs/" + title + "/";
+        this.jobID = jobID;
         this.date = date;
         this.status = status;
         this.type = type;
         if (type.equalsIgnoreCase("LIBEFP")){
-            outputFilename = "iSpiClient/Libefp/output/" + jobID;
-            stdoutputFilename = "iSpiClient/Libefp/output/" + jobID.substring(0, jobID.length() - 4) + ".stdout";
+            outputFilename = remoteWorkingDirectory + "output/" + title + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + title + ".err";
         }
     }
 
@@ -91,7 +94,8 @@ public class JobManager implements Runnable {
         try {
             if (this.type != null) {
                 if (this.type.equals("LIBEFP")) {
-                    scpos = scp.get("iSpiClient/Libefp/output/" + jobID);
+                    System.out.println(remoteWorkingDirectory);
+                    scpos = scp.get(remoteWorkingDirectory + "output/" + title + ".out");
                     scpos.close();
                     jobIsDone = true;
                 } else if (this.type.equals("GAMESS")) {
@@ -125,7 +129,8 @@ public class JobManager implements Runnable {
      * Start a thread that watches a specific job and send a notification when the jobs completes
      */
     public void watchJobStatus() {
-        (new Thread(new JobManager(this.username, this.password, this.hostname, this.localWorkingDirectory, this.jobID, this.title, this.date, this.status, this.type))).start();
+        (new Thread(new JobManager(this.username, this.password, this.hostname, this.localWorkingDirectory,
+                this.jobID, this.title, this.date, this.status, this.type))).start();
     }
 
     /*
@@ -360,7 +365,6 @@ public class JobManager implements Runnable {
             scpos = scp.get(filename);
             stdout = new StreamGobbler(scpos);
             br = new BufferedReader(new InputStreamReader(stdout));
-            System.out.println("aaaaaaaaaaaaaaa");
             while (true) {
                 String line = br.readLine();
                 if (line == null)
