@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.chart.LineChart?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.ispiefp.app.analysis.GeometryAnalysisController"
+            prefHeight="400.0" prefWidth="600.0">
+    <GridPane hgap="10" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" prefWidth="400" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" prefWidth="400" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="400" vgrow="SOMETIMES" />
+        </rowConstraints>
+        <LineChart fx:id="chart" title="defaultTitle" GridPane.rowIndex="0" GridPane.columnIndex="0"
+        GridPane.columnSpan="2" GridPane.rowSpan="2">
+            <xAxis>
+                <NumberAxis fx:id="xAxis"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis fx:id="yAxis"/>
+            </yAxis>
+        </LineChart>
+        <HBox GridPane.rowIndex="2" GridPane.columnIndex="0" spacing="10.0">
+            <ButtonBar >
+                <buttons>
+                    <Button fx:id="leftArrow" style="-fx-shape: M 0 -3.5 v 7 l 4 -3.5 z" rotate="180" onAction="#viewLeftState"/>
+                    <Button fx:id="playPause" onAction="playPauseStates"/>
+                    <Button fx:id="rightArrow" style="-fx-shape: M 0 -3.5 v 7 l 4 -3.5 z" onAction="#viewRightState" />
+                    <Button fx:id="autoSize" />
+                </buttons>
+            </ButtonBar>
+            <ComboBox fx:id="unitsSelector" />
+        </HBox>
+        <HBox GridPane.rowIndex="3" GridPane.columnIndex="0" spacing="10" >
+            <Label text="Set Max X-Axis" />
+            <TextField fx:id="customXBound" />
+        </HBox>
+        <HBox GridPane.rowIndex="4" GridPane.columnIndex="0" spacing="10" >
+            <Label text="Set Max Y-Axis" />
+            <TextField fx:id="customYBound" />
+        </HBox>
+        <ButtonBar GridPane.rowIndex="5" GridPane.columnIndex="0" >
+            <buttons>
+                <Button fx:id="exportPNG" onAction="#exportPNG"/>
+                <Button fx:id="exportCSV" onAction="#exportCSV"/>
+            </buttons>
+        </ButtonBar>
+    </GridPane>
+</AnchorPane>
