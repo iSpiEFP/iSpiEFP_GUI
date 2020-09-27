@@ -166,13 +166,13 @@
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <ListView fx:id="leftListView" />
+                <ListView fx:id="leftListView" VBox.vgrow="ALWAYS"/>
                 <Label text="History and Projects">
                     <padding>
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <TreeView fx:id="historyTreeView">
+                <TreeView fx:id="historyTreeView" VBox.vgrow="ALWAYS">
                     <TreeItem fx:id="historyRoot" expanded="true" />
                 </TreeView>
             </VBox>
