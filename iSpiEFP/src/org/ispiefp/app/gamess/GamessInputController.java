@@ -221,6 +221,15 @@ public class GamessInputController implements Initializable {
 
         ServerInfo selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
+        if (server.getSelectionModel().getSelectedItem() == null) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("GAMESS Submission");
+            alert.setHeaderText("Error");
+            alert.setContentText("No server selected.");
+            alert.showAndWait();
+            return;
+        }
+
         if (selectedServer.getScheduler().equals("SLURM")) {
             submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
         }
