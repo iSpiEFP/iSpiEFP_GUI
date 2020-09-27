@@ -5,12 +5,12 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="root" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.gamess.GamessInputController">
-    <VBox maxWidth="Infinity" spacing="10">
+    <VBox maxWidth="Infinity" spacing="10" AnchorPane.bottomAnchor="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
         <GridPane hgap="20" maxWidth="Infinity" vgap="10" VBox.vgrow="ALWAYS">
             <padding>
                 <Insets bottom="10" left="10" right="10" top="10" />
             </padding>
-            <Label prefHeight="17.0" prefWidth="70.0" text="Job Settings" alignment="CENTER" GridPane.columnIndex="1"/>
+            <Label prefHeight="17.0" maxWidth="Infinity" text="Job Settings" alignment="CENTER" GridPane.columnIndex="0" GridPane.columnSpan="3"/>
             <Label text="Job Title" GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <TextField fx:id="title" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label text="Server:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
@@ -19,7 +19,7 @@
             <TextField fx:id="localWorkingDirectory" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Button onAction="#findDirectory" text="Find" GridPane.columnIndex="2" GridPane.rowIndex="3" />
             <Separator GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="4" />
-            <Label text="Basis Set Settings" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label text="Basis Set Settings" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="3" />
             <Label text="Use Custom Basis Set?" GridPane.columnIndex="0" GridPane.rowIndex="6" />
             <CheckBox fx:id="customBasis" GridPane.columnIndex="1" GridPane.rowIndex="6" onAction="#toggleBasis"/>
             <Label text="Path to Custom Basis Set:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
@@ -31,9 +31,9 @@
             <TextArea fx:id="gamessInputTextArea" maxWidth="Infinity" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="10" GridPane.rowSpan="3">
             </TextArea>
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="40" />
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="45" />
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="15" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints vgrow="ALWAYS" />
@@ -60,6 +60,5 @@
             <Button mnemonicParsing="false" onAction="#handleSubmit" text="Next">
             </Button>
         </HBox>
-        <!--        </SplitPane>-->
     </VBox>
 </AnchorPane>
