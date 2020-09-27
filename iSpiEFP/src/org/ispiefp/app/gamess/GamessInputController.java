@@ -241,8 +241,12 @@ public class GamessInputController implements Initializable {
         Connection con = new Connection(selectedServer, null);
         if (!con.connect()){
             System.err.println("Could not authenticate the user. Exiting submission...");
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("GAMESS Submission");
+            alert.setHeaderText("Error");
+            alert.setContentText("Could not authenticate the user.");
+            alert.showAndWait();
             return;
-
         }
         String keyPassword = con.getKeyPassword();
         /* Create the job workspace */
