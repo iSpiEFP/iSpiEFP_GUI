@@ -428,6 +428,9 @@ public class MainViewController {
 
         File file = fileChooser.showOpenDialog(currStage);
 
+        // user canceled file selection
+        if (file == null) return;
+
         jmolMainPanel = new JmolMainPanel(middlePane, leftListView);
         if (jmolMainPanel.openFile(file)) {
 
