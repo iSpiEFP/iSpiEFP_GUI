@@ -14,6 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
@@ -23,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.ispiefp.app.Main;
 import org.ispiefp.app.libEFP.OutputFile;
 
 import javax.imageio.ImageIO;
@@ -50,13 +52,17 @@ public class GeometryAnalysisController implements Initializable {
     @FXML ComboBox<String> unitsSelector;
     @FXML TextField customXBound;
     @FXML TextField customYBound;
-    final String[] unitTypes = {"hartrees, kcal/mol, kJ/mol, cm^-1"};
+    final String[] unitTypes = {"hartrees", "kcal/mol", "kJ/mol", "cm^-1"};
     Map<String, Double> fromHartreeMap;
     Map<String, Double> toHartreeMap;
     double maxXVal;
     double maxYVal;
     double upperXBound;
     double upperYBound;
+    private static final Image chartUsageInfo = new Image(Main.class.getResource("/images/baseline_info_black_18dp.png").toString());
+    private static final Image play = new Image(Main.class.getResource("/images/play.png").toString());
+    private static final Image pause = new Image(Main.class.getResource("/images/pause.png").toString());
+
 
     /* Cursor Logic */
     boolean xPressed;
@@ -90,9 +96,15 @@ public class GeometryAnalysisController implements Initializable {
         maxYVal = 0;
         upperXBound = maxXVal + 1;
         upperYBound = maxYVal + 10;
+        ImageView playView = new ImageView(play);
+        ImageView pauseView = new ImageView(pause);
+        playView.setX(10);
+        playView.setY(10);
+        playPause.setGraphic(playView);
+
         /* Set Unit converter options */
         unitsSelector.setItems(FXCollections.observableArrayList(unitTypes));
-
+        unitsSelector.getSelectionModel().selectFirst();
         /* Register Event Handler for selection of Units */
         unitsSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             ObservableList<XYChart.Series<Integer, Double>> currentData = chart.getData();
@@ -219,12 +231,36 @@ public class GeometryAnalysisController implements Initializable {
     public void setOutputFile(OutputFile outputFile) {
         this.outputFile = outputFile;
         Map<Integer, Double> dataMap = new HashMap<>();
-        for (OutputFile
-        )
+        int i = 0;
+        for (OutputFile.State state : outputFile.getStates()){
+            dataMap.put(i++, state.getEnergyComponents().getTotalEnergy());
+        }
+        chart.setTitle(yAxis.getLabel() + " vs. " + xAxis.getLabel());
+        updateChartData(dataMap);
     }
 
     public Double convert(String oldUnits, String newUnits) {
         return toHartreeMap.get(oldUnits) * fromHartreeMap.get(newUnits);
+    }
+
+    @FXML public void viewLeftState(){
+
+    }
+
+    @FXML public void viewRightState(){
+
+    }
+
+    @FXML public void playPauseStates(){
+
+    }
+
+    @FXML public void exportPNG(){
+
+    }
+
+    @FXML public void exportCSV(){
+
     }
 
     //    private String energyUnits;

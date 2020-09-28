@@ -23,6 +23,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.ispiefp.app.analysis.GeometryAnalysisController;
 import org.ispiefp.app.libEFP.OutputFile;
 import org.ispiefp.app.gamess.gamessInputController;
 import org.ispiefp.app.libEFP.libEFPInputController;
@@ -75,7 +76,6 @@ public class MainViewController {
     private static final Image center = new Image(Main.class.getResource("/images/center.png").toString());
     private static final Image selectAll = new Image(Main.class.getResource("/images/select_all.png").toString());
     private static final Image build = new Image(Main.class.getResource("/images/build.png").toString());
-    private static final Image chartUsageInfo = new Image(Main.class.getResource("/images/baseline_info_black_18dp.png").toString());
 
     private static String lastOpenedFile = new String();
     private static String lastOpenedFileName = new String();
@@ -1139,407 +1139,414 @@ stage.show();
 
     @FXML
     public void showGeomAnalysis() throws IOException {
-
+        FXMLLoader geoAnalysisLoader = new FXMLLoader(getClass().getResource("/views/analysisViews/GeometryAnalysisView.fxml"));
+        Parent geoAnalysisParent = geoAnalysisLoader.load();
+        GeometryAnalysisController geometryAnalysisController = geoAnalysisLoader.getController();
         Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Geometry Analysis");
-
-        ScrollPane geomScrollPane = new ScrollPane();
-
-        OutputFile of = new OutputFile("/Users/shaadhussain/Desktop/NewiSpiEFP/iSpiEFP_GUI/opt_1.out");
-        ArrayList<OutputFile.State> statesList = of.getStates();
-        currUnitLabelStr = "hartrees";
-        //boolean isDefaultUnit = true;
-        //Initial setup of chart
-        NumberAxis xAxis = new NumberAxis();
-        xAxis.setLabel("Geometry");
-        NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Energy " + "(" + currUnitLabelStr + ")");
-
-        LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
-        geomVsEnergyChart.setTitle("Energy vs. Geometry");
-        geomVsEnergyChart.setLegendVisible(false);
-
-        XYChart.Series series = new XYChart.Series();
-        series.setName("OPT1 1 Values");
-
-        ListView<String> list = new ListView<String>();
-//        ObservableList<String> items = FXCollections.observableArrayList (
-//                "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
-        ObservableList<String> items = FXCollections.observableArrayList ();
-
-        maxYVal = statesList.get(0).getEnergyComponents().getTotalEnergy();
-        for (int i = 0; i < statesList.size(); i++) {
-            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(i, statesList.get(i).getEnergyComponents().getTotalEnergy());
-
-//            Node node = data1.getNode();
-//            node.focusTraversableProperty().unbind();
-//            node.setFocusTraversable(true);
-
-            items.add(i + ": " + statesList.get(i).getEnergyComponents().getTotalEnergy());
-            if (statesList.get(i).getEnergyComponents().getTotalEnergy() > maxYVal) {
-                maxYVal = statesList.get(i).getEnergyComponents().getTotalEnergy();
-            }
-            series.getData().add(data1);
-//            Node node = data1.getNode();
-//            node.focusTraversableProperty().unbind();
-//            node.setFocusTraversable(true);
-        }
-        maxXVal = statesList.size();
-       // maxYVal =
-        //End chart setup
-        list.setItems(items);
-        list.setMaxHeight(300);
-
-        GridPane geomGrid = new GridPane();
-        geomGrid.setPadding(new Insets(10, 10, 10, 10));
-
-        Button autosizeBtn = new Button("Autosize");
-
-        autosizeBtn.setPrefWidth(120);
-        autosizeBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                int xPow = getExponent(maxXVal);
-                int yPow = getExponent(maxYVal);
-
-                xAxis.setUpperBound(maxXVal + Math.pow(10, xPow));
-                yAxis.setUpperBound(maxYVal + Math.pow(10, yPow));
-
-            }
-        }));
-
-        String[] unit_types = {"hartrees", "kcals/mol", "kJ/mol", "cm-1"};
-
-        Label unitsSelectLabel = new Label("Select Units");
-
-        ComboBox unitsSelectCombBox = new ComboBox(FXCollections
-                .observableArrayList(unit_types));
-
-        HashMap<Integer, Integer> convertedUnitsMap = new HashMap<>();
-        EventHandler<ActionEvent> unitSelectedEvent =
-                new EventHandler<ActionEvent>() {
-                    public void handle(ActionEvent e)
-                    {
-//                        int maxXUnit = 0;
-//                        int maxYUnit = 0;
-                        yAxis.setLabel("Energy (" + unitsSelectCombBox.getValue() + ")");
-
-//                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
-//                            //Do nothing
-//                            for (Integer key : graphDataMap.keySet()) {
-//                                convertedUnitsMap.put(key, graphDataMap.get(key));
+        stage.setScene(new Scene(geoAnalysisParent));
+        stage.showAndWait();
+//        Stage stage = new Stage();
+//        stage.setTitle("Geometry Analysis");
 //
-//                                    if (key > maxXUnit) {
-//                                        maxXUnit = key;
-//                                    }
-////                                    if (convertedUnitsMap.get(key) > )
-//                            }
-//                        }
+//        ScrollPane geomScrollPane = new ScrollPane();
 //
-//                        if (unitsSelectCombBox.getValue().equals("kcal/mol")) {
-//                            for (Integer key : graphDataMap.keySet()) {
-//                                    convertedUnitsMap.put(key, graphDataMap.get(key) * 628);
+//        OutputFile of = new OutputFile("/Users/shaadhussain/Desktop/NewiSpiEFP/iSpiEFP_GUI/opt_1.out");
+//        ArrayList<OutputFile.State> statesList = of.getStates();
+//        currUnitLabelStr = "hartrees";
+//        //boolean isDefaultUnit = true;
+//        //Initial setup of chart
+//        NumberAxis xAxis = new NumberAxis();
+//        xAxis.setLabel("Geometry");
+//        NumberAxis yAxis = new NumberAxis();
+//        yAxis.setLabel("Energy " + "(" + currUnitLabelStr + ")");
 //
+//        LineChart geomVsEnergyChart = new LineChart(xAxis, yAxis);
+//        geomVsEnergyChart.setTitle("Energy vs. Geometry");
+//        geomVsEnergyChart.setLegendVisible(false);
+//
+//        XYChart.Series series = new XYChart.Series();
+//        series.setName("OPT1 1 Values");
+//
+//        ListView<String> list = new ListView<String>();
+////        ObservableList<String> items = FXCollections.observableArrayList (
+////                "1. XXX", "2. XXX", "3. XXX", "4. XXX", "5. ...");
+//        ObservableList<String> items = FXCollections.observableArrayList ();
+//
+//        maxYVal = statesList.get(0).getEnergyComponents().getTotalEnergy();
+//        for (int i = 0; i < statesList.size(); i++) {
+//            XYChart.Data<Number, Number> data1 = new XYChart.Data<Number, Number>(i, statesList.get(i).getEnergyComponents().getTotalEnergy());
+//
+////            Node node = data1.getNode();
+////            node.focusTraversableProperty().unbind();
+////            node.setFocusTraversable(true);
+//
+//            items.add(i + ": " + statesList.get(i).getEnergyComponents().getTotalEnergy());
+//            if (statesList.get(i).getEnergyComponents().getTotalEnergy() > maxYVal) {
+//                maxYVal = statesList.get(i).getEnergyComponents().getTotalEnergy();
+//            }
+//            series.getData().add(data1);
+////            Node node = data1.getNode();
+////            node.focusTraversableProperty().unbind();
+////            node.setFocusTraversable(true);
+//        }
+//        maxXVal = statesList.size();
+//       // maxYVal =
+//        //End chart setup
+//        list.setItems(items);
+//        list.setMaxHeight(300);
+//
+//        GridPane geomGrid = new GridPane();
+//        geomGrid.setPadding(new Insets(10, 10, 10, 10));
+//
+//        Button autosizeBtn = new Button("Autosize");
+//
+//        autosizeBtn.setPrefWidth(120);
+//        autosizeBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                int xPow = getExponent(maxXVal);
+//                int yPow = getExponent(maxYVal);
+//
+//                xAxis.setUpperBound(maxXVal + Math.pow(10, xPow));
+//                yAxis.setUpperBound(maxYVal + Math.pow(10, yPow));
+//
+//            }
+//        }));
+//
+//        String[] unit_types = {"hartrees", "kcals/mol", "kJ/mol", "cm-1"};
+//
+//        Label unitsSelectLabel = new Label("Select Units");
+//
+//        ComboBox unitsSelectCombBox = new ComboBox(FXCollections
+//                .observableArrayList(unit_types));
+//
+//        HashMap<Integer, Integer> convertedUnitsMap = new HashMap<>();
+//        EventHandler<ActionEvent> unitSelectedEvent =
+//                new EventHandler<ActionEvent>() {
+//                    public void handle(ActionEvent e)
+//                    {
+////                        int maxXUnit = 0;
+////                        int maxYUnit = 0;
+//                        yAxis.setLabel("Energy (" + unitsSelectCombBox.getValue() + ")");
+//
+////                        if (unitsSelectCombBox.getValue().equals("hartrees")) {
+////                            //Do nothing
+////                            for (Integer key : graphDataMap.keySet()) {
+////                                convertedUnitsMap.put(key, graphDataMap.get(key));
+////
 ////                                    if (key > maxXUnit) {
 ////                                        maxXUnit = key;
 ////                                    }
-////                                    if (convertedUnitsMap.get(key) > )
-//                                }
-//                        }
+//////                                    if (convertedUnitsMap.get(key) > )
+////                            }
+////                        }
+////
+////                        if (unitsSelectCombBox.getValue().equals("kcal/mol")) {
+////                            for (Integer key : graphDataMap.keySet()) {
+////                                    convertedUnitsMap.put(key, graphDataMap.get(key) * 628);
+////
+//////                                    if (key > maxXUnit) {
+//////                                        maxXUnit = key;
+//////                                    }
+//////                                    if (convertedUnitsMap.get(key) > )
+////                                }
+////                        }
+////
+////                        else if (unitsSelectCombBox.getValue().equals("kJ/mol")) {
+////                            for (Integer key : graphDataMap.keySet()) {
+////                                convertedUnitsMap.put(key, graphDataMap.get(key) * 2626);
+////                            }
+////                        }
+////
+////                        else if (unitsSelectCombBox.getValue().equals("cm-1"))  {
+////                            for (Integer key : graphDataMap.keySet()) {
+////                                convertedUnitsMap.put(key, graphDataMap.get(key) * 219475);
+////                            }
+////                        }
 //
-//                        else if (unitsSelectCombBox.getValue().equals("kJ/mol")) {
-//                            for (Integer key : graphDataMap.keySet()) {
-//                                convertedUnitsMap.put(key, graphDataMap.get(key) * 2626);
-//                            }
+//                        series.getData().clear();
+//                        for (Integer key : convertedUnitsMap.keySet()) {
+//                            series.getData().add(new XYChart.Data<Number, Number>(key, convertedUnitsMap.get(key)));
 //                        }
-//
-//                        else if (unitsSelectCombBox.getValue().equals("cm-1"))  {
-//                            for (Integer key : graphDataMap.keySet()) {
-//                                convertedUnitsMap.put(key, graphDataMap.get(key) * 219475);
-//                            }
-//                        }
-
-                        series.getData().clear();
-                        for (Integer key : convertedUnitsMap.keySet()) {
-                            series.getData().add(new XYChart.Data<Number, Number>(key, convertedUnitsMap.get(key)));
-                        }
-                    }
-                };
-
-        unitsSelectCombBox.setOnAction(unitSelectedEvent);
-
-        unitsSelectCombBox.getSelectionModel().selectFirst();
-        Button leftArrowBtn = new Button();
-        leftArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
-        leftArrowBtn.setRotate(180);
-
-        Button circularPlayButton = new Button();
-        circularPlayButton.setStyle("-fx-border-radius: 20;");
-        circularPlayButton.setPrefWidth(20);
-
-        Button rightArrowBtn = new Button();
-        rightArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
-
-        ToggleButton chartInfoButton = new ToggleButton();
-
-        chartInfoButton.setText("");
-        chartInfoButton.setGraphic(new ImageView(chartUsageInfo));
-
-        chartInfoButton.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Info!");
-                alert.setHeaderText("Number Entry Error");
-                alert.setContentText("Info");
-                alert.showAndWait();
-            }
-        }));
-        HBox navBtnsHBox = new HBox(10);
-
-        geomScrollPane.setContent(geomVsEnergyChart);
-//        maxYVal = 60;
-//        maxXVal = 0.5;
-
-        upperXBound = maxXVal + 1;
-        upperYBound = maxYVal + 5;
-        xAxis.setAutoRanging(false);
-        xAxis.setLowerBound(0);
-        xAxis.setUpperBound(maxXVal + 1);
-        //xAxis.setTickUnit(1);
-//NOTE: UNCOMMENT THIS^
-        geomVsEnergyChart.getData().add(series); //TODO:
-
-//        Tooltip.install(data1.getNode(), new Tooltip("(" + data1.getXValue() + ", " + data1.getYValue() + ")"));
-//        Tooltip.install(data2.getNode(), new Tooltip("(" + data2.getXValue() + ", " + data2.getYValue() + ")"));
-//        Tooltip.install(data3.getNode(), new Tooltip("(" + data3.getXValue() + ", " + data3.getYValue() + ")"));
-//        Tooltip.install(data4.getNode(), new Tooltip("(" + data4.getXValue() + ", " + data4.getYValue() + ")"));
-
-        Tooltip.install(xAxis, new Tooltip("Drag right to double scale, drag left to half scale"));
-        Tooltip.install(yAxis, new Tooltip("Drag up to double scale, drag down to half scale"));
-
-        xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                xPressed = true;
-                lastXPosition = event.getSceneX();
-            }
-        }));
-
-        xAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                if (xPressed) {
-                    if (event.getSceneX() - lastXPosition >= 20.0) {
-                        xAxis.setAutoRanging(false);
-                        double tempMaxXVal = upperXBound * 2;
-                        xAxis.setUpperBound(tempMaxXVal);
-                        upperXBound *= 2;
-
-                        xPressed = false;
-                        System.out.println("Finished right drag logic");
-
-                    } else if (lastXPosition - event.getSceneX() >= 20.0) {
-                        xAxis.setAutoRanging(false);
-                        //xAxis.setTickUnit();
-                        xAxis.setUpperBound(Math.ceil(upperXBound / 2));
-                        upperXBound /= 2;
-                        xPressed = false;
-
-                    }
-                }
-            }
-        }));
-
-        yAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                lastYPosition = event.getSceneY();
-                yPressed = true;
-            }
-        }));
-
-        yAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                //If the user drags right
-                if (yPressed) {
-                    if (lastYPosition - event.getSceneY() >= 20.0) {
-                        yAxis.setAutoRanging(false);
-                        yAxis.setUpperBound(upperYBound * 2);
-                        upperYBound *= 2;
-                        yPressed = false;
-                       // System.out.println("Finished up drag logic");
-                    }
-                    else if (event.getSceneY() - lastYPosition >= 20.0) {
-                        yAxis.setAutoRanging(false);
-                        yAxis.setUpperBound(upperYBound / 2);
-                        upperYBound /= 2;
-                        yPressed = false;
-                    }
-                }
-            }
-        }));
-
-        VBox axesEditVBox = new VBox(8);
-        HBox xHBox = new HBox(10);
-        HBox yHBox = new HBox(10);
-        HBox scaleBtnsHBox = new HBox(10);
-
-        Label xLabel = new Label("Set Custom X Bound");
-        TextField xAxeInput = new TextField();
-        xAxeInput.setPromptText("Current X axis Tick unit: " + xAxis.getTickUnit());
-        xHBox.getChildren().addAll(xLabel, xAxeInput);
-
-        Label yLabel = new Label("Set Custom Y Bound");
-        TextField yAxeInput = new TextField();
-        yAxeInput.setPromptText("Current Y axis Tick unit: " + yAxis.getTickUnit());
-        yHBox.getChildren().addAll(yLabel, yAxeInput);
-
-        Button scaleBtn = new Button("Scale");
-        scaleBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                xAxis.setAutoRanging(false);
-                yAxis.setAutoRanging(false);
-
-              //  try {
-
-//                    if (parsedXInput < 0.0|| parsedYInput < 0.0) {
-//                        showErrorDialog("Please make sure the scale values are greater than zero!");
 //                    }
-
-                    /*
-                    Tasks 7/6/20
-
-                    - Offer to save at the out file initially
-                    - Format csv into columns, not rows
-                    - Give titles for each column
-                    - For prev and next buttons, you are plotting the "step number" on the x axis and total energy
-                    on the y axis
-                     */
-
-                    if (!xAxeInput.getText().isEmpty()) {
-                        Double parsedXInput = Double.parseDouble(xAxeInput.getText());
-                        xAxis.setUpperBound(parsedXInput);
-                    }
-                    if (!yAxeInput.getText().isEmpty()) {
-                        Double parsedYInput = Double.parseDouble(yAxeInput.getText());
-                        yAxis.setUpperBound(parsedYInput);
-                    }
-
-            }
-        }));
-
-        Button saveAsPNGBtn = new Button("Save as PNG");
-        saveAsPNGBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-
-                WritableImage chartPNG = geomVsEnergyChart.snapshot(new SnapshotParameters(), null);
-                String home = System.getProperty("user.home");
-
-                // System.out.println("Home: " + home);
-                TextInputDialog pngDialog = new TextInputDialog("chart_snapshot");
-                pngDialog.setTitle("Name Your File");
-                pngDialog.setHeaderText("File Name");
-                pngDialog.setContentText("Please name your file (no extension) or use the default: ");
-
-                Optional<String> result = pngDialog.showAndWait();
-
-                File file = new File(home + "/Documents/" + result.get() + ".png");
-
-                try {
-                    ImageIO.write(SwingFXUtils.fromFXImage(chartPNG, null), "png", file);
-                }
-                catch (Exception e) {
-                    System.out.println("PNG Exception");
-                }
-
-
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText("File Saved!");
-                alert.setContentText("Your file has been saved! It is located in the Documents folder at: " + file.getAbsolutePath());
-                alert.showAndWait();
-
-            }
-        }));
-
-        Button saveAsCSVButton = new Button("Save as CSV File");
-
-        List<String[]> dataLines = new ArrayList<>();
-
-//        dataLines.add(new String[] {"1", "2", "3", "4"});
-//        dataLines.add(new String[] {"60", "40", "25", "20"});
-
-        dataLines.add(new String[] {"Geometry Data"});
-        dataLines.add(new String[] {"X", "Y"});
-        dataLines.add(new String[] {"1", "60"});
-        dataLines.add(new String[] {"2", "40"});
-        dataLines.add(new String[] {"3", "25"});
-        dataLines.add(new String[] {"4", "20"});
-
-        saveAsCSVButton.setOnMouseClicked((new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                try {
-
-                    TextInputDialog csvDialog = new TextInputDialog("geom_data");
-                    csvDialog.setTitle("Name Your File");
-                    csvDialog.setHeaderText("File Name");
-                    csvDialog.setContentText("Please name your file (no extension) or use the default: ");
-
-                    Optional<String> result1 = csvDialog.showAndWait();
-
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Output Directory");
-                    alert.setHeaderText("Choose a directory");
-                    alert.setContentText("Would you like to ");
-
-                    ButtonType buttonTypeOne = new ButtonType("Choose Directory");
-                    ButtonType buttonTypeTwo = new ButtonType("Use Documents as Default");
-                    ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-                    alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo,  buttonTypeCancel);
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    File selectedDirectory;
-                    String csvPath = "Empty";
-                    if (result.get() == buttonTypeOne){
-                        // ... user chose "One"
-                        DirectoryChooser directoryChooser = new DirectoryChooser();
-                        String h1 = System.getProperty("user.home");
-                        directoryChooser.setInitialDirectory(new File(h1));
-                        selectedDirectory = directoryChooser.showDialog(stage);
-                        csvPath = selectedDirectory.getAbsolutePath();
-
-                    } else if (result.get() == buttonTypeTwo) {
-                        // ... user chose "Two"
-                        String home = System.getProperty("user.home");
-                        csvPath = home + "/Documents/";
-
-                    }  else {
-                        // ... user chose CANCEL or closed the dialog
-                    }
-
-                    givenDataArray_whenConvertToCSV_thenOutputCreated(dataLines, csvPath, result1.get());
-                }
-                catch (Exception e) {
-                    System.out.println("CSV filechooser fail Exception");
-                    e.printStackTrace();
-                }
-            }
-            }));
-
-        scaleBtnsHBox.getChildren().addAll(scaleBtn, autosizeBtn);
-        HBox unitsHBox = new HBox(10);
-        unitsHBox.getChildren().addAll(unitsSelectLabel, unitsSelectCombBox);
-        axesEditVBox.getChildren().addAll(xHBox, yHBox, scaleBtnsHBox, unitsHBox);
-
-        navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn, chartInfoButton, saveAsPNGBtn, saveAsCSVButton);
-
-        GridPane.setConstraints(list, 0, 0);
-        GridPane.setConstraints(geomVsEnergyChart, 1, 0);
-        GridPane.setConstraints(navBtnsHBox, 1, 2);
-        //GridPane.setConstraints(axesEditVBox, 2, 4);
-
-       // geomGrid.getChildren().addAll(list, geomScrollPane, navBtnsHBox);
-       geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
-        gridScene = new Scene(geomGrid, 1000, 1000);
-        stage.setScene(gridScene);
-        stage.show();
-
+//                };
+//
+//        unitsSelectCombBox.setOnAction(unitSelectedEvent);
+//
+//        unitsSelectCombBox.getSelectionModel().selectFirst();
+//        Button leftArrowBtn = new Button();
+//        leftArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+//        leftArrowBtn.setRotate(180);
+//
+//        Button circularPlayButton = new Button();
+//        circularPlayButton.setStyle("-fx-border-radius: 20;");
+//        circularPlayButton.setPrefWidth(20);
+//
+//        Button rightArrowBtn = new Button();
+//        rightArrowBtn.setStyle("-fx-shape: \"M 0 -3.5 v 7 l 4 -3.5 z\"");
+//
+//        ToggleButton chartInfoButton = new ToggleButton();
+//
+//        chartInfoButton.setText("");
+//        chartInfoButton.setGraphic(new ImageView(chartUsageInfo));
+//
+//        chartInfoButton.setOnMouseClicked((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.setTitle("Info!");
+//                alert.setHeaderText("Number Entry Error");
+//                alert.setContentText("Info");
+//                alert.showAndWait();
+//            }
+//        }));
+//        HBox navBtnsHBox = new HBox(10);
+//
+//        geomScrollPane.setContent(geomVsEnergyChart);
+////        maxYVal = 60;
+////        maxXVal = 0.5;
+//
+//        upperXBound = maxXVal + 1;
+//        upperYBound = maxYVal + 5;
+//        xAxis.setAutoRanging(false);
+//        xAxis.setLowerBound(0);
+//        xAxis.setUpperBound(maxXVal + 1);
+//        //xAxis.setTickUnit(1);
+////NOTE: UNCOMMENT THIS^
+//        geomVsEnergyChart.getData().add(series); //TODO:
+//
+////        Tooltip.install(data1.getNode(), new Tooltip("(" + data1.getXValue() + ", " + data1.getYValue() + ")"));
+////        Tooltip.install(data2.getNode(), new Tooltip("(" + data2.getXValue() + ", " + data2.getYValue() + ")"));
+////        Tooltip.install(data3.getNode(), new Tooltip("(" + data3.getXValue() + ", " + data3.getYValue() + ")"));
+////        Tooltip.install(data4.getNode(), new Tooltip("(" + data4.getXValue() + ", " + data4.getYValue() + ")"));
+//
+//        Tooltip.install(xAxis, new Tooltip("Drag right to double scale, drag left to half scale"));
+//        Tooltip.install(yAxis, new Tooltip("Drag up to double scale, drag down to half scale"));
+//
+//        xAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                xPressed = true;
+//                lastXPosition = event.getSceneX();
+//            }
+//        }));
+//
+//        xAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                if (xPressed) {
+//                    if (event.getSceneX() - lastXPosition >= 20.0) {
+//                        xAxis.setAutoRanging(false);
+//                        double tempMaxXVal = upperXBound * 2;
+//                        xAxis.setUpperBound(tempMaxXVal);
+//                        upperXBound *= 2;
+//
+//                        xPressed = false;
+//                        System.out.println("Finished right drag logic");
+//
+//                    } else if (lastXPosition - event.getSceneX() >= 20.0) {
+//                        xAxis.setAutoRanging(false);
+//                        //xAxis.setTickUnit();
+//                        xAxis.setUpperBound(Math.ceil(upperXBound / 2));
+//                        upperXBound /= 2;
+//                        xPressed = false;
+//
+//                    }
+//                }
+//            }
+//        }));
+//
+//        yAxis.setOnMousePressed((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                lastYPosition = event.getSceneY();
+//                yPressed = true;
+//            }
+//        }));
+//
+//        yAxis.setOnMouseDragged((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                //If the user drags right
+//                if (yPressed) {
+//                    if (lastYPosition - event.getSceneY() >= 20.0) {
+//                        yAxis.setAutoRanging(false);
+//                        yAxis.setUpperBound(upperYBound * 2);
+//                        upperYBound *= 2;
+//                        yPressed = false;
+//                       // System.out.println("Finished up drag logic");
+//                    }
+//                    else if (event.getSceneY() - lastYPosition >= 20.0) {
+//                        yAxis.setAutoRanging(false);
+//                        yAxis.setUpperBound(upperYBound / 2);
+//                        upperYBound /= 2;
+//                        yPressed = false;
+//                    }
+//                }
+//            }
+//        }));
+//
+//        VBox axesEditVBox = new VBox(8);
+//        HBox xHBox = new HBox(10);
+//        HBox yHBox = new HBox(10);
+//        HBox scaleBtnsHBox = new HBox(10);
+//
+//        Label xLabel = new Label("Set Custom X Bound");
+//        TextField xAxeInput = new TextField();
+//        xAxeInput.setPromptText("Current X axis Tick unit: " + xAxis.getTickUnit());
+//        xHBox.getChildren().addAll(xLabel, xAxeInput);
+//
+//        Label yLabel = new Label("Set Custom Y Bound");
+//        TextField yAxeInput = new TextField();
+//        yAxeInput.setPromptText("Current Y axis Tick unit: " + yAxis.getTickUnit());
+//        yHBox.getChildren().addAll(yLabel, yAxeInput);
+//
+//        Button scaleBtn = new Button("Scale");
+//        scaleBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                xAxis.setAutoRanging(false);
+//                yAxis.setAutoRanging(false);
+//
+//              //  try {
+//
+////                    if (parsedXInput < 0.0|| parsedYInput < 0.0) {
+////                        showErrorDialog("Please make sure the scale values are greater than zero!");
+////                    }
+//
+//                    /*
+//                    Tasks 7/6/20
+//
+//                    - Offer to save at the out file initially
+//                    - Format csv into columns, not rows
+//                    - Give titles for each column
+//                    - For prev and next buttons, you are plotting the "step number" on the x axis and total energy
+//                    on the y axis
+//                     */
+//
+//                    if (!xAxeInput.getText().isEmpty()) {
+//                        Double parsedXInput = Double.parseDouble(xAxeInput.getText());
+//                        xAxis.setUpperBound(parsedXInput);
+//                    }
+//                    if (!yAxeInput.getText().isEmpty()) {
+//                        Double parsedYInput = Double.parseDouble(yAxeInput.getText());
+//                        yAxis.setUpperBound(parsedYInput);
+//                    }
+//
+//            }
+//        }));
+//
+//        Button saveAsPNGBtn = new Button("Save as PNG");
+//        saveAsPNGBtn.setOnMouseClicked((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//
+//                WritableImage chartPNG = geomVsEnergyChart.snapshot(new SnapshotParameters(), null);
+//                String home = System.getProperty("user.home");
+//
+//                // System.out.println("Home: " + home);
+//                TextInputDialog pngDialog = new TextInputDialog("chart_snapshot");
+//                pngDialog.setTitle("Name Your File");
+//                pngDialog.setHeaderText("File Name");
+//                pngDialog.setContentText("Please name your file (no extension) or use the default: ");
+//
+//                Optional<String> result = pngDialog.showAndWait();
+//
+//                File file = new File(home + "/Documents/" + result.get() + ".png");
+//
+//                try {
+//                    ImageIO.write(SwingFXUtils.fromFXImage(chartPNG, null), "png", file);
+//                }
+//                catch (Exception e) {
+//                    System.out.println("PNG Exception");
+//                }
+//
+//
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setHeaderText("File Saved!");
+//                alert.setContentText("Your file has been saved! It is located in the Documents folder at: " + file.getAbsolutePath());
+//                alert.showAndWait();
+//
+//            }
+//        }));
+//
+//        Button saveAsCSVButton = new Button("Save as CSV File");
+//
+//        List<String[]> dataLines = new ArrayList<>();
+//
+////        dataLines.add(new String[] {"1", "2", "3", "4"});
+////        dataLines.add(new String[] {"60", "40", "25", "20"});
+//
+//        dataLines.add(new String[] {"Geometry Data"});
+//        dataLines.add(new String[] {"X", "Y"});
+//        dataLines.add(new String[] {"1", "60"});
+//        dataLines.add(new String[] {"2", "40"});
+//        dataLines.add(new String[] {"3", "25"});
+//        dataLines.add(new String[] {"4", "20"});
+//
+//        saveAsCSVButton.setOnMouseClicked((new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent event) {
+//                try {
+//
+//                    TextInputDialog csvDialog = new TextInputDialog("geom_data");
+//                    csvDialog.setTitle("Name Your File");
+//                    csvDialog.setHeaderText("File Name");
+//                    csvDialog.setContentText("Please name your file (no extension) or use the default: ");
+//
+//                    Optional<String> result1 = csvDialog.showAndWait();
+//
+//                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//                    alert.setTitle("Output Directory");
+//                    alert.setHeaderText("Choose a directory");
+//                    alert.setContentText("Would you like to ");
+//
+//                    ButtonType buttonTypeOne = new ButtonType("Choose Directory");
+//                    ButtonType buttonTypeTwo = new ButtonType("Use Documents as Default");
+//                    ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+//
+//                    alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo,  buttonTypeCancel);
+//
+//                    Optional<ButtonType> result = alert.showAndWait();
+//                    File selectedDirectory;
+//                    String csvPath = "Empty";
+//                    if (result.get() == buttonTypeOne){
+//                        // ... user chose "One"
+//                        DirectoryChooser directoryChooser = new DirectoryChooser();
+//                        String h1 = System.getProperty("user.home");
+//                        directoryChooser.setInitialDirectory(new File(h1));
+//                        selectedDirectory = directoryChooser.showDialog(stage);
+//                        csvPath = selectedDirectory.getAbsolutePath();
+//
+//                    } else if (result.get() == buttonTypeTwo) {
+//                        // ... user chose "Two"
+//                        String home = System.getProperty("user.home");
+//                        csvPath = home + "/Documents/";
+//
+//                    }  else {
+//                        // ... user chose CANCEL or closed the dialog
+//                    }
+//
+//                    givenDataArray_whenConvertToCSV_thenOutputCreated(dataLines, csvPath, result1.get());
+//                }
+//                catch (Exception e) {
+//                    System.out.println("CSV filechooser fail Exception");
+//                    e.printStackTrace();
+//                }
+//            }
+//            }));
+//
+//        scaleBtnsHBox.getChildren().addAll(scaleBtn, autosizeBtn);
+//        HBox unitsHBox = new HBox(10);
+//        unitsHBox.getChildren().addAll(unitsSelectLabel, unitsSelectCombBox);
+//        axesEditVBox.getChildren().addAll(xHBox, yHBox, scaleBtnsHBox, unitsHBox);
+//
+//        navBtnsHBox.getChildren().addAll(axesEditVBox, leftArrowBtn, circularPlayButton, rightArrowBtn, chartInfoButton, saveAsPNGBtn, saveAsCSVButton);
+//
+//        GridPane.setConstraints(list, 0, 0);
+//        GridPane.setConstraints(geomVsEnergyChart, 1, 0);
+//        GridPane.setConstraints(navBtnsHBox, 1, 2);
+//        //GridPane.setConstraints(axesEditVBox, 2, 4);
+//
+//       // geomGrid.getChildren().addAll(list, geomScrollPane, navBtnsHBox);
+//       geomGrid.getChildren().addAll(list, geomVsEnergyChart, navBtnsHBox);
+//        gridScene = new Scene(geomGrid, 1000, 1000);
+//        stage.setScene(gridScene);
+//        stage.show();
+//
     }
     public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
         File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
