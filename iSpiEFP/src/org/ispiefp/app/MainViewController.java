@@ -213,7 +213,7 @@ public class MainViewController {
                 HashSet<String> accountedForJobs = new HashSet<>();
                 ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
                 historyRoot.setValue("Jobs");
-                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
                 System.out.printf("Size of tMap is currently %d%n", tMap.size());
                 System.out.printf("Size of records is currently %d%n", records.size());

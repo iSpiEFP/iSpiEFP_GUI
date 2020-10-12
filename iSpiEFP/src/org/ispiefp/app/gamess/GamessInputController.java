@@ -219,13 +219,22 @@ public class GamessInputController implements Initializable {
         String username = null;             /* Username of the user for the server */
         String jobID = null;                /* JobID for the job the user submits  */
 
-        ServerInfo selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
-
         if (server.getSelectionModel().getSelectedItem() == null) {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("GAMESS Submission");
             alert.setHeaderText("Error");
             alert.setContentText("No server selected.");
+            alert.showAndWait();
+            return;
+        }
+
+        ServerInfo selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
+
+        if (selectedServer.getGamessPath() == null || selectedServer.getGamessPath().equals("")) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("GAMESS Submission");
+            alert.setHeaderText("Error");
+            alert.setContentText("Server selected does not have GAMESS installed.");
             alert.showAndWait();
             return;
         }
@@ -274,14 +283,16 @@ public class GamessInputController implements Initializable {
             return;
         }
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
         Date date = new Date();
-        String currentTime = dateFormat.format(date).toString();
+        String currentTime = dateFormat.format(date.getTime());
+
+        System.out.printf("SUBMISSION TIME: %s\n\n\n\n\n", currentTime);
 
         String time = currentTime; //equivalent but in different formats
-        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
-        currentTime = dateFormat.format(date).toString();
+        currentTime = dateFormat.format(date.getTime());
         JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
                 submission.getOutputFilename(), title.getText(),
                 currentTime, "QUEUE", "LIBEFP", keyPassword);
