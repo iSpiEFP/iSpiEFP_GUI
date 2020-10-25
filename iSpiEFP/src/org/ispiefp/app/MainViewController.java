@@ -202,7 +202,7 @@ public class MainViewController {
             private TreeView<String> t;
             private HashMap<String, TreeItem> tMap;
 
-            public HistoryTreeUpdater(TreeView<String> s){
+            public HistoryTreeUpdater(TreeView<String> s) {
                 t = s;
                 tMap = new HashMap<>();
             }
@@ -221,10 +221,10 @@ public class MainViewController {
                 System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
                 System.out.printf("Size of tMap is currently %d%n", tMap.size());
                 System.out.printf("Size of records is currently %d%n", records.size());
-                while (true){
-                    if (tMap.size() < records.size()){
+                while (true) {
+                    if (tMap.size() < records.size()) {
                         Enumeration<String> recordEnumeration = records.keys();
-                        while (recordEnumeration.hasMoreElements()){
+                        while (recordEnumeration.hasMoreElements()) {
                             String currentRecordName = recordEnumeration.nextElement();
                             if (!accountedForJobs.contains(currentRecordName)) {
                                 accountedForJobs.add(currentRecordName);
@@ -240,7 +240,7 @@ public class MainViewController {
                     }
                     Date currentTime = new Date();
                     Enumeration<String> recordEnumeration = records.keys();
-                    while (recordEnumeration.hasMoreElements()){
+                    while (recordEnumeration.hasMoreElements()) {
                         String currentRecordName = recordEnumeration.nextElement();
                         SubmissionRecord currentRecord = records.get(currentRecordName);
                         TreeItem<String> jobIDTreeItem = tMap.get(currentRecordName);
@@ -302,7 +302,7 @@ public class MainViewController {
                 /* 4. Remove it from the history pane */
                 historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
                 System.out.println("Selected item is of class: " + ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue());
-            } catch (ClassCastException e){
+            } catch (ClassCastException e) {
                 //This is a cheap solution to the issue of the user being able to right click the root node.
             }
         });
@@ -313,7 +313,7 @@ public class MainViewController {
 //            viewJobInfoOption.setDisable(true);
             String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
             ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
-            if (records.get(jobID).getStatus().equals("RUNNING")){
+            if (records.get(jobID).getStatus().equals("RUNNING")) {
                 viewJobInfoOption.setDisable(true);
             }
             /* Pull up a view displaying all information about the job */
@@ -333,7 +333,7 @@ public class MainViewController {
                 } catch (Exception e) {
                     System.err.println("Unable to open new view");
                 }
-            } catch (IOException e){
+            } catch (IOException e) {
                 System.err.println("Was unable to locate the view");
                 e.printStackTrace();
             }
@@ -381,7 +381,7 @@ public class MainViewController {
                 new File(System.getProperty("user.home"))
         );
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.*"  ),
+                new FileChooser.ExtensionFilter("All Files", "*.*"),
                 new FileChooser.ExtensionFilter("XYZ", "*.xyz"),
                 new FileChooser.ExtensionFilter("PDB", "*.pdb")
         );
@@ -414,9 +414,7 @@ public class MainViewController {
             rec_files = getRecentFileAggStr().split("::");
             System.out.println("Rec files array in fileOpen: " + Arrays.toString(rec_files));
             populateOpenRecentMenu(); //populates menu w/ rec_files, it's global so not passed as parameter
-        }
-
-        else {
+        } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("File Does Not Exist");
@@ -450,8 +448,7 @@ public class MainViewController {
                         appendToRecentFilesStr(mi.getText());
                         fileOpenFromPath(mi.getText());
                         repopulate();
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println("Exception in fileOpenPath");
                         e.printStackTrace();
                     }
@@ -479,8 +476,7 @@ public class MainViewController {
                         fileOpenFromPath(mi.getText());
                         repopulate();
 
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println("Exception in fileOpenPath");
                     }
                 }
@@ -515,12 +511,9 @@ public class MainViewController {
                 libefpButton.setDisable(true);
             }
 
-        }
-
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("IOException");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("General Exception");
             e.printStackTrace();
         }
@@ -578,7 +571,7 @@ public class MainViewController {
         }
     }
 
-    public void openSettings() throws IOException{
+    public void openSettings() throws IOException {
         Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -587,29 +580,27 @@ public class MainViewController {
 
         try {
             stage.showAndWait();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("SHOW AND WAIT ERROR IN MAIN");
         }
     }
 
 
-    public void selectFragment() throws IOException{
+    public void selectFragment() throws IOException {
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
                 "You will only be able to select from " +
                 "fragments whose parameters are contained within your user parameters directory.";
-        if (!VerifyPython.isValidPython()){
+        if (!VerifyPython.isValidPython()) {
             VerifyPython.raisePythonError();
             return;
         }
-        if (!CheckInternetConnection.checkInternetConnection()){
+        if (!CheckInternetConnection.checkInternetConnection()) {
             Alert alert = new Alert(Alert.AlertType.WARNING,
                     noInternetWarning,
                     ButtonType.OK);
             alert.showAndWait();
             fragmentOpen();
-        }
-        else fragmentOpen();
+        } else fragmentOpen();
     }
 
     /**
@@ -628,7 +619,7 @@ public class MainViewController {
         alert.setContentText("Are you sure you want to exit?");
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
+        if (result.get() == ButtonType.OK) {
             // ... user chose OK
             System.out.println("Stage is closing");
             Main.getPrimaryStage().close();
@@ -801,25 +792,25 @@ public class MainViewController {
      * Handle Search Fragments button. Search the database for similar fragments to the current molecule
      */
     public void searchFindEFPPublicDatabase() throws IOException {
-        if (!lastOpenedFile.isEmpty()) {
-            //set divider positions
-            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
-            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
-
-            //Runs auxiliary JmolViewer
-            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
-
-            //load aux table list
-            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
-            try {
-                //start database controller actions
-                DBcontroller.run();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("No file was opened");
-        }
+//        if (!lastOpenedFile.isEmpty()) {
+//            //set divider positions
+//            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
+//            rightVerticalSplitPane.setDividerPositions(0.5f, 0.5f);
+//
+//            //Runs auxiliary JmolViewer
+//            JmolPanel jmolPanel = new JmolPanel(upperRightPane);
+//
+//            //load aux table list
+//            DatabaseController DBcontroller = new DatabaseController(bottomRightPane, jmolMainPanel, jmolPanel.viewer, jmolMainPanel.getFragmentComponents());
+//            try {
+//                //start database controller actions
+//                DBcontroller.run();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            System.out.println("No file was opened");
+//        }
     }
 
     /******************************************************************************************
@@ -835,7 +826,7 @@ public class MainViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
-        if (jmolMainPanel.getFragmentComponents() == null){
+        if (jmolMainPanel.getFragmentComponents() == null) {
             String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
                     " calculations on. Add something to the system before attempting to perform libEFP calculations.";
             Alert alert = new Alert(Alert.AlertType.WARNING,
@@ -873,7 +864,7 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateLibefpHistory () throws IOException {
+    public void calculateLibefpHistory() throws IOException {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource(
                         "/views/submissionHistory.fxml"
@@ -893,7 +884,7 @@ public class MainViewController {
 
 
     @FXML
-    public void calculateGamessSetup () throws IOException {
+    public void calculateGamessSetup() throws IOException {
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
                 "You will not be able to submit GAMESS jobs to a cluster.";
         if (!CheckInternetConnection.checkInternetConnection()) {
@@ -902,7 +893,7 @@ public class MainViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
-        if (jmolMainPanel.getFragmentComponents() == null){
+        if (jmolMainPanel.getFragmentComponents() == null) {
             String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
                     " calculations on. Add something to the system before attempting to perform GAMESS calculations.";
             Alert alert = new Alert(Alert.AlertType.WARNING,
@@ -913,7 +904,7 @@ public class MainViewController {
         }
         FXMLLoader gamessSubmissionLoader = new FXMLLoader(getClass().getResource("/views/gamessInput.fxml"));
         Parent gamessSubmissionParent = gamessSubmissionLoader.load();
-        gamessInputController gamessCont = gamessSubmissionLoader.getController();
+        GamessInputController gamessCont = gamessSubmissionLoader.getController();
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
@@ -922,7 +913,7 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateGamessHistory () throws IOException {
+    public void calculateGamessHistory() throws IOException {
         LoginForm loginForm = new LoginForm("GAMESS");
         boolean authorized = loginForm.authenticate();
         if (authorized) {
@@ -947,7 +938,7 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateEditServers () throws IOException {
+    public void calculateEditServers() throws IOException {
         Parent serversList = FXMLLoader.load(getClass().getResource("/views/ServersList.fxml"));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
@@ -982,17 +973,17 @@ public class MainViewController {
     }
 
     @FXML
-    public void helpAbout () throws IOException {
+    public void helpAbout() throws IOException {
         Main.hostServices.showDocument("https://www.chem.purdue.edu/Slipchenko/");
     }
 
     @FXML
-    public void helpJmolWiki () throws IOException {
+    public void helpJmolWiki() throws IOException {
         Main.hostServices.showDocument("http://jmol.sourceforge.net/");
     }
 
     @FXML
-    public void helpJmolConsole () throws IOException {
+    public void helpJmolConsole() throws IOException {
         //create window for console
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JFrame consoleFrame = new JFrame();
@@ -1057,7 +1048,7 @@ stage.show();
      * Handle Selection Toggle Button. Select all atoms and highlight
      */
     @FXML
-    public void toggleSelection () {
+    public void toggleSelection() {
         if (selectionButton.isSelected()) {
             jmolMainPanel.viewer.runScript("selectionHalos on");
             jmolMainPanel.viewer.runScript("select all");
@@ -1073,7 +1064,7 @@ stage.show();
      * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
      */
     @FXML
-    public void toggleHalo () {
+    public void toggleHalo() {
         if (haloButton.isSelected()) {
             System.out.println("on");
             jmolMainPanel.viewer.runScript("selectionHalos on");
@@ -1089,7 +1080,7 @@ stage.show();
      * Handle Snip Button. Turn on and off ability to fragment molecules by clicking on bonds
      */
     @FXML
-    public void toggleSnip () {
+    public void toggleSnip() {
         if (snipButton.isSelected()) {
             jmolMainPanel.viewer.runScript("set bondpicking true");
             jmolMainPanel.viewer.runScript("set picking deletebond");
@@ -1535,7 +1526,7 @@ stage.show();
 //        stage.show();
 //
     }
-    public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
+//    public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
 //        File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
 //    try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
 //    }
@@ -1550,7 +1541,7 @@ stage.show();
 //                .collect(Collectors.joining(","));
 //    }
 
-//    public String escapeSpecialCharacters(String data) {
+    //    public String escapeSpecialCharacters(String data) {
 //        String escapedData = data.replaceAll("\\R", " ");
 //        if (data.contains(",") || data.contains("\"") || data.contains("'")) {
 //            data = data.replace("\"", "\"\"");
@@ -1628,77 +1619,77 @@ stage.show();
 //    /**
 //     * Handle Play Pause. Capture Molecule
 //     */
-//    @FXML
-//    public void togglePlay() {
-//        playPauseButton.setText("");
-//        playPauseButton.setSelected(false);
-//        playPauseButton.setGraphic(new ImageView(play));
-//        if (playPauseButton.isSelected()) {
-//            playPauseButton.setGraphic(new ImageView(pause));
-//            jmolMainPanel.viewer.runScript("frame play");
-//        } else {
-//            playPauseButton.setGraphic(new ImageView(play));
-//            jmolMainPanel.viewer.runScript("animation off");
-//        }
-//    }
-//
-//    /**
+    @FXML
+    public void togglePlay() {
+        playPauseButton.setText("");
+        playPauseButton.setSelected(false);
+        playPauseButton.setGraphic(new ImageView(play));
+        if (playPauseButton.isSelected()) {
+            playPauseButton.setGraphic(new ImageView(pause));
+            jmolMainPanel.viewer.runScript("frame play");
+        } else {
+            playPauseButton.setGraphic(new ImageView(play));
+            jmolMainPanel.viewer.runScript("animation off");
+        }
+    }
+
+    //    /**
 //     * Handle display console button. Display the terminal for scripting with jmol viewer
 //     */
-//    @FXML
-//    public void displayConsole() {
-//        //create window for console
-//        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-//        JFrame consoleFrame = new JFrame();
-//        consoleFrame.setSize(800, 400);
-//        consoleFrame.setLocation(
-//                (screenSize.width - 500) / 2,
-//                (screenSize.height) / 2);
-//        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//
-//        //create and connect panel with jmol console
-//        JPanel console_panel = new JPanel();
-//        console_panel.setLayout(new BorderLayout());
-//        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
-//                "Editor Font Variables History State Clear Help");
-//
-//        // Callback any scripts run in console to jmol viewer in main
-//        jmolMainPanel.viewer.setJmolCallbackListener(console);
-//
-//        //show console
-//        consoleFrame.getContentPane().add(console_panel);
-//        consoleFrame.setVisible(true);
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                consoleFrame.toFront();
-//                consoleFrame.repaint();
-//            }
-//        });
-//    }
-//
-//    /**
-//     * Handle the model kit button for making custom molecules
-//     */
-//    @FXML
-//    public void toggleModelKit() {
-//        if (modelKitButton.isSelected()) {
-//            jmolMainPanel.viewer.runScript("set modelKitMode true");
-//            jmolMainPanel.repaint();
-//        } else {
-//            jmolMainPanel.viewer.runScript("set modelKitMode false");
-//            jmolMainPanel.repaint();
-//        }
-//    }
-//
+    @FXML
+    public void displayConsole() {
+        //create window for console
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame consoleFrame = new JFrame();
+        consoleFrame.setSize(800, 400);
+        consoleFrame.setLocation(
+                (screenSize.width - 500) / 2,
+                (screenSize.height) / 2);
+        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        //create and connect panel with jmol console
+        JPanel console_panel = new JPanel();
+        console_panel.setLayout(new BorderLayout());
+        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
+                "Editor Font Variables History State Clear Help");
+
+        // Callback any scripts run in console to jmol viewer in main
+        jmolMainPanel.viewer.setJmolCallbackListener(console);
+
+        //show console
+        consoleFrame.getContentPane().add(console_panel);
+        consoleFrame.setVisible(true);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                consoleFrame.toFront();
+                consoleFrame.repaint();
+            }
+        });
+    }
+
+    /**
+     * Handle the model kit button for making custom molecules
+     */
+    @FXML
+    public void toggleModelKit() {
+        if (modelKitButton.isSelected()) {
+            jmolMainPanel.viewer.runScript("set modelKitMode true");
+            jmolMainPanel.repaint();
+        } else {
+            jmolMainPanel.viewer.runScript("set modelKitMode false");
+            jmolMainPanel.repaint();
+        }
+    }
+
 //    /**
 //     * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
 //     */
-//    @FXML
-//    public void libefp() {
-//        System.out.println("libefp button");
-//        //TODO need to call libefp constructor
-//    }
+    @FXML
+    public void libefp() {
+        System.out.println("libefp button");
+        //TODO need to call libefp constructor
+    }
 //
 //    public void VisualizeLibEFPResultFile() {
 //        try {
@@ -1753,7 +1744,7 @@ stage.show();
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-    }
+
 
     /******************************************************************************************
      *             ICON BUTTON HANDLER SECTION ENDS                                           *
