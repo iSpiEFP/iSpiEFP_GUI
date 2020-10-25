@@ -25,7 +25,7 @@
                     <Insets bottom="8.0" />
                 </padding>
             </AnchorPane>
-            <TextArea fx:id="submissionScriptTextArea" prefHeight="244.0" prefWidth="600.0" />
+            <TextArea fx:id="submissionScriptTextArea" prefHeight="244.0" prefWidth="600.0" maxHeight="244.0" minHeight="244.0"/>
             <ButtonBar maxHeight="-Infinity">
                 <buttons>
                     <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleSubmit" text="Submit">

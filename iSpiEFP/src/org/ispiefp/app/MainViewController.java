@@ -1,31 +1,29 @@
 package org.ispiefp.app;
 
-import javafx.beans.property.BooleanProperty;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
-import javafx.embed.swing.SwingFXUtils;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.scene.*;
-import javafx.scene.chart.*;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
-import javafx.stage.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.ispiefp.app.EFPFileRetriever.LibEFPtoCSV;
+//import org.ispiefp.app.gamess.gamessInputController;
+//import org.ispiefp.app.gamess.GamessInputController;
+import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.analysis.GeometryAnalysisController;
 import org.ispiefp.app.libEFP.OutputFile;
-import org.ispiefp.app.gamess.gamessInputController;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -34,36 +32,36 @@ import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.submission.SubmissionRecord;
 import org.ispiefp.app.util.*;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
-import org.ispiefp.app.database.DatabaseController;
+//import org.ispiefp.app.database.DatabaseController;
 import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.visualizer.JmolMainPanel;
+
 import org.ispiefp.app.visualizer.JmolPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.imageio.ImageIO;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.io.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 
 import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
 import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
-import static org.junit.Assert.assertTrue;
 
 public class MainViewController {
 
@@ -86,12 +84,6 @@ public class MainViewController {
     private ProgressIndicator pit = new ProgressIndicator();
 
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
-    private double upperXBound;
-    private double upperYBound;
-    private double maxXVal;
-    private double maxYVal;
-    private boolean xPressed;
-    private boolean yPressed;
 
     @FXML
     private Parent root;
@@ -162,18 +154,15 @@ public class MainViewController {
     public Button analysisStats;
 
     // History and Project List View
-    public ListView historyListView;
+    @FXML
+    private TreeView<String> historyTreeView;
+    @FXML
+    private TreeItem<String> historyRoot;
+
+    //private UserPreferences userPrefs = new UserPreferences();
+
     private String[] rec_files;
-    @FXML private TreeView<String> historyTreeView;
-    @FXML private TreeItem<String> historyRoot;
-
-
-    //NOTE: These variables are only modified by showGeomAnalysis()
-    double lastXPosition;
-    double lastYPosition;
-    String currUnitLabelStr;
-
-    Scene gridScene;
+    //private Menu recentMenu;
 
     /**
      * initialize(); is called after @FXML parameters have been loaded in
@@ -384,7 +373,6 @@ public class MainViewController {
      * @throws UnrecognizedAtomException
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
-
         openRecentMenu.getItems().clear();
         // pit.setProgress(100);
         FileChooser fileChooser = new FileChooser();
@@ -557,12 +545,11 @@ public class MainViewController {
         stage.setScene(new Scene(fragmentSelector));
 
         try {
-            stage.showAndWait();
-        }
-        catch (Exception e) {
+            stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+        } catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
-
+        // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
         File xyzFile;
 
         try {
@@ -1086,7 +1073,7 @@ stage.show();
      * Handle Halo Toggle Button. Turn On and Off golden rings around molecules
      */
     @FXML
-    public void toggleHalo() {
+    public void toggleHalo () {
         if (haloButton.isSelected()) {
             System.out.println("on");
             jmolMainPanel.viewer.runScript("selectionHalos on");
@@ -1549,223 +1536,223 @@ stage.show();
 //
     }
     public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
-        File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
-    try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
-    }
-    assertTrue(csvOutputFile.exists());
-    }
+//        File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
+//    try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
+//    }
+//    assertTrue(csvOutputFile.exists());
+//    }
+//
+//
+//
+//    public String convertToCSV(String[] data) {
+//        return Stream.of(data)
+//                .map(this::escapeSpecialCharacters)
+//                .collect(Collectors.joining(","));
+//    }
 
-
-
-    public String convertToCSV(String[] data) {
-        return Stream.of(data)
-                .map(this::escapeSpecialCharacters)
-                .collect(Collectors.joining(","));
-    }
-
-    public String escapeSpecialCharacters(String data) {
-        String escapedData = data.replaceAll("\\R", " ");
-        if (data.contains(",") || data.contains("\"") || data.contains("'")) {
-            data = data.replace("\"", "\"\"");
-            escapedData = "\"" + data + "\"";
-        }
-        return escapedData;
-    }
-
-    public int getExponent(double bound) {
-        int pow = 0;
-        int boundInt = (int) bound;
-
-        boundInt /= 10;
-        while (boundInt != 0) {
-            pow++;
-            boundInt /= 10;
-        }
-        return pow;
-    }
-
-    public void showErrorDialog(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error!");
-        alert.setHeaderText("Number Entry Error");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    @FXML
-    public void showEnergyAnalysis() {
-
-        Stage stage = new Stage();
-        stage.setTitle("Energy Analysis");
-
-        CategoryAxis xAxis = new CategoryAxis();
-        xAxis.setLabel("Total");
-        NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Energy (kcal/mol)");
-        yAxis.setTickUnit(100);
-
-        BarChart chart = new BarChart(xAxis, yAxis);
-
-        XYChart.Series dataSeries1 = new XYChart.Series();
-
-       dataSeries1.setName("Dummy Vals");
-
-        double electrostatVal = -30.0;
-        double exchRepulsVal = 40.0;
-        double polarVal = -12.5;
-        double dispersVal = -20.0;
-        double totalVal = electrostatVal + exchRepulsVal + polarVal + dispersVal;
-
-        VBox vBox = new VBox(chart);
-        Scene scene = new Scene(vBox, 800, 800);
-
-        scene.getStylesheets().add("bar_styles.css");
-
-
-        dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
-        dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
-        dataSeries1.getData().add(new XYChart.Data("Polarization", polarVal));
-        dataSeries1.getData().add(new XYChart.Data("Dispersion", dispersVal));
-        dataSeries1.getData().add(new XYChart.Data("Total", totalVal));
-
-        chart.getData().add(dataSeries1);
-
-       // System.out.println("Chart Width: " + chart.getWidth());        //chart.setMaxWidth(50);
-
-        chart.setMaxWidth(500);
-        stage.setScene(scene);
-        stage.setHeight(450);
-        stage.setWidth(500);
-        stage.show();
-    }
-    /**
-     * Handle Play Pause. Capture Molecule
-     */
-    @FXML
-    public void togglePlay() {
-        playPauseButton.setText("");
-        playPauseButton.setSelected(false);
-        playPauseButton.setGraphic(new ImageView(play));
-        if (playPauseButton.isSelected()) {
-            playPauseButton.setGraphic(new ImageView(pause));
-            jmolMainPanel.viewer.runScript("frame play");
-        } else {
-            playPauseButton.setGraphic(new ImageView(play));
-            jmolMainPanel.viewer.runScript("animation off");
-        }
-    }
-
-    /**
-     * Handle display console button. Display the terminal for scripting with jmol viewer
-     */
-    @FXML
-    public void displayConsole() {
-        //create window for console
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        JFrame consoleFrame = new JFrame();
-        consoleFrame.setSize(800, 400);
-        consoleFrame.setLocation(
-                (screenSize.width - 500) / 2,
-                (screenSize.height) / 2);
-        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        //create and connect panel with jmol console
-        JPanel console_panel = new JPanel();
-        console_panel.setLayout(new BorderLayout());
-        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
-                "Editor Font Variables History State Clear Help");
-
-        // Callback any scripts run in console to jmol viewer in main
-        jmolMainPanel.viewer.setJmolCallbackListener(console);
-
-        //show console
-        consoleFrame.getContentPane().add(console_panel);
-        consoleFrame.setVisible(true);
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                consoleFrame.toFront();
-                consoleFrame.repaint();
-            }
-        });
-    }
-
-    /**
-     * Handle the model kit button for making custom molecules
-     */
-    @FXML
-    public void toggleModelKit() {
-        if (modelKitButton.isSelected()) {
-            jmolMainPanel.viewer.runScript("set modelKitMode true");
-            jmolMainPanel.repaint();
-        } else {
-            jmolMainPanel.viewer.runScript("set modelKitMode false");
-            jmolMainPanel.repaint();
-        }
-    }
-
-    /**
-     * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
-     */
-    @FXML
-    public void libefp() {
-        System.out.println("libefp button");
-        //TODO need to call libefp constructor
-    }
-
-    public void VisualizeLibEFPResultFile() {
-        try {
-            File outFile = new File("iSpiEFP/pbc_1.out");
-            File tempOutFile = new File("testTemp.xyz");
-
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
-
-            boolean startOfGeometry = false;
-            boolean moleculeRead = false;
-            int count = 0;
-            String finalOut = "";
-            int maxStep = 0;
-
-            while (true) {
-                String line = bufferedReader.readLine();
-                if (line == null) break;
-                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
-                else if (line.contains("FINAL STATE")) startOfGeometry = true;
-                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
-                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
-                else if (startOfGeometry) {
-                    line = line.replaceAll(" +", " ");
-                    String[] unprocessedLine = line.split(" ");
-                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
-                        if (moleculeRead) break;
-                    } else {
-                        moleculeRead = true;
-                        for (String s : unprocessedLine) {
-                            if (s.equals("")) continue;
-                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
-                            else finalOut += s;
-                            finalOut += " ";
-                        }
-                        finalOut += '\n';
-                        count++;
-                    }
-                }
-            }
-
-            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
-
-            bufferedWriter.write(finalOut);
-            bufferedWriter.close();
-            bufferedReader.close();
-
-            jmolMainPanel.removeAll();
-            jmolMainPanel.openFile(tempOutFile);
-
-            tempOutFile.delete();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//    public String escapeSpecialCharacters(String data) {
+//        String escapedData = data.replaceAll("\\R", " ");
+//        if (data.contains(",") || data.contains("\"") || data.contains("'")) {
+//            data = data.replace("\"", "\"\"");
+//            escapedData = "\"" + data + "\"";
+//        }
+//        return escapedData;
+//    }
+//
+//    public int getExponent(double bound) {
+//        int pow = 0;
+//        int boundInt = (int) bound;
+//
+//        boundInt /= 10;
+//        while (boundInt != 0) {
+//            pow++;
+//            boundInt /= 10;
+//        }
+//        return pow;
+//    }
+//
+//    public void showErrorDialog(String message) {
+//        Alert alert = new Alert(Alert.AlertType.ERROR);
+//        alert.setTitle("Error!");
+//        alert.setHeaderText("Number Entry Error");
+//        alert.setContentText(message);
+//        alert.showAndWait();
+//    }
+//
+//    @FXML
+//    public void showEnergyAnalysis() {
+//
+////        Stage stage = new Stage();
+//        stage.setTitle("Energy Analysis");
+//
+//        CategoryAxis xAxis = new CategoryAxis();
+//        xAxis.setLabel("Total");
+//        NumberAxis yAxis = new NumberAxis();
+//        yAxis.setLabel("Energy (kcal/mol)");
+//        yAxis.setTickUnit(100);
+//
+//        BarChart chart = new BarChart(xAxis, yAxis);
+//
+//        XYChart.Series dataSeries1 = new XYChart.Series();
+//
+//       dataSeries1.setName("Dummy Vals");
+//
+//        double electrostatVal = -30.0;
+//        double exchRepulsVal = 40.0;
+//        double polarVal = -12.5;
+//        double dispersVal = -20.0;
+//        double totalVal = electrostatVal + exchRepulsVal + polarVal + dispersVal;
+//
+//        VBox vBox = new VBox(chart);
+//        Scene scene = new Scene(vBox, 800, 800);
+//
+//        scene.getStylesheets().add("bar_styles.css");
+//
+//
+//        dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
+//        dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
+//        dataSeries1.getData().add(new XYChart.Data("Polarization", polarVal));
+//        dataSeries1.getData().add(new XYChart.Data("Dispersion", dispersVal));
+//        dataSeries1.getData().add(new XYChart.Data("Total", totalVal));
+//
+//        chart.getData().add(dataSeries1);
+//
+//       // System.out.println("Chart Width: " + chart.getWidth());        //chart.setMaxWidth(50);
+//
+//        chart.setMaxWidth(500);
+//        stage.setScene(scene);
+//        stage.setHeight(450);
+//        stage.setWidth(500);
+//        stage.show();
+//    }
+//    /**
+//     * Handle Play Pause. Capture Molecule
+//     */
+//    @FXML
+//    public void togglePlay() {
+//        playPauseButton.setText("");
+//        playPauseButton.setSelected(false);
+//        playPauseButton.setGraphic(new ImageView(play));
+//        if (playPauseButton.isSelected()) {
+//            playPauseButton.setGraphic(new ImageView(pause));
+//            jmolMainPanel.viewer.runScript("frame play");
+//        } else {
+//            playPauseButton.setGraphic(new ImageView(play));
+//            jmolMainPanel.viewer.runScript("animation off");
+//        }
+//    }
+//
+//    /**
+//     * Handle display console button. Display the terminal for scripting with jmol viewer
+//     */
+//    @FXML
+//    public void displayConsole() {
+//        //create window for console
+//        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+//        JFrame consoleFrame = new JFrame();
+//        consoleFrame.setSize(800, 400);
+//        consoleFrame.setLocation(
+//                (screenSize.width - 500) / 2,
+//                (screenSize.height) / 2);
+//        consoleFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//
+//        //create and connect panel with jmol console
+//        JPanel console_panel = new JPanel();
+//        console_panel.setLayout(new BorderLayout());
+//        AppConsole console = new AppConsole(jmolMainPanel.viewer, console_panel,
+//                "Editor Font Variables History State Clear Help");
+//
+//        // Callback any scripts run in console to jmol viewer in main
+//        jmolMainPanel.viewer.setJmolCallbackListener(console);
+//
+//        //show console
+//        consoleFrame.getContentPane().add(console_panel);
+//        consoleFrame.setVisible(true);
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                consoleFrame.toFront();
+//                consoleFrame.repaint();
+//            }
+//        });
+//    }
+//
+//    /**
+//     * Handle the model kit button for making custom molecules
+//     */
+//    @FXML
+//    public void toggleModelKit() {
+//        if (modelKitButton.isSelected()) {
+//            jmolMainPanel.viewer.runScript("set modelKitMode true");
+//            jmolMainPanel.repaint();
+//        } else {
+//            jmolMainPanel.viewer.runScript("set modelKitMode false");
+//            jmolMainPanel.repaint();
+//        }
+//    }
+//
+//    /**
+//     * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
+//     */
+//    @FXML
+//    public void libefp() {
+//        System.out.println("libefp button");
+//        //TODO need to call libefp constructor
+//    }
+//
+//    public void VisualizeLibEFPResultFile() {
+//        try {
+//            File outFile = new File("iSpiEFP/pbc_1.out");
+//            File tempOutFile = new File("testTemp.xyz");
+//
+//            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
+//            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
+//
+//            boolean startOfGeometry = false;
+//            boolean moleculeRead = false;
+//            int count = 0;
+//            String finalOut = "";
+//            int maxStep = 0;
+//
+//            while (true) {
+//                String line = bufferedReader.readLine();
+//                if (line == null) break;
+//                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
+//                else if (line.contains("FINAL STATE")) startOfGeometry = true;
+//                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
+//                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
+//                else if (startOfGeometry) {
+//                    line = line.replaceAll(" +", " ");
+//                    String[] unprocessedLine = line.split(" ");
+//                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
+//                        if (moleculeRead) break;
+//                    } else {
+//                        moleculeRead = true;
+//                        for (String s : unprocessedLine) {
+//                            if (s.equals("")) continue;
+//                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
+//                            else finalOut += s;
+//                            finalOut += " ";
+//                        }
+//                        finalOut += '\n';
+//                        count++;
+//                    }
+//                }
+//            }
+//
+//            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
+//
+//            bufferedWriter.write(finalOut);
+//            bufferedWriter.close();
+//            bufferedReader.close();
+//
+//            jmolMainPanel.removeAll();
+//            jmolMainPanel.openFile(tempOutFile);
+//
+//            tempOutFile.delete();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     /******************************************************************************************
