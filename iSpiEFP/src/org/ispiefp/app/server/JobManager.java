@@ -44,16 +44,21 @@ public class JobManager implements Runnable {
         this.username = username;
         this.password = password;
         this.hostname = hostname;
-        this.title = title;
+        this.title = title.replaceAll("(?<!\\\\) ", "\\ ");
         this.localWorkingDirectory = localWorkingDirectory;
-        this.remoteWorkingDirectory = "iSpiClient/Libefp/jobs/" + title + "/";
         this.jobID = jobID;
         this.date = date;
         this.status = status;
         this.type = type;
         if (type.equalsIgnoreCase("LIBEFP")){
-            outputFilename = remoteWorkingDirectory + "output/" + title + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + title + ".err";
+            remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title + "/";
+            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
+        } else if (type.equalsIgnoreCase("GAMESS")) {
+            remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title + "/";
+            System.out.println("JobManager 59: " + remoteWorkingDirectory + "|" + this.title);
+            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
         }
     }
 
@@ -62,14 +67,20 @@ public class JobManager implements Runnable {
         server = si;
         this.localWorkingDirectory = localWorkingDirectory;
         this.jobID = jobID;
-        this.title = title;
+        this.title = title.replace(" ", "\\ ");
+        System.out.println("Job Manager 71:" + this.title + "|");
         this.date = date;
         this.status = status;
         this.type = type;
-        this.remoteWorkingDirectory = "iSpiClient/Libefp/jobs/" + title + "/";
         if (type.equalsIgnoreCase("LIBEFP")){
-            outputFilename = remoteWorkingDirectory + "output/" + title + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + title + ".err";
+            remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title + "/";
+            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
+        } else if (type.equalsIgnoreCase("GAMESS")) {
+            remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title + "/";
+            System.out.println("JobManager 80: " + remoteWorkingDirectory + "|" + this.title);
+            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
         }
         this.keyPassword = keyPassword;
     }
@@ -96,7 +107,7 @@ public class JobManager implements Runnable {
      */
     public boolean checkStatus(String jobID) throws IOException {
         boolean jobIsDone = false;
-
+        System.out.println("JobManager 108: " + remoteWorkingDirectory + "output/" + title + ".out");
         org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
@@ -105,21 +116,22 @@ public class JobManager implements Runnable {
         try {
             if (this.type != null) {
                 if (this.type.equals("LIBEFP")) {
-                    System.out.println(remoteWorkingDirectory);
                     scpos = scp.get(remoteWorkingDirectory + "output/" + title + ".out");
                     scpos.close();
                     jobIsDone = true;
                 } else if (this.type.equals("GAMESS")) {
-
-                    scpos = scp.get("iSpiClient/Gamess/src/gamess_" + jobID + ".log");
+                    String path = remoteWorkingDirectory + "output/" + title + ".out";
+                    System.out.println("Job Manager 125: " + path);
+                    scpos = scp.get(path);
                     scpos.close();
                     jobIsDone = true;
                 }
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
-//            e.printStackTrace();
+            e.printStackTrace();
             System.out.printf("Job: %s is running!%n", jobID);
+            System.out.println(e.getMessage());
         }
         conn.close();
         return jobIsDone;
@@ -140,8 +152,8 @@ public class JobManager implements Runnable {
      * Start a thread that watches a specific job and send a notification when the jobs completes
      */
     public void watchJobStatus() {
-        (new Thread(new JobManager(this.username, this.password, this.hostname, this.localWorkingDirectory,
-                this.jobID, this.title, this.date, this.status, this.type))).start();
+        (new Thread(new JobManager(this.server, this.localWorkingDirectory,
+                this.jobID, this.title.replace("\\ ", ""), this.date, this.status, this.type, this.keyPassword))).start();
     }
 
     /*
@@ -379,7 +391,7 @@ public class JobManager implements Runnable {
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+//            e.printStackTrace();
             conn.close();
         } finally {
             if (scpos != null) {
@@ -429,6 +441,8 @@ public class JobManager implements Runnable {
     public org.ispiefp.app.util.Connection getConn() {
         return conn;
     }
+
+    public ServerInfo getServer() {return server;}
 
     public String getDate() {
         return date;

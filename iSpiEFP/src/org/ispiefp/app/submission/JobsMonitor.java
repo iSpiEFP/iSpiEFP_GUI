@@ -110,6 +110,7 @@ public class JobsMonitor implements Runnable {
     }
 
     public void retrieveJob(JobManager jm) {
+        System.out.println("Jobs Monitor 113: Retrieving jobs");
         String outputFileContents = "";
         String errorFileContents = "";
         String outputFilePath = jm.getOutputFilename();

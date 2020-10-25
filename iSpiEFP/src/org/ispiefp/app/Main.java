@@ -11,6 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.ispiefp.app.MetaData.*;
+import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.util.TermsofAgreement;
 import org.ispiefp.app.util.UserPreferences;
 import org.ispiefp.app.util.VerifyPython;
@@ -80,7 +81,6 @@ public class Main extends Application {
     public void stop() throws Exception {
         super.stop();
         UserPreferences.setJobsMonitorBeforeExit(UserPreferences.getJobsMonitor().toJson());
-        UserPreferences.clearJobsMonitor();
         System.exit(0);
     }
 

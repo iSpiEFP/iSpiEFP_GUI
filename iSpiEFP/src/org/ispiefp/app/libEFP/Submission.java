@@ -20,11 +20,12 @@ import java.util.Optional;
 public abstract class Submission {
 
     /* Refers to the type of scheduling system that the server the job was submitted to uses */
-    private enum SchedulingType{
+    private enum SchedulingType {
         PBS,
         SLURM,
         TORQUE
     }
+
     /* Class specific fields */
     String submissionType;
     /* Server commands and fields */
@@ -54,53 +55,59 @@ public abstract class Submission {
     String inputFilePath;
     String outputFilename;
 
-    public static String REMOTE_LIBEFP_DIR  = "iSpiClient/Libefp/";
+    public static String REMOTE_LIBEFP_DIR = "~/iSpiClient/Libefp/";
     public static String REMOTE_LIBEFP_JOBS = REMOTE_LIBEFP_DIR + "jobs/";
     public String REMOTE_LIBEFP_IN;
     public String REMOTE_LIBEFP_OUT;
     public String REMOTE_LIBEFP_FRAGS;
-    public static String REMOTE_GAMESS_DIR = "iSpiClient/Gamess/";
+    public static String REMOTE_GAMESS_DIR = "~/iSpiClient/Gamess/";
     public static String REMOTE_GAMESS_JOBS = REMOTE_GAMESS_DIR + "jobs/";
     public String REMOTE_GAMESS_IN;
     public String REMOTE_GAMESS_OUT;
 
-    public Submission(ServerInfo server, String jobName, String submissionType){
-        assert(submissionType.equalsIgnoreCase("LIBEFP") || submissionType.equalsIgnoreCase("GAMESS"));
+    public Submission(ServerInfo server, String jobName, String submissionType) {
+        assert (submissionType.equalsIgnoreCase("LIBEFP") || submissionType.equalsIgnoreCase("GAMESS"));
         this.submissionType = submissionType;
         this.server = server;
         hostname = server.getHostname();
         username = server.getUsername();
         password = server.getPassword();
-        if (server.hasLibEFP()){
+        if (server.hasLibEFP()) {
             efpmdPath = server.getLibEFPPath();
         }
-        if (server.hasGAMESS()){
+        if (server.hasGAMESS()) {
             gamessPath = server.getGamessPath();
         }
         this.jobName = jobName;
-        REMOTE_LIBEFP_FRAGS = REMOTE_LIBEFP_JOBS + jobName + "/fraglib/";
-        REMOTE_LIBEFP_OUT = REMOTE_LIBEFP_JOBS + jobName +"/output/";
-        REMOTE_LIBEFP_IN = REMOTE_LIBEFP_JOBS + jobName +"/input/";
-        REMOTE_GAMESS_OUT = REMOTE_GAMESS_JOBS + jobName + "/output/";
-        REMOTE_GAMESS_IN = REMOTE_GAMESS_JOBS + jobName + "/input/";
+        REMOTE_LIBEFP_FRAGS = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "\\ ") + "/fraglib/";
+        REMOTE_LIBEFP_OUT = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "\\ ") + "/output/";
+        REMOTE_LIBEFP_IN = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "\\ ") + "/input/";
+        REMOTE_GAMESS_OUT = REMOTE_GAMESS_JOBS + jobName.replace(" ", "\\ ") + "/output/";
+        REMOTE_GAMESS_IN = REMOTE_GAMESS_JOBS + jobName.replace(" ", "\\ ") + "/input/";
         setInputFilename(jobName);
         setOutputFilename(jobName);
         setSchedulerOutputName(jobName);
     }
 
-    public Submission(){
+    public Submission() {
         super();
     }
+
     public abstract String submit(String input, String pemKey);
+
     abstract File createSubmissionScript(String input) throws IOException;
+
     public abstract String getLibEFPSubmissionScriptText();
+
     public abstract String getGAMESSSubmissionScriptText();
+
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
-    public boolean createJobWorkspace(String jobID, String pemKey){
+    public boolean createJobWorkspace(String inputJobId, String pemKey) {
+        String jobID = inputJobId.replace(" ", "\\ ");
         String jobDirectory = getJobDirectory(jobID);
         String command = submissionType.equalsIgnoreCase("LIBEFP") ?
-                String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib", jobDirectory, jobDirectory) :
+                String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib;", jobDirectory, jobDirectory) :
                 String.format("mkdir %s; cd %s; mkdir input; mkdir output;", jobDirectory, jobDirectory);
         setInputFilename(jobID);
         setOutputFilename(jobID);
@@ -144,19 +151,19 @@ public abstract class Submission {
 
                 Optional<ButtonType> choice = directoryAlreadyExistsDialog.showAndWait();
 
-                if (!choice.isPresent() || choice.get().getButtonData().isCancelButton()){
+                if (!choice.isPresent() || choice.get().getButtonData().isCancelButton()) {
                     System.err.println("User wants to rename the directory so as to not overwrite a job. Returning...");
                     return false;
                 }
 
-            } catch(IOException e){
+            } catch (IOException e) {
                 System.err.println("This directory does not exist");
             }
             s.execCommand(command);
             System.out.println("Executed command: " + command);
             s.close();
             return true;
-        } catch (IOException e){
+        } catch (IOException e) {
             return false;
         }
     }
@@ -167,6 +174,9 @@ public abstract class Submission {
         if (authorized) {
             /* Copy input file to the server */
             SCPClient scp = con.createSCPClient();
+            System.out.println("Submission 178: ");
+            System.out.println(inputFilePath);
+            System.out.println(getJobInputDirectory());
             SCPOutputStream scpos = scp.put(inputFilePath, inputFile.length(), getJobInputDirectory(), "0666");
             FileInputStream in = new FileInputStream(inputFile);
             IOUtils.copy(in, scpos);
@@ -187,8 +197,7 @@ public abstract class Submission {
             Session sess = con.openSession();
             sess.close();
             return true;
-        }
-        else {
+        } else {
             System.err.println("Was unable to authenticate the user");
             return false;
         }
@@ -220,8 +229,7 @@ public abstract class Submission {
                 }
             }
             return true;
-        }
-        else {
+        } else {
             System.err.println("Was unable to authenticate the user");
             return false;
         }
@@ -271,48 +279,88 @@ public abstract class Submission {
         this.username = username;
     }
 
-    public void setInputFilename(String filename){ this.inputFilePath = submissionType.equalsIgnoreCase("LIBEFP") ?
-            filename + ".in" : filename + ".inp"; }
+    public void setInputFilename(String filename) {
+        this.inputFilePath = submissionType.equalsIgnoreCase("LIBEFP") ?
+                filename + ".in" : filename + ".inp";
+    }
 
-    public void setOutputFilename(String outputFilename) { this.outputFilename = outputFilename + ".out"; }
+    public void setOutputFilename(String outputFilename) {
+        this.outputFilename = outputFilename + ".out";
+    }
 
-    public void setSchedulerOutputName(String filename) { this.schedulerOutputName = filename + ".err"; }
+    public void setSchedulerOutputName(String filename) {
+        this.schedulerOutputName = filename + ".err";
+    }
 
-    public String getJobDirectory(String jobName){ return submissionType.equalsIgnoreCase("LIBEFP") ?
+    public String getJobDirectory(String jobName) {
+        return submissionType.equalsIgnoreCase("LIBEFP") ?
                 REMOTE_LIBEFP_JOBS + jobName + "/" :
-            REMOTE_GAMESS_JOBS + jobName + "/"; }
+                REMOTE_GAMESS_JOBS + jobName + "/";
+    }
 
-    public String getUsername() { return username; }
+    public String getUsername() {
+        return username;
+    }
 
-    public String getHostname() { return hostname; }
+    public String getHostname() {
+        return hostname;
+    }
 
-    public String getPassword() { return password; }
+    public String getPassword() {
+        return password;
+    }
 
-    public String getJobName() { return jobName; }
+    public String getJobName() {
+        return jobName;
+    }
 
-    public String getInputFilePath() { return inputFilePath; }
+    public String getInputFilePath() {
+        return inputFilePath;
+    }
 
-    public String getOutputFilename() { return outputFilename; }
+    public String getOutputFilename() {
+        return outputFilename;
+    }
 
-    public String getSchedulerOutputName() { return schedulerOutputName; }
+    public String getSchedulerOutputName() {
+        return schedulerOutputName;
+    }
 
-    public String getSubmissionType() { return submissionType; }
+    public String getSubmissionType() {
+        return submissionType;
+    }
 
-    public void setQueueName(String name){ queueName = name; }
+    public void setQueueName(String name) {
+        queueName = name;
+    }
 
-    public void setNumNodes(int numNodes) { this.numNodes = numNodes; }
+    public void setNumNodes(int numNodes) {
+        this.numNodes = numNodes;
+    }
 
-    public void setNumProcessors(int numProcessors) { this.numProcessors = numProcessors; }
+    public void setNumProcessors(int numProcessors) {
+        this.numProcessors = numProcessors;
+    }
 
-    public void setWalltime(String walltime) { this.walltime = walltime; }
+    public void setWalltime(String walltime) {
+        this.walltime = walltime;
+    }
 
-    public void setMem(int mem) { this.mem = mem; }
+    public void setMem(int mem) {
+        this.mem = mem;
+    }
 
-    public String getJobInputDirectory() { return submissionType.equalsIgnoreCase("LIBEFP") ?
-            REMOTE_LIBEFP_IN : REMOTE_GAMESS_IN; }
+    public String getJobInputDirectory() {
+        return submissionType.equalsIgnoreCase("LIBEFP") ?
+                REMOTE_LIBEFP_IN : REMOTE_GAMESS_IN;
+    }
 
-    public String getJobOutputDirectory() { return submissionType.equalsIgnoreCase("LIBEFP") ?
-            REMOTE_LIBEFP_OUT : REMOTE_GAMESS_OUT; }
+    public String getJobOutputDirectory() {
+        return submissionType.equalsIgnoreCase("LIBEFP") ?
+                REMOTE_LIBEFP_OUT : REMOTE_GAMESS_OUT;
+    }
 
-    public String getJobFragmentDirectory() { return REMOTE_LIBEFP_JOBS; }
+    public String getJobFragmentDirectory() {
+        return REMOTE_LIBEFP_JOBS;
+    }
 }

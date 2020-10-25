@@ -21,6 +21,7 @@ import org.ispiefp.app.libEFP.Submission;
 import org.ispiefp.app.libEFP.SubmissionScriptTemplateViewController;
 import org.ispiefp.app.libEFP.slurmSubmission;
 import org.ispiefp.app.server.*;
+import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.UserPreferences;
 import org.jmol.modelset.Bond;
@@ -287,16 +288,18 @@ public class GamessInputController implements Initializable {
         Date date = new Date();
         String currentTime = dateFormat.format(date.getTime());
 
-        System.out.printf("SUBMISSION TIME: %s\n\n\n\n\n", currentTime);
-
         String time = currentTime; //equivalent but in different formats
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
         currentTime = dateFormat.format(date.getTime());
         JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
                 submission.getOutputFilename(), title.getText(),
-                currentTime, "QUEUE", "LIBEFP", keyPassword);
+                currentTime, "QUEUE", "GAMESS", keyPassword);
         UserPreferences.getJobsMonitor().addJob(jobManager);
+        System.out.println("GamessInputController 299: ");
+        for (JobManager job : UserPreferences.getJobsMonitor().getJobs()) {
+            System.out.println(job.toString());
+        }
         Stage currentStage = (Stage) root.getScene().getWindow();
         currentStage.close();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
