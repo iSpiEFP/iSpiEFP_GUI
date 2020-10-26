@@ -180,9 +180,6 @@ public class SCPClient {
 
         String cmd = "scp -t -d " + remoteTargetDirectory;
 
-        System.out.println(cmd);
-        System.out.println("SCPClient 184: " + remoteFile);
-
         sess = conn.openSession();
         sess.execCommand(cmd, charsetName);
 
@@ -200,8 +197,6 @@ public class SCPClient {
     public SCPInputStream get(final String remoteFile) throws IOException {
         Session sess = null;
 
-        System.out.println("SCPClient 203: " + remoteFile);
-
         if (null == remoteFile)
             throw new IllegalArgumentException("Null argument.");
 
@@ -212,8 +207,6 @@ public class SCPClient {
 
         sess = conn.openSession();
         sess.execCommand(cmd, charsetName);
-
-        System.out.println("SCPClient 215: " + cmd);
 
         return new SCPInputStream(this, sess);
     }

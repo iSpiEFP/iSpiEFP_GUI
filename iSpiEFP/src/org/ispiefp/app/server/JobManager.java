@@ -104,7 +104,6 @@ public class JobManager implements Runnable {
      */
     public boolean checkStatus(String jobID) throws IOException {
         boolean jobIsDone = false;
-        System.out.println("JobManager 108: " + remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
         org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
@@ -117,16 +116,14 @@ public class JobManager implements Runnable {
                     scpos.close();
                     jobIsDone = true;
                 } else if (this.type.equals("GAMESS")) {
-                    String path = remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out";
-                    System.out.println("Job Manager 125: " + path);
-                    scpos = scp.get(path);
+                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
                     scpos.close();
                     jobIsDone = true;
                 }
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+//            e.printStackTrace();
             System.out.printf("Job: %s is running!%n", jobID);
             System.out.println(e.getMessage());
         }

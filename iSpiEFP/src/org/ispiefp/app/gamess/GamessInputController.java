@@ -296,10 +296,7 @@ public class GamessInputController implements Initializable {
                 submission.getOutputFilename(), title.getText(),
                 currentTime, "QUEUE", "GAMESS", keyPassword);
         UserPreferences.getJobsMonitor().addJob(jobManager);
-        System.out.println("GamessInputController 299: ");
-        for (JobManager job : UserPreferences.getJobsMonitor().getJobs()) {
-            System.out.println(job.toString());
-        }
+
         Stage currentStage = (Stage) root.getScene().getWindow();
         currentStage.close();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

@@ -174,9 +174,6 @@ public abstract class Submission {
         if (authorized) {
             /* Copy input file to the server */
             SCPClient scp = con.createSCPClient();
-            System.out.println("Submission 178: ");
-            System.out.println(inputFilePath);
-            System.out.println(getJobInputDirectory());
             SCPOutputStream scpos = scp.put(inputFilePath, inputFile.length(), getJobInputDirectory(), "0666");
             FileInputStream in = new FileInputStream(inputFile);
             IOUtils.copy(in, scpos);
