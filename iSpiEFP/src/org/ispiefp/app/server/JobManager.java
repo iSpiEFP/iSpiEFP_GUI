@@ -44,21 +44,20 @@ public class JobManager implements Runnable {
         this.username = username;
         this.password = password;
         this.hostname = hostname;
-        this.title = title.replaceAll("(?<!\\\\) ", "\\ ");
+        this.title = title;
         this.localWorkingDirectory = localWorkingDirectory;
         this.jobID = jobID;
         this.date = date;
         this.status = status;
         this.type = type;
         if (type.equalsIgnoreCase("LIBEFP")){
-            remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title + "/";
-            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
+            remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title.replace(" ", "_") + "/";
+            outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         } else if (type.equalsIgnoreCase("GAMESS")) {
-            remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title + "/";
-            System.out.println("JobManager 59: " + remoteWorkingDirectory + "|" + this.title);
-            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
+            remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title.replace(" ", "_") + "/";
+            outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         }
     }
 
@@ -67,20 +66,18 @@ public class JobManager implements Runnable {
         server = si;
         this.localWorkingDirectory = localWorkingDirectory;
         this.jobID = jobID;
-        this.title = title.replace(" ", "\\ ");
-        System.out.println("Job Manager 71:" + this.title + "|");
+        this.title = title;
         this.date = date;
         this.status = status;
         this.type = type;
         if (type.equalsIgnoreCase("LIBEFP")){
-            remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title + "/";
-            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
+            remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title.replace(" ", "_") + "/";
+            outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         } else if (type.equalsIgnoreCase("GAMESS")) {
-            remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title + "/";
-            System.out.println("JobManager 80: " + remoteWorkingDirectory + "|" + this.title);
-            outputFilename = remoteWorkingDirectory + "output/" + this.title + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title + ".err";
+            remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title.replace(" ", "_") + "/";
+            outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
+            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         }
         this.keyPassword = keyPassword;
     }
@@ -107,7 +104,7 @@ public class JobManager implements Runnable {
      */
     public boolean checkStatus(String jobID) throws IOException {
         boolean jobIsDone = false;
-        System.out.println("JobManager 108: " + remoteWorkingDirectory + "output/" + title + ".out");
+        System.out.println("JobManager 108: " + remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
         org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
@@ -116,11 +113,11 @@ public class JobManager implements Runnable {
         try {
             if (this.type != null) {
                 if (this.type.equals("LIBEFP")) {
-                    scpos = scp.get(remoteWorkingDirectory + "output/" + title + ".out");
+                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
                     scpos.close();
                     jobIsDone = true;
                 } else if (this.type.equals("GAMESS")) {
-                    String path = remoteWorkingDirectory + "output/" + title + ".out";
+                    String path = remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out";
                     System.out.println("Job Manager 125: " + path);
                     scpos = scp.get(path);
                     scpos.close();
@@ -153,7 +150,7 @@ public class JobManager implements Runnable {
      */
     public void watchJobStatus() {
         (new Thread(new JobManager(this.server, this.localWorkingDirectory,
-                this.jobID, this.title.replace("\\ ", ""), this.date, this.status, this.type, this.keyPassword))).start();
+                this.jobID, this.title, this.date, this.status, this.type, this.keyPassword))).start();
     }
 
     /*

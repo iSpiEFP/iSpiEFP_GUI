@@ -30,7 +30,7 @@ public class slurmSubmission extends Submission {
     }
 
     public slurmSubmission(ServerInfo server, String jobName, String submissionType){
-        super(server, jobName, submissionType);
+        super(server, jobName.replace(" ", "_"), submissionType);
     }
 
     File createSubmissionScript(String input) throws IOException {

@@ -313,6 +313,7 @@ public class GamessInputController implements Initializable {
         BufferedWriter output = null;
         File file;
         try {
+            System.out.println("INPUT CONTROLLER: " + inputFileName);
             file = new File(inputFileName);
             file.deleteOnExit();
             output = new BufferedWriter(new FileWriter(file));

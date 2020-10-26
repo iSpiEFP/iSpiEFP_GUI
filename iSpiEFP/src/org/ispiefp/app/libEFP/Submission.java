@@ -79,11 +79,11 @@ public abstract class Submission {
             gamessPath = server.getGamessPath();
         }
         this.jobName = jobName;
-        REMOTE_LIBEFP_FRAGS = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "\\ ") + "/fraglib/";
-        REMOTE_LIBEFP_OUT = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "\\ ") + "/output/";
-        REMOTE_LIBEFP_IN = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "\\ ") + "/input/";
-        REMOTE_GAMESS_OUT = REMOTE_GAMESS_JOBS + jobName.replace(" ", "\\ ") + "/output/";
-        REMOTE_GAMESS_IN = REMOTE_GAMESS_JOBS + jobName.replace(" ", "\\ ") + "/input/";
+        REMOTE_LIBEFP_FRAGS = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "_") + "/fraglib/";
+        REMOTE_LIBEFP_OUT = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "_") + "/output/";
+        REMOTE_LIBEFP_IN = REMOTE_LIBEFP_JOBS + jobName.replace(" ", "_") + "/input/";
+        REMOTE_GAMESS_OUT = REMOTE_GAMESS_JOBS + jobName.replace(" ", "_") + "/output/";
+        REMOTE_GAMESS_IN = REMOTE_GAMESS_JOBS + jobName.replace(" ", "_") + "/input/";
         setInputFilename(jobName);
         setOutputFilename(jobName);
         setSchedulerOutputName(jobName);
@@ -104,7 +104,7 @@ public abstract class Submission {
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
     public boolean createJobWorkspace(String inputJobId, String pemKey) {
-        String jobID = inputJobId.replace(" ", "\\ ");
+        String jobID = inputJobId.replace(" ", "_");
         String jobDirectory = getJobDirectory(jobID);
         String command = submissionType.equalsIgnoreCase("LIBEFP") ?
                 String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib;", jobDirectory, jobDirectory) :
