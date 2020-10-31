@@ -30,6 +30,7 @@ public class UserPreferences {
     private static final String LIBEFP_PRESETS_KEY = "libefpPresets";
     private static final String LIBEFP_RJOBS_KEY = "libefprunningjobs";
     private static final String SERVERS_KEY = "servers";
+    private static final String FIRST_USE_KEY = "firstUse";
 
     //Two variables below will keep track of FIVE most recent files opened, append them to string, and store and get from User Prefs
     private static final String RECENT_COUNT_KEY = "RECENT_COUNT";

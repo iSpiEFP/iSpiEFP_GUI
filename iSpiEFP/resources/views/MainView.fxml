@@ -68,7 +68,7 @@
                         <items>
                             <Menu mnemonicParsing="false" text="Find EFP Files ">
                                 <items>
-                                    <MenuItem mnemonicParsing="false"  text="Search Public Database" />
+                                    <MenuItem mnemonicParsing="false"  text="Search Public Database" onAction="#searchFindEFPPublicDatabase"/>
                                 </items>
                             </Menu>
                         </items>

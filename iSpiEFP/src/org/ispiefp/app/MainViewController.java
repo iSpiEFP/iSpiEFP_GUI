@@ -1,10 +1,6 @@
 package org.ispiefp.app;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,6 +24,7 @@ import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.submission.JobViewController;
 import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.submission.SubmissionRecord;
+import org.ispiefp.app.tour.WelcomeViewController;
 import org.ispiefp.app.util.*;
 import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 //import org.ispiefp.app.database.DatabaseController;
@@ -35,8 +32,6 @@ import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
 import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.visualizer.JmolMainPanel;
-
-import org.ispiefp.app.visualizer.JmolPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -316,6 +311,7 @@ public class MainViewController {
             try {
                 Stage stage = new Stage();
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/JobView.fxml"));
+                loader.getController();
                 JobViewController jobViewController = new JobViewController(records.get(jobID));
                 loader.setController(jobViewController);
                 Parent p = loader.load();
@@ -832,11 +828,25 @@ public class MainViewController {
     /******************************************************************************************
      *             SEARCH MENU BEGINS                                                         *
      ******************************************************************************************/
-//    @FXML
     /**
      * Handle Search Fragments button. Search the database for similar fragments to the current molecule
      */
-//    public void searchFindEFPPublicDatabase() throws IOException {
+    @FXML
+    public void searchFindEFPPublicDatabase() throws IOException {
+        FXMLLoader tourLoader = new FXMLLoader(getClass().getResource("/views/TourWindowOne.fxml"));
+        //libEFPInputController libEFPCont = new libEFPInputController(getFragmentEFPFiles());
+        Parent tourParent = tourLoader.load();
+        WelcomeViewController wvc = tourLoader.getController();
+        //libEFPSubmissionLoader.setController(libEFPCont);
+//        libEFPCont.setJmolViewer(jmolMainPanel.viewer);
+//        libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
+//        libEFPCont.initEfpFiles();
+//        libEFPCont.setEfpFiles(getFragmentEFPFiles());
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Welcome");
+        stage.setScene(new Scene(tourParent));
+        stage.showAndWait();
 //        if (!lastOpenedFile.isEmpty()) {
 //            //set divider positions
 //            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
@@ -856,7 +866,7 @@ public class MainViewController {
 //        } else {
 //            System.out.println("No file was opened");
 //        }
-//    }
+    }
 
     /******************************************************************************************
      *             CALCULATE MENU BEGINS                                                      *
