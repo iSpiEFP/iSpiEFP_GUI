@@ -1,9 +1,5 @@
 package org.ispiefp.app.gamess;
 
-import ch.ethz.ssh2.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -15,35 +11,21 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javajs.util.P3;
-import org.ispiefp.app.installer.LocalBundleManager;
-import org.ispiefp.app.libEFP.Submission;
+import org.ispiefp.app.jobSubmission.SlurmSubmission;
+import org.ispiefp.app.jobSubmission.Submission;
 import org.ispiefp.app.libEFP.SubmissionScriptTemplateViewController;
-import org.ispiefp.app.libEFP.slurmSubmission;
-import org.ispiefp.app.server.*;
+import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.UserPreferences;
-import org.jmol.modelset.Bond;
-import org.apache.commons.io.IOUtils;
-import org.ispiefp.app.MainViewController;
-import org.ispiefp.app.util.Atom;
-import org.jmol.viewer.Viewer;
-import org.ispiefp.app.Main;
-import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
-import org.ispiefp.app.loginPack.LoginForm;
-import org.ispiefp.app.visualizer.JmolMainPanel;
 
 import java.io.*;
-import java.net.Socket;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.ResourceBundle;
 
 /**
  * Handle all Gamess input and job submission for Gamess
@@ -231,11 +213,11 @@ public class GamessInputController implements Initializable {
         }
 
         if (selectedServer.getScheduler().equals("SLURM")) {
-            submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
+            submission = new SlurmSubmission(selectedServer, title.getText(), "GAMESS");
         }
         //TODO: Handle case of PBS and Torque
         else if (selectedServer.getScheduler().equals("PBS")) {
-            submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
+            submission = new SlurmSubmission(selectedServer, title.getText(), "GAMESS");
         }
 
         Connection con = new Connection(selectedServer, null);

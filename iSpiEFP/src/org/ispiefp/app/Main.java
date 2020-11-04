@@ -8,12 +8,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.ispiefp.app.MetaData.*;
+import org.ispiefp.app.metaData.LocalFragmentTree;
 import org.ispiefp.app.util.TermsofAgreement;
 import org.ispiefp.app.util.UserPreferences;
-import org.ispiefp.app.util.VerifyPython;
 
 import java.io.IOException;
 

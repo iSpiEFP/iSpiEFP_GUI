@@ -1,10 +1,6 @@
 package org.ispiefp.app;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -12,53 +8,43 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.ispiefp.app.EFPFileRetriever.LibEFPtoCSV;
-//import org.ispiefp.app.gamess.gamessInputController;
-//import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.gamess.GamessInputController;
-import org.ispiefp.app.libEFP.libEFPInputController;
-import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
+import org.ispiefp.app.jobSubmission.*;
+import org.ispiefp.app.libEFP.LibEFPInputController;
+import org.ispiefp.app.metaData.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.submission.JobViewController;
-import org.ispiefp.app.submission.JobsMonitor;
-import org.ispiefp.app.submission.SubmissionRecord;
 import org.ispiefp.app.util.*;
-import org.openscience.jmol.app.jmolpanel.console.AppConsole;
-//import org.ispiefp.app.database.DatabaseController;
-import org.ispiefp.app.gamessSubmission.gamessSubmissionHistoryController;
-import org.ispiefp.app.loginPack.LoginForm;
-import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.visualizer.JmolMainPanel;
+import org.openscience.jmol.app.jmolpanel.console.AppConsole;
 
-import org.ispiefp.app.visualizer.JmolPanel;
-
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 
 import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
 import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
+
+//import org.ispiefp.app.gamess.gamessInputController;
+//import org.ispiefp.app.gamess.GamessInputController;
+//import org.ispiefp.app.database.DatabaseController;
 
 public class MainViewController {
 
@@ -883,7 +869,7 @@ public class MainViewController {
         FXMLLoader libEFPSubmissionLoader = new FXMLLoader(getClass().getResource("/views/libEFP.fxml"));
         //libEFPInputController libEFPCont = new libEFPInputController(getFragmentEFPFiles());
         Parent libEFPSubmissionParent = libEFPSubmissionLoader.load();
-        libEFPInputController libEFPCont = libEFPSubmissionLoader.getController();
+        LibEFPInputController libEFPCont = libEFPSubmissionLoader.getController();
         //libEFPSubmissionLoader.setController(libEFPCont);
         libEFPCont.setJmolViewer(jmolMainPanel.viewer);
         libEFPCont.setViewerFragments(jmolMainPanel.getFragmentComponents());
@@ -963,27 +949,27 @@ public class MainViewController {
 
     @FXML
     public void calculateGamessHistory() throws IOException {
-        LoginForm loginForm = new LoginForm("GAMESS");
-        boolean authorized = loginForm.authenticate();
-        if (authorized) {
-            gamessSubmissionHistoryController controller = new gamessSubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "views/submissionHistory.fxml"
-                    )
-            );
-            loader.setController(controller);
-
-            Stage stage = new Stage(StageStyle.DECORATED);
-            stage.setScene(
-                    new Scene(
-                            loader.load()
-                    )
-            );
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Gamess Submission History");
-            stage.show();
-        }
+//        LoginForm loginForm = new LoginForm("GAMESS");
+//        boolean authorized = loginForm.authenticate();
+//        if (authorized) {
+//            gamessSubmissionHistoryController controller = new gamessSubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
+//            FXMLLoader loader = new FXMLLoader(
+//                    getClass().getResource(
+//                            "views/submissionHistory.fxml"
+//                    )
+//            );
+//            loader.setController(controller);
+//
+//            Stage stage = new Stage(StageStyle.DECORATED);
+//            stage.setScene(
+//                    new Scene(
+//                            loader.load()
+//                    )
+//            );
+//            stage.initModality(Modality.WINDOW_MODAL);
+//            stage.setTitle("Gamess Submission History");
+//            stage.show();
+//        }
     }
 
     @FXML
