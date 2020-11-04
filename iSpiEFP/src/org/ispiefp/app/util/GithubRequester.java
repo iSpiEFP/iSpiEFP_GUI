@@ -1,8 +1,7 @@
-package org.ispiefp.app.efpFileRetriever;
+package org.ispiefp.app.util;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import org.ispiefp.app.util.CheckInternetConnection;
 
 import java.io.*;
 import java.net.HttpURLConnection;

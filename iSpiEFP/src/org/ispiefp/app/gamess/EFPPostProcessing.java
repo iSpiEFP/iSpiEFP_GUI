@@ -1,4 +1,4 @@
-package org.ispiefp.app.gamessSubmission;
+package org.ispiefp.app.gamess;
 
 import java.io.*;
 import java.util.ArrayList;

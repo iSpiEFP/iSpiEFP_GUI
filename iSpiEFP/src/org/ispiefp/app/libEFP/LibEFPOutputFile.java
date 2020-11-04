@@ -17,36 +17,36 @@ import java.util.Arrays;
  * information. Fields are initialized to their default values in libEFP and are only changed if they were changed in
  * the input file.
  */
-public class OutputFile {
+public class LibEFPOutputFile {
     /* Mandatory Options */
-    private String run_type             = "sp";                                 /* Type of job user selected */
-    private String coord                = "xyzabc";                             /* Format of coordinates     */
-    private boolean [] terms            = {true, true, true, true};             /* [E, P, D, XR] present     */
-    private String elec_damp            = "screen";                             /* Damping used for E        */
-    private String disp_damp            = "overlap";                            /* Damping used for D        */
-    private String pol_damp             = "tt";                                 /* Damping used for P        */
-    private String pol_driver           = "iterative";                          /* Method of computing P     */
-    private boolean enable_ff           = false;                                /* Enable force fields       */
-    private boolean enable_multistep    = false;                                /* Enable multistep MD       */
-    private String ff_geometry          = "fraglib/params/amber99.prm";         /* Path to Geometry of MM    */
-    private String ff_parameters        = "ff.xyz";                             /* Path to MM parameters     */
-    private boolean single_params_file  = false;                                /* Use single EFP param file */
-    private String efp_params_file      = "params.efp";                         /* Path to EFP param file    */
-    private boolean enable_cutoff       = false;                                /* Cutoff distance for frags */
-    private double swf_cutoff           = 10.0;                                 /* Magnitude of above cutoff */
-    private long max_steps              = 100;                                  /* Max number of steps       */
-    private int multistep_steps         = 1;                                    /* # of fast steps           */
-    private String fraglib_path         = "<install_directory/share/libefp";    /* Path to fragment library  */
-    private String userlib_path         = ".";                                  /* Path to user frag lib     */
+    private String run_type = "sp";                                 /* Type of job user selected */
+    private String coord = "xyzabc";                             /* Format of coordinates     */
+    private boolean[] terms = {true, true, true, true};             /* [E, P, D, XR] present     */
+    private String elec_damp = "screen";                             /* Damping used for E        */
+    private String disp_damp = "overlap";                            /* Damping used for D        */
+    private String pol_damp = "tt";                                 /* Damping used for P        */
+    private String pol_driver = "iterative";                          /* Method of computing P     */
+    private boolean enable_ff = false;                                /* Enable force fields       */
+    private boolean enable_multistep = false;                                /* Enable multistep MD       */
+    private String ff_geometry = "fraglib/params/amber99.prm";         /* Path to Geometry of MM    */
+    private String ff_parameters = "ff.xyz";                             /* Path to MM parameters     */
+    private boolean single_params_file = false;                                /* Use single EFP param file */
+    private String efp_params_file = "params.efp";                         /* Path to EFP param file    */
+    private boolean enable_cutoff = false;                                /* Cutoff distance for frags */
+    private double swf_cutoff = 10.0;                                 /* Magnitude of above cutoff */
+    private long max_steps = 100;                                  /* Max number of steps       */
+    private int multistep_steps = 1;                                    /* # of fast steps           */
+    private String fraglib_path = "<install_directory/share/libefp";    /* Path to fragment library  */
+    private String userlib_path = ".";                                  /* Path to user frag lib     */
 
     /* Pairwise Energy Analysis Options */
-    private boolean enable_pairwise     = false;                                /* Pairwise Interactions     */
-    private int ligand                  = 0;                                    /* Which fragment is ligand  */
+    private boolean enable_pairwise = false;                                /* Pairwise Interactions     */
+    private int ligand = 0;                                    /* Which fragment is ligand  */
 
     /* Periodic Boundary Conditions Options */
-    private boolean enable_pbc          = false;                                /* Periodic boundary conds   */
-    private String periodic_box         = "30.0 30.0 30.0 90.0 90.0 90.0";      /* Dimensions of PBC         */
-    private boolean print_pbc           = false;                                /* Print coords as PBC       */
+    private boolean enable_pbc = false;                                /* Periodic boundary conds   */
+    private String periodic_box = "30.0 30.0 30.0 90.0 90.0 90.0";      /* Dimensions of PBC         */
+    private boolean print_pbc = false;                                /* Print coords as PBC       */
 
     /* Geometry Optimization Options */
     private double opt_tol              = 0.0001;                               /* Stop optimizing when < x  */
@@ -510,7 +510,7 @@ public class OutputFile {
         return print_pbc;
     }
 
-    public OutputFile(String filepath) throws IOException {
+    public LibEFPOutputFile(String filepath) throws IOException {
         states = new ArrayList<>();
         File outFile = new File(filepath);
         BufferedReader br = new BufferedReader(new FileReader(outFile));

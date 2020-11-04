@@ -1,4 +1,4 @@
-package org.ispiefp.app.libEFP;
+package org.ispiefp.app.jobSubmission;
 
 import ch.ethz.ssh2.*;
 import javafx.geometry.Insets;

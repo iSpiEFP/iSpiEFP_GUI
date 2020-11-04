@@ -1,4 +1,4 @@
-package org.ispiefp.app.submission;
+package org.ispiefp.app.jobSubmission;
 
 /**
  * Handle submission History for LIBEFP

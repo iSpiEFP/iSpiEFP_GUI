@@ -1,8 +1,7 @@
-package org.ispiefp.app.submission;
+package org.ispiefp.app.jobSubmission;
 
 import org.ispiefp.app.server.JobManager;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class SubmissionRecord {

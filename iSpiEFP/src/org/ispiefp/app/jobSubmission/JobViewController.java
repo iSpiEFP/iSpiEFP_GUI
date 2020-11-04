@@ -1,7 +1,5 @@
-package org.ispiefp.app.submission;
+package org.ispiefp.app.jobSubmission;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -10,7 +8,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import org.apache.commons.io.FileUtils;
-import org.ispiefp.app.libEFP.OutputFile;
+import org.ispiefp.app.libEFP.LibEFPOutputFile;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 
 import java.io.File;
@@ -81,9 +79,9 @@ public class JobViewController {
         else fileContentsTextArea.setText("Was unable to open the file");
 
         if (isVisualizable){
-            OutputFile outfile;
+            LibEFPOutputFile outfile;
             try {
-                outfile = new OutputFile(filePath);
+                outfile = new LibEFPOutputFile(filePath);
             } catch (IOException e){
                 e.printStackTrace();
                 return;

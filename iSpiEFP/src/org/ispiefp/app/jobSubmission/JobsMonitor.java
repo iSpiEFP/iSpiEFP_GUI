@@ -1,13 +1,15 @@
-package org.ispiefp.app.submission;
+package org.ispiefp.app.jobSubmission;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
-import org.ispiefp.app.libEFP.OutputFile;
+import org.ispiefp.app.libEFP.LibEFPOutputFile;
 import org.ispiefp.app.server.JobManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -124,7 +126,7 @@ public class JobsMonitor implements Runnable {
         }
         File outputFile = new File(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
         try {
-            OutputFile out = new OutputFile(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
+            LibEFPOutputFile out = new LibEFPOutputFile(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }

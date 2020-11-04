@@ -16,11 +16,13 @@ import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.jobSubmission.SlurmSubmission;
+import org.ispiefp.app.jobSubmission.Submission;
+import org.ispiefp.app.jobSubmission.SubmissionHistoryController;
 import org.ispiefp.app.metaData.MetaData;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.ServerInfo;
-import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.ExecutePython;
 import org.ispiefp.app.util.UserPreferences;
@@ -601,8 +603,8 @@ public class LibEFPInputController implements Initializable {
         else if (selectedServer.getScheduler().equals("PBS")) {
             submission = new SlurmSubmission(selectedServer, title.getText(), "LIBEFP");
         }
-        username = submission.username;
-        password = submission.password;
+        username = submission.getUsername();
+        password = submission.getPassword();
         submission.setOutputFilename(title.getText());
         submission.setInputFilename(title.getText());
         submission.setSchedulerOutputName(title.getText());
@@ -628,12 +630,12 @@ public class LibEFPInputController implements Initializable {
         }
         String keyPassword = con.getKeyPassword();
         /* Create the job workspace */
-        if (!submission.createJobWorkspace(title.getText(), keyPassword)){
+        if (!submission.createJobWorkspace(title.getText(), keyPassword)) {
             return;
         }
         /* Send input files */
-        createInputFile(submission.inputFilePath, this.libEFPInputsDirectory);
-        File inputFile = new File(this.libEFPInputsDirectory + submission.inputFilePath);
+        createInputFile(submission.getInputFilePath(), this.libEFPInputsDirectory);
+        File inputFile = new File(this.libEFPInputsDirectory + submission.getInputFilePath());
         if (!submission.sendInputFile(inputFile, keyPassword)) {
             System.err.println("Was unable to send the input file to the server");
             return;
@@ -655,7 +657,7 @@ public class LibEFPInputController implements Initializable {
         currentTime = dateFormat.format(date).toString();
 //        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
         JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
-                submission.outputFilename, title.getText(),
+                submission.getOutputFilename(), title.getText(),
                 currentTime, "QUEUE", "LIBEFP", keyPassword);
         UserPreferences.getJobsMonitor().addJob(jobManager);
         Stage currentStage = (Stage) root.getScene().getWindow();

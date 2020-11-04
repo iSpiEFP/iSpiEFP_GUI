@@ -1,7 +1,7 @@
 package org.ispiefp.app.metaData;
 
 import com.google.gson.Gson;
-import org.ispiefp.app.efpFileRetriever.GithubRequester;
+import org.ispiefp.app.util.GithubRequester;
 
 import java.io.IOException;
 import java.nio.file.Files;
