@@ -1,4 +1,4 @@
-package org.ispiefp.app.EFPFileRetriever;
+package org.ispiefp.app.efpFileRetriever;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

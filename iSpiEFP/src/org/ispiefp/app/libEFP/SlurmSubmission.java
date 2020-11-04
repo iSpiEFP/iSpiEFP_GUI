@@ -1,20 +1,23 @@
 package org.ispiefp.app.libEFP;
 
-import ch.ethz.ssh2.*;
+import ch.ethz.ssh2.SCPClient;
+import ch.ethz.ssh2.SCPOutputStream;
+import ch.ethz.ssh2.Session;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.Connection;
-import org.ispiefp.app.util.UserPreferences;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-public class slurmSubmission extends Submission {
+public class SlurmSubmission extends Submission {
 
-    public slurmSubmission(ServerInfo server, String queueName, int numNodes,
-                           int numProcessors, String walltime, int mem, String jobName, String submissionType){
+    public SlurmSubmission(ServerInfo server, String queueName, int numNodes,
+                           int numProcessors, String walltime, int mem, String jobName, String submissionType) {
         super(server, jobName, submissionType);
 //        submitString = "/usr/pbs/bin/qsub ${JOB_NAME}.run";
 //        queryString = "/usr/pbs/bin/qstat -f ${JOB_ID}";
@@ -29,7 +32,7 @@ public class slurmSubmission extends Submission {
         this.mem = mem;
     }
 
-    public slurmSubmission(ServerInfo server, String jobName, String submissionType){
+    public SlurmSubmission(ServerInfo server, String jobName, String submissionType) {
         super(server, jobName, submissionType);
     }
 

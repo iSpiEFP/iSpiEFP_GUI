@@ -1,16 +1,11 @@
-package org.ispiefp.app.MetaData;
+package org.ispiefp.app.metaData;
 
 import com.google.gson.Gson;
-import org.ispiefp.app.EFPFileRetriever.GithubRequester;
-import org.ispiefp.app.MetaData.MetaData;
+import org.ispiefp.app.efpFileRetriever.GithubRequester;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
 
 /* The purpose of this class is to decode the information about which fields are contained in a metadata JSON bitmap */
 

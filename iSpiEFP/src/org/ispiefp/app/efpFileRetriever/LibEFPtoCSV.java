@@ -1,6 +1,9 @@
-package org.ispiefp.app.EFPFileRetriever;
+package org.ispiefp.app.efpFileRetriever;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class LibEFPtoCSV {
     private final int ENERGIES = 6; // the number of different energy calculations, excluding total

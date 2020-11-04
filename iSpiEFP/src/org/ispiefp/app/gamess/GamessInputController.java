@@ -11,9 +11,9 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.ispiefp.app.libEFP.SlurmSubmission;
 import org.ispiefp.app.libEFP.Submission;
 import org.ispiefp.app.libEFP.SubmissionScriptTemplateViewController;
-import org.ispiefp.app.libEFP.slurmSubmission;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.Connection;
@@ -213,11 +213,11 @@ public class GamessInputController implements Initializable {
         }
 
         if (selectedServer.getScheduler().equals("SLURM")) {
-            submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
+            submission = new SlurmSubmission(selectedServer, title.getText(), "GAMESS");
         }
         //TODO: Handle case of PBS and Torque
         else if (selectedServer.getScheduler().equals("PBS")) {
-            submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
+            submission = new SlurmSubmission(selectedServer, title.getText(), "GAMESS");
         }
 
         Connection con = new Connection(selectedServer, null);

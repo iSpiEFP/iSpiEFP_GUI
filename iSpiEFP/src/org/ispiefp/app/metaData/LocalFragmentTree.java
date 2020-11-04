@@ -1,4 +1,4 @@
-package org.ispiefp.app.MetaData;
+package org.ispiefp.app.metaData;
 import org.ispiefp.app.installer.LocalBundleManager;
 
 import java.util.Collection;

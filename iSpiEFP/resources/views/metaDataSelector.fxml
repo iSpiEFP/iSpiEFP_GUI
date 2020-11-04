@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <AnchorPane minHeight="0.0" minWidth="0.0" fx:id="root" prefHeight="500.0"
             prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.ispiefp.app.MetaData.MetaDataSelectorController">
+            fx:controller="org.ispiefp.app.metaData.MetaDataSelectorController">
     <HBox id="Hbox" alignment="CENTER" spacing="5.0" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
           AnchorPane.rightAnchor="10">
         <Label text="Fragment Name:"/>

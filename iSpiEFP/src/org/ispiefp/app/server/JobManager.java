@@ -1,6 +1,5 @@
 package org.ispiefp.app.server;
 
-import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.SCPInputStream;
 import ch.ethz.ssh2.StreamGobbler;
@@ -9,11 +8,11 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import org.ispiefp.app.Main;
 
-import java.io.*;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -162,7 +161,7 @@ public class JobManager implements Runnable {
                     if (this.type.equals("GAMESS")) {
                         //update the database with this efp file
                         String efp_file = getRemoteVmolOutput(this.jobID, this.type);
-                        sendEFPFile(efp_file);
+//                        sendEFPFile(efp_file);
                     }
                 }
             } while (!jobIsDone);
@@ -197,97 +196,6 @@ public class JobManager implements Runnable {
     }
 
     /*
-     * Update Database Status Entry that the job is DONE
-     */
-    //TODO this should query with the hostname 
-    public void updateDBStatus(String job_id, String title, String date, String status, String type) throws UnknownHostException, IOException {
-        String serverName = Main.iSpiEFP_SERVER;
-        int port = Main.iSpiEFP_PORT;
-
-
-        //send over job data to database
-        String query = "Update_Status";
-        query += "$END$";
-        query += job_id + "  " + title + "  " + date + "  " + status + "  " + type;
-        query += "$ENDALL$";
-
-        //Socket client = new Socket(serverName, port);
-        iSpiEFPServer iSpiServer = new iSpiEFPServer();
-        Socket client = iSpiServer.connect(serverName, port);
-        if (client == null) {
-            return;
-        }
-        OutputStream outToServer = client.getOutputStream();
-        System.out.println(query);
-        outToServer.write(query.getBytes("UTF-8"));
-        client.close();
-    }
-
-    /*
-     * Ask for a list of job histories from the user from particular server
-     */
-    public ArrayList<String[]> queryDatabaseforJobHistory(String type) throws UnknownHostException, IOException {
-        String serverName = Main.iSpiEFP_SERVER;
-        int port = Main.iSpiEFP_PORT;
-
-        //send over job data to database
-        String query = "Check";
-        query += "$END$";
-        query += username + "  " + hostname + "  " + type;
-        query += "$ENDALL$";
-
-        //Socket client;
-        //client = new Socket(serverName, port);
-        iSpiEFPServer iSpiServer = new iSpiEFPServer();
-        Socket client = iSpiServer.connect(serverName, port);
-        if (client == null) {
-            return null;
-        }
-        OutputStream outToServer = client.getOutputStream();
-        //DataOutputStream out = new DataOutputStream(outToServer);
-
-        System.out.println(query);
-        outToServer.write(query.getBytes("UTF-8"));
-
-        InputStream inFromServer = client.getInputStream();
-        DataInputStream in = new DataInputStream(inFromServer);
-        StringBuilder sb = new StringBuilder();
-        int i;
-        char c;
-        boolean start = false;
-        while ((i = in.read()) != -1) {
-            c = (char) i;
-            sb.append(c);
-        }
-
-        String reply = sb.toString();
-        System.out.println("Database Response:" + reply);
-
-        client.close();
-
-        ArrayList<String[]> jobHistory = parseDBJobResponse(reply);
-        return jobHistory;
-    }
-
-
-    /*
-     * Parse database job history into an array
-     */
-    private ArrayList<String[]> parseDBJobResponse(String reply) {
-        ArrayList<String[]> result = new ArrayList<String[]>();
-
-        String[] content = reply.split("\\$NEXT\\$");
-        int n = content.length;
-        for (String record : content) {
-            String[] fields = new String[n];
-            fields = record.split("\\s+");
-            if (fields[0].length() != 0)
-                result.add(fields);
-        }
-        return result;
-    }
-
-    /*
      * check status for an multitude of jobs, if status is changed, update database
      */
     public ArrayList<String[]> checkJobStatus(ArrayList<String[]> jobHistory) throws IOException {
@@ -304,7 +212,7 @@ public class JobManager implements Runnable {
                 if (done) {
                     System.out.println("Job:" + job_id + " done. updating database");
                     //updateDBStatus(job_id, title, date);
-                    updateDBStatus(job_id, title, date, status, type);
+//                    updateDBStatus(job_id, title, date, status, type);
                     line[3] = "DONE";
                 }
             }
@@ -398,33 +306,6 @@ public class JobManager implements Runnable {
         return sb.toString();
     }
 
-    //update database with new efp file
-    private void sendEFPFile(String efp_file) {
-        String serverName = Main.iSpiEFP_SERVER;
-        int port = Main.iSpiEFP_PORT;
-
-        String payload = "EFP_FILE";
-        payload += "$END$";
-        payload += efp_file;
-        payload += "$ENDALL$";
-
-        //Socket client = new Socket(serverName, port);
-        iSpiEFPServer iSpiServer = new iSpiEFPServer();
-        Socket client = iSpiServer.connect(serverName, port);
-        if (client == null) {
-            return;
-        }
-        OutputStream outToServer;
-        try {
-            outToServer = client.getOutputStream();
-            outToServer.write(payload.getBytes("UTF-8"));
-            client.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-    }
 
     public org.ispiefp.app.util.Connection getConn() {
         return conn;

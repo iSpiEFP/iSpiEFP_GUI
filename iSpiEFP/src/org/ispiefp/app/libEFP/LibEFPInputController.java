@@ -1,6 +1,5 @@
 package org.ispiefp.app.libEFP;
 
-import ch.ethz.ssh2.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -15,11 +14,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
-import org.ispiefp.app.MetaData.MetaData;
-import org.ispiefp.app.installer.LocalBundleManager;
-import org.ispiefp.app.server.*;
-import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.metaData.MetaData;
+import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.server.ServerDetails;
+import org.ispiefp.app.server.ServerInfo;
+import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.ExecutePython;
 import org.ispiefp.app.util.UserPreferences;
@@ -32,12 +33,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.prefs.Preferences;
-import java.io.File;
 
 /**
  * Handle all job submission for libEFP package submission
  */
-public class libEFPInputController implements Initializable {
+public class LibEFPInputController implements Initializable {
 
     @FXML
     private TabPane root;
@@ -164,18 +164,18 @@ public class libEFPInputController implements Initializable {
     List<ServerDetails> serverDetailsList;
     private ServerInfo selectedServer;
 
-    public libEFPInputController(String coord) {
+    public LibEFPInputController(String coord) {
         this.coordinates = coord;
         this.jobids = null;
     }
 
-    public libEFPInputController(String coord, ArrayList jobids) {
+    public LibEFPInputController(String coord, ArrayList jobids) {
         this.coordinates = coord;
         this.jobids = jobids;
     }
 
     //current constructor
-    public libEFPInputController(String coord, ArrayList jobids, ArrayList<String> efpFilenames) {
+    public LibEFPInputController(String coord, ArrayList jobids, ArrayList<String> efpFilenames) {
         this.coordinates = coord;
         this.jobids = jobids;
         this.efpFilenames = efpFilenames;
@@ -185,7 +185,7 @@ public class libEFPInputController implements Initializable {
         // initWorkingDir();
     }
 
-    public libEFPInputController() {
+    public LibEFPInputController() {
         super();
         this.workingDirectoryPath = LocalBundleManager.workingDirectory;
         this.efpFileDirectoryPath = LocalBundleManager.LIBEFP_PARAMETERS + File.separator;  //storage for db incoming efp files
@@ -595,11 +595,11 @@ public class libEFPInputController implements Initializable {
         selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
         if (selectedServer.getScheduler().equals("SLURM")) {
-            submission = new slurmSubmission(selectedServer, title.getText(), "LIBEFP");
+            submission = new SlurmSubmission(selectedServer, title.getText(), "LIBEFP");
         }
         //TODO: Handle case of PBS and Torque
         else if (selectedServer.getScheduler().equals("PBS")) {
-            submission = new slurmSubmission(selectedServer, title.getText(), "LIBEFP");
+            submission = new SlurmSubmission(selectedServer, title.getText(), "LIBEFP");
         }
         username = submission.username;
         password = submission.password;

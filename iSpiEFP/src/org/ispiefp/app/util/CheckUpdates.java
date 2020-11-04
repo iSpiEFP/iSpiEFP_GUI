@@ -1,7 +1,11 @@
 package org.ispiefp.app.util;
-import org.ispiefp.app.EFPFileRetriever.GithubRequester;
 
-import java.io.*;
+import org.ispiefp.app.efpFileRetriever.GithubRequester;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class CheckUpdates {
     private String[] versions;
