@@ -20,9 +20,9 @@
             </children>
         </TreeItem>
     </TreeView>
-    <VBox fx:id="pathsBox" prefHeight="630.0" prefWidth="624.0" spacing="10.0" AnchorPane.rightAnchor="10.0"
+    <VBox fx:id="pathsBox" spacing="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.leftAnchor="268" AnchorPane.bottomAnchor="10"
           AnchorPane.topAnchor="10.0">
-        <Label alignment="CENTER" prefHeight="21.0" prefWidth="633.0"
+        <Label alignment="CENTER" prefHeight="21.0" maxWidth="Infinity"
                text="Directory containing user generated parameters" textAlignment="CENTER"/>
         <TextField fx:id="parameterPathField" maxHeight="31.0" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity"
                    prefHeight="31.0" prefWidth="475.0"/>
