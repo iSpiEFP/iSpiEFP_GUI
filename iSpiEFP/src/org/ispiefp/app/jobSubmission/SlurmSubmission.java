@@ -11,6 +11,7 @@ import org.ispiefp.app.util.Connection;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class SlurmSubmission extends Submission {
         this.mem = mem;
     }
 
-    public slurmSubmission(ServerInfo server, String jobName, String submissionType){
+    public SlurmSubmission(ServerInfo server, String jobName, String submissionType){
         super(server, jobName.replace(" ", "_"), submissionType);
     }
 

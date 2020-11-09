@@ -9,9 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import org.ispiefp.app.MetaData.*;
-import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.metaData.LocalFragmentTree;
+import org.ispiefp.app.MetaData.LocalFragmentTree;
 import org.ispiefp.app.util.TermsofAgreement;
 import org.ispiefp.app.util.UserPreferences;
 

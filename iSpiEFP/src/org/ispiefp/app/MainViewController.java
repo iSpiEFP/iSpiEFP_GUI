@@ -23,7 +23,7 @@ import javafx.stage.StageStyle;
 import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.jobSubmission.*;
 import org.ispiefp.app.libEFP.LibEFPInputController;
-import org.ispiefp.app.metaData.MetaDataSelectorController;
+import org.ispiefp.app.MetaData.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.util.*;
 import org.ispiefp.app.visualizer.JmolMainPanel;
