@@ -1,31 +1,41 @@
 package org.ispiefp.app.analysis;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
+import javafx.geometry.Pos;
+import javafx.scene.*;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.libEFP.OutputFile;
+import org.ispiefp.app.visualizer.JmolMainPanel;
+import org.jmol.api.JmolViewer;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -43,6 +53,9 @@ public class GeometryAnalysisController implements Initializable {
     @FXML LineChart<Integer, Double> chart;
     @FXML NumberAxis xAxis;
     @FXML NumberAxis yAxis;
+    @FXML BarChart<CategoryAxis, NumberAxis> energyChart;
+    @FXML CategoryAxis energyTypes;
+    @FXML NumberAxis energyComponentValues;
     @FXML Button leftArrow;
     @FXML Button playPause;
     @FXML Button rightArrow;
@@ -72,10 +85,15 @@ public class GeometryAnalysisController implements Initializable {
 
     /* Instance specific variables */
     OutputFile outputFile;
-    XYChart.Series<Number, Number> dataSeries;
+    XYChart.Series<Integer, Double> dataSeries;
+    JmolMainPanel mainPanel;
+    JmolViewer viewer;
+    int currentStateIndex;
+    ArrayList<Node> stateNodes;
 
     public GeometryAnalysisController(){
         super();
+        dataSeries = new XYChart.Series<>();
         fromHartreeMap = new HashMap<>();
         fromHartreeMap.put("hartrees", 1.0); //1 hartree : 1.0 hartrees
         fromHartreeMap.put("kcal/mol", 627.5); //1 hartree : 627.5 kcal/mol
@@ -88,6 +106,7 @@ public class GeometryAnalysisController implements Initializable {
         toHartreeMap.put("kJ/mol", 1.0/2625.5);
         toHartreeMap.put("eV/mol", 1.0/27.211);
         toHartreeMap.put("cm^-1", 1.0/219474.6);
+        stateNodes = new ArrayList<>();
     }
 
     @Override
@@ -96,6 +115,7 @@ public class GeometryAnalysisController implements Initializable {
         maxYVal = 0;
         upperXBound = maxXVal + 1;
         upperYBound = maxYVal + 10;
+        currentStateIndex = 0;
         ImageView playView = new ImageView(play);
         ImageView pauseView = new ImageView(pause);
         playView.setX(10);
@@ -105,6 +125,7 @@ public class GeometryAnalysisController implements Initializable {
         /* Set Unit converter options */
         unitsSelector.setItems(FXCollections.observableArrayList(unitTypes));
         unitsSelector.getSelectionModel().selectFirst();
+
         /* Register Event Handler for selection of Units */
         unitsSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             ObservableList<XYChart.Series<Integer, Double>> currentData = chart.getData();
@@ -115,8 +136,13 @@ public class GeometryAnalysisController implements Initializable {
                 XYChart.Data<Integer, Double> entry = seriesIterator.next();
                 convertedMap.put(entry.getXValue(), convert(oldValue, newValue) * entry.getYValue());
             }
+            if (dataSeries != null) dataSeries.getData().clear();
+            else dataSeries = new XYChart.Series<>();
             for (Integer step : convertedMap.keySet())
-                currentData.get(0).getData().add(new XYChart.Data<>(step, convertedMap.get(step)));
+                dataSeries.getData().add(new XYChart.Data<>(step, convertedMap.get(step)));
+            chart.getData().clear();
+            chart.getData().add(dataSeries);
+            updateChartData(null);
         });
         unitsSelector.getSelectionModel().selectFirst();
 
@@ -192,6 +218,20 @@ public class GeometryAnalysisController implements Initializable {
                 }
             }
         }));
+        xAxis.setTickLabelFormatter(new StringConverter<Number>() {
+            @Override
+            public String toString(Number object) {
+                if(object.intValue()!=object.doubleValue())
+                    return "";
+                return ""+(object.intValue());
+            }
+
+            @Override
+            public Number fromString(String string) {
+                Number val = Double.parseDouble(string);
+                return val.intValue();
+            }
+        });
     }
 
     public int getExponent(double bound) {
@@ -212,20 +252,50 @@ public class GeometryAnalysisController implements Initializable {
     }
 
     public void updateChartData(Map<Integer, Double> map){
-        dataSeries.getData().clear();
-        for (Integer xValue : map.keySet()){
-            Double yValue = map.get(xValue);
-            if (xValue > maxXVal){
-                maxXVal = xValue;
-                upperXBound = xValue + 1;
+        if (map != null) {
+            if (dataSeries != null) dataSeries.getData().clear();
+            else dataSeries = new XYChart.Series<>();
+            for (Integer xValue : map.keySet()) {
+                Double yValue = map.get(xValue);
+                if (xValue > maxXVal) {
+                    maxXVal = xValue;
+                    upperXBound = xValue + 1;
+                }
+                if (yValue > maxYVal) {
+                    maxYVal = yValue;
+                    upperYBound = yValue + 1;
+                }
+                dataSeries.getData().add(new XYChart.Data<>(xValue, yValue));
             }
-            if (yValue > maxYVal){
-                maxYVal = yValue;
-                upperYBound = yValue + 1;
-            }
-            dataSeries.getData().add(new XYChart.Data<>(xValue, yValue));
+
+            chart.getData().add(dataSeries);
         }
-        /* This may not update the graph. If it doesn't, wrap it in an observable list and pass to chart */
+        stateNodes.clear();
+        for (XYChart.Series<Integer, Double> s : chart.getData()) {
+            for (XYChart.Data<Integer, Double> d : s.getData()) {
+                stateNodes.add(d.getNode());
+                Tooltip tooltip = new Tooltip(String.format("(%d, %.4f)",
+                        d.getXValue(),
+                        d.getYValue()));
+                Tooltip.install(d.getNode(), tooltip);
+                d.getNode().setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        System.out.printf("I am state %d%n", d.getXValue());
+                        outputFile.viewState(mainPanel, d.getXValue());
+                        Node oldNode = stateNodes.get(currentStateIndex);
+                        paintNode(oldNode, d.getNode());
+                        currentStateIndex = d.getXValue();
+                        analyzeEnergyDecomposition();
+                        Event.fireEvent(d.getNode(), new MouseEvent(MouseEvent.MOUSE_ENTERED, 0, 0 ,
+                                0 ,0, MouseButton.PRIMARY, 1, true, true, true,
+                                true, true, true, true,
+                                true, true, true, null));
+                    }
+                });
+            }
+        }
+        analyzeEnergyDecomposition();
     }
 
     public void setOutputFile(OutputFile outputFile) {
@@ -235,8 +305,69 @@ public class GeometryAnalysisController implements Initializable {
         for (OutputFile.State state : outputFile.getStates()){
             dataMap.put(i++, state.getEnergyComponents().getTotalEnergy());
         }
-        chart.setTitle(yAxis.getLabel() + " vs. " + xAxis.getLabel());
+        chart.setTitle(String.format("%s vs. %s (%s)", yAxis.getLabel(), xAxis.getLabel(), unitsSelector.getSelectionModel().getSelectedItem()));
         updateChartData(dataMap);
+    }
+
+    public void analyzeEnergyDecomposition(){
+        energyChart.setVisible(false);
+        System.err.println("get here");
+        if (energyChart.getData() != null){
+            energyChart.getData().clear();
+        }
+        OutputFile.State state = outputFile.getStates().get(currentStateIndex);
+        double electostaticEnergy = state.getEnergyComponents().getElectrostaticEnergy();
+        double exchangeRepulsionEnergy = state.getEnergyComponents().getExchangeRepulsionEnergy();
+        double polarizationEnergy = state.getEnergyComponents().getPolarizationEnergy();
+        double dispersionEnergy = state.getEnergyComponents().getDispersionEnergy();
+        double pointChargeEnergy = state.getEnergyComponents().getPointChargesEnergy();
+        double chargepenetrationEnergy = state.getEnergyComponents().getChargePenetrationEnergyEnergy();
+
+        energyChart.setTitle(String.format("Energy Decomposition for State %d", currentStateIndex));
+
+        XYChart.Series energyData = new XYChart.Series();
+
+        if (electostaticEnergy != 0.0) {
+            energyData.getData().add(createEnergyBar("Electrostatic", electostaticEnergy));
+        }
+        if (exchangeRepulsionEnergy != 0.0) {
+            energyData.getData().add(createEnergyBar("Exchange-Repulsion", exchangeRepulsionEnergy));
+        }
+        if (polarizationEnergy != 0.0){
+            energyData.getData().add(createEnergyBar("Polarization", polarizationEnergy));
+        }
+        if (dispersionEnergy != 0.0){
+            energyData.getData().add(createEnergyBar("Dispersion", dispersionEnergy));
+        }
+        if (pointChargeEnergy != 0.0){
+            energyData.getData().add(createEnergyBar("Point Charge", pointChargeEnergy));
+        }
+        if (chargepenetrationEnergy != 0.0) {
+            energyData.getData().add(createEnergyBar("Charge Pen", chargepenetrationEnergy));
+        }
+
+        energyChart.getData().add(energyData);
+        energyChart.setVisible(true);
+    }
+
+    public XYChart.Data<String, Double> createEnergyBar(String label, Double value) {
+        XYChart.Data<String, Double> data = new XYChart.Data<>(label, value);
+        String energyLabel = String.format("%.05f",value);
+        Label barLabel = new Label(energyLabel);
+        StackPane node = new StackPane();
+        Group group = new Group(barLabel);
+        if (value > 0) StackPane.setAlignment(group, Pos.TOP_CENTER);
+        else StackPane.setAlignment(group, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(group, new Insets(0,0,0,5));
+        node.getChildren().add(group);
+        data.setNode(node);
+        return data;
+    }
+
+
+    public void setJmolViewer(JmolMainPanel m){
+        mainPanel = m;
+        viewer = m.viewer;
     }
 
     public Double convert(String oldUnits, String newUnits) {
@@ -244,11 +375,25 @@ public class GeometryAnalysisController implements Initializable {
     }
 
     @FXML public void viewLeftState(){
-
+        if (currentStateIndex > 0){
+            unpaintNode(stateNodes.get(currentStateIndex));
+            currentStateIndex--;
+        }
+        Event.fireEvent(stateNodes.get(currentStateIndex), new MouseEvent(MouseEvent.MOUSE_CLICKED, 0, 0 ,
+                0 ,0, MouseButton.PRIMARY, 1, true, true, true,
+                true, true, true, true,
+                true, true, true, null));
     }
 
     @FXML public void viewRightState(){
-
+        if (currentStateIndex < outputFile.getStates().size() - 1){
+            unpaintNode(stateNodes.get(currentStateIndex));
+            currentStateIndex++;
+        }
+        Event.fireEvent(stateNodes.get(currentStateIndex), new MouseEvent(MouseEvent.MOUSE_CLICKED, 0, 0 ,
+                0 ,0, MouseButton.PRIMARY, 1, true, true, true,
+                true, true, true, true,
+                true, true, true, null));
     }
 
     @FXML public void playPauseStates(){
@@ -261,6 +406,18 @@ public class GeometryAnalysisController implements Initializable {
 
     @FXML public void exportCSV(){
 
+    }
+    private void paintNode(Node oldnode, Node newnode){
+        oldnode.setStyle(null);
+        Color color = Color.AZURE;
+        String rgb = String.format("%d, %d, %d", (int) color.getRed() * 255,
+                (int) color.getGreen() * 255, (int) color.getBlue() * 255);
+        newnode.setStyle("-fx-background-color: rgba(" + rgb + ", 1.0);");
+//        n.setStyle("-fx-fill: rgba(" + rgb + ", 1.0);");
+    }
+
+    private void unpaintNode(Node n){
+        n.setStyle(null);
     }
 
     //    private String energyUnits;

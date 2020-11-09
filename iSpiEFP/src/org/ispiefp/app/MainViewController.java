@@ -28,7 +28,7 @@ import org.ispiefp.app.EFPFileRetriever.LibEFPtoCSV;
 import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.analysis.GeometryAnalysisController;
 import org.ispiefp.app.libEFP.OutputFile;
-import org.ispiefp.app.gamess.gamessInputController;
+import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -1172,9 +1172,23 @@ stage.show();
 
     @FXML
     public void showGeomAnalysis() throws IOException {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select Output File to Visualize");
+        fc.setInitialDirectory(new File(System.getProperty("user.home")));
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("LibEFP Output Files", "*.out"));
+        Stage currStage = (Stage) root.getScene().getWindow();
+
+        File file = fc.showOpenDialog(currStage);
+
+        // user canceled file selection
+        if (file == null) return;
         FXMLLoader geoAnalysisLoader = new FXMLLoader(getClass().getResource("/views/analysisViews/GeometryAnalysisView.fxml"));
+        //todo unhardcode this section and give it the OutputFile of the selected output
+        OutputFile outFile = new OutputFile(file.getAbsolutePath());
         Parent geoAnalysisParent = geoAnalysisLoader.load();
         GeometryAnalysisController geometryAnalysisController = geoAnalysisLoader.getController();
+        geometryAnalysisController.setOutputFile(outFile);
+        geometryAnalysisController.setJmolViewer(jmolMainPanel);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Geometry Analysis");
