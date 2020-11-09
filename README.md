@@ -117,23 +117,6 @@ In order to run unit tests, there is some initial set-up which needs to be done 
 3. Ensure JUnit4 has been added to your classpath by following the instructions in the IntelliJ set-up section of this README.
 #### Running Tests
 To run unit tests, navigate to the testing class contained in ```iSpiEFP/Tests/src``` which corresponds to the class you are interested in testing. To run all of the tests contained within that testing class, navigate to the class declaration of that file and click on the green play button left of that line of code. To run individual tests, click on the green play button next to the method declaration for that test. 
-### Server Config
-iSpiEFP connects to the iSpiEFP Server. The iSpiEFP Server is powered by AWS and is configured to run from
-__port 8080__. There are currently two servers for iSpiEFP to use and they should be changed depending on the situation. (Test for a Release, Developer for developing work). The Configurations for the server can be found at the top of __iSpiEFP/src/org/vmol/app/Main.java__. For information of the iSpiEFP Server visit: https://github.com/iSpiEFP/iSpiEFPServer/blob/master/README.md
-#### Test Server
-1. The Test Server's primary purpose is to keep an instance of iSpiEFP running 24/7 so that users can connect and use the currently released iSpiEFP Client Applications.
-2. The test server address is to be used for a new release. 
-3. Address:
-    ```
-    ec2-3-16-11-177.us-east-2.compute.amazonaws.com
-    ```
-#### Development Server
-1. The Development Server's primary purpose is for developers to modify a new version of iSpiEFP that has yet to be released. This is so that users do not get interrupted while using a stable version of iSpiEFP.
-2. The Developer Server is used for developing.
-3. Address:
-    ```
-     ec2-18-220-105-41.us-east-2.compute.amazonaws.com
-    ```
 #### Steps of building JAR file (IntelliJ)
 1. First create an aritifact configuration by following the steps below:\
   1.1: from the main menu, select File -> Project Structure, and select Artifacts.\
