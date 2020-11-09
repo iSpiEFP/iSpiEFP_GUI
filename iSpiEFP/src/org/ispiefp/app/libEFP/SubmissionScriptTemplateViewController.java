@@ -12,7 +12,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
     public class SubmissionScriptTemplateViewController implements Initializable {
-        private libEFPSubmission submission;
+        private Submission submission;
         private boolean submitted = false;
 
         @FXML
@@ -32,7 +32,7 @@ import java.util.ResourceBundle;
 
         private ServerInfo server;
 
-        public SubmissionScriptTemplateViewController(libEFPSubmission submission) {
+        public SubmissionScriptTemplateViewController(Submission submission) {
             this.submission = submission;
         }
 
@@ -71,7 +71,9 @@ import java.util.ResourceBundle;
         @FXML
         private void updateSubmissionScriptText(){
             validateInput();
-            submissionScriptTextArea.setText(submission.getSubmissionScriptText());
+            if (submission.getSubmissionType().equalsIgnoreCase("LIBEFP"))
+                submissionScriptTextArea.setText(submission.getLibEFPSubmissionScriptText());
+            else submissionScriptTextArea.setText(submission.getGAMESSSubmissionScriptText());
         }
 
         private void validateInput(){
@@ -145,7 +147,7 @@ import java.util.ResourceBundle;
             updateSubmissionScriptText();
         }
 
-        public void setSubmission(libEFPSubmission submission) {
+        public void setSubmission(Submission submission) {
             this.submission = submission;
             updateSubmissionScriptText();
         }

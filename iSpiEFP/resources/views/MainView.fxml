@@ -24,7 +24,7 @@
                                 <!--</ContextMenu>-->
                                 <!--</fx:define>-->
                             </Menu>
-                            <Menu mnemonicParsing="false" onAction="#openSettings" text="Settings" />
+                            <MenuItem mnemonicParsing="false" onAction="#openSettings" text="Settings" />
                             <SeparatorMenuItem mnemonicParsing="false" />
                             <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />
 
@@ -68,15 +68,15 @@
                         <items>
                             <Menu mnemonicParsing="false" text="Find EFP Files ">
                                 <items>
-                                    <MenuItem mnemonicParsing="false" onAction="#searchFindEFPPublicDatabase" text="Search Public Database" />
+                                    <MenuItem mnemonicParsing="false"  text="Search Public Database" />
                                 </items>
                             </Menu>
                         </items>
                     </Menu>
                     <Menu mnemonicParsing="false" text="Calculate">
                         <items>
-                            <MenuItem mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
-                            <MenuItem mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
+                            <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
+                            <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
                             <Menu mnemonicParsing="false" text="Monitor Jobs">
                                 <items>
                                     <MenuItem mnemonicParsing="false" onAction="#calculateLibefpHistory" text="Libefp History" />
@@ -166,13 +166,13 @@
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <ListView fx:id="leftListView" />
+                <ListView fx:id="leftListView" VBox.vgrow="ALWAYS"/>
                 <Label text="History and Projects">
                     <padding>
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                 </Label>
-                <TreeView fx:id="historyTreeView">
+                <TreeView fx:id="historyTreeView" VBox.vgrow="ALWAYS">
                     <TreeItem fx:id="historyRoot" expanded="true" />
                 </TreeView>
             </VBox>

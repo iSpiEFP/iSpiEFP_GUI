@@ -3,19 +3,19 @@ package org.ispiefp.app.libEFP;
 import ch.ethz.ssh2.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.server.ServerInfo;
+import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.UserPreferences;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-public class libEFPSlurmSubmission extends libEFPSubmission {
+public class slurmSubmission extends Submission {
 
-    public libEFPSlurmSubmission(ServerInfo server, String queueName, int numNodes,
-                                 int numProcessors, String walltime, int mem, String jobName){
-        super(server, jobName);
+    public slurmSubmission(ServerInfo server, String queueName, int numNodes,
+                           int numProcessors, String walltime, int mem, String jobName, String submissionType){
+        super(server, jobName, submissionType);
 //        submitString = "/usr/pbs/bin/qsub ${JOB_NAME}.run";
 //        queryString = "/usr/pbs/bin/qstat -f ${JOB_ID}";
 //        killString = "/usr/pbs/bin/qdel ${JOB_ID}";
@@ -29,8 +29,8 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
         this.mem = mem;
     }
 
-    public libEFPSlurmSubmission(ServerInfo server, String jobName){
-        super(server, jobName);
+    public slurmSubmission(ServerInfo server, String jobName, String submissionType){
+        super(server, jobName, submissionType);
     }
 
     File createSubmissionScript(String input) throws IOException {
@@ -40,7 +40,7 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
         return submissionScript;
     }
 
-    public String getSubmissionScriptText(){
+    public String getLibEFPSubmissionScriptText(){
         return String.format(
                 "#!/bin/csh\n" +
                         "#SBATCH -o %s\n" +
@@ -58,20 +58,38 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
         );
     }
 
-    public void prepareJob(String efpmdPath, String inputFilePath, String outputFilename){
-        this.inputFilePath = inputFilePath;
-
+    public String getGAMESSSubmissionScriptText(){
+        return String.format(
+                        "#!/bin/csh\n" +
+                        "#SBATCH -D %s\n" +
+                        "#SBATCH -o ../output/%s\n" +
+                        "#SBATCH -A %s\n" +
+                        "#SBATCH -N %d\n" +
+                        "#SBATCH -n %d\n" +
+                        "#SBATCH -t %s\n" +
+                        "#SBATCH --mem=%d\n" +
+                        "%s %s > ../output/%s\n",
+                getJobInputDirectory(),
+                schedulerOutputName,
+                queueName, numNodes, numProcessors, walltime,
+                mem, gamessPath,
+                inputFilePath,
+                outputFilename
+        );
     }
 
-    public String submit(String input) {
+    public void prepareJob(String efpmdPath, String inputFilePath, String outputFilename){
+        this.inputFilePath = inputFilePath;
+    }
+
+    public String submit(String input, String pemKey) {
         String jobID = UUID.randomUUID().toString();
         try {
             /* Write the submission script to the server */
             File submissionScript = createSubmissionScript(input);
             submissionScript.deleteOnExit();
-            Connection con = new Connection(hostname);
-            con.connect();
-            boolean isAuthenticated = con.authenticateWithPassword(username, password);
+            org.ispiefp.app.util.Connection con = new Connection(server, pemKey);
+            boolean isAuthenticated = con.connect();
             if (!isAuthenticated) {
                 System.err.println("Was unable to authenticate user");
                 con.close();
@@ -79,7 +97,7 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
             }
             SCPClient scp = con.createSCPClient();
             String remoteFileName = jobName + ".slurm";
-            SCPOutputStream scpos = scp.put(remoteFileName, submissionScript.length(), REMOTE_LIBEFP_IN, "0666");
+            SCPOutputStream scpos = scp.put(remoteFileName, submissionScript.length(), getJobInputDirectory(), "0666");
             FileInputStream in = new FileInputStream(submissionScript);
             IOUtils.copy(in, scpos);
             in.close();
@@ -87,7 +105,7 @@ public class libEFPSlurmSubmission extends libEFPSubmission {
             /* Reopen the session and call sbatch on the submission script */
             Session s = con.openSession();
             //todo: Eventually someone will need to remove the hard coded "\n" below and replace it with the line delimiter of the SERVER not the user's computer. Look at uname command.
-            String queueCommand = String.format("sbatch %s\n", REMOTE_LIBEFP_IN + remoteFileName);
+            String queueCommand = String.format("sbatch %s\n", getJobInputDirectory() + remoteFileName);
             s.execCommand(queueCommand);
             System.out.println("Executed command: " + queueCommand);
             s.close();

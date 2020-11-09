@@ -14,13 +14,13 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.apache.commons.io.IOUtils;
 import org.controlsfx.control.CheckComboBox;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.server.*;
 import org.ispiefp.app.submission.SubmissionHistoryController;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.util.Connection;
 import org.ispiefp.app.util.ExecutePython;
 import org.ispiefp.app.util.UserPreferences;
 import org.ispiefp.app.visualizer.ViewerHelper;
@@ -586,7 +586,7 @@ public class libEFPInputController implements Initializable {
      * @throws InterruptedException
      */
     public void handleSubmit() throws IOException, InterruptedException {
-        libEFPSubmission submission = null; /* Submitter responsible for dealing with server scheduling system */
+        Submission submission = null; /* Submitter responsible for dealing with server scheduling system */
         String password = null;             /* Password of the user for the server */
         String username = null;             /* Username of the user for the server */
         String jobID = null;                /* JobID for the job the user submits  */
@@ -594,11 +594,11 @@ public class libEFPInputController implements Initializable {
         selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
         if (selectedServer.getScheduler().equals("SLURM")) {
-            submission = new libEFPSlurmSubmission(selectedServer, title.getText());
+            submission = new slurmSubmission(selectedServer, title.getText(), "LIBEFP");
         }
         //TODO: Handle case of PBS and Torque
         else if (selectedServer.getScheduler().equals("PBS")) {
-            submission = new libEFPSlurmSubmission(selectedServer, title.getText());
+            submission = new slurmSubmission(selectedServer, title.getText(), "LIBEFP");
         }
         username = submission.username;
         password = submission.password;
@@ -619,20 +619,27 @@ public class libEFPInputController implements Initializable {
         /* Check if user closed the options without hitting submit */
         if (!subScriptCont.isSubmitted()) return;
 
+        org.ispiefp.app.util.Connection con = new Connection(selectedServer, null);
+        if (!con.connect()){
+            System.err.println("Could not authenticate the user. Exiting submission...");
+            return;
+
+        }
+        String keyPassword = con.getKeyPassword();
         /* Create the job workspace */
-        if (!submission.createJobWorkspace(title.getText())){
+        if (!submission.createJobWorkspace(title.getText(), keyPassword)){
             return;
         }
         /* Send input files */
         createInputFile(submission.inputFilePath, this.libEFPInputsDirectory);
         File inputFile = new File(this.libEFPInputsDirectory + submission.inputFilePath);
-        if (!submission.sendInputFile(inputFile)) {
+        if (!submission.sendInputFile(inputFile, keyPassword)) {
             System.err.println("Was unable to send the input file to the server");
             return;
         }
 
         /* Send EFP files */
-        if (!submission.sendEFPFiles(efpFiles)) {
+        if (!submission.sendEFPFiles(efpFiles, keyPassword)) {
             System.err.println("Was unable to send EFP files to the server");
             return;
         }
@@ -640,35 +647,15 @@ public class libEFPInputController implements Initializable {
         DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
         Date date = new Date();
         String currentTime = dateFormat.format(date).toString();
-//
-//        Session sess
-//        InputStream stdout = new StreamGobbler(sess.getStdout());
-//        BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-//        String clusterjobID = "";
-//        while (true) {
-//            String line = br.readLine();
-//            if (line == null)
-//                break;
-//            System.out.println(line);
-//            String[] tokens = line.split("\\.");
-//            if (tokens[0].matches("\\d+")) {
-//                clusterjobID = tokens[0];
-//            }
-//        }
-//        System.out.println(clusterjobID);
-//        br.close();
-//        stdout.close();
-//        sess.close();
-//        con.close();
 
         String time = currentTime; //equivalent but in different formats
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-        submission.submit(subScriptCont.getUsersSubmissionScript());
+        submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
         currentTime = dateFormat.format(date).toString();
 //        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
-        JobManager jobManager = new JobManager(username, password, selectedServer.getHostname(),
-                localWorkingDirectory.getText(), submission.outputFilename, title.getText(),
-                currentTime, "QUEUE", "LIBEFP");
+        JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
+                submission.outputFilename, title.getText(),
+                currentTime, "QUEUE", "LIBEFP", keyPassword);
         UserPreferences.getJobsMonitor().addJob(jobManager);
         Stage currentStage = (Stage) root.getScene().getWindow();
         currentStage.close();

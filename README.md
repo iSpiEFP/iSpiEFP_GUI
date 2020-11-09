@@ -145,3 +145,14 @@ __port 8080__. There are currently two servers for iSpiEFP to use and they shoul
   2.2: point to the iSpiEFP_GUI.jar and select Build\
   2.3: in the out/artifacts/iSpiEFP_GUI_jar folder is the iSpiEFP_GUI.jar.
 
+### Generating private keys with OpenSSL
+#### Windows
+Use [this link](https://www.cloudinsidr.com/content/how-to-install-the-most-recent-version-of-openssl-on-windows-10-in-64-bit/) and follow up through step 3 to install and set up OpenSSL, then run the command listed in the Linux section in OpenSSL
+#### Mac
+Use [this link](https://medium.com/@timmykko/using-openssl-library-with-macos-sierra-7807cfd47892) to install and link OpenSSL, then run the command listed in the Linux section in OpenSSL
+#### Linux
+Run OpenSSL and run the following command:\
+\
+**openssl req -newkey rsa:2048 -nodes -keyout <home_directory>/.ssh/key.pem -x509 -days 365 -out <home_directory>/.ssh/certificate.pem**\
+\
+Replace <home_directory> with the either the path of the home directory or the environment variable for the home directory on your operating system.

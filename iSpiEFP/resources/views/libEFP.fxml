@@ -11,7 +11,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
-<?import org.controlsfx.control.CheckComboBox?>
+<!--?import org.controlsfx.control.CheckComboBox?>-->
 <?import javafx.scene.control.Label?>
 
 <?import javafx.scene.layout.GridPane?>
@@ -20,6 +20,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.CheckComboBox?>
 <TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.libEFPInputController">
     <Tab text="main">
         <VBox maxWidth="Infinity" spacing="10">
