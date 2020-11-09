@@ -1,6 +1,8 @@
 package org.ispiefp.app;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,11 +11,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.scene.*;
-import javafx.scene.chart.*;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -50,11 +50,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.imageio.ImageIO;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.io.*;
@@ -62,14 +57,16 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 
 import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
 import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
-import static org.junit.Assert.assertTrue;
 
 public class MainViewController {
 
@@ -92,12 +89,6 @@ public class MainViewController {
     private ProgressIndicator pit = new ProgressIndicator();
 
     private JmolMainPanel jmolMainPanel;    //Main Viewer Container for Jmol Viewer
-    private double upperXBound;
-    private double upperYBound;
-    private double maxXVal;
-    private double maxYVal;
-    private boolean xPressed;
-    private boolean yPressed;
 
     @FXML
     private Parent root;
@@ -430,7 +421,6 @@ public class MainViewController {
      * @throws UnrecognizedAtomException
      */
     public void fileOpen() throws IOException, UnrecognizedAtomException {
-
         openRecentMenu.getItems().clear();
         // pit.setProgress(100);
         FileChooser fileChooser = new FileChooser();
@@ -632,7 +622,7 @@ public class MainViewController {
         }
     }
 
-    public void openSettings() throws IOException{
+    public void openSettings() throws IOException {
         Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
         stage.setMinWidth(800);
@@ -687,7 +677,7 @@ public class MainViewController {
             // ... user chose OK
             System.out.println("Stage is closing");
             Main.getPrimaryStage().close();
-            Platform.exit();
+            System.exit(0);
         } else {
             // ... user chose CANCEL or closed the dialog
             System.out.println("User cancelled. Stage not closing");
@@ -851,11 +841,11 @@ public class MainViewController {
     /******************************************************************************************
      *             SEARCH MENU BEGINS                                                         *
      ******************************************************************************************/
-//    @FXML
+    @FXML
     /**
      * Handle Search Fragments button. Search the database for similar fragments to the current molecule
      */
-//    public void searchFindEFPPublicDatabase() throws IOException {
+    public void searchFindEFPPublicDatabase() throws IOException {
 //        if (!lastOpenedFile.isEmpty()) {
 //            //set divider positions
 //            middleRightSplitPane.setDividerPositions(0.6f, 0.4f);
@@ -875,7 +865,7 @@ public class MainViewController {
 //        } else {
 //            System.out.println("No file was opened");
 //        }
-//    }
+    }
 
     /******************************************************************************************
      *             CALCULATE MENU BEGINS                                                      *
@@ -948,7 +938,7 @@ public class MainViewController {
 
 
     @FXML
-    public void calculateGamessSetup () throws IOException {
+    public void calculateGamessSetup() throws IOException {
         String noInternetWarning = "You are not currently connected to the internet.\n\n" +
                 "You will not be able to submit GAMESS jobs to a cluster.";
         if (!CheckInternetConnection.checkInternetConnection()) {
@@ -975,7 +965,6 @@ public class MainViewController {
         stage.setTitle("Select Fragment");
         stage.setScene(new Scene(gamessSubmissionParent));
         stage.showAndWait();
-
     }
 
     @FXML
@@ -1592,99 +1581,99 @@ stage.show();
 //        stage.show();
 //
     }
-    public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
-        File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
-    try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
-    }
-    assertTrue(csvOutputFile.exists());
-    }
+//    public void givenDataArray_whenConvertToCSV_thenOutputCreated(List<String[]> dataLines, String csvPath, String fileName) throws IOException {
+//        File csvOutputFile = new File(csvPath + "/" + fileName + ".csv");
+//    try (PrintWriter pw = new PrintWriter(csvOutputFile)) { dataLines.stream().map(this::convertToCSV).forEach(pw::println);
+//    }
+//    assertTrue(csvOutputFile.exists());
+//    }
+//
+//
+//
+//    public String convertToCSV(String[] data) {
+//        return Stream.of(data)
+//                .map(this::escapeSpecialCharacters)
+//                .collect(Collectors.joining(","));
+//    }
 
-
-
-    public String convertToCSV(String[] data) {
-        return Stream.of(data)
-                .map(this::escapeSpecialCharacters)
-                .collect(Collectors.joining(","));
-    }
-
-    public String escapeSpecialCharacters(String data) {
-        String escapedData = data.replaceAll("\\R", " ");
-        if (data.contains(",") || data.contains("\"") || data.contains("'")) {
-            data = data.replace("\"", "\"\"");
-            escapedData = "\"" + data + "\"";
-        }
-        return escapedData;
-    }
-
-    public int getExponent(double bound) {
-        int pow = 0;
-        int boundInt = (int) bound;
-
-        boundInt /= 10;
-        while (boundInt != 0) {
-            pow++;
-            boundInt /= 10;
-        }
-        return pow;
-    }
-
-    public void showErrorDialog(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error!");
-        alert.setHeaderText("Number Entry Error");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    @FXML
-    public void showEnergyAnalysis() {
-
-        Stage stage = new Stage();
-        stage.setTitle("Energy Analysis");
-
-        CategoryAxis xAxis = new CategoryAxis();
-        xAxis.setLabel("Total");
-        NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Energy (kcal/mol)");
-        yAxis.setTickUnit(100);
-
-        BarChart chart = new BarChart(xAxis, yAxis);
-
-        XYChart.Series dataSeries1 = new XYChart.Series();
-
-       dataSeries1.setName("Dummy Vals");
-
-        double electrostatVal = -30.0;
-        double exchRepulsVal = 40.0;
-        double polarVal = -12.5;
-        double dispersVal = -20.0;
-        double totalVal = electrostatVal + exchRepulsVal + polarVal + dispersVal;
-
-        VBox vBox = new VBox(chart);
-        Scene scene = new Scene(vBox, 800, 800);
-
-        scene.getStylesheets().add("bar_styles.css");
-
-
-        dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
-        dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
-        dataSeries1.getData().add(new XYChart.Data("Polarization", polarVal));
-        dataSeries1.getData().add(new XYChart.Data("Dispersion", dispersVal));
-        dataSeries1.getData().add(new XYChart.Data("Total", totalVal));
-
-        chart.getData().add(dataSeries1);
-
-       // System.out.println("Chart Width: " + chart.getWidth());        //chart.setMaxWidth(50);
-
-        chart.setMaxWidth(500);
-        stage.setScene(scene);
-        stage.setHeight(450);
-        stage.setWidth(500);
-        stage.show();
-    }
-    /**
-     * Handle Play Pause. Capture Molecule
-     */
+    //    public String escapeSpecialCharacters(String data) {
+//        String escapedData = data.replaceAll("\\R", " ");
+//        if (data.contains(",") || data.contains("\"") || data.contains("'")) {
+//            data = data.replace("\"", "\"\"");
+//            escapedData = "\"" + data + "\"";
+//        }
+//        return escapedData;
+//    }
+//
+//    public int getExponent(double bound) {
+//        int pow = 0;
+//        int boundInt = (int) bound;
+//
+//        boundInt /= 10;
+//        while (boundInt != 0) {
+//            pow++;
+//            boundInt /= 10;
+//        }
+//        return pow;
+//    }
+//
+//    public void showErrorDialog(String message) {
+//        Alert alert = new Alert(Alert.AlertType.ERROR);
+//        alert.setTitle("Error!");
+//        alert.setHeaderText("Number Entry Error");
+//        alert.setContentText(message);
+//        alert.showAndWait();
+//    }
+//
+//    @FXML
+//    public void showEnergyAnalysis() {
+//
+////        Stage stage = new Stage();
+//        stage.setTitle("Energy Analysis");
+//
+//        CategoryAxis xAxis = new CategoryAxis();
+//        xAxis.setLabel("Total");
+//        NumberAxis yAxis = new NumberAxis();
+//        yAxis.setLabel("Energy (kcal/mol)");
+//        yAxis.setTickUnit(100);
+//
+//        BarChart chart = new BarChart(xAxis, yAxis);
+//
+//        XYChart.Series dataSeries1 = new XYChart.Series();
+//
+//       dataSeries1.setName("Dummy Vals");
+//
+//        double electrostatVal = -30.0;
+//        double exchRepulsVal = 40.0;
+//        double polarVal = -12.5;
+//        double dispersVal = -20.0;
+//        double totalVal = electrostatVal + exchRepulsVal + polarVal + dispersVal;
+//
+//        VBox vBox = new VBox(chart);
+//        Scene scene = new Scene(vBox, 800, 800);
+//
+//        scene.getStylesheets().add("bar_styles.css");
+//
+//
+//        dataSeries1.getData().add(new XYChart.Data("Electrostatic", electrostatVal));
+//        dataSeries1.getData().add(new XYChart.Data("Exchange-Repulsion", exchRepulsVal));
+//        dataSeries1.getData().add(new XYChart.Data("Polarization", polarVal));
+//        dataSeries1.getData().add(new XYChart.Data("Dispersion", dispersVal));
+//        dataSeries1.getData().add(new XYChart.Data("Total", totalVal));
+//
+//        chart.getData().add(dataSeries1);
+//
+//       // System.out.println("Chart Width: " + chart.getWidth());        //chart.setMaxWidth(50);
+//
+//        chart.setMaxWidth(500);
+//        stage.setScene(scene);
+//        stage.setHeight(450);
+//        stage.setWidth(500);
+//        stage.show();
+//    }
+//    /**
+//     * Handle Play Pause. Capture Molecule
+//     */
     @FXML
     public void togglePlay() {
         playPauseButton.setText("");
