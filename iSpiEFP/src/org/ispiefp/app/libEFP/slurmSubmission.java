@@ -83,7 +83,6 @@ public class slurmSubmission extends Submission {
     }
 
     public String submit(String input, String pemKey) {
-        String jobID = UUID.randomUUID().toString();
         try {
             /* Write the submission script to the server */
             File submissionScript = createSubmissionScript(input);
@@ -95,6 +94,8 @@ public class slurmSubmission extends Submission {
                 con.close();
                 return "Error: User could not be authenticated";
             }
+
+            /* sending the file to server */
             SCPClient scp = con.createSCPClient();
             String remoteFileName = jobName + ".slurm";
             SCPOutputStream scpos = scp.put(remoteFileName, submissionScript.length(), getJobInputDirectory(), "0666");
@@ -102,14 +103,29 @@ public class slurmSubmission extends Submission {
             IOUtils.copy(in, scpos);
             in.close();
             scpos.close();
+
             /* Reopen the session and call sbatch on the submission script */
             Session s = con.openSession();
             //todo: Eventually someone will need to remove the hard coded "\n" below and replace it with the line delimiter of the SERVER not the user's computer. Look at uname command.
             String queueCommand = String.format("sbatch %s\n", getJobInputDirectory() + remoteFileName);
             s.execCommand(queueCommand);
-            System.out.println("Executed command: " + queueCommand);
+            StringBuilder outputJobId = new StringBuilder();
+            int i;
+            char c;
+            try {
+                InputStream output = s.getStdout();
+                while ((i = output.read()) != -1) {
+                    c = (char) i;
+                    if (Character.isDigit(c)) outputJobId.append(c);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // check JobId retrieved
+//            System.out.println(outputJobId);
+//            System.out.println("Executed command: " + queueCommand);
             s.close();
-            return jobID;
+            return outputJobId.toString();
         } catch (IOException e){
             e.printStackTrace();
         }

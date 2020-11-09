@@ -220,6 +220,7 @@ public class GamessInputController implements Initializable {
         String username = null;             /* Username of the user for the server */
         String jobID = null;                /* JobID for the job the user submits  */
 
+        /* If no server is selected */
         if (server.getSelectionModel().getSelectedItem() == null) {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("GAMESS Submission");
@@ -231,6 +232,7 @@ public class GamessInputController implements Initializable {
 
         ServerInfo selectedServer = UserPreferences.getServers().get(server.getSelectionModel().getSelectedItem());
 
+        /* If server does not have GAMESS */
         if (selectedServer.getGamessPath() == null || selectedServer.getGamessPath().equals("")) {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("GAMESS Submission");
@@ -248,8 +250,9 @@ public class GamessInputController implements Initializable {
             submission = new slurmSubmission(selectedServer, title.getText(), "GAMESS");
         }
 
+        // open connection
         Connection con = new Connection(selectedServer, null);
-        if (!con.connect()){
+        if (!con.connect()) {
             System.err.println("Could not authenticate the user. Exiting submission...");
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("GAMESS Submission");
@@ -259,8 +262,16 @@ public class GamessInputController implements Initializable {
             return;
         }
         String keyPassword = con.getKeyPassword();
+
         /* Create the job workspace */
-        if (!submission.createJobWorkspace(title.getText(), keyPassword)){
+        try {
+            if (!submission.createJobWorkspace(title.getText(), keyPassword)) return;
+        } catch (NullPointerException e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("GAMESS Submission");
+            alert.setHeaderText("Error");
+            alert.setContentText("Could not create a workspace.");
+            alert.showAndWait();
             return;
         }
 
@@ -274,6 +285,7 @@ public class GamessInputController implements Initializable {
         stage.setTitle("Submission Script Options");
         stage.setScene(new Scene(subScriptParent));
         stage.showAndWait();
+
         /* Check if user closed the options without hitting submit */
         if (!subScriptCont.isSubmitted()) return;
 
@@ -284,19 +296,17 @@ public class GamessInputController implements Initializable {
             return;
         }
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-        Date date = new Date();
-        String currentTime = dateFormat.format(date.getTime());
-
-        String time = currentTime; //equivalent but in different formats
-        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
-        currentTime = dateFormat.format(date.getTime());
+        /* submit job */
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        String submissionJobId = submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
+        String currentTime = dateFormat.format(new Date().getTime());
         JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
                 submission.getOutputFilename(), title.getText(),
                 currentTime, "QUEUE", "GAMESS", keyPassword);
+        jobManager.setJobID(submissionJobId);
         UserPreferences.getJobsMonitor().addJob(jobManager);
 
+        /* Show alert that job submitted */
         Stage currentStage = (Stage) root.getScene().getWindow();
         currentStage.close();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
