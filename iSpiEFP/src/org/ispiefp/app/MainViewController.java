@@ -3,6 +3,7 @@ package org.ispiefp.app;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -14,6 +15,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.stage.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -24,6 +28,7 @@ import org.ispiefp.app.EFPFileRetriever.LibEFPtoCSV;
 import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.analysis.GeometryAnalysisController;
 import org.ispiefp.app.libEFP.OutputFile;
+import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.libEFP.libEFPInputController;
 import org.ispiefp.app.metaDataSelector.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
@@ -338,7 +343,50 @@ public class MainViewController {
                 e.printStackTrace();
             }
         });
-        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption));
+        MenuItem exportCSVOption = new MenuItem("Export to CSV");
+        exportCSVOption.setOnAction(action -> {
+            String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
+            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
+            if (!records.get(jobID).getStatus().equals("COMPLETE")) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Please wait until job finishes.", ButtonType.OK);
+                alert.showAndWait();
+            } else {
+                String localPathPrefix = records.get(jobID).getLocalOutputFilePath();
+                String output = records.get(jobID).getOutputFilePath();
+                String localPathTotal = localPathPrefix.substring(0, localPathPrefix.indexOf("/")) + File.separator + output;
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Save CSV File");
+                String path = records.get(jobID).getOutputFilePath();
+                String fileName = path.substring(path.lastIndexOf("/") + 1, path.indexOf("."));
+                fileChooser.setInitialDirectory(new File(new File(localPathPrefix).getParent()));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+                Stage currStage = (Stage) root.getScene().getWindow();
+                LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
+                String[] sheets = libEFPtoCSV.getCSVString(localPathTotal);
+                for (int j = 0; j < sheets.length; j++) {
+                    if (sheets[j] != null) {
+                        if (j == 0) {
+                            fileChooser.setInitialFileName(fileName + "_ene.csv");
+                        } else {
+                            fileChooser.setInitialFileName(fileName + "_pw.csv");
+                        }
+                        File file = fileChooser.showSaveDialog(currStage);
+                        if (file != null) {
+                            try {
+                                FileWriter fileWriter = new FileWriter(file);
+                                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                                bufferedWriter.write(sheets[j]);
+                                bufferedWriter.close();
+                                fileWriter.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption, exportCSVOption));
     }
 
     /**
@@ -545,7 +593,7 @@ public class MainViewController {
         } catch (Exception e) {
             System.err.println("FRAGMENT MAIN VIEW ERROR");
         }
-        // stage.showAndWait();    //TODO: Fixxxx. This causes errors when you do Cmnd+Tab
+
         File xyzFile;
 
         try {
@@ -577,6 +625,9 @@ public class MainViewController {
     public void openSettings() throws IOException {
         Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
+        stage.setMinWidth(800);
+        stage.setMinHeight(630);
+        stage.setHeight(630);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Settings");
         stage.setScene(new Scene(settingsView));
@@ -896,7 +947,7 @@ public class MainViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
-        if (jmolMainPanel.getFragmentComponents() == null) {
+        if (jmolMainPanel.getFragmentComponents() == null){
             String noFragmentsSelectedWarning = "You do not currently have any fragments in the viewer to perform" +
                     " calculations on. Add something to the system before attempting to perform GAMESS calculations.";
             Alert alert = new Alert(Alert.AlertType.WARNING,
@@ -907,7 +958,8 @@ public class MainViewController {
         }
         FXMLLoader gamessSubmissionLoader = new FXMLLoader(getClass().getResource("/views/gamessInput.fxml"));
         Parent gamessSubmissionParent = gamessSubmissionLoader.load();
-        GamessInputController gamessCont = gamessSubmissionLoader.getController();
+        GamessInputController gamessInputController = gamessSubmissionLoader.getController();
+        gamessInputController.setXyzFile(JmolHandler.createTempXYZFileFromViewer(jmolMainPanel, 0));
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Select Fragment");
@@ -1120,9 +1172,23 @@ stage.show();
 
     @FXML
     public void showGeomAnalysis() throws IOException {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select Output File to Visualize");
+        fc.setInitialDirectory(new File(System.getProperty("user.home")));
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("LibEFP Output Files", "*.out"));
+        Stage currStage = (Stage) root.getScene().getWindow();
+
+        File file = fc.showOpenDialog(currStage);
+
+        // user canceled file selection
+        if (file == null) return;
         FXMLLoader geoAnalysisLoader = new FXMLLoader(getClass().getResource("/views/analysisViews/GeometryAnalysisView.fxml"));
+        //todo unhardcode this section and give it the OutputFile of the selected output
+        OutputFile outFile = new OutputFile(file.getAbsolutePath());
         Parent geoAnalysisParent = geoAnalysisLoader.load();
         GeometryAnalysisController geometryAnalysisController = geoAnalysisLoader.getController();
+        geometryAnalysisController.setOutputFile(outFile);
+        geometryAnalysisController.setJmolViewer(jmolMainPanel);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setTitle("Geometry Analysis");
@@ -1636,9 +1702,9 @@ stage.show();
         }
     }
 
-    //    /**
-//     * Handle display console button. Display the terminal for scripting with jmol viewer
-//     */
+    /**
+     * Handle display console button. Display the terminal for scripting with jmol viewer
+     */
     @FXML
     public void displayConsole() {
         //create window for console
@@ -1685,69 +1751,69 @@ stage.show();
         }
     }
 
-//    /**
-//     * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
-//     */
+    /**
+     * Handle libefp button. Invoke Libefp Box for submitting a libefp job with the molecule.
+     */
     @FXML
     public void libefp() {
         System.out.println("libefp button");
         //TODO need to call libefp constructor
     }
-//
-//    public void VisualizeLibEFPResultFile() {
-//        try {
-//            File outFile = new File("iSpiEFP/pbc_1.out");
-//            File tempOutFile = new File("testTemp.xyz");
-//
-//            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
-//            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
-//
-//            boolean startOfGeometry = false;
-//            boolean moleculeRead = false;
-//            int count = 0;
-//            String finalOut = "";
-//            int maxStep = 0;
-//
-//            while (true) {
-//                String line = bufferedReader.readLine();
-//                if (line == null) break;
-//                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
-//                else if (line.contains("FINAL STATE")) startOfGeometry = true;
-//                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
-//                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
-//                else if (startOfGeometry) {
-//                    line = line.replaceAll(" +", " ");
-//                    String[] unprocessedLine = line.split(" ");
-//                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
-//                        if (moleculeRead) break;
-//                    } else {
-//                        moleculeRead = true;
-//                        for (String s : unprocessedLine) {
-//                            if (s.equals("")) continue;
-//                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
-//                            else finalOut += s;
-//                            finalOut += " ";
-//                        }
-//                        finalOut += '\n';
-//                        count++;
-//                    }
-//                }
-//            }
-//
-//            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
-//
-//            bufferedWriter.write(finalOut);
-//            bufferedWriter.close();
-//            bufferedReader.close();
-//
-//            jmolMainPanel.removeAll();
-//            jmolMainPanel.openFile(tempOutFile);
-//
-//            tempOutFile.delete();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
+    public void VisualizeLibEFPResultFile() {
+        try {
+            File outFile = new File("iSpiEFP/pbc_1.out");
+            File tempOutFile = new File("testTemp.xyz");
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempOutFile));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
+
+            boolean startOfGeometry = false;
+            boolean moleculeRead = false;
+            int count = 0;
+            String finalOut = "";
+            int maxStep = 0;
+
+            while (true) {
+                String line = bufferedReader.readLine();
+                if (line == null) break;
+                else if (line.contains("max_steps")) maxStep = Integer.parseInt(line.split(" ")[1]);
+                else if (line.contains("FINAL STATE")) startOfGeometry = true;
+                else if (line.contains("STATE AFTER " + maxStep + " STEPS")) startOfGeometry = true;
+                else if (line.contains("SINGLE POINT ENERGY JOB")) startOfGeometry = true;
+                else if (startOfGeometry) {
+                    line = line.replaceAll(" +", " ");
+                    String[] unprocessedLine = line.split(" ");
+                    if (unprocessedLine.length != 4 || unprocessedLine[0].charAt(0) != 'A') {
+                        if (moleculeRead) break;
+                    } else {
+                        moleculeRead = true;
+                        for (String s : unprocessedLine) {
+                            if (s.equals("")) continue;
+                            else if (s.contains("A")) finalOut += s.substring(1).replaceAll("[0-9]", "");
+                            else finalOut += s;
+                            finalOut += " ";
+                        }
+                        finalOut += '\n';
+                        count++;
+                    }
+                }
+            }
+
+            finalOut = count + "\n" + "comment\n" + finalOut.substring(0, finalOut.length() - 1);
+
+            bufferedWriter.write(finalOut);
+            bufferedWriter.close();
+            bufferedReader.close();
+
+            jmolMainPanel.removeAll();
+            jmolMainPanel.openFile(tempOutFile);
+
+            tempOutFile.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /******************************************************************************************
      *             ICON BUTTON HANDLER SECTION ENDS                                           *
