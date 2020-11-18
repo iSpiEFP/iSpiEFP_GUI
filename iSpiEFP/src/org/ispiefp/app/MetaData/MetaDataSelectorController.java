@@ -1,4 +1,4 @@
-package org.ispiefp.app.metaData;
+package org.ispiefp.app.MetaData;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

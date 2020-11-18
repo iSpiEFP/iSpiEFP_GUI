@@ -23,7 +23,7 @@ import javafx.stage.StageStyle;
 import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.jobSubmission.*;
 import org.ispiefp.app.libEFP.LibEFPInputController;
-import org.ispiefp.app.metaData.MetaDataSelectorController;
+import org.ispiefp.app.MetaData.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.util.*;
 import org.ispiefp.app.visualizer.JmolMainPanel;
@@ -199,7 +199,7 @@ public class MainViewController {
                 HashSet<String> accountedForJobs = new HashSet<>();
                 ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
                 historyRoot.setValue("Jobs");
-                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
                 System.out.printf("Size of tMap is currently %d%n", tMap.size());
                 System.out.printf("Size of records is currently %d%n", records.size());

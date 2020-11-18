@@ -11,6 +11,7 @@ import org.ispiefp.app.util.Connection;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
@@ -32,8 +33,8 @@ public class SlurmSubmission extends Submission {
         this.mem = mem;
     }
 
-    public SlurmSubmission(ServerInfo server, String jobName, String submissionType) {
-        super(server, jobName, submissionType);
+    public SlurmSubmission(ServerInfo server, String jobName, String submissionType){
+        super(server, jobName.replace(" ", "_"), submissionType);
     }
 
     File createSubmissionScript(String input) throws IOException {
@@ -86,7 +87,6 @@ public class SlurmSubmission extends Submission {
     }
 
     public String submit(String input, String pemKey) {
-        String jobID = UUID.randomUUID().toString();
         try {
             /* Write the submission script to the server */
             File submissionScript = createSubmissionScript(input);
@@ -98,6 +98,8 @@ public class SlurmSubmission extends Submission {
                 con.close();
                 return "Error: User could not be authenticated";
             }
+
+            /* sending the file to server */
             SCPClient scp = con.createSCPClient();
             String remoteFileName = jobName + ".slurm";
             SCPOutputStream scpos = scp.put(remoteFileName, submissionScript.length(), getJobInputDirectory(), "0666");
@@ -105,14 +107,29 @@ public class SlurmSubmission extends Submission {
             IOUtils.copy(in, scpos);
             in.close();
             scpos.close();
+
             /* Reopen the session and call sbatch on the submission script */
             Session s = con.openSession();
             //todo: Eventually someone will need to remove the hard coded "\n" below and replace it with the line delimiter of the SERVER not the user's computer. Look at uname command.
             String queueCommand = String.format("sbatch %s\n", getJobInputDirectory() + remoteFileName);
             s.execCommand(queueCommand);
-            System.out.println("Executed command: " + queueCommand);
+            StringBuilder outputJobId = new StringBuilder();
+            int i;
+            char c;
+            try {
+                InputStream output = s.getStdout();
+                while ((i = output.read()) != -1) {
+                    c = (char) i;
+                    if (Character.isDigit(c)) outputJobId.append(c);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // check JobId retrieved
+//            System.out.println(outputJobId);
+//            System.out.println("Executed command: " + queueCommand);
             s.close();
-            return jobID;
+            return outputJobId.toString();
         } catch (IOException e){
             e.printStackTrace();
         }

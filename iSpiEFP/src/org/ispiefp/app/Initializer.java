@@ -3,7 +3,7 @@ package org.ispiefp.app;
 import org.apache.commons.io.FilenameUtils;
 import org.ispiefp.app.installer.BundleManager;
 import org.ispiefp.app.installer.LocalBundleManager;
-import org.ispiefp.app.metaData.LocalFragmentTree;
+import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.util.ExecutePython;
 import org.ispiefp.app.util.UserPreferences;
 

@@ -19,7 +19,7 @@ import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.jobSubmission.SlurmSubmission;
 import org.ispiefp.app.jobSubmission.Submission;
 import org.ispiefp.app.jobSubmission.SubmissionHistoryController;
-import org.ispiefp.app.metaData.MetaData;
+import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.ServerInfo;

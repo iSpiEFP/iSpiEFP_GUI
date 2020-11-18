@@ -36,7 +36,7 @@ public class JobsMonitor implements Runnable {
     public void addJob(JobManager jm) {
         jobs.add(jm);
         SubmissionRecord record = new SubmissionRecord(jm.getTitle(), jm.getStatus(), jm.getDate(), jm.getJobID());
-        records.put(jm.getJobID(), record);
+        records.put(jm.getTitle(), record);
         record.setJobManager(jm);
         if (numRecords == MAX_RECORDS) {
             //todo Add some method of removing the oldest record.

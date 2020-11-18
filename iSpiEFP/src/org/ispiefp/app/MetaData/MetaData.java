@@ -1,4 +1,4 @@
-package org.ispiefp.app.metaData;
+package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
 import org.ispiefp.app.util.GithubRequester;
