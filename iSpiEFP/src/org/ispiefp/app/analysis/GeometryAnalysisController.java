@@ -1,52 +1,31 @@
 package org.ispiefp.app.analysis;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import org.ispiefp.app.Main;
-import org.ispiefp.app.libEFP.OutputFile;
+import org.ispiefp.app.libEFP.LibEFPOutputFile;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 import org.jmol.api.JmolViewer;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.junit.Assert.assertTrue;
 
 public class GeometryAnalysisController implements Initializable {
     /* Generic class variables */
@@ -84,7 +63,7 @@ public class GeometryAnalysisController implements Initializable {
     double lastYPosition;
 
     /* Instance specific variables */
-    OutputFile outputFile;
+    LibEFPOutputFile outputFile;
     XYChart.Series<Integer, Double> dataSeries;
     JmolMainPanel mainPanel;
     JmolViewer viewer;
@@ -298,11 +277,11 @@ public class GeometryAnalysisController implements Initializable {
         analyzeEnergyDecomposition();
     }
 
-    public void setOutputFile(OutputFile outputFile) {
+    public void setOutputFile(LibEFPOutputFile outputFile) {
         this.outputFile = outputFile;
         Map<Integer, Double> dataMap = new HashMap<>();
         int i = 0;
-        for (OutputFile.State state : outputFile.getStates()){
+        for (LibEFPOutputFile.State state : outputFile.getStates()) {
             dataMap.put(i++, state.getEnergyComponents().getTotalEnergy());
         }
         chart.setTitle(String.format("%s vs. %s (%s)", yAxis.getLabel(), xAxis.getLabel(), unitsSelector.getSelectionModel().getSelectedItem()));
@@ -315,7 +294,7 @@ public class GeometryAnalysisController implements Initializable {
         if (energyChart.getData() != null){
             energyChart.getData().clear();
         }
-        OutputFile.State state = outputFile.getStates().get(currentStateIndex);
+        LibEFPOutputFile.State state = outputFile.getStates().get(currentStateIndex);
         double electostaticEnergy = state.getEnergyComponents().getElectrostaticEnergy();
         double exchangeRepulsionEnergy = state.getEnergyComponents().getExchangeRepulsionEnergy();
         double polarizationEnergy = state.getEnergyComponents().getPolarizationEnergy();

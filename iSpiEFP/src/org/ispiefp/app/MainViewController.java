@@ -1,11 +1,6 @@
 package org.ispiefp.app;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.property.BooleanProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,23 +16,16 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
-import javafx.stage.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.ispiefp.app.EFPFileRetriever.LibEFPtoCSV;
-//import org.ispiefp.app.gamess.gamessInputController;
-//import org.ispiefp.app.gamess.GamessInputController;
-import org.ispiefp.app.gamess.GamessInputController;
+import org.ispiefp.app.MetaData.MetaDataSelectorController;
 import org.ispiefp.app.analysis.GeometryAnalysisController;
-import org.ispiefp.app.libEFP.OutputFile;
 import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.jobSubmission.*;
 import org.ispiefp.app.libEFP.LibEFPInputController;
-import org.ispiefp.app.MetaData.MetaDataSelectorController;
+import org.ispiefp.app.libEFP.LibEFPOutputFile;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.util.*;
 import org.ispiefp.app.visualizer.JmolMainPanel;
@@ -52,16 +40,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.prefs.Preferences;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 
 import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
 import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
+
+//import org.ispiefp.app.gamess.gamessInputController;
+//import org.ispiefp.app.gamess.GamessInputController;
 
 public class MainViewController {
 
@@ -1178,7 +1162,7 @@ stage.show();
         if (file == null) return;
         FXMLLoader geoAnalysisLoader = new FXMLLoader(getClass().getResource("/views/analysisViews/GeometryAnalysisView.fxml"));
         //todo unhardcode this section and give it the OutputFile of the selected output
-        OutputFile outFile = new OutputFile(file.getAbsolutePath());
+        LibEFPOutputFile outFile = new LibEFPOutputFile(file.getAbsolutePath());
         Parent geoAnalysisParent = geoAnalysisLoader.load();
         GeometryAnalysisController geometryAnalysisController = geoAnalysisLoader.getController();
         geometryAnalysisController.setOutputFile(outFile);
