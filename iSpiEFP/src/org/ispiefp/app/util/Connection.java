@@ -7,15 +7,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Font;
-import javafx.util.Pair;
-import org.ispiefp.app.loginPack.LoginForm;
 import org.ispiefp.app.server.ServerInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.prefs.Preferences;
 
 public class Connection {
     private String keyPassword;

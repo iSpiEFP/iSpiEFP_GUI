@@ -1,4 +1,4 @@
-package org.ispiefp.app.loginPack;
+package org.ispiefp.app.util;
 
 
 import ch.ethz.ssh2.crypto.Base64;

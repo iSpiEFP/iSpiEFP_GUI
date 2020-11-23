@@ -1,4 +1,4 @@
-package org.ispiefp.app.submission;
+package org.ispiefp.app.jobSubmission;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -13,10 +13,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.jmol.adapter.smarter.SmarterJmolAdapter;
-import org.jmol.viewer.Viewer;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.visualizer.ViewerHelper;
+import org.jmol.adapter.smarter.SmarterJmolAdapter;
+import org.jmol.viewer.Viewer;
 
 import javax.swing.*;
 import java.awt.*;

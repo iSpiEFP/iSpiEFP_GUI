@@ -178,13 +178,12 @@ public class SCPClient {
 
         remoteTargetDirectory = (remoteTargetDirectory.length() > 0) ? remoteTargetDirectory : ".";
 
-        String cmd = "scp -t -d \"" + remoteTargetDirectory + "\"";
-
+        String cmd = "scp -t -d " + remoteTargetDirectory;
 
         sess = conn.openSession();
         sess.execCommand(cmd, charsetName);
 
-        return new SCPOutputStream(this, sess, remoteFile, length, mode);
+        return new SCPOutputStream(this, sess, remoteFile.replace("\\", ""), length, mode);
     }
 
     /**
@@ -204,8 +203,7 @@ public class SCPClient {
         if (remoteFile.length() == 0)
             throw new IllegalArgumentException("Cannot accept empty filename.");
 
-        String cmd = "scp -f";
-        cmd += (" \"" + remoteFile + "\"");
+        String cmd = "scp -f " + remoteFile;
 
         sess = conn.openSession();
         sess.execCommand(cmd, charsetName);

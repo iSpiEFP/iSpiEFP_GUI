@@ -3,7 +3,6 @@ import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.LocalFragmentTree;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.MetaData.MetaHandler;
-import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.util.CheckInternetConnection;
 import org.ispiefp.app.util.VerifyPython;
 import org.junit.Assert;

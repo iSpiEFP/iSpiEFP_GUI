@@ -1,16 +1,17 @@
 package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
-import org.ispiefp.app.EFPFileRetriever.GithubRequester;
+import org.ispiefp.app.util.GithubRequester;
 
-
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.PriorityQueue;
-import java.util.Set;
 
 /* This class is essentially a wrapper for extracting all of the fields from a JSON String          */
 public class MetaData {

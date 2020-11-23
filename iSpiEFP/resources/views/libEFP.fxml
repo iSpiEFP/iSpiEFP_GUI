@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--?import org.controlsfx.control.CheckComboBox?>-->
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
@@ -20,7 +21,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.VBox?>
-<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.libEFP.libEFPInputController">
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.controlsfx.control.CheckComboBox?>
+<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="org.ispiefp.app.libEFP.LibEFPInputController">
     <Tab text="main">
         <VBox maxWidth="Infinity" spacing="10">
             <!--        <SplitPane dividerPositions="0.5, 0.5" maxHeight="Infinity" maxWidth="Infinity" orientation="VERTICAL"
@@ -78,7 +85,7 @@
                           onAction="#updatelibEFPInputText" promptText="0"/>
                 <Label text="Terms:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
                 <Label text="Pol Damp:" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
-                <CheckComboBox fx:id="terms" maxWidth="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+                <CheckComboBox fx:id="terms" maxWidth="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
                 <ComboBox fx:id="pol_damp" maxWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="3"
                           onAction="#updatelibEFPInputText" promptText="1"/>
                 <Label text="Disp Damp:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>

@@ -1,16 +1,17 @@
 package org.ispiefp.app.util;
+
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.jobSubmission.JobsMonitor;
 import org.ispiefp.app.libEFP.CalculationPreset;
-import org.ispiefp.app.submission.JobsMonitor;
 import org.ispiefp.app.server.ServerInfo;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
 import static org.ispiefp.app.util.AESEncryption.decrypt;
 import static org.ispiefp.app.util.AESEncryption.encrypt;
-import java.security.SecureRandom;
 
 
 public class UserPreferences {

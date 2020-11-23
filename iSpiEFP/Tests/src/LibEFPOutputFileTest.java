@@ -1,21 +1,21 @@
-import org.ispiefp.app.libEFP.OutputFile;
+import org.ispiefp.app.libEFP.LibEFPOutputFile;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
-public class OutputFileTest {
+public class LibEFPOutputFileTest {
 
     @Test
     public void testOptimizationJob() {
-        OutputFile of;
+        LibEFPOutputFile of;
         try {
-            of = new OutputFile("iSpiEFP/Tests/TestResources/opt_1.out");
+            of = new LibEFPOutputFile("iSpiEFP/Tests/TestResources/opt_1.out");
             Assert.assertEquals(of.getStates().size(), 49);
-            OutputFile.State state = of.getStates().get(20);
+            LibEFPOutputFile.State state = of.getStates().get(20);
             Assert.assertEquals(state.getEnergyComponents().getTotalEnergy(), -0.0386047900, 0.00000001);
             state.getGeometry().getAtoms();
-            for (OutputFile.State.Geometry.Atom a : state.getGeometry().getAtoms()) {
+            for (LibEFPOutputFile.State.Geometry.Atom a : state.getGeometry().getAtoms()) {
                 System.out.println(a.toString());
             }
         } catch (IOException e) {
@@ -26,9 +26,9 @@ public class OutputFileTest {
 
     @Test
     public void testSinglePointEnergyJob() {
-        OutputFile of;
+        LibEFPOutputFile of;
         try {
-            of = new OutputFile("iSpiEFP/Tests/TestResources/w6b2_energy.out");
+            of = new LibEFPOutputFile("iSpiEFP/Tests/TestResources/w6b2_energy.out");
         } catch (IOException e) {
             System.err.println("Issue while parsing");
             e.printStackTrace();
@@ -37,9 +37,9 @@ public class OutputFileTest {
 
     @Test
     public void testMolecularDynamicsJob() {
-        OutputFile of;
+        LibEFPOutputFile of;
         try {
-            of = new OutputFile("iSpiEFP/Tests/TestResources/w6b2_md.out");
+            of = new LibEFPOutputFile("iSpiEFP/Tests/TestResources/w6b2_md.out");
         } catch (IOException e) {
             System.err.println("Issue while parsing");
             e.printStackTrace();

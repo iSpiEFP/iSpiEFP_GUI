@@ -1,23 +1,14 @@
 package org.ispiefp.app;
 
-import org.apache.commons.io.FileSystem;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.installer.BundleManager;
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.MetaData.*;
 import org.ispiefp.app.util.ExecutePython;
 import org.ispiefp.app.util.UserPreferences;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
 
 
 public class Initializer {

@@ -1,28 +1,4 @@
-package org.ispiefp.app.submission;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.Parent;
-import javafx.scene.control.TableView;
-import org.ispiefp.app.server.JobManager;
-import org.ispiefp.app.server.ServerConfigController;
-import org.ispiefp.app.server.ServerDetails;
-import org.ispiefp.app.server.ServerInfo;
-import org.ispiefp.app.util.UnrecognizedAtomException;
-import org.ispiefp.app.util.UserPreferences;
-import org.xml.sax.SAXException;
-
-import java.io.*;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
+package org.ispiefp.app.jobSubmission;
 
 /**
  * Handle submission History for LIBEFP

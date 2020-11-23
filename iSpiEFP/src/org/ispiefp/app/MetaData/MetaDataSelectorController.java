@@ -1,23 +1,17 @@
-package org.ispiefp.app.metaDataSelector;
+package org.ispiefp.app.MetaData;
 
-import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import org.ispiefp.app.Main;
-import org.ispiefp.app.MainViewController;
-import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.util.CheckInternetConnection;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 

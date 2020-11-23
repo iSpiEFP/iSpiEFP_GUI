@@ -18,11 +18,13 @@ import javafx.util.Callback;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.visualizer.JmolMainPanel;
 import org.ispiefp.app.visualizer.JmolPanel;
-import org.ispiefp.app.visualizer.ViewerHelper;
 import org.jmol.modelset.Atom;
 import org.jmol.viewer.Viewer;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
