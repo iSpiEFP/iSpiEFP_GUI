@@ -15,11 +15,11 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
 import org.ispiefp.app.Main;
+import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.jobSubmission.SlurmSubmission;
 import org.ispiefp.app.jobSubmission.Submission;
 import org.ispiefp.app.jobSubmission.SubmissionHistoryController;
-import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.ServerInfo;
@@ -652,7 +652,7 @@ public class LibEFPInputController implements Initializable {
         String currentTime = dateFormat.format(date).toString();
 
         String time = currentTime; //equivalent but in different formats
-        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
         currentTime = dateFormat.format(date).toString();
 //        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");

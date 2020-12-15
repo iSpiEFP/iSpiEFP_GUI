@@ -63,6 +63,7 @@ public class JobManager implements Runnable {
     public JobManager(ServerInfo si, String localWorkingDirectory, String jobID, String title,
                       String date, String status, String type, String keyPassword){
         server = si;
+        hostname = si.getHostname();
         this.localWorkingDirectory = localWorkingDirectory;
         this.jobID = jobID;
         this.title = title;

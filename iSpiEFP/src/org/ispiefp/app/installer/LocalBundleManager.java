@@ -1,9 +1,6 @@
 package org.ispiefp.app.installer;
 
-import org.jmol.c.FIL;
-
-import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -39,6 +36,7 @@ public class LocalBundleManager {
     public static String LIBRARY_PARAMETERS;    /* For local copies of the default library parameters           */
     public static String MASTER_META_FILE;      /* Contains the meta data of library parameters from start-up   */
     public static String META_DATA_GENERATION;  /* Contains all of the generated MetaDatas at runtime           */
+    public static String JOB_HISTORY_FILE;      /* Contains information of all previously submitted jobs        */
 
     public LocalBundleManager() {
         try {
@@ -48,6 +46,7 @@ public class LocalBundleManager {
             USER_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "user_parameters";
             LIBRARY_PARAMETERS = PARAMETERS + FILE_SEPERATOR + "library_parameters";
             MASTER_META_FILE = PARAMETERS + FILE_SEPERATOR + "libraryMeta.json";
+            JOB_HISTORY_FILE = WORKSPACE + FILE_SEPERATOR + ".jobHistories.config";
 
             META_DATA_GENERATION = WORKSPACE + FILE_SEPERATOR + "MetaDataGeneration" + FILE_SEPERATOR;
             GAMESS = WORKSPACE + FILE_SEPERATOR + "Gamess";
@@ -95,12 +94,17 @@ public class LocalBundleManager {
             missingFiles.add(WORKSPACE);
         }
 
+        //Create jobHistoryFile
+        if (!(new File(JOB_HISTORY_FILE)).exists()) {
+            missingFiles.add(JOB_HISTORY_FILE);
+        }
+
         //Create MetaData generation directory
         if (!(new File(META_DATA_GENERATION)).exists()) {
             missingFiles.add(META_DATA_GENERATION);
         }
 
-        if (!(new File(USER_PARAMETERS).exists())){
+        if (!(new File(USER_PARAMETERS).exists())) {
             missingFiles.add(USER_PARAMETERS);
         }
 
@@ -157,6 +161,9 @@ public class LocalBundleManager {
                 if (bundleType.equals("LIBEFP")) {
                     installLibefp();
                 }
+            } else if (filename.equals(JOB_HISTORY_FILE)) {
+                System.out.println("Creating job history file");
+                createJobHistoryFile();
             } else {
                 System.out.println("Creating file: " + filename);
                 new File(filename).mkdirs();
@@ -170,5 +177,22 @@ public class LocalBundleManager {
 
     private void installLibefp() {
         System.out.println("This function needs to be implemented, no local installation of Libefp found");
+    }
+
+    private void createJobHistoryFile() {
+        File file = new File(JOB_HISTORY_FILE);
+        try {
+            boolean created = file.createNewFile();
+            if (created) {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+                String templateString = String.format("THIS IS AN AUTO-GENERATED FILE. DO NOT MODIFY.%n%n" +
+                        "CONTAINS JOBS%n%n" +
+                        "BEGIN JOBS%n");
+                bw.write(templateString);
+                bw.close();
+            }
+        } catch (IOException ioe) {
+            System.err.println("Was unable to create the job history file");
+        }
     }
 }
