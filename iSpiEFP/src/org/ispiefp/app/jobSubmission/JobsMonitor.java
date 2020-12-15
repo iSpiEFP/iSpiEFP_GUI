@@ -35,9 +35,15 @@ public class JobsMonitor implements Runnable {
 
     public void addJob(JobManager jm) {
         jobs.add(jm);
-        SubmissionRecord record = new SubmissionRecord(jm.getTitle(), jm.getStatus(), jm.getDate(), jm.getJobID());
+        System.out.println("Before creating the submission record");
+        SubmissionRecord record = new SubmissionRecord(jm);
+        System.out.println("After creating the submission record");
+        JobHistory jh = new JobHistory();
+        System.out.println("After creating the Job History");
+        jh.addJob(record);
+        System.out.println("After adding the job to jon history");
         records.put(jm.getTitle(), record);
-        record.setJobManager(jm);
+//        record.setJobManager(jm);
         if (numRecords == MAX_RECORDS) {
             //todo Add some method of removing the oldest record.
         } else numRecords++;
@@ -171,6 +177,8 @@ public class JobsMonitor implements Runnable {
 
     public void deleteRecord(SubmissionRecord record) {
         records.remove(record.getJob_id());
+        JobHistory jh = new JobHistory();
+        jh.deleteJob(record);
     }
 
 //    public void connectSubmissionToJobManager(SubmissionRecord record, JobManager jm){

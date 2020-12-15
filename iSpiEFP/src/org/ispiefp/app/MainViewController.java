@@ -20,10 +20,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.ispiefp.app.MetaData.MetaDataSelectorController;
 import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.jobSubmission.*;
 import org.ispiefp.app.libEFP.LibEFPInputController;
-import org.ispiefp.app.MetaData.MetaDataSelectorController;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.util.*;
 import org.ispiefp.app.visualizer.JmolMainPanel;
@@ -240,7 +240,7 @@ public class MainViewController {
                             jobStatusTreeItem.setValue(currentRecord.getStatus());
                         } else {
                             try {
-                                Date submissionTime = dateFormatter.parse(currentRecord.getTime());
+                                Date submissionTime = dateFormatter.parse(currentRecord.getSubmissionTime());
                                 long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
                                 long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
                                 long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
