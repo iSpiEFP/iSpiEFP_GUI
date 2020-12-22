@@ -3,7 +3,6 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <AnchorPane fx:id="root" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.MainViewController">
     <VBox spacing="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <VBox BorderPane.alignment="CENTER">
@@ -75,15 +74,10 @@
                     </Menu>
                     <Menu mnemonicParsing="false" text="Calculate">
                         <items>
-                            <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
-                            <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
-                            <Menu mnemonicParsing="false" text="Monitor Jobs">
-                                <items>
-                                    <MenuItem mnemonicParsing="false" onAction="#calculateLibefpHistory" text="Libefp History" />
-                                    <MenuItem mnemonicParsing="false" onAction="#calculateGamessHistory" text="Gamess History" />
-                                </items>
-                            </Menu>
-                            <MenuItem mnemonicParsing="false" onAction="#calculateEditServers" text="Edit Servers" />
+                            <MenuItem mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup"/>
+                            <MenuItem mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup"/>
+                            <MenuItem mnemonicParsing="false" onAction="#openHistory" text="Monitor Jobs"/>
+                            <MenuItem mnemonicParsing="false" onAction="#calculateEditServers" text="Edit Servers"/>
                         </items>
                     </Menu>
 

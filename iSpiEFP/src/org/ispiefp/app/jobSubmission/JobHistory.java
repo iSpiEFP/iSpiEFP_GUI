@@ -224,8 +224,12 @@ public class JobHistory {
             try {
                 String currentLine;
                 br = new BufferedReader(new FileReader(masterFile));
-                while (!(currentLine = br.readLine().trim()).equals(containedJobsDelimiter)) ;
-                while (!(currentLine = br.readLine()).isEmpty()) {
+                while (!(currentLine = br.readLine().trim()).equals(jobsDelimiter)) {
+                    System.out.println(currentLine);
+                }
+                while ((currentLine = br.readLine()) != null && !currentLine.isEmpty()) {
+                    currentLine = br.readLine();
+                    System.out.println(currentLine);
                     returnList.add(gson.fromJson(currentLine, SubmissionRecord.class));
                 }
             } catch (IOException ioe) {
