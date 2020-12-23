@@ -195,14 +195,26 @@ public class MainViewController {
              */
             @Override
             protected TreeView<String> call() throws Exception {
-                JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
-                HashSet<String> accountedForJobs = new HashSet<>();
-                ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
+
+                JobHistory jobHistory = new JobHistory();
+                ArrayList<SubmissionRecord> jobHistoryRecord = jobHistory.getJobHistory();
                 historyRoot.setValue("Jobs");
                 SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
-                System.out.printf("Size of tMap is currently %d%n", tMap.size());
-                System.out.printf("Size of records is currently %d%n", records.size());
+                System.out.printf("Size of jobs is currently %d%n", jobHistoryRecord.size());
+                for (SubmissionRecord submissionRecord : jobHistoryRecord) {
+                    Date currentTime = new Date();
+
+                }
+
+
+//                JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
+//                HashSet<String> accountedForJobs = new HashSet<>();
+//                ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
+//                historyRoot.setValue("Jobs");
+//                SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//                System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
+//                System.out.printf("Size of tMap is currently %d%n", tMap.size());
+//                System.out.printf("Size of records is currently %d%n", records.size());
                 while (true) {
                     if (tMap.size() < records.size()) {
                         Enumeration<String> recordEnumeration = records.keys();

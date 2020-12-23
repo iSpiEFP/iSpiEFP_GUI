@@ -15,15 +15,23 @@ public class JobHistory {
     }
 
     public boolean addJob(SubmissionRecord sr) {
+        jobHistory.add(sr);
         return masterFile.addSubmissionRecord(sr);
     }
 
     public boolean deleteJob(SubmissionRecord sr) {
+        jobHistory.remove(sr);
         return masterFile.deleteSubmissionRecord(sr);
     }
 
     public boolean updateJob(SubmissionRecord sr) {
+        jobHistory.removeIf(s -> (s.getJob_id().equals(sr.getJob_id())));
+        jobHistory.add(sr);
         return masterFile.updateSubmissionRecord(sr);
+    }
+
+    public ArrayList<SubmissionRecord> getJobHistory() {
+        return jobHistory;
     }
 
     class JobHistoryFile {

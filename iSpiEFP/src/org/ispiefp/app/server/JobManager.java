@@ -2,6 +2,7 @@ package org.ispiefp.app.server;
 
 import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.SCPInputStream;
+import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import com.google.gson.Gson;
 import javafx.application.Platform;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -107,26 +109,50 @@ public class JobManager implements Runnable {
         org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
-        SCPClient scp = conn.createSCPClient();
-        SCPInputStream scpos = null;
+//        SCPClient scp = conn.createSCPClient();
+//        SCPInputStream scpos = null;
+//        try {
+//            if (this.type != null) {
+//                if (this.type.equals("LIBEFP")) {
+//                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
+//                    scpos.close();
+//                    jobIsDone = true;
+//                } else if (this.type.equals("GAMESS")) {
+//                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
+//                    scpos.close();
+//                    jobIsDone = true;
+//                }
+//            }
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+////            e.printStackTrace();
+//            System.out.printf("Job: %s is running!%n", jobID);
+//            System.out.println(e.getMessage());
+//        }
+
+        Session s = conn.openSession();
+        s.execCommand(String.format("squeue --job=%s\n", jobID));
+
+        // reading result
+        StringBuilder outputString = new StringBuilder();
+        int i;
+        char c;
         try {
-            if (this.type != null) {
-                if (this.type.equals("LIBEFP")) {
-                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
-                    scpos.close();
-                    jobIsDone = true;
-                } else if (this.type.equals("GAMESS")) {
-                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
-                    scpos.close();
-                    jobIsDone = true;
-                }
-            }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-//            e.printStackTrace();
-            System.out.printf("Job: %s is running!%n", jobID);
-            System.out.println(e.getMessage());
+            InputStream output = s.getStdout();
+            while ((i = output.read()) != -1) outputString.append((char) i);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        // extracting status from output
+        String extractStatus = outputString.toString();
+        try {
+            System.out.println(extractStatus.split("\n")[1].split(" +")[5]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // should be done, because squeue doesn't have record
+            return false;
+        }
+        s.close();
         conn.close();
         return jobIsDone;
     }
