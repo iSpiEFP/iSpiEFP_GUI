@@ -1,5 +1,6 @@
 package org.ispiefp.app.jobSubmission;
 
+import com.google.gson.Gson;
 import org.ispiefp.app.installer.LocalBundleManager;
 
 import java.io.*;
@@ -22,6 +23,10 @@ public class JobHistory {
     public boolean deleteJob(SubmissionRecord sr) {
         jobHistory.remove(sr);
         return masterFile.deleteSubmissionRecord(sr);
+    }
+
+    public ArrayList<SubmissionRecord> getHistory() {
+        return masterFile.getHistory();
     }
 
     public boolean updateJob(SubmissionRecord sr) {
@@ -213,6 +218,27 @@ public class JobHistory {
                 while (!(currentLine = br.readLine().trim()).equals(containedJobsDelimiter)) ;
                 while (!(currentLine = br.readLine()).isEmpty()) {
                     returnList.add(currentLine);
+                }
+            } catch (IOException ioe) {
+                System.err.println("Was unable to open the job history file");
+            }
+            return returnList;
+        }
+
+        public ArrayList<SubmissionRecord> getHistory() {
+            ArrayList<SubmissionRecord> returnList = new ArrayList<>();
+            Gson gson = new Gson();
+            BufferedReader br = null;
+            try {
+                String currentLine;
+                br = new BufferedReader(new FileReader(masterFile));
+                while (!(currentLine = br.readLine().trim()).equals(jobsDelimiter)) {
+                    System.out.println(currentLine);
+                }
+                while ((currentLine = br.readLine()) != null && !currentLine.isEmpty()) {
+                    currentLine = br.readLine();
+                    System.out.println(currentLine);
+                    returnList.add(gson.fromJson(currentLine, SubmissionRecord.class));
                 }
             } catch (IOException ioe) {
                 System.err.println("Was unable to open the job history file");
