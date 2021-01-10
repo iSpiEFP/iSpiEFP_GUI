@@ -60,7 +60,7 @@ public class SubmissionRecord {
     }
 
     public String getName() {
-        return job_id;
+        return name;
     }
 
     public String getStatus() {

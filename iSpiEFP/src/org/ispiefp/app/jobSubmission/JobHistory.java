@@ -28,13 +28,7 @@ public class JobHistory {
     }
 
     public boolean updateJob(SubmissionRecord sr) {
-//        jobHistory.removeIf(s -> (s.getJob_id().equals(sr.getJob_id())));
-//        jobHistory.add(sr);
         return masterFile.updateSubmissionRecord(sr);
-    }
-
-    public ArrayList<SubmissionRecord> getJobHistory() {
-        return jobHistory;
     }
 
     class JobHistoryFile {

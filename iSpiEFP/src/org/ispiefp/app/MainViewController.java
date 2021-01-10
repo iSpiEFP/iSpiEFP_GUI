@@ -3,7 +3,9 @@ package org.ispiefp.app;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -198,13 +200,56 @@ public class MainViewController {
             protected TreeView<String> call() throws Exception {
 
                 JobHistory jobHistory = new JobHistory();
-                ArrayList<SubmissionRecord> jobHistoryRecord = jobHistory.getJobHistory();
+                ArrayList<SubmissionRecord> jobHistoryRecord;
                 historyRoot.setValue("Jobs");
                 SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                System.out.printf("Size of jobs is currently %d%n", jobHistoryRecord.size());
-                for (SubmissionRecord submissionRecord : jobHistoryRecord) {
-                    Date currentTime = new Date();
+                HashSet<String> accountedForJobs = new HashSet<>();
 
+                // infinite loop to update history view
+                while (true) {
+                    // get latest status and jobs
+                    jobHistoryRecord = jobHistory.getHistory();
+
+                    // iterate through each job
+                    for (SubmissionRecord submissionRecord : jobHistoryRecord) {
+
+                        // add new job if does not exists yet
+                        if (!accountedForJobs.contains(submissionRecord.getJob_id())) {
+                            TreeItem<String> jobTreeItem = new TreeItem<>(submissionRecord.getName() + " (" + submissionRecord.getJob_id() + ")");
+                            jobTreeItem.getChildren().add(0, new TreeItem<>());
+                            historyRoot.getChildren().add(jobTreeItem);
+                            accountedForJobs.add(submissionRecord.getJob_id());
+                            tMap.put(submissionRecord.getName() + " (" + submissionRecord.getJob_id() + ")", jobTreeItem);
+                        }
+
+                        // update timer and status
+                        Date currentTime = new Date();
+                        TreeItem<String> jobItem = tMap.get(submissionRecord.getName() + " (" + submissionRecord.getJob_id() + ")");
+                        TreeItem<String> jobStatusTreeItem = jobItem.getChildren().get(0);
+                        if (submissionRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
+                            jobStatusTreeItem.setValue(submissionRecord.getStatus());
+                        } else if (submissionRecord.getStatus().equalsIgnoreCase("ERROR")) {
+                            jobStatusTreeItem.setValue(submissionRecord.getStatus());
+                        } else {
+                            try {
+                                Date submissionTime = dateFormatter.parse(submissionRecord.getSubmissionTime());
+                                long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
+                                long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
+                                long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
+                                remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
+                                long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
+                                remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
+                                long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
+
+                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
+                                jobStatusTreeItem.setValue(runningTimeString);
+                            } catch (ParseException e) {
+                                System.err.println("Was unable to parse the time of submission in its current format");
+                            }
+                        }
+
+                    }
+                    Thread.sleep(500);
                 }
 
 
@@ -216,66 +261,67 @@ public class MainViewController {
 //                System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
 //                System.out.printf("Size of tMap is currently %d%n", tMap.size());
 //                System.out.printf("Size of records is currently %d%n", records.size());
-                while (true) {
-                    if (tMap.size() < records.size()) {
-                        Enumeration<String> recordEnumeration = records.keys();
-                        while (recordEnumeration.hasMoreElements()) {
-                            String currentRecordName = recordEnumeration.nextElement();
-                            if (!accountedForJobs.contains(currentRecordName)) {
-                                accountedForJobs.add(currentRecordName);
-//                                Text idText = new Text(currentRecordName);
-                                TreeItem<String> jobIDTreeItem = new TreeItem<>(currentRecordName);
-                                historyRoot.getChildren().add(jobIDTreeItem);
-                                if (!tMap.containsKey(currentRecordName)) {
-                                    tMap.put(currentRecordName, jobIDTreeItem);
-                                    jobIDTreeItem.getChildren().add(0, new TreeItem<>());
-                                }
-                            }
-                        }
-                    }
-                    Date currentTime = new Date();
-                    Enumeration<String> recordEnumeration = records.keys();
-                    while (recordEnumeration.hasMoreElements()) {
-                        String currentRecordName = recordEnumeration.nextElement();
-                        SubmissionRecord currentRecord = records.get(currentRecordName);
-                        TreeItem<String> jobIDTreeItem = tMap.get(currentRecordName);
-//                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
-                        TreeItem<String> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
-//                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
-                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
-//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-//                            statusText.setFill(Color.GREEN);
-                            jobStatusTreeItem.setValue(currentRecord.getStatus());
-//                            jobStatusTreeItem.setValue(statusText);
-                        } else if (currentRecord.getStatus().equalsIgnoreCase("ERROR")) {
-//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-//                            statusText.setFill(Color.RED);
-                            jobStatusTreeItem.setValue(currentRecord.getStatus());
-                        } else {
-                            try {
-                                Date submissionTime = dateFormatter.parse(currentRecord.getSubmissionTime());
-                                long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
-                                long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
-                                long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
-                                remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
-                                long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
-                                remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
-                                long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
-
-                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
-//                                Text timeText = new Text(runningTimeString);
-//                                timeText.setFill(Color.GOLD);
-//                                jobStatusTreeItem.setValue(timeText);
-                                jobStatusTreeItem.setValue(runningTimeString);
-                            } catch (ParseException e) {
-                                System.err.println("Was unable to parse the time of submission in its current format");
-                            }
-                        }
-                    }
-                    Thread.sleep(500);
-                }
+//                while (true) {
+//                    if (tMap.size() < records.size()) {
+//                        Enumeration<String> recordEnumeration = records.keys();
+//                        while (recordEnumeration.hasMoreElements()) {
+//                            String currentRecordName = recordEnumeration.nextElement();
+//                            if (!accountedForJobs.contains(currentRecordName)) {
+//                                accountedForJobs.add(currentRecordName);
+////                                Text idText = new Text(currentRecordName);
+//                                TreeItem<String> jobIDTreeItem = new TreeItem<>(currentRecordName);
+//                                historyRoot.getChildren().add(jobIDTreeItem);
+//                                if (!tMap.containsKey(currentRecordName)) {
+//                                    tMap.put(currentRecordName, jobIDTreeItem);
+//                                    jobIDTreeItem.getChildren().add(0, new TreeItem<>());
+//                                }
+//                            }
+//                        }
+//                    }
+//                    Date currentTime = new Date();
+//                    Enumeration<String> recordEnumeration = records.keys();
+//                    while (recordEnumeration.hasMoreElements()) {
+//                        String currentRecordName = recordEnumeration.nextElement();
+//                        SubmissionRecord currentRecord = records.get(currentRecordName);
+//                        TreeItem<String> jobIDTreeItem = tMap.get(currentRecordName);
+////                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
+//                        TreeItem<String> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
+////                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
+//                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
+////                            Text statusText = new Text("Status: " + currentRecord.getStatus());
+////                            statusText.setFill(Color.GREEN);
+//                            jobStatusTreeItem.setValue(currentRecord.getStatus());
+////                            jobStatusTreeItem.setValue(statusText);
+//                        } else if (currentRecord.getStatus().equalsIgnoreCase("ERROR")) {
+////                            Text statusText = new Text("Status: " + currentRecord.getStatus());
+////                            statusText.setFill(Color.RED);
+//                            jobStatusTreeItem.setValue(currentRecord.getStatus());
+//                        } else {
+//                            try {
+//                                Date submissionTime = dateFormatter.parse(currentRecord.getSubmissionTime());
+//                                long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
+//                                long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
+//                                long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
+//                                remainingTime_ms -= TimeUnit.HOURS.toMillis(hours);
+//                                long mins = TimeUnit.MILLISECONDS.toMinutes(remainingTime_ms);
+//                                remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
+//                                long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
+//
+//                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
+////                                Text timeText = new Text(runningTimeString);
+////                                timeText.setFill(Color.GOLD);
+////                                jobStatusTreeItem.setValue(timeText);
+//                                jobStatusTreeItem.setValue(runningTimeString);
+//                            } catch (ParseException e) {
+//                                System.err.println("Was unable to parse the time of submission in its current format");
+//                            }
+//                        }
+//                    }
+//                    Thread.sleep(500);
+//                }
             }
         }
+
         Task<TreeView<String>> historyTreeUpdater = new HistoryTreeUpdater(historyTreeView);
         new Thread(historyTreeUpdater).start();
 
