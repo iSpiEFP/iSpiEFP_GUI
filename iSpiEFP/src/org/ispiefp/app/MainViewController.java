@@ -43,6 +43,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.ispiefp.app.MetaData.MetaDataSelectorController;
+import org.ispiefp.app.analysis.HistoryViewController;
 import org.ispiefp.app.gamess.GamessInputController;
 import org.ispiefp.app.jobSubmission.*;
 import org.ispiefp.app.libEFP.LibEFPInputController;
@@ -262,7 +263,7 @@ public class MainViewController {
                             jobStatusTreeItem.setValue(currentRecord.getStatus());
                         } else {
                             try {
-                                Date submissionTime = dateFormatter.parse(currentRecord.getTime());
+                                Date submissionTime = dateFormatter.parse(currentRecord.getSubmissionTime());
                                 long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
                                 long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
                                 long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
@@ -970,28 +971,16 @@ public class MainViewController {
     }
 
     @FXML
-    public void calculateGamessHistory() throws IOException {
-//        LoginForm loginForm = new LoginForm("GAMESS");
-//        boolean authorized = loginForm.authenticate();
-//        if (authorized) {
-//            gamessSubmissionHistoryController controller = new gamessSubmissionHistoryController(loginForm.getUsername(), loginForm.getPassword(), loginForm.getHostname());
-//            FXMLLoader loader = new FXMLLoader(
-//                    getClass().getResource(
-//                            "views/submissionHistory.fxml"
-//                    )
-//            );
-//            loader.setController(controller);
-//
-//            Stage stage = new Stage(StageStyle.DECORATED);
-//            stage.setScene(
-//                    new Scene(
-//                            loader.load()
-//                    )
-//            );
-//            stage.initModality(Modality.WINDOW_MODAL);
-//            stage.setTitle("Gamess Submission History");
-//            stage.show();
-//        }
+    public void openHistory() throws IOException {
+        FXMLLoader historyLoader = new FXMLLoader(getClass().getResource("/views/HistoryView.fxml"));
+        Parent historyParent = historyLoader.load();
+        HistoryViewController historyController = historyLoader.getController();
+//        historyController.(jmolMainPanel.viewer);
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setTitle("Job History");
+        stage.setScene(new Scene(historyParent));
+        stage.showAndWait();
     }
 
     @FXML

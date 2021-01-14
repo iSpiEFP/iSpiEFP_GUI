@@ -70,7 +70,7 @@ public class JobViewController {
     public void initialize(){
         jmolPreviewPanel = new JmolMainPanel(previewPane, new ListView<>());
         jobName.setText(record.getJob_id());
-        submissionTime.setText(record.getTime());
+        submissionTime.setText(record.getSubmissionTime());
         if (record.getStatus().equalsIgnoreCase("complete")){
             //todo Add finish time as a field
         }

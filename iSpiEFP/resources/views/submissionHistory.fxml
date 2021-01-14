@@ -56,7 +56,7 @@
     <!--                            </TableColumn>-->
     <!--                            <TableColumn text="Submission Time" prefWidth="355">-->
     <!--                                <cellValueFactory>-->
-    <!--                                    <PropertyValueFactory property="time"/>-->
+    <!--                                    <PropertyValueFactory property="submissionTime"/>-->
     <!--                                </cellValueFactory>-->
     <!--                            </TableColumn>-->
     <!--                        </columns>-->

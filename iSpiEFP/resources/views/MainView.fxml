@@ -96,15 +96,10 @@
                     </Menu>
                     <Menu mnemonicParsing="false" text="Calculate">
                         <items>
-                            <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup" />
-                            <MenuItem disable="false" mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup" />
-                            <Menu mnemonicParsing="false" text="Monitor Jobs">
-                                <items>
-                                    <MenuItem mnemonicParsing="false" onAction="#calculateLibefpHistory" text="Libefp History" />
-                                    <MenuItem mnemonicParsing="false" onAction="#calculateGamessHistory" text="Gamess History" />
-                                </items>
-                            </Menu>
-                            <MenuItem mnemonicParsing="false" onAction="#calculateEditServers" text="Edit Servers" />
+                            <MenuItem mnemonicParsing="false" onAction="#calculateLibefpSetup" text="Libefp Setup"/>
+                            <MenuItem mnemonicParsing="false" onAction="#calculateGamessSetup" text="Gamess Setup"/>
+                            <MenuItem mnemonicParsing="false" onAction="#openHistory" text="Monitor Jobs"/>
+                            <MenuItem mnemonicParsing="false" onAction="#calculateEditServers" text="Edit Servers"/>
                         </items>
                     </Menu>
 

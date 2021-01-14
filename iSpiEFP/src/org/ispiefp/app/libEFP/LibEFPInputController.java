@@ -674,7 +674,7 @@ public class LibEFPInputController implements Initializable {
         String currentTime = dateFormat.format(date).toString();
 
         String time = currentTime; //equivalent but in different formats
-        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
         currentTime = dateFormat.format(date).toString();
 //        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
