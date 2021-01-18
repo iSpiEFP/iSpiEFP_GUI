@@ -4,8 +4,8 @@
  */
 package ch.ethz.ssh2.packets;
 
-import ch.ethz.ssh2.crypto.CryptoWishList;
 import ch.ethz.ssh2.transport.KexParameters;
+import ch.ethz.ssh2.crypto.CryptoWishList;
 
 import java.io.IOException;
 import java.security.SecureRandom;
