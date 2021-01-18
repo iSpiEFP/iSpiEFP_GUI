@@ -5,11 +5,12 @@
 
 package ch.ethz.ssh2.channel;
 
+import ch.ethz.ssh2.transport.MessageHandler;
+import ch.ethz.ssh2.transport.TransportManager;
 import ch.ethz.ssh2.ChannelCondition;
 import ch.ethz.ssh2.log.Logger;
 import ch.ethz.ssh2.packets.*;
-import ch.ethz.ssh2.transport.MessageHandler;
-import ch.ethz.ssh2.transport.TransportManager;
+
 
 import java.io.IOException;
 import java.util.HashMap;

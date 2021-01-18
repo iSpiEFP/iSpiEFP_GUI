@@ -4,9 +4,9 @@
  */
 package ch.ethz.ssh2.transport;
 
-import ch.ethz.ssh2.ConnectionInfo;
 import ch.ethz.ssh2.DHGexParameters;
 import ch.ethz.ssh2.ServerHostKeyVerifier;
+import ch.ethz.ssh2.ConnectionInfo;
 import ch.ethz.ssh2.crypto.CryptoWishList;
 import ch.ethz.ssh2.crypto.KeyMaterial;
 import ch.ethz.ssh2.crypto.cipher.BlockCipher;
@@ -17,6 +17,7 @@ import ch.ethz.ssh2.crypto.digest.MAC;
 import ch.ethz.ssh2.log.Logger;
 import ch.ethz.ssh2.packets.*;
 import ch.ethz.ssh2.signature.*;
+
 
 import java.io.IOException;
 import java.security.SecureRandom;

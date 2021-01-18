@@ -11,7 +11,7 @@ import java.nio.charset.UnsupportedCharsetException;
  * <p/>
  * This scp client is thread safe - you can download (and upload) different sets
  * of files concurrently without any troubles. The <code>SCPClient</code> is
- * actually mapping every request to a distinct {@link ch.ethz.ssh2.Session}.
+ * actually mapping every request to a distinct {@link Session}.
  *
  * @author Christian Plattner, plattner@inf.ethz.ch
  * @version $Id$

@@ -4,12 +4,14 @@
  */
 package ch.ethz.ssh2.auth;
 
-import ch.ethz.ssh2.InteractiveCallback;
 import ch.ethz.ssh2.crypto.PEMDecoder;
-import ch.ethz.ssh2.packets.*;
-import ch.ethz.ssh2.signature.*;
 import ch.ethz.ssh2.transport.MessageHandler;
 import ch.ethz.ssh2.transport.TransportManager;
+import ch.ethz.ssh2.InteractiveCallback;
+import ch.ethz.ssh2.packets.*;
+import ch.ethz.ssh2.signature.*;
+import ch.ethz.ssh2.packets.*;
+import ch.ethz.ssh2.signature.*;
 
 import java.io.IOException;
 import java.security.SecureRandom;

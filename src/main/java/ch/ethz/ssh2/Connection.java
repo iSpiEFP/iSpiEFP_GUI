@@ -13,7 +13,6 @@ import ch.ethz.ssh2.packets.PacketIgnore;
 import ch.ethz.ssh2.transport.KexManager;
 import ch.ethz.ssh2.transport.TransportManager;
 import ch.ethz.ssh2.util.TimeoutService;
-import ch.ethz.ssh2.util.TimeoutService.TimeoutToken;
 
 import java.io.CharArrayWriter;
 import java.io.File;
@@ -623,7 +622,7 @@ public class Connection {
         }
 
         try {
-            TimeoutToken token = null;
+            TimeoutService.TimeoutToken token = null;
 
             if (kexTimeout > 0) {
                 final Runnable timeoutHandler = new Runnable() {
