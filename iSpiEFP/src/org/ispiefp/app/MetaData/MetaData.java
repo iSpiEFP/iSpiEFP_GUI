@@ -1,3 +1,25 @@
+/*
+ *     iSpiEFP is an open source workflow optimization program for chemical simulation which provides an interactive GUI and interfaces with the existing libraries GAMESS and LibEFP.
+ *     Copyright (C) 2021  Lyudmila V. Slipchenko
+ *
+ *     This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU Lesser General Public
+ *     License as published by the Free Software Foundation; either
+ *     version 2.1 of the License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Lesser General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Lesser General Public
+ *     License along with this library; if not, write to the Free Software
+ *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *     USA
+ *
+ *     Please direct all questions regarding iSpiEFP to Lyudmila V. Slipchenko (lslipche@purdue.edu)
+ */
+
 package org.ispiefp.app.MetaData;
 
 import com.google.gson.Gson;
@@ -424,10 +446,9 @@ public class MetaData {
                         coordinates[i].y * numAngstromsInBohr,
                         coordinates[i].z * numAngstromsInBohr));
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             System.err.println("Unable to create a temporary file.");
-        }
-        finally {
+        } finally {
             if (bw != null) bw.close();
         }
         return xyzFile;
@@ -441,22 +462,22 @@ public class MetaData {
     public String getXYZCoords() {
         StringBuilder sb = new StringBuilder();
         double numAngstromsInBohr = 0.52918;
-            //Write the coordinates of each atom to the file
-            for (int i = 0; i < coordinates.length; i++){
-                //Don't include dummy atoms
-                if (coordinates[i].atomID.startsWith("B")){
-                    continue;
-                }
-                //Get the atom type by stripping all numbers from the atomID and removing the leading A
-                String atomType = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
-                atomType = atomType.substring(1);
-                //Follow XYZ file format for each atom
-                sb.append(String.format("%s\t%.5f\t%.5f\t%.5f%n",
-                        atomType,
-                        coordinates[i].x * numAngstromsInBohr,
-                        coordinates[i].y * numAngstromsInBohr,
-                        coordinates[i].z * numAngstromsInBohr));
+        //Write the coordinates of each atom to the file
+        for (int i = 0; i < coordinates.length; i++) {
+            //Don't include dummy atoms
+            if (coordinates[i].atomID.startsWith("B")) {
+                continue;
             }
+            //Get the atom type by stripping all numbers from the atomID and removing the leading A
+            String atomType = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
+            atomType = atomType.substring(1);
+            //Follow XYZ file format for each atom
+            sb.append(String.format("%s\t%.5f\t%.5f\t%.5f%n",
+                    atomType,
+                    coordinates[i].x * numAngstromsInBohr,
+                    coordinates[i].y * numAngstromsInBohr,
+                    coordinates[i].z * numAngstromsInBohr));
+        }
         return sb.toString();
     }
 
@@ -501,10 +522,9 @@ public class MetaData {
             String atomName = coordinates[i].atomID.replaceAll("[^A-Za-z]", "");
             if (atomName.startsWith("B")) continue;
             else atomName = atomName.substring(1);
-            if (atomTypeMap.containsKey(atomName)){
+            if (atomTypeMap.containsKey(atomName)) {
                 atomTypeMap.put(atomName, atomTypeMap.get(atomName) + 1);
-            }
-            else atomTypeMap.put(atomName, 1);
+            } else atomTypeMap.put(atomName, 1);
         }
         Iterator<String> keysItr = atomTypeMap.keySet().iterator();
         while (keysItr.hasNext()){

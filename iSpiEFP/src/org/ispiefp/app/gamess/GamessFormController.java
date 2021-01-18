@@ -1,41 +1,31 @@
-//package org.ispiefp.app.gamess;
-//
-//import javafx.application.Platform;
-//import javafx.beans.Observable;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.event.ActionEvent;
-//import javafx.event.EventHandler;
-//import javafx.fxml.FXMLLoader;
-//import javafx.geometry.Insets;
-//import javafx.scene.Scene;
-//import javafx.scene.control.*;
-//import javafx.scene.control.cell.CheckBoxTableCell;
-//import javafx.scene.control.cell.PropertyValueFactory;
-//import javafx.scene.layout.BorderPane;
-//import javafx.scene.layout.HBox;
-//import javafx.scene.layout.VBox;
-//import javafx.stage.Modality;
-//import javafx.stage.Stage;
-//import javafx.util.Callback;
-//
-//import org.ispiefp.app.MainViewController;
-//import org.jmol.viewer.Viewer;
-//import org.ispiefp.app.visualizer.JmolMainPanel;
-//
-//import java.io.File;
-//import java.io.IOException;
-//import java.text.DateFormat;
-//import java.text.SimpleDateFormat;
-//import java.util.ArrayList;
-//import java.util.Date;
-//import java.util.HashMap;
-//import java.util.List;
-//
-///**
-// * {@link GamessFormController} Class handles Input form for Gamess submission
-// */
-//public class GamessFormController {
+/*
+ *     iSpiEFP is an open source workflow optimization program for chemical simulation which provides an interactive GUI and interfaces with the existing libraries GAMESS and LibEFP.
+ *     Copyright (C) 2021  Lyudmila V. Slipchenko
+ *
+ *     This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU Lesser General Public
+ *     License as published by the Free Software Foundation; either
+ *     version 2.1 of the License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Lesser General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Lesser General Public
+ *     License along with this library; if not, write to the Free Software
+ *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *     USA
+ *
+ *     Please direct all questions regarding iSpiEFP to Lyudmila V. Slipchenko (lslipche@purdue.edu)
+ */
+
+package org.ispiefp.app.gamess;
+
+/**
+ * {@link GamessFormController} Class handles Input form for Gamess submission
+ */
+public class GamessFormController {
 //    private ArrayList<Integer> to_be_submitted;
 //    private ArrayList<Integer> unknownGroups;
 //    private ArrayList<ArrayList> groups;
@@ -252,5 +242,5 @@
 //            });
 //        }
 //    }
-//}
-//
+}
+

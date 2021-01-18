@@ -1,3 +1,25 @@
+/*
+ *     iSpiEFP is an open source workflow optimization program for chemical simulation which provides an interactive GUI and interfaces with the existing libraries GAMESS and LibEFP.
+ *     Copyright (C) 2021  Lyudmila V. Slipchenko
+ *
+ *     This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU Lesser General Public
+ *     License as published by the Free Software Foundation; either
+ *     version 2.1 of the License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Lesser General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Lesser General Public
+ *     License along with this library; if not, write to the Free Software
+ *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *     USA
+ *
+ *     Please direct all questions regarding iSpiEFP to Lyudmila V. Slipchenko (lslipche@purdue.edu)
+ */
+
 package org.ispiefp.app.util;
 
 import org.ispiefp.app.installer.LocalBundleManager;
@@ -73,7 +95,7 @@ public class UserPreferences {
     private static Preferences userPrefs;
 
     public UserPreferences() {
-            userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
+        userPrefs = Preferences.userNodeForPackage(UserPreferences.class);
     }
 
     /**
@@ -151,26 +173,25 @@ public class UserPreferences {
 
         /* Running LibEFP Jobs Inintialization */
         encodedString = userPrefs.get(LIBEFP_RJOBS_KEY, "check");
-        if (!encodedString.equals("check")){
+        if (!encodedString.equals("check")) {
 //            userPrefs.remove(LIBEFP_RJOBS_KEY);
             jobsMonitor = new JobsMonitor(encodedString);
-        }
-        else jobsMonitor = new JobsMonitor();
+        } else jobsMonitor = new JobsMonitor();
     }
 
     public static void addLibEFPPreset(CalculationPreset cp) {
         String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
         System.out.printf("encoded string is %s%n", encodedString);
-        if (encodedString.equals("check")){
+        if (encodedString.equals("check")) {
             userPrefs.put(LIBEFP_PRESETS_KEY, cp.getCalculationPresetDefinedString());
-        }
-        else {
+        } else {
             if (!libefpPresets.containsKey(cp.getTitle())) {
                 userPrefs.put(LIBEFP_PRESETS_KEY, encodedString + "%@%" + cp.getCalculationPresetDefinedString());
             }
             libefpPresets.put(cp.getTitle(), cp);
         }
     }
+
     public static void removeLibEFPPreset(String name){
         libefpPresets.remove(name);
         String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
@@ -191,16 +212,16 @@ public class UserPreferences {
 
     public static void addServer(ServerInfo si){
         String encodedString = userPrefs.get(SERVERS_KEY, "check");
-        if (encodedString.equals("check")){
+        if (encodedString.equals("check")) {
             userPrefs.put(SERVERS_KEY, si.getServerInfoDefinedString());
-        }
-        else {
+        } else {
             if (!servers.containsKey(si.getEntryname())) {
                 userPrefs.put(SERVERS_KEY, encodedString + "%@%" + si.getServerInfoDefinedString());
             }
             servers.put(si.getEntryname(), si);
         }
     }
+
     public static void removeServer(String name){
         servers.remove(name);
         String encodedString = userPrefs.get(SERVERS_KEY, "check");
@@ -371,15 +392,13 @@ public class UserPreferences {
             recentFilesChain += filePath + "::";
 
             userPrefs.put(RECENTS_KEY, recentFilesChain);
-        }
-
-        else {
+        } else {
             System.out.println("WAS INCREMENTED");
             System.out.println("RECENT FILES COUNT: " + getRecentFilesCount());
             recentFilesChain += filePath + "::";
             userPrefs.put(RECENTS_KEY, recentFilesChain);
             System.out.println("END OF APPEND() RECENT_CHAIN: " + recentFilesChain);
-           // userPrefs.put(RECENT_COUNT_KEY, "0");
+            // userPrefs.put(RECENT_COUNT_KEY, "0");
         }
 
     }
@@ -433,26 +452,23 @@ public class UserPreferences {
             userPrefs.put(GAMESS_USERNAME_KEY, encrypGamessUser);
 //        userPrefs.put(GAMESS_USERNAME_KEY, value);
             gamessUsername = decrypt(userPrefs.get(GAMESS_USERNAME_KEY, "check"), secretKey);
-        }
-
-        catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Problem accessing GAMESS username and/or with its encryption");
             e.printStackTrace();
         }
     }
 
     public static void setGamessPassword(String value) {
-       try {
-           encryGamessPass = encrypt(value, secretKey);
+        try {
+            encryGamessPass = encrypt(value, secretKey);
 
-           userPrefs.put(GAMESS_USERNAME_KEY, encryGamessPass);
-           //userPrefs.put(GAMESS_PASSWORD_KEY, value);
-           gamessPassword = decrypt(userPrefs.get(GAMESS_PASSWORD_KEY, "check"), secretKey);
-       }
-       catch(Exception e) {
-           System.out.println("Problem accessing GAMESS password and/or with its encryption");
-           e.printStackTrace();
-       }
+            userPrefs.put(GAMESS_USERNAME_KEY, encryGamessPass);
+            //userPrefs.put(GAMESS_PASSWORD_KEY, value);
+            gamessPassword = decrypt(userPrefs.get(GAMESS_PASSWORD_KEY, "check"), secretKey);
+        } catch (Exception e) {
+            System.out.println("Problem accessing GAMESS password and/or with its encryption");
+            e.printStackTrace();
+        }
     }
 
     public static void setGamessOutputPath(String value) {
@@ -474,9 +490,7 @@ public class UserPreferences {
 //        userPrefs.put(LIBEFP_USERNAME_KEY, value);
             libefpUsername = decrypt(userPrefs.get(LIBEFP_USERNAME_KEY, "check"), secretKey);
 
-        }
-
-        catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Problem accessing LibEFP username and/or with its encryption");
             e.printStackTrace();
         }
@@ -489,8 +503,7 @@ public class UserPreferences {
             userPrefs.put(LIBEFP_PASSWORD_KEY, encrypLibEFPPass);
 
             libefpPassword = decrypt(userPrefs.get(LIBEFP_PASSWORD_KEY, "check"), secretKey);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Problem accessing LibEFP password and/or with its encryption");
             e.printStackTrace();
         }

@@ -1,19 +1,33 @@
-//package org.ispiefp.app.libEFP;
-//
-//import ch.ethz.ssh2.Connection;
-//import ch.ethz.ssh2.SCPClient;
-//import ch.ethz.ssh2.Session;
-//import org.apache.commons.io.FileUtils;
-//import org.ispiefp.app.installer.LocalBundleManager;
-//
-//import java.io.File;
-//import java.io.IOException;
-//import java.nio.charset.Charset;
-//import java.util.UUID;
-//
-///* PBS scripts are executed from the home directory and should therefore use the entire path */
-//public class libEFPPBSSubmission extends Submission {
-//
+
+/*
+ *     iSpiEFP is an open source workflow optimization program for chemical simulation which provides an interactive GUI and interfaces with the existing libraries GAMESS and LibEFP.
+ *     Copyright (C) 2021  Lyudmila V. Slipchenko
+ *
+ *     This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU Lesser General Public
+ *     License as published by the Free Software Foundation; either
+ *     version 2.1 of the License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Lesser General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Lesser General Public
+ *     License along with this library; if not, write to the Free Software
+ *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ *     USA
+ *
+ *     Please direct all questions regarding iSpiEFP to Lyudmila V. Slipchenko (lslipche@purdue.edu)
+ */
+
+package org.ispiefp.app.libEFP;
+
+import org.ispiefp.app.jobSubmission.Submission;
+
+/* PBS scripts are executed from the home directory and should therefore use the entire path */
+public abstract class LibEFPPBSSubmission extends Submission {
+
 //    public libEFPPBSSubmission(){
 //        submitString = "/usr/pbs/bin/qsub ${JOB_NAME}.run";
 //        queryString = "/usr/pbs/bin/qstat -f ${JOB_ID}";
@@ -62,4 +76,4 @@
 //        }
 //        return "Error: See stack trace";
 //    }
-//}
+}
