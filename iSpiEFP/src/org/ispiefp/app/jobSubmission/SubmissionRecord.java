@@ -22,9 +22,12 @@
 
 package org.ispiefp.app.jobSubmission;
 
+import ch.ethz.ssh2.Session;
 import com.google.gson.Gson;
 import org.ispiefp.app.server.JobManager;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class SubmissionRecord {
@@ -42,6 +45,8 @@ public class SubmissionRecord {
     private String stdoutputFilePath;
     private String localStdoutputFilePath;
     private ArrayList<String> usedEfpFilepaths;
+
+    private JobManager jobManager;
 
 
     public SubmissionRecord(String name, String status, String submissionTime) {
@@ -64,6 +69,7 @@ public class SubmissionRecord {
         this.job_id = jm.getJobID();
         this.hostname = jm.getHostname();
         this.type = jm.getType();
+        this.jobManager = jm;
     }
 
     public SubmissionRecord(String jsonString) {
@@ -164,5 +170,43 @@ public class SubmissionRecord {
 
     public void setUsedEfpFilepaths(ArrayList<String> usedEfpFilepaths) {
         this.usedEfpFilepaths = usedEfpFilepaths;
+    }
+
+    public String checkStatus() throws IOException {
+        boolean jobIsDone = false;
+        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(jobManager.getServer(), jobManager.getKeyPassword());
+        conn.connect();
+
+        Session s = conn.openSession();
+        s.execCommand(String.format("squeue --job=%s\n", job_id));
+
+        // reading result
+        StringBuilder outputString = new StringBuilder();
+        int i;
+        char c;
+        try {
+            InputStream output = s.getStdout();
+            while ((i = output.read()) != -1) outputString.append((char) i);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // extracting status from output
+        String extractStatus = outputString.toString();
+        System.out.println("JobManager 171: " + extractStatus);
+        try {
+            // extract status code based on https://slurm.schedmd.com/squeue.html
+            // in JOB STATE CODES section
+            // TODO: Use -O
+            extractStatus = extractStatus.split("\n")[1].split(" +")[5];
+            if (extractStatus.equals("CD")) throw new ArrayIndexOutOfBoundsException();
+            System.out.println("JobManager 191: " + extractStatus);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // should be done, because squeue doesn't have record
+            return "CD";
+        }
+        s.close();
+        conn.close();
+        return extractStatus;
     }
 }

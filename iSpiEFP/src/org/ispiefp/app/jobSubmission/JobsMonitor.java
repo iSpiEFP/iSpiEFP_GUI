@@ -74,13 +74,46 @@ public class JobsMonitor implements Runnable {
 
 
     public void run() {
-        for (JobManager jm : jobs) jm.watchJobStatus();
+//        for (JobManager jm : jobs) jm.watchJobStatus();
+//        while (true) {
+//            System.out.println("JobsMonitor 79: Checking jobs..");
+//            ArrayList<JobManager> completedJobs = new ArrayList<>();
+//            for (JobManager jm : jobs) {
+//                System.out.println("JobsMonitor 82: " + jm.getTitle());
+//                try {
+//                    if (jm.checkStatus(jm.getJobID())) {
+//                        /* Check if the stdout file is empty (success) */
+//                        if (checkForError(jm)) {
+//                            records.get(jm.getJobID()).setStatus("COMPLETE");
+//                        } else records.get(jm.getJobID()).setStatus("ERROR");
+//                        retrieveJob(jm);
+//                        saveRecord(jm);
+//                        completedJobs.add(jm);
+//                    }
+//                } catch (IOException e) {
+//                    System.err.printf("Was unable to monitor job: %s", jm.getJobID());
+//                }
+//            }
+//            jobs.removeAll(completedJobs);
+//            try {
+//                sleep(3000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+        // loop to monitor job status
         while (true) {
-            System.out.println("Rechecking jobs");
+            System.out.println("JobsMonitor 79: Checking jobs..");
             ArrayList<JobManager> completedJobs = new ArrayList<>();
-            for (JobManager jm : jobs) {
+
+            // obtain current jobs
+            for (SubmissionRecord sr : new JobHistory().getHistory()) {
+                System.out.println("JobsMonitor 82: " + sr.getName());
                 try {
-                    if (jm.checkStatus(jm.getJobID())) {
+
+                    // check status
+                    if (sr.checkStatus().equals("CD")) {
                         /* Check if the stdout file is empty (success) */
                         if (checkForError(jm)) {
                             records.get(jm.getJobID()).setStatus("COMPLETE");
@@ -95,7 +128,7 @@ public class JobsMonitor implements Runnable {
             }
             jobs.removeAll(completedJobs);
             try {
-                sleep(30000);
+                sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

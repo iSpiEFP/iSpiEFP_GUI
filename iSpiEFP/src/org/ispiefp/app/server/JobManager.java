@@ -168,6 +168,7 @@ public class JobManager implements Runnable {
 
         // extracting status from output
         String extractStatus = outputString.toString();
+        System.out.println("JobManager 171: " + extractStatus);
         try {
             System.out.println(extractStatus.split("\n")[1].split(" +")[5]);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -410,6 +411,10 @@ public class JobManager implements Runnable {
 
     public String getStdoutputFilename() {
         return stdoutputFilename;
+    }
+
+    public String getKeyPassword() {
+        return keyPassword;
     }
 
     public void setConn(org.ispiefp.app.util.Connection conn) {
