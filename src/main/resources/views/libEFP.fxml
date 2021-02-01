@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~     iSpiEFP is an open source workflow optimization program for chemical simulation which provides an interactive GUI and interfaces with the existing libraries GAMESS and LibEFP.
+  ~     Copyright (C) 2021  Lyudmila V. Slipchenko
+  ~
+  ~     This library is free software; you can redistribute it and/or
+  ~     modify it under the terms of the GNU Lesser General Public
+  ~     License as published by the Free Software Foundation; either
+  ~     version 2.1 of the License, or (at your option) any later version.
+  ~
+  ~     This library is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~     Lesser General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU Lesser General Public
+  ~     License along with this library; if not, write to the Free Software
+  ~     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+  ~     USA
+  ~
+  ~     Please direct all questions regarding iSpiEFP to Lyudmila V. Slipchenko (lslipche@purdue.edu)
+  -->
+
+<!--?import org.controlsfx.control.CheckComboBox?>-->
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+<?import org.controlsfx.control.CheckComboBox?>
+<?import javafx.scene.control.Label?>
+
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.controlsfx.control.CheckComboBox?>
+<TabPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="org.ispiefp.app.libEFP.LibEFPInputController">
+    <Tab text="main">
+        <VBox maxWidth="Infinity" spacing="10">
+            <!--        <SplitPane dividerPositions="0.5, 0.5" maxHeight="Infinity" maxWidth="Infinity" orientation="VERTICAL"
+                            prefHeight="460.0" prefWidth="600.0">-->
+            <!--            <padding>-->
+            <!--                <Insets bottom="8.0"/>-->
+            <!--            </padding>-->
+            <!--                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="120.0" prefWidth="160.0">-->
+            <!--                    <children>-->
+            <!--                        <Text layoutX="34.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Load a Preset:" />-->
+            <!--                        <ComboBox fx:id="presets" layoutX="133.0" layoutY="1.0"  prefHeight="25.0" prefWidth="146.0" promptText="None Selected" />-->
+            <!--                        <Text layoutX="34.0" layoutY="45.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title:" />-->
+            <!--                        <TextField fx:id="title" layoutX="133.0" layoutY="28.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="409.0" promptText="Enter title" />-->
+            <!--                        <Text layoutX="35.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Run Type:" />-->
+            <!--                        <ComboBox fx:id="run_type" layoutX="133.0" layoutY="57.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />-->
+            <!--                        <Text layoutX="35.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Format:" />-->
+            <!--                        <ComboBox fx:id="format" layoutX="133.0" layoutY="86.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />-->
+            <!--                        <Text layoutX="35.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elec Damp:" />-->
+            <!--                        <ComboBox fx:id="elec_damp" layoutX="133.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />-->
+            <!--                        <Text layoutX="338.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terms:" />-->
+            <!--                        <Text layoutX="338.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Damp" />-->
+            <!--                        <CheckComboBox fx:id="terms" layoutX="412.0" layoutY="86.0" prefHeight="25.0" prefWidth="103.0" />-->
+            <!--                        <ComboBox fx:id="pol_damp" layoutX="412.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />-->
+            <!--                        <Text layoutX="35.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Disp Damp:" />-->
+            <!--                        <ComboBox fx:id="disp_damp" layoutX="133.0" layoutY="142.0" prefHeight="25.0" prefWidth="146.0" />-->
+            <!--                        <Text layoutX="338.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pol Solver:" />-->
+            <!--                        <ComboBox fx:id="pol_solver" layoutX="412.0" layoutY="142.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />-->
+            <!--                        <Text layoutX="35.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server:" />-->
+            <!--                        <ComboBox fx:id="server" layoutX="133.0" layoutY="174.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />-->
+            <!--                        <Text layoutX="338.0" layoutY="190.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auto submission: " />-->
+            <!--                        <ComboBox fx:id="auto_sub" layoutX="445.0" layoutY="174.0" prefHeight="25.0" prefWidth="70.0" />-->
+            <!--                    </children>-->
+            <!--                    <padding>-->
+            <!--                        <Insets bottom="8.0" />-->
+            <!--                    </padding>-->
+            <!--                </AnchorPane>-->
+            <GridPane maxWidth="Infinity" vgap="10" hgap="20" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="10" left="10" right="10" bottom="10"/>
+                </padding>
+                <Label text="Load a Preset:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="presets" maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                          promptText="None Selected"/>
+                <Label text="Job Title:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="title" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="3"
+                           onAction="#updatelibEFPInputText" promptText="Enter title"/>
+                <Label text="Run Type:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="run_type" maxWidth="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                          onAction="#updatelibEFPInputText"/>
+                <Label text="Format:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="format" maxWidth="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                          onAction="#updatelibEFPInputText"/>
+                <Label text="Elec Damp:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="elec_damp" maxWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="1"
+                          onAction="#updatelibEFPInputText" promptText="0"/>
+                <Label text="Terms:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                <Label text="Pol Damp:" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+                <CheckComboBox fx:id="terms" maxWidth="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+                <ComboBox fx:id="pol_damp" maxWidth="Infinity" GridPane.rowIndex="4" GridPane.columnIndex="3"
+                          onAction="#updatelibEFPInputText" promptText="1"/>
+                <Label text="Disp Damp:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="disp_damp" maxWidth="Infinity" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                <Label text="Pol Solver:" GridPane.rowIndex="5" GridPane.columnIndex="2"/>
+                <ComboBox fx:id="pol_solver" maxWidth="Infinity" GridPane.rowIndex="5" GridPane.columnIndex="3"
+                          onAction="#updatelibEFPInputText"/>
+                <Label text="Server:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="server" maxWidth="Infinity" GridPane.rowIndex="6" GridPane.columnIndex="1"
+                          onAction="#updatelibEFPInputText"/>
+                <Label text="Auto submission: " GridPane.rowIndex="6" GridPane.columnIndex="2"/>
+                <ComboBox fx:id="auto_sub" maxWidth="Infinity" GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+                <Label text="Target Directory: " GridPane.rowIndex="7"  GridPane.columnIndex="0" />
+                <TextField fx:id="localWorkingDirectory" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+                <Button fx:id="findButton" text="Find" GridPane.rowIndex="7" GridPane.columnIndex="2" onAction="#findDirectory" />
+                <TextArea fx:id="libEFPInputTextArea" maxWidth="Infinity"
+                          GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="4" GridPane.rowSpan="3">
+                </TextArea>
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20" hgrow="ALWAYS"/>
+                    <ColumnConstraints percentWidth="30" hgrow="ALWAYS"/>
+                    <ColumnConstraints percentWidth="20" hgrow="ALWAYS"/>
+                    <ColumnConstraints percentWidth="30" hgrow="ALWAYS"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                </rowConstraints>
+            </GridPane>
+            <HBox maxWidth="Infinity" alignment="CENTER_RIGHT" spacing="10">
+                <padding>
+                    <Insets right="10" left="10" bottom="10" />
+                </padding>
+                <Button mnemonicParsing="false" onAction="#generatelibEFPInputFile" text="Download Input">
+                </Button>
+                <Button mnemonicParsing="false" onAction="#handleSubmit" text="Next">
+                </Button>
+                <Button mnemonicParsing="false" onAction="#saveCalculationType" text="Save Preset">
+                </Button>
+                <Button mnemonicParsing="false" onAction="#deletePreset" text="Delete Preset">
+                </Button>
+            </HBox>
+            <!--        </SplitPane>-->
+        </VBox>
+    </Tab>
+
+    <Tab fx:id="md_pane" text="md">
+        <SplitPane dividerPositions="0.5, 0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="450.0" prefWidth="600.0">
+            <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="120.0" prefWidth="160.0">
+                    <children>
+                        <Text layoutX="35.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ensemble:" />
+                        <ComboBox fx:id="ensemble" layoutX="133.0" layoutY="57.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
+                        <Text layoutX="338.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Assign initial velocities:" />
+                        <ComboBox fx:id="velocitize" layoutX="497.0" layoutY="57" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="100.0" />
+                        <Text layoutX="35.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Time step: " />
+                        <TextField fx:id="time_step" layoutX="133.0" layoutY="86.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                        <Text layoutX="35.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Simulation temperature:" />
+                        <TextField fx:id="temperature" layoutX="183.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />
+                        <Text layoutX="338.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Print step:" />
+                        <Text layoutX="338.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Simulation pressure:" />
+                        <TextField fx:id="print_step" layoutX="412.0" layoutY="86.0" prefHeight="25.0" prefWidth="103.0" />
+                        <TextField fx:id="pressure" layoutX="492.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="1" />
+                        <Text layoutX="35.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thermostat parameter:" />
+                        <TextField fx:id="thermostat_tau" layoutX="180.0" layoutY="142.0" prefHeight="25.0" prefWidth="110.0" />
+                        <Text layoutX="338.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Barostat parameter:" />
+                        <TextField fx:id="barostat_tau" layoutX="492.0" layoutY="142.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+
+                    </children>
+                    <padding>
+                        <Insets bottom="8.0" />
+                    </padding>
+                </AnchorPane>
+                <TextArea fx:id="libEFPInputTextArea2" prefHeight="140.0" prefWidth="598.0" />
+                <ButtonBar maxHeight="-Infinity">
+                    <buttons>
+                        <Button mnemonicParsing="false" onAction="#generatelibEFPInputFile" text="Download Input">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                            </padding>
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#handleSubmit" text="Next">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                            </padding>
+                        </Button>
+                    </buttons>
+                    <padding>
+                        <Insets right="195.0" top="5.0" />
+                    </padding>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                </ButtonBar>
+            </items>
+
+            <padding>
+                <Insets bottom="8.0" />
+            </padding>
+        </SplitPane>
+    </Tab>
+
+    <Tab fx:id="hess_pane" text="hess">
+        <SplitPane dividerPositions="0.5, 0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="450.0" prefWidth="600.0">
+            <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="120.0" prefWidth="160.0">
+                    <children>
+                        <Text layoutX="35.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hessian accuracy:" />
+                        <ComboBox fx:id="hess_central" layoutX="160.0" layoutY="57.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="146.0" />
+
+                        <Text layoutX="35.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Numerical differentiation step length for distances: " />
+                        <TextField fx:id="num_step_dist" layoutX="350.0" layoutY="86.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" />
+                        <Text layoutX="35.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Numerical differentiation step length for angles:" />
+                        <TextField fx:id="num_step_angle" layoutX="350.0" layoutY="114.0" onAction="#updatelibEFPInputText" prefHeight="25.0" prefWidth="103.0" promptText="0" />
+
+
+                    </children>
+                    <padding>
+                        <Insets bottom="8.0" />
+                    </padding>
+                </AnchorPane>
+                <TextArea fx:id="libEFPInputTextArea3" prefHeight="140.0" prefWidth="598.0" />
+                <ButtonBar maxHeight="-Infinity">
+                    <buttons>
+                        <Button mnemonicParsing="false" onAction="#generatelibEFPInputFile" text="Download Input">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                            </padding>
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#handleSubmit" text="Next">
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                            </padding>
+                        </Button>
+                    </buttons>
+                    <padding>
+                        <Insets right="195.0" top="5.0" />
+                    </padding>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                </ButtonBar>
+            </items>
+
+            <padding>
+                <Insets bottom="8.0" />
+            </padding>
+        </SplitPane>
+    </Tab>
+</TabPane>

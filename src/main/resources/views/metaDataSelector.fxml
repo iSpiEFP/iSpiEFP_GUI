@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~     iSpiEFP is an open source workflow optimization program for chemical simulation which provides an interactive GUI and interfaces with the existing libraries GAMESS and LibEFP.
+  ~     Copyright (C) 2021  Lyudmila V. Slipchenko
+  ~
+  ~     This library is free software; you can redistribute it and/or
+  ~     modify it under the terms of the GNU Lesser General Public
+  ~     License as published by the Free Software Foundation; either
+  ~     version 2.1 of the License, or (at your option) any later version.
+  ~
+  ~     This library is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~     Lesser General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU Lesser General Public
+  ~     License along with this library; if not, write to the Free Software
+  ~     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+  ~     USA
+  ~
+  ~     Please direct all questions regarding iSpiEFP to Lyudmila V. Slipchenko (lslipche@purdue.edu)
+  -->
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane minHeight="0.0" minWidth="0.0" fx:id="root" prefHeight="500.0"
+            prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.ispiefp.app.MetaData.MetaDataSelectorController">
+    <HBox id="Hbox" alignment="CENTER" spacing="5.0" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
+          AnchorPane.rightAnchor="10">
+        <Label text="Fragment Name:"/>
+        <TextField fx:id="fragmentSearchField" HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <GridPane AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10"
+              AnchorPane.bottomAnchor="47" AnchorPane.topAnchor="47" hgap="10">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints vgrow="ALWAYS" />
+        </rowConstraints>
+        <TableView fx:id="fragmentList" prefHeight="-Infinity" prefWidth="-Infinity"
+                   GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <columns>
+                <TableColumn fx:id="fragmentName" maxWidth="400.0" minWidth="180.0" prefWidth="180.0"
+                             text="Fragment Name"/>
+                <TableColumn fx:id="fragmentFile" maxWidth="5000" minWidth="10" prefWidth="100" text="Contained In"/>
+                <TableColumn fx:id="electrostaticsIndicator" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="E"/>
+                <TableColumn fx:id="XRIndicator" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="X"/>
+                <TableColumn fx:id="polarizationIndicator" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="P"/>
+                <TableColumn fx:id="dispersionIndicator" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" text="D"/>
+                <TableColumn fx:id="basisSetIndicator" maxWidth="160" minWidth="120" prefWidth="140" text="Basis Set"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+        <VBox prefHeight="-Infinity" prefWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Preview" style="-fx-font-size: 20px" />
+            <Pane fx:id="previewPane" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </GridPane>
+    <HBox alignment="BOTTOM_RIGHT" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.leftAnchor="10">
+<!--        <Button fx:id="selectButton" mnemonicParsing="false" onAction="#handleSelection" text="Select Fragment"/>-->
+        <Button fx:id="selectButton" mnemonicParsing="false" text="Select Fragment"/>
+    </HBox>
+</AnchorPane>
