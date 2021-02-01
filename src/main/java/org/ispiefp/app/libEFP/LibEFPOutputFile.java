@@ -206,6 +206,7 @@ public class LibEFPOutputFile {
                     name = nameString.trim();
                     String[] coordsStringArray = coordString.trim().split("[ ]+");
                     for(int i = 0; i < 6; i++){
+                        //System.out.println("COORDS[" + i + "]: " + coords[i]);
                         coords[i] = Double.parseDouble(coordsStringArray[i]);
                     }
                 }
@@ -245,7 +246,8 @@ public class LibEFPOutputFile {
             }
         }
 
-        public class EnergyComponents {
+       public class EnergyComponents {
+
             private final double eEnergy;
             private final double pEnergy;
             private final double dEnergy;
@@ -605,7 +607,8 @@ public class LibEFPOutputFile {
                         enable_cutoff = line1.split(" ")[1].equals("true");
                         break;
                     case "swf_cutoff":
-                        swf_cutoff = Integer.parseInt(line1.split(" ")[1]);
+                        //NOTE: YOU CHANGED THIS, TELL RYAN
+                        swf_cutoff = Double.parseDouble(line1.split(" ")[1]);
                         break;
                     case "max_steps":
                         max_steps = Long.parseLong(line1.split(" ")[1]);
@@ -815,7 +818,7 @@ public class LibEFPOutputFile {
                         double z = Double.parseDouble(atomLineArray[3]);
                         currentState.geometry.addAtom(atomID, x, y, z);
                     }
-                    while (br.readLine().equals("")) ;
+                    while (br.readLine().equals(""));
                     //Begin RESTART DATA
                     br.readLine(); //Consume RESTART DATA
 //                    br.readLine(); //Consume empty line

@@ -161,13 +161,13 @@
                         </tooltip>
                     </Button>
                     <Separator orientation="VERTICAL"/>
-                    <Button fx:id="analysisGeometries" text="Geometries" prefHeight="45.0"/>
+                    <Button fx:id="analysisGeometries" text="Geometries" onAction="#showGeomAnalysis" prefHeight="45.0"/>
                     <Button fx:id="analysisEnergies" text="Energies" prefHeight="45.0"/>
                     <Button fx:id="analysisPairWiseEnergies" text="Pairwise Energies" prefHeight="45.0"/>
                     <Button fx:id="analysisMD" text="MD" prefHeight="45.0"/>
                     <Button fx:id="analysisStats" text="Stats" prefHeight="45.0"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="libefpButton" mnemonicParsing="false" onAction="#libefp" prefHeight="45.0" prefWidth="70.0" text="libefp">
+                    <Button fx:id="libefpButton" mnemonicParsing="false" prefHeight="45.0" prefWidth="70.0" text="libefp">
                         <tooltip>
                             <Tooltip text="Calculate Libefp" />
                         </tooltip>

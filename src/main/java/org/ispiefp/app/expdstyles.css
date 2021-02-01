@@ -1,0 +1,7 @@
+.greentip {
+    -fx-background-color: linear-gradient(greenyellow, limegreen)
+}
+
+.redtip {
+    -fx-background-color: linear-gradient(red, red)
+}

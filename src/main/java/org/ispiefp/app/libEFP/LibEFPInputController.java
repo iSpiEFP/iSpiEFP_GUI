@@ -222,7 +222,6 @@ public class LibEFPInputController implements Initializable {
 
         title.setText("Title");
 
-
         ObservableList<String> terms_adding = FXCollections.observableArrayList();
         terms_adding.add("elec");
         terms_adding.add("pol");
@@ -826,6 +825,7 @@ public class LibEFPInputController implements Initializable {
      * @throws IOException if the file is not able to be created.
      */
     private File createTempXYZFileFromViewer(int fragmentIndex) throws IOException {
+//        System.out.println("\n\nTEMP XYZZZZZZZ CALLLLLLLEDDDDD\n\n");
         BufferedWriter bw = null;
         File xyzFile = null;
         try {
@@ -931,6 +931,7 @@ public class LibEFPInputController implements Initializable {
     public ArrayList<ArrayList<Integer>> getViewerFragments() {
         return viewerFragments;
     }
+
 
     public void setViewerFragments(ArrayList<ArrayList<Integer>> frags) {
         viewerFragments = frags;
