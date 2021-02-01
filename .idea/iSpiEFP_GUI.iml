@@ -49,19 +49,9 @@
         <jarDirectory url="file://$MODULE_DIR$/src/main/resources/lib" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:12.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:win:12.0.2" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:12.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:win:12.0.2" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:12.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-base:win:12.0.2" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.5" level="project" />
-    <orderEntry type="library" name="Maven: org.controlsfx:controlsfx:8.40.14" level="project" />
-    <orderEntry type="library" name="Maven: net.sourceforge.jmol:jmol:14.31.10" level="project" />
-    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
-    <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
-    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:12.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:mac:12.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:12.0.2" level="project" />
