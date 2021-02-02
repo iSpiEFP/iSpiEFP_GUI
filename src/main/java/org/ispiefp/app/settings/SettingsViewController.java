@@ -22,7 +22,6 @@
 
 package org.ispiefp.app.settings;
 
-import ch.ethz.ssh2.Connection;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -35,7 +34,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.ispiefp.app.Initializer;
-import org.ispiefp.app.installer.BundleManager;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.UserPreferences;
@@ -550,30 +548,31 @@ public class SettingsViewController {
 
     @FXML
     private void authenticateServer() {
-        Connection connection;
+        org.ispiefp.app.util.Connection connection = new org.ispiefp.app.util.Connection();
         try {
-            connection = new Connection(hostname.getText());
-            connection.connect();
-            if (!connection.authenticateWithPassword(username.getText(), signInPasswordField.getText())) {
-                Alert alert = new Alert(Alert.AlertType.ERROR,
-                        String.format("Was unable to connect to %s with your credentials", hostname.getText()),
-                        ButtonType.OK);
-                alert.showAndWait();
-                return;
-            }
+            connection.connect(hostname.getText(),
+                    signInMethodComboBox.getSelectionModel().getSelectedItem().equals("SSH Key"),
+                    sshFileEncrypted.isSelected(), signInFileLocationField.getText(), username.getText(),
+                    signInPasswordField.getText());
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR,
                     String.format("Was unable to connect to %s with your credentials", hostname.getText()),
                     ButtonType.OK);
             alert.showAndWait();
+            e.printStackTrace();
             return;
         }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Was able to connect to and authenticate user",
+                ButtonType.OK);
+        alert.showAndWait();
+        /*
         if (hasLibEFPButton.isSelected()) {
             BundleManager libEFPBundleManager = new BundleManager(username.getText(),
                     signInPasswordField.getText(),
                     hostname.getText(),
                     "LIBEFP",
-                    connection);
+                    connection.getActiveConnection());
             if (!libEFPBundleManager.manageRemote()) {
                 Alert alert = new Alert(Alert.AlertType.WARNING,
                         String.format(
@@ -590,7 +589,7 @@ public class SettingsViewController {
                     signInPasswordField.getText(),
                     hostname.getText(),
                     "GAMESS",
-                    connection);
+                    connection.getActiveConnection());
             if (!libEFPBundleManager.manageRemote()) {
                 Alert alert = new Alert(Alert.AlertType.WARNING,
                         String.format(
@@ -623,6 +622,7 @@ public class SettingsViewController {
                     ButtonType.OK);
             alert.showAndWait();
         }
+        */
     }
 
     public void SignInMethodChanged() {
