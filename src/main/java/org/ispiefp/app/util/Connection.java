@@ -52,12 +52,16 @@ public class Connection {
     }
 
 
-    public Connection(boolean isKeyBased){
+    public Connection(boolean isKeyBased) {
         this.isKeyBased = isKeyBased;
     }
 
-    public boolean connect(){
-        try{
+    public Connection() {
+        super();
+    }
+
+    public boolean connect() {
+        try {
             if (isKeyBased) {
                 activeConnection = new ch.ethz.ssh2.Connection(server.getHostname());
                 /* Prompt the user for their password, but do not save it to any data structure which will be stored.
@@ -72,15 +76,39 @@ public class Connection {
                 activeConnection.connect();
                 return activeConnection.authenticateWithPassword(server.getUsername(), server.getPassword());
             }
-        } catch (IOException ioe){
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
         return false;
     }
 
-    public String promptForPassword(){
+    /*
+    This method is only used by the SettingsViewController to test whether or not the user is able to be
+    authenticated on the server. The reason all of the variables are passed instead of obtained from a
+    ServerInfo instance is because the ServerInfo for the server may not exist yet if they have not saved
+    their profile.
+     */
+    public boolean connect(String hostname, boolean isKeyBased, boolean isprotectedKey,
+                           String keyLocation, String username, String serverPassword) throws IOException {
+        if (isKeyBased) {
+            activeConnection = new ch.ethz.ssh2.Connection(hostname);
+            /* Prompt the user for their password, but do not save it to any data structure which will be stored.
+            keep it in main memory.
+            */
+            if (isprotectedKey && keyPassword == null) keyPassword = promptForPassword();
+            activeConnection.connect();
+            System.out.printf("Opening the PEM file at: %s%n", keyLocation);
+            return activeConnection.authenticateWithPublicKey(username, new File(keyLocation), keyPassword);
+        } else {
+            activeConnection = new ch.ethz.ssh2.Connection(hostname);
+            activeConnection.connect();
+            return activeConnection.authenticateWithPassword(hostname, serverPassword);
+        }
+    }
+
+    public String promptForPassword() {
         Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Enter password to access key");
+        dialog.setTitle(String.format("Enter password for encrypted ssh private key file: %s", server.getSshKeyLocation()));
 
         // Set the button types.
         ButtonType loginButtonType = new ButtonType("Enter", ButtonBar.ButtonData.OK_DONE);
