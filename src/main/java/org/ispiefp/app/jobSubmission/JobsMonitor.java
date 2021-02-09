@@ -105,25 +105,20 @@ public class JobsMonitor implements Runnable {
         // loop to monitor job status
         while (true) {
             System.out.println("JobsMonitor 79: Checking jobs..");
-            ArrayList<JobManager> completedJobs = new ArrayList<>();
+            ArrayList<SubmissionRecord> completedJobs = new ArrayList<>();
 
             // obtain current jobs
             for (SubmissionRecord sr : new JobHistory().getHistory()) {
                 System.out.println("JobsMonitor 82: " + sr.getName());
                 try {
-
                     // check status
-                    if (sr.checkStatus().equals("CD")) {
-                        /* Check if the stdout file is empty (success) */
-                        if (checkForError(jm)) {
-                            records.get(jm.getJobID()).setStatus("COMPLETE");
-                        } else records.get(jm.getJobID()).setStatus("ERROR");
-                        retrieveJob(jm);
-                        saveRecord(jm);
-                        completedJobs.add(jm);
+                    sr.checkStatus();
+                    if (sr.getStatus().equals("CD")) {
+                        completedJobs.add(sr);
+                        saveRecord(sr);
                     }
                 } catch (IOException e) {
-                    System.err.printf("Was unable to monitor job: %s", jm.getJobID());
+                    System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
                 }
             }
             jobs.removeAll(completedJobs);
@@ -136,22 +131,40 @@ public class JobsMonitor implements Runnable {
     }
 
     public void runOnce() {
-        for (JobManager jm : jobs) jm.watchJobStatus();
-        System.out.println("Rechecking jobs");
-        ArrayList<JobManager> completedJobs = new ArrayList<>();
-        for (JobManager jm : jobs) {
+//        for (JobManager jm : jobs) jm.watchJobStatus();
+//        System.out.println("Rechecking jobs");
+//        ArrayList<JobManager> completedJobs = new ArrayList<>();
+//        for (JobManager jm : jobs) {
+//            try {
+//                if (jm.checkStatus(jm.getJobID())) {
+//                    /* Check if the stdout file is empty (success) */
+//                    if (checkForError(jm)) {
+//                        records.get(jm.getJobID()).setStatus("COMPLETE");
+//                    } else records.get(jm.getJobID()).setStatus("ERROR");
+//                    retrieveJob(jm);
+//                    saveRecord(jm);
+//                    completedJobs.add(jm);
+//                }
+//            } catch (IOException e) {
+//                System.err.printf("Was unable to monitor job: %s", jm.getJobID());
+//            }
+//        }
+//        jobs.removeAll(completedJobs);
+        System.out.println("JobsMonitor 153: Checking jobs..");
+        ArrayList<SubmissionRecord> completedJobs = new ArrayList<>();
+
+        // obtain current jobs
+        for (SubmissionRecord sr : new JobHistory().getHistory()) {
+            System.out.println("JobsMonitor 82: " + sr.getName());
             try {
-                if (jm.checkStatus(jm.getJobID())) {
-                    /* Check if the stdout file is empty (success) */
-                    if (checkForError(jm)) {
-                        records.get(jm.getJobID()).setStatus("COMPLETE");
-                    } else records.get(jm.getJobID()).setStatus("ERROR");
-                    retrieveJob(jm);
-                    saveRecord(jm);
-                    completedJobs.add(jm);
+                // check status
+                sr.checkStatus();
+                if (sr.getStatus().equals("CD")) {
+                    completedJobs.add(sr);
+                    saveRecord(sr);
                 }
             } catch (IOException e) {
-                System.err.printf("Was unable to monitor job: %s", jm.getJobID());
+                System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
             }
         }
         jobs.removeAll(completedJobs);
@@ -172,22 +185,22 @@ public class JobsMonitor implements Runnable {
         return new Gson().toJson(this);
     }
 
-    public void retrieveJob(JobManager jm) {
+    public void retrieveJob(SubmissionRecord sr) {
         String outputFileContents = "";
         String errorFileContents = "";
-        String outputFilePath = jm.getOutputFilename();
-        String errorFilePath = jm.getStdoutputFilename();
+        String outputFilePath = sr.getOutputFilePath();
+        String errorFilePath = sr.getStdoutputFilePath();
         String outputFileName = outputFilePath.substring(outputFilePath.lastIndexOf(File.separatorChar) + 1);
         String errorFileName = errorFilePath.substring(errorFilePath.lastIndexOf(File.separatorChar) + 1);
         try {
-            outputFileContents = jm.getRemoteFile(jm.getOutputFilename());
-            errorFileContents = jm.getRemoteFile(jm.getStdoutputFilename());
+            outputFileContents = sr.getRemoteFile(sr.getOutputFilePath());
+            errorFileContents = sr.getRemoteFile(sr.getStdoutputFilePath());
         } catch (IOException e) {
             System.err.println("Was unable to retrieve the files for the completed job");
         }
-        File outputFile = new File(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
+        File outputFile = new File(sr.getLocalWorkingDirectory() + File.separator + outputFileName);
         try {
-            LibEFPOutputFile out = new LibEFPOutputFile(jm.getLocalWorkingDirectory() + File.separator + outputFileName);
+            LibEFPOutputFile out = new LibEFPOutputFile(sr.getLocalWorkingDirectory() + File.separator + outputFileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -196,7 +209,7 @@ public class JobsMonitor implements Runnable {
         } catch (IOException e) {
             System.err.println("Was unable to write the output file locally");
         }
-        File errorFile = new File(jm.getLocalWorkingDirectory() + File.separator + errorFileName);
+        File errorFile = new File(sr.getLocalWorkingDirectory() + File.separator + errorFileName);
         try {
             FileUtils.writeStringToFile(errorFile, errorFileContents, "UTF-8");
         } catch (IOException e) {
@@ -217,9 +230,9 @@ public class JobsMonitor implements Runnable {
         return fileContents.isEmpty();
     }
 
-    public void saveRecord(JobManager jm) {
-        records.get(jm.getJobID()).setOutputFilePath(jm.getOutputFilename());
-        records.get(jm.getJobID()).setStdoutputFilePath(jm.getStdoutputFilename());
+    public void saveRecord(SubmissionRecord sr) {
+        records.get(sr.getJob_id()).setOutputFilePath(sr.getOutputFilePath());
+        records.get(sr.getJob_id()).setStdoutputFilePath(sr.getStdoutputFilePath());
     }
 
     public ConcurrentHashMap<String, SubmissionRecord> getRecords() {

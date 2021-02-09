@@ -22,12 +22,18 @@
 
 package org.ispiefp.app.jobSubmission;
 
+import ch.ethz.ssh2.SCPClient;
+import ch.ethz.ssh2.SCPInputStream;
 import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.StreamGobbler;
 import com.google.gson.Gson;
 import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.server.ServerInfo;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class SubmissionRecord {
@@ -46,7 +52,9 @@ public class SubmissionRecord {
     private String localStdoutputFilePath;
     private ArrayList<String> usedEfpFilepaths;
 
-    private JobManager jobManager;
+    private ServerInfo server;
+    private transient String keyPassword;
+    private String localWorkingDirectory;
 
 
     public SubmissionRecord(String name, String status, String submissionTime) {
@@ -69,7 +77,9 @@ public class SubmissionRecord {
         this.job_id = jm.getJobID();
         this.hostname = jm.getHostname();
         this.type = jm.getType();
-        this.jobManager = jm;
+        this.server = jm.getServer();
+        this.keyPassword = jm.getKeyPassword();
+        this.localWorkingDirectory = jm.getLocalWorkingDirectory();
     }
 
     public SubmissionRecord(String jsonString) {
@@ -129,6 +139,10 @@ public class SubmissionRecord {
         return localStdoutputFilePath;
     }
 
+    public String getLocalWorkingDirectory() {
+        return localWorkingDirectory;
+    }
+
     public void setJob_id(String job_id) {
         this.job_id = job_id;
     }
@@ -172,9 +186,9 @@ public class SubmissionRecord {
         this.usedEfpFilepaths = usedEfpFilepaths;
     }
 
-    public String checkStatus() throws IOException {
+    public void checkStatus() throws IOException {
         boolean jobIsDone = false;
-        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(jobManager.getServer(), jobManager.getKeyPassword());
+        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
         Session s = conn.openSession();
@@ -199,14 +213,64 @@ public class SubmissionRecord {
             // in JOB STATE CODES section
             // TODO: Use -O
             extractStatus = extractStatus.split("\n")[1].split(" +")[5];
+            setStatus(extractStatus);
             if (extractStatus.equals("CD")) throw new ArrayIndexOutOfBoundsException();
             System.out.println("JobManager 191: " + extractStatus);
+            s.close();
+            conn.close();
         } catch (ArrayIndexOutOfBoundsException e) {
             // should be done, because squeue doesn't have record
-            return "CD";
+            s.close();
+            conn.close();
         }
-        s.close();
-        conn.close();
-        return extractStatus;
+    }
+
+    /*
+     * get output file from a lib efp job
+     */
+    public String getRemoteFile(String filename) throws IOException {
+        SCPInputStream scpos = null;
+        InputStream stdout = null;
+        BufferedReader br = null;
+        org.ispiefp.app.util.Connection conn = null;
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            conn = new org.ispiefp.app.util.Connection(server, keyPassword);
+            conn.connect();
+
+            SCPClient scp = conn.createSCPClient();
+            scpos = scp.get(filename);
+            stdout = new StreamGobbler(scpos);
+            br = new BufferedReader(new InputStreamReader(stdout));
+            while (true) {
+                String line = br.readLine();
+                if (line == null)
+                    break;
+                //System.out.println("gobbler");
+                System.out.println(line);
+                sb.append(line + "\n");
+            }
+            return sb.toString();
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+//            e.printStackTrace();
+            conn.close();
+        } finally {
+            if (scpos != null) {
+                //scpos.close();
+            }
+            if (stdout != null) {
+                stdout.close();
+            }
+            if (br != null) {
+                br.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return sb.toString();
     }
 }

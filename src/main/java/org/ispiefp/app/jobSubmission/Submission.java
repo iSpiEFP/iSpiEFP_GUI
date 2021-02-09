@@ -125,15 +125,17 @@ public abstract class Submission {
 
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
-    public boolean createJobWorkspace(String inputJobId, String pemKey) {
-        String jobID = inputJobId.replace(" ", "_");
-        String jobDirectory = getJobDirectory(jobID);
+    public boolean createJobWorkspace(String inputJobName, String pemKey) {
+        String jobName = inputJobName.replace(" ", "_");
+        String jobDirectory = getJobDirectory(jobName);
         String command = submissionType.equalsIgnoreCase("LIBEFP") ?
                 String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib;", jobDirectory, jobDirectory) :
                 String.format("mkdir %s; cd %s; mkdir input; mkdir output;", jobDirectory, jobDirectory);
-        setInputFilename(jobID);
-        setOutputFilename(jobID);
-        setSchedulerOutputName(jobID);
+
+        setInputFilename(jobName);
+        setOutputFilename(jobName);
+        setSchedulerOutputName(jobName);
+
         try {
             org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
             boolean isAuthenticated = con.connect();
@@ -146,7 +148,11 @@ public abstract class Submission {
             /* Check to see if a job directory of this name already exists */
             boolean directoryExists = false;
             try {
-                SFTPv3Client sftp = new SFTPv3Client(con.getActiveConnection());
+                System.out.println(con.getActiveConnection().openSession());
+                System.out.println("Submission 149: Here");
+                System.out.println(con.getActiveConnection().toString());
+                SFTPv3Client sftp = new SFTPv3Client (con.getActiveConnection());
+                System.out.println("Submission 151: Here");
                 sftp.ls(jobDirectory);
                 System.err.println("This directory already exists");
                 Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
@@ -179,7 +185,10 @@ public abstract class Submission {
                 }
 
             } catch (IOException e) {
+                e.printStackTrace();
                 System.err.println("This directory does not exist");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             s.execCommand(command);
             System.out.println("Executed command: " + command);
