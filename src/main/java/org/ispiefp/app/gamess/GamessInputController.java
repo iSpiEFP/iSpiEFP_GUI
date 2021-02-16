@@ -268,7 +268,7 @@ public class GamessInputController implements Initializable {
 
         /* Create the job workspace */
         try {
-            if (!submission.createJobWorkspace(title.getText(), keyPassword)) return;
+            if (!submission.createJobWorkspace(title.getText(), new Connection(selectedServer, null))) return;
         } catch (NullPointerException e) {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("GAMESS Submission");

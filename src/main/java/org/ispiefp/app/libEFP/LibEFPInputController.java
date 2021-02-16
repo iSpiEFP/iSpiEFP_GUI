@@ -651,7 +651,7 @@ public class LibEFPInputController implements Initializable {
         }
         String keyPassword = con.getKeyPassword();
         /* Create the job workspace */
-        if (!submission.createJobWorkspace(title.getText(), keyPassword)) {
+        if (!submission.createJobWorkspace(title.getText(), con)) {
             return;
         }
         /* Send input files */

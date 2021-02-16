@@ -36,6 +36,7 @@ import org.ispiefp.app.util.Connection;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -125,7 +126,7 @@ public abstract class Submission {
 
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
-    public boolean createJobWorkspace(String inputJobName, String pemKey) {
+    public boolean createJobWorkspace(String inputJobName, Connection con) {
         String jobName = inputJobName.replace(" ", "_");
         String jobDirectory = getJobDirectory(jobName);
         String command = submissionType.equalsIgnoreCase("LIBEFP") ?
@@ -137,7 +138,7 @@ public abstract class Submission {
         setSchedulerOutputName(jobName);
 
         try {
-            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
+//            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
             boolean isAuthenticated = con.connect();
             if (!isAuthenticated) {
                 System.err.println("Was unable to authenticate user");
@@ -148,21 +149,43 @@ public abstract class Submission {
             /* Check to see if a job directory of this name already exists */
             boolean directoryExists = false;
             try {
+                System.out.println("Submission 152: Here");
+                s.execCommand("ls " + jobDirectory);
+                System.out.println("Submission 154: Here");
+
+                // reading result
+                StringBuilder outputString = new StringBuilder();
+                int i;
+                char c;
+                try {
+                    InputStream output = s.getStdout();
+                    System.out.println("Submission 162");
+                    while ((i = output.read()) != -1) {
+                        System.out.println("Submission 163: " + ((char) i));
+                        outputString.append((char) i);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println(outputString.toString());
+
                 System.out.println(con.getActiveConnection().openSession());
-                System.out.println("Submission 149: Here");
+
                 System.out.println(con.getActiveConnection().toString());
                 SFTPv3Client sftp = new SFTPv3Client (con.getActiveConnection());
                 System.out.println("Submission 151: Here");
                 sftp.ls(jobDirectory);
                 System.err.println("This directory already exists");
+
+
+                // Dialog
                 Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
                 directoryAlreadyExistsDialog.setTitle("Warning: Directory Already Exists on Server");
-
 
                 // Set the button types.
                 ButtonType loginButtonType = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
                 directoryAlreadyExistsDialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
-
                 String warningMessage = "A job with this title already exists on the server. If you press continue, that\n" +
                         "job will be overwritten by the job you are now creating. Press cancel to go\nback and choose a " +
                         "different name or continue to overwrite that job.";
@@ -172,11 +195,8 @@ public abstract class Submission {
                 grid.setHgap(10);
                 grid.setVgap(10);
                 grid.setPadding(new Insets(20, 150, 10, 10));
-
                 grid.add(warningText, 0, 0);
-
                 directoryAlreadyExistsDialog.getDialogPane().setContent(grid);
-
                 Optional<ButtonType> choice = directoryAlreadyExistsDialog.showAndWait();
 
                 if (!choice.isPresent() || choice.get().getButtonData().isCancelButton()) {
