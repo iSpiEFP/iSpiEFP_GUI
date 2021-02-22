@@ -21,12 +21,15 @@
  */
 
 import com.sun.javafx.robot.FXRobot;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.ispiefp.app.Initializer;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.util.CheckInternetConnection;
@@ -37,6 +40,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 public class MainViewTests extends ApplicationTest {
@@ -82,12 +89,43 @@ public class MainViewTests extends ApplicationTest {
 
         /* Save faulty Python Path */
         window("Settings");
-//        clickOn(targetWindow().getScene().lookup("#pythonPathField"));
         clickOn("#pythonPathField");
         write(".exe");
         clickOn("#pathsSave");
         Assert.assertFalse(VerifyPython.isValidPython());
+        Stage settingsWindow = getTopModalStage();
+        Assert.assertNotNull(settingsWindow);
+        sleep(1000);
+        clickOn("OK");
+        Platform.runLater(() -> {
+            settingsWindow.close();
+        });
 
+        /* Open Settings */
+        clickOn("#fileButton");
+        clickOn("#settingsButton");
 
+        /* Save true Python Path */
+        window("Settings");
+        clickOn("#pythonPathField");
+        write("/usr/local/bin/python3");
+        clickOn("#pathsSave");
+        Assert.assertTrue(VerifyPython.isValidPython());
+    }
+
+    /* Taken from here: https://stackoverflow.com/questions/48565782/testfx-how-to-test-validation-dialogs-with-no-ids
+     */
+    private javafx.stage.Stage getTopModalStage() {
+        // Get a list of windows but ordered from top[0] to bottom[n] ones.
+        // It is needed to get the first found modal window.
+        final List<Window> allWindows = new ArrayList<Window>(robotContext().getWindowFinder().listWindows());
+        Collections.reverse(allWindows);
+
+        return (javafx.stage.Stage) allWindows
+                .stream()
+                .filter(window -> window instanceof javafx.stage.Stage)
+                .filter(window -> ((javafx.stage.Stage) window).getModality() == Modality.APPLICATION_MODAL)
+                .findFirst()
+                .orElse(null);
     }
 }
