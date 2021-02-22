@@ -74,6 +74,9 @@ public class JobsMonitor implements Runnable {
 
 
     public void run() {
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
         for (JobManager jm : jobs) jm.watchJobStatus();
         while (true) {
             System.out.println("Rechecking jobs");
@@ -101,6 +104,8 @@ public class JobsMonitor implements Runnable {
             }
         }
     }
+//        });
+//        }
 
     public void runOnce() {
         for (JobManager jm : jobs) jm.watchJobStatus();

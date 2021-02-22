@@ -30,11 +30,13 @@
         <VBox BorderPane.alignment="CENTER">
             <MenuBar>
                 <menus>
-                    <Menu mnemonicParsing="false" text="File">
+                    <Menu fx:id="fileButton" mnemonicParsing="false" text="File">
                         <items>
-                            <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open" />
-                            <MenuItem mnemonicParsing="false" onAction="#selectFragment" text="Select Fragment" />
-                            <Menu fx:id="openRecentMenu" mnemonicParsing="false" onAction="#populateOpenRecentMenu" text="Open Recent">
+                            <MenuItem mnemonicParsing="false" onAction="#fileOpen" text="Open"/>
+                            <MenuItem fx:id="selectFragmentButton" mnemonicParsing="false" onAction="#selectFragment"
+                                      text="Select Fragment"/>
+                            <Menu fx:id="openRecentMenu" mnemonicParsing="false" onAction="#populateOpenRecentMenu"
+                                  text="Open Recent">
                                 <!--<fx:define>-->
                                 <!--<ContextMenu fx:id="cmTF">-->
                                 <!--<items>-->
@@ -45,7 +47,8 @@
                                 <!--</ContextMenu>-->
                                 <!--</fx:define>-->
                             </Menu>
-                            <MenuItem mnemonicParsing="false" onAction="#openSettings" text="Settings" />
+                            <MenuItem fx:id="settingsButton" mnemonicParsing="false" onAction="#openSettings"
+                                      text="Settings"/>
                             <SeparatorMenuItem mnemonicParsing="false" />
                             <MenuItem mnemonicParsing="false" onAction="#fileExit" text="Exit" />
 

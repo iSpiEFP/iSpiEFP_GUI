@@ -41,6 +41,7 @@ public class Connection {
     private boolean isprotectedKey;
     private ch.ethz.ssh2.Connection activeConnection;
     private ServerInfo server;
+    private final Object key = new Object();
 
     public Connection(ServerInfo si, String keyPassword) {
         server = si;
