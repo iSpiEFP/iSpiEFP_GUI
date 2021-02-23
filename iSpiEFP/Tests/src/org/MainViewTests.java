@@ -23,10 +23,14 @@
 import com.sun.javafx.robot.FXRobot;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -44,6 +48,7 @@ import org.testfx.framework.junit.ApplicationTest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 
 public class MainViewTests extends ApplicationTest {
@@ -76,9 +81,79 @@ public class MainViewTests extends ApplicationTest {
     }
 
     @Test
-    public void testServerSetup() {
-        clickOn("#fileButton");
-        clickOn("#settingsButton");
+    /**
+     * Creates a new instance of a server, selects authentication via ssh key file,
+     * that ssh key file is unencrypted, and then ensures it can authenticate the server.
+     */
+    public void testServerSetupAndAuthSSHKeyNoEncryptSuccess() {
+        createDummyServer("dummy");
+        /* Set up a server that works */
+        setUpServer("halstead.rcac.purdue.edu", "rderue", true,
+                "/Users/ryanderue/.ssh/priv", null);
+
+        /* Test that the server was authenticated properly */
+        Stage s = getTopModalStage();
+        DialogPane dp = (DialogPane) s.getScene().getRoot();
+        Assert.assertEquals(dp.getContentText(), "Was able to connect to and authenticate user");
+    }
+
+    @Test
+    /**
+     * Creates a new instance of a server, selects authentication via ssh key file (that does not exist),
+     * that ssh key file is unencrypted, and then ensures it cannot authenticate the server.
+     */
+    public void testServerSetupAndAuthSSHKeyNoEncryptFailure() {
+        createDummyServer("dummy");
+        /* Set up a server that works */
+        setUpServer("halstead.rcac.purdue.edu", "rderue", true,
+                "DNE", null);
+
+        /* Test that the server was authenticated properly */
+        Stage s = getTopModalStage();
+        DialogPane dp = (DialogPane) s.getScene().getRoot();
+        Assert.assertEquals(dp.getContentText(),
+                String.format("Was unable to connect to %s with your credentials", "halstead.rcac.purdue.edu")
+        );
+    }
+
+    @Test
+    public void testSaveNewServer() {
+        openSettings();
+
+        /* Get handle to the menu tree */
+        Optional<TreeView<String>> tvOpt = lookup("#menuTree").tryQuery();
+        Assert.assertTrue(tvOpt.isPresent());
+        TreeView<String> menu = tvOpt.get();
+        TreeView<String> finalMenu1 = menu;
+        Platform.runLater(() -> {
+            finalMenu1.getSelectionModel().select(finalMenu1.getTreeItem(1).getChildren().get(0)); //Select "Add new"
+        });
+        int initNumServers = menu.getTreeItem(1).getChildren().get(1).getChildren().size();
+
+        sleep(1000);
+
+        /* Handle entering Dialog into pop-up */
+        Stage s = getTopModalStage();
+        DialogPane dp = (DialogPane) s.getScene().getRoot();
+        GridPane newServerPromptGrid = (GridPane) dp.getContent();
+        clickOn(getNodeFromGridPane(newServerPromptGrid, 1, 0)); // Clicks on TextField
+        write("alias");
+        clickOn("Save Server Alias");
+        sleep(1000);
+        int finalNumServers = menu.getTreeItem(1).getChildren().get(1).getChildren().size();
+        Assert.assertEquals(initNumServers + 1, finalNumServers);
+        Platform.runLater(() -> getTopModalStage().close());
+        openSettings();
+
+        tvOpt = lookup("#menuTree").tryQuery();
+        Assert.assertTrue(tvOpt.isPresent());
+        menu = tvOpt.get();
+        TreeView<String> finalMenu = menu;
+        Platform.runLater(() -> {
+            finalMenu.getSelectionModel().select(finalMenu.getTreeItem(1).getChildren().get(0)); //Select "Add new"
+        });
+        int recheckNumServers = menu.getTreeItem(1).getChildren().get(1).getChildren().size();
+        Assert.assertNotEquals(recheckNumServers, finalNumServers);
     }
 
     @Test
@@ -127,5 +202,68 @@ public class MainViewTests extends ApplicationTest {
                 .filter(window -> ((javafx.stage.Stage) window).getModality() == Modality.APPLICATION_MODAL)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private Node getNodeFromGridPane(GridPane gridPane, int col, int row) {
+        for (Node node : gridPane.getChildren()) {
+            if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    private void setUpServer(String hostname, String username, boolean isSSHKey, String sshKeyPath,
+                             String password) {
+        clickOn("#hostname");
+        write(hostname);
+        clickOn("#username");
+        write(username);
+        clickOn("#signInMethodComboBox");
+        if (isSSHKey) {
+            type(KeyCode.UP);
+            type(KeyCode.ENTER);
+            clickOn("#signInFileLocationField");
+            write(sshKeyPath);
+        } else {
+            clickOn("#signInPasswordField");
+            write(password);
+            type(KeyCode.ENTER);
+        }
+        clickOn("#serverAuth");
+        sleep(4000);
+    }
+
+    /*
+    The functions below are convenience methods for opening different windows, but they assume that they
+    are invoked from MainView.
+     */
+
+    public void openSettings() {
+        /* Open Settings */
+        clickOn("#fileButton");
+        clickOn("#settingsButton");
+    }
+
+    public void createDummyServer(String alias) {
+        openSettings();
+
+        /* Get handle to the menu tree */
+        Optional<TreeView<String>> tvOpt = lookup("#menuTree").tryQuery();
+        Assert.assertTrue(tvOpt.isPresent());
+        TreeView<String> menu = tvOpt.get();
+        Platform.runLater(() -> {
+            menu.getSelectionModel().select(menu.getTreeItem(1).getChildren().get(0)); //Select "Add new"
+        });
+        sleep(1000);
+
+        /* Handle entering Dialog into pop-up */
+        Stage s = getTopModalStage();
+        DialogPane dp = (DialogPane) s.getScene().getRoot();
+        GridPane newServerPromptGrid = (GridPane) dp.getContent();
+        clickOn(getNodeFromGridPane(newServerPromptGrid, 1, 0)); // Clicks on TextField
+        write(alias);
+        clickOn("Save Server Alias");
+        sleep(1000);
     }
 }
