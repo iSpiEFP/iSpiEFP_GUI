@@ -33,12 +33,13 @@ import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.Connection;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 public abstract class Submission {
 
@@ -126,6 +127,31 @@ public abstract class Submission {
 
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
+    public boolean serverSideClosed(Session session) throws IOException {
+        int conditionSet = ChannelCondition.TIMEOUT & ChannelCondition.CLOSED
+                & ChannelCondition.EOF;
+        conditionSet = session.waitForCondition(conditionSet, 1);
+        boolean returnVal = (conditionSet & ChannelCondition.TIMEOUT) != ChannelCondition.TIMEOUT;
+        return returnVal;
+    }
+
+    private boolean errToBeRead(Session session) {
+        int condition = session.waitForCondition(ChannelCondition.STDERR_DATA, 3);
+        return (condition & ChannelCondition.TIMEOUT) == 0;
+    }
+
+    private boolean stdOutToBeRead(Session session) {
+        int condition = session.waitForCondition(ChannelCondition.STDOUT_DATA, 3);
+        return (condition & ChannelCondition.TIMEOUT) == 0;
+    }
+
+    private boolean dataToBeRead(Session session) {
+        int condition = session.waitForCondition(ChannelCondition.STDOUT_DATA | ChannelCondition.STDERR_DATA, 3);
+        if ((condition & ChannelCondition.TIMEOUT) != 0){
+            return false;
+        } else return true;
+    }
+
     public boolean createJobWorkspace(String inputJobName, Connection con) {
         String jobName = inputJobName.replace(" ", "_");
         String jobDirectory = getJobDirectory(jobName);
@@ -145,39 +171,40 @@ public abstract class Submission {
                 con.close();
                 return false;
             }
+
             Session s = con.openSession();
+//            s.requestPTY("bash");
+            s.startShell();
             /* Check to see if a job directory of this name already exists */
-            boolean directoryExists = false;
             try {
-                System.out.println("Submission 152: Here");
-                s.execCommand("ls " + jobDirectory);
-                System.out.println("Submission 154: Here");
-
-                // reading result
                 StringBuilder outputString = new StringBuilder();
-                int i;
-                char c;
-                try {
-                    InputStream output = s.getStdout();
-                    System.out.println("Submission 162");
-                    while ((i = output.read()) != -1) {
-                        System.out.println("Submission 163: " + ((char) i));
-                        outputString.append((char) i);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                System.out.println("Submission 181");
+//                String cmd = String.format("ls %s && exit\n", jobDirectory);
+//                String cmd = "echo " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date()) + " > 1.txt && ls && exit\n";
+//                String cmd = "ls && exit\n";
+                String cmd = "ls " + jobDirectory + " && exit\n";
+                System.out.println("Submission 184: " + cmd);
 
-                System.out.println(outputString.toString());
+                PrintWriter writer = new PrintWriter(s.getStdin());
+                writer.println(cmd);
+                writer.close();
 
-                System.out.println(con.getActiveConnection().openSession());
+                // reading stdout
+                String out = ReadStream(s.getStdout());
 
-                System.out.println(con.getActiveConnection().toString());
-                SFTPv3Client sftp = new SFTPv3Client (con.getActiveConnection());
-                System.out.println("Submission 151: Here");
-                sftp.ls(jobDirectory);
-                System.err.println("This directory already exists");
+                // reading stderr
+                String err = ReadStream(s.getStderr());
 
+                System.out.println("Submission 198, StdOut: " + out);
+                System.out.println("Submission 199, StdErr: " + err);
+
+                // TODO: Now able to detect output, determine directory exists or not, remove catch
+
+
+//                SFTPv3Client sftp = new SFTPv3Client (con.getActiveConnection());
+//                System.out.println("Submission 151: Here");
+//                sftp.ls(jobDirectory);
+//                System.err.println("This directory already exists");
 
                 // Dialog
                 Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
@@ -217,6 +244,20 @@ public abstract class Submission {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    private String ReadStream(InputStream stream) throws IOException {
+        StringBuilder outputString = new StringBuilder();
+        InputStream inputStream = new StreamGobbler(stream);
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+        while (true) {
+            String line = br.readLine();
+            if (line == null) break;
+            outputString.append(line);
+            outputString.append('\n');
+        }
+        br.close();
+        return outputString.toString();
     }
 
     public boolean sendInputFile(File inputFile, String pemKey) throws IOException {
