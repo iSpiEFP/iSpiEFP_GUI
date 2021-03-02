@@ -163,6 +163,7 @@ public abstract class Submission {
         setOutputFilename(jobName);
         setSchedulerOutputName(jobName);
 
+        boolean directoryExists = false;
         try {
 //            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
             boolean isAuthenticated = con.connect();
@@ -173,39 +174,36 @@ public abstract class Submission {
             }
 
             Session s = con.openSession();
-//            s.requestPTY("bash");
             s.startShell();
             /* Check to see if a job directory of this name already exists */
-            try {
-                StringBuilder outputString = new StringBuilder();
-                System.out.println("Submission 181");
-//                String cmd = String.format("ls %s && exit\n", jobDirectory);
-//                String cmd = "echo " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date()) + " > 1.txt && ls && exit\n";
-//                String cmd = "ls && exit\n";
-                String cmd = "ls " + jobDirectory + " && exit\n";
-                System.out.println("Submission 184: " + cmd);
 
-                PrintWriter writer = new PrintWriter(s.getStdin());
-                writer.println(cmd);
-                writer.close();
+            String cmd = "ls " + jobDirectory + " && exit\n";
+            System.out.println("Submission 184: " + cmd);
 
-                // reading stdout
-                String out = ReadStream(s.getStdout());
+            PrintWriter writer = new PrintWriter(s.getStdin());
+            writer.println(cmd);
+            writer.close();
 
-                // reading stderr
-                String err = ReadStream(s.getStderr());
+            // reading stdout
+            String out = ReadStream(s.getStdout());
 
-                System.out.println("Submission 198, StdOut: " + out);
-                System.out.println("Submission 199, StdErr: " + err);
+            // reading stderr
+            String err = ReadStream(s.getStderr());
 
-                // TODO: Now able to detect output, determine directory exists or not, remove catch
+            System.out.println("Submission 198, StdOut: " + out);
+            System.out.println("Submission 199, StdErr: " + err);
 
+            // Check if directory exists
+            if (err.length() > 0 && err.contains("cannot access")) {
+                System.out.println("No directory exists");
+                directoryExists = false;
+            }
+            if (out.length() > 0 && out.contains("input")) {
+                System.out.println("Directory Exists");
+                directoryExists = true;
+            }
 
-//                SFTPv3Client sftp = new SFTPv3Client (con.getActiveConnection());
-//                System.out.println("Submission 151: Here");
-//                sftp.ls(jobDirectory);
-//                System.err.println("This directory already exists");
-
+            if (directoryExists) {
                 // Dialog
                 Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
                 directoryAlreadyExistsDialog.setTitle("Warning: Directory Already Exists on Server");
@@ -230,18 +228,21 @@ public abstract class Submission {
                     System.err.println("User wants to rename the directory so as to not overwrite a job. Returning...");
                     return false;
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.err.println("This directory does not exist");
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            s.execCommand(command);
-            System.out.println("Executed command: " + command);
+
+
+            // execute create directory command, recreate session, because previous exited
+            s.close();
+            s = con.openSession();
+            s.startShell();
+            writer = new PrintWriter(s.getStdin());
+            writer.println(command);
+            writer.close();
+
             s.close();
             return true;
         } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -266,7 +267,9 @@ public abstract class Submission {
         if (authorized) {
             /* Copy input file to the server */
             SCPClient scp = con.createSCPClient();
+            System.out.println("Submission 270");
             SCPOutputStream scpos = scp.put(inputFilePath, inputFile.length(), getJobInputDirectory(), "0666");
+            System.out.println("Submission 272");
             FileInputStream in = new FileInputStream(inputFile);
             IOUtils.copy(in, scpos);
             //Wait for each file to actually be on the server
