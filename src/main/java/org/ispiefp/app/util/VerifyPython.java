@@ -22,6 +22,7 @@
 
 package org.ispiefp.app.util;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
@@ -41,29 +42,44 @@ public class VerifyPython {
                 " until you select a valid Python interpreter (Python3 3.0 or higher) from File -> Settings" +
                 " -> Default Path Settings";
         if (!UserPreferences.pythonPathExists()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    noDefaultPythonInterpreterError,
-                    ButtonType.OK);
-            alert.showAndWait();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Alert alert = new Alert(Alert.AlertType.ERROR,
+                            noDefaultPythonInterpreterError,
+                            ButtonType.OK);
+                    alert.showAndWait();
+                }
+            });
             return false;
         }
-        if (scriptOutput == null){
+        if (scriptOutput == null) {
             String invalidPythonPath = "The path to your python interpreter specified in your settings is either an " +
                     "invalid path or is not a path to a python interpreter. You will be unable to select a fragment" +
                     " until this field is updated in your settings.";
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    invalidPythonPath,
-                    ButtonType.OK);
-            alert.showAndWait();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Alert alert = new Alert(Alert.AlertType.ERROR,
+                            invalidPythonPath,
+                            ButtonType.OK);
+                    alert.showAndWait();
+                }
+            });
             return false;
         }
-        if (scriptOutput.equals("invalid python version")){
+        if (scriptOutput.equals("invalid python version")) {
             String invalidPythonVersionError = "Your selected python interpreter is not at least version number 3.0 " +
                     "Please select a different python interpreter.";
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    invalidPythonVersionError,
-                    ButtonType.OK);
-            alert.showAndWait();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Alert alert = new Alert(Alert.AlertType.ERROR,
+                            invalidPythonVersionError,
+                            ButtonType.OK);
+                    alert.showAndWait();
+                }
+            });
             return false;
         }
         System.out.printf("Script output us %s%n", scriptOutput);
@@ -73,10 +89,15 @@ public class VerifyPython {
                             "We cannot detect %s within the loadable modules of your selected interpreter. Please " +
                             "install numpy or choose a different interpreter which has %s",
                     missingModule, missingModule, missingModule);
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    noModule,
-                    ButtonType.OK);
-            alert.showAndWait();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Alert alert = new Alert(Alert.AlertType.ERROR,
+                            noModule,
+                            ButtonType.OK);
+                    alert.showAndWait();
+                }
+            });
             return false;
         }
         return false;

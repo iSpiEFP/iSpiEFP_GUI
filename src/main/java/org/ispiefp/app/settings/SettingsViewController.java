@@ -103,7 +103,7 @@ public class SettingsViewController {
     @FXML
     private TreeView<String> menuTree;
     @FXML
-    private TreeItem topLeveLSettings;
+    private TreeItem topLevelSettings;
     @FXML
     private TreeItem<String> defaultPaths;
     @FXML
@@ -143,12 +143,14 @@ public class SettingsViewController {
 
     private void initializeSignInMethod() {
         signInPasswordField = new PasswordField();
+        signInPasswordField.setId("signInPasswordField");
         signInPasswordField.setMaxWidth(Double.MAX_VALUE);
         signInPasswordField.setMinHeight(Double.NEGATIVE_INFINITY);
         signInPasswordField.setMinWidth(Double.NEGATIVE_INFINITY);
         GridPane.setConstraints(signInPasswordField, 1, 8);
 
         signInFileLocationField = new TextField();
+        signInFileLocationField.setId("signInFileLocationField");
         signInFileLocationField.setMaxWidth(Double.MAX_VALUE);
         signInFileLocationField.setMinHeight(Double.NEGATIVE_INFINITY);
         signInFileLocationField.setMinWidth(Double.NEGATIVE_INFINITY);
