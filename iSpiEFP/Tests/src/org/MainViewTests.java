@@ -37,6 +37,7 @@ import javafx.stage.Window;
 import org.ispiefp.app.Initializer;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.util.CheckInternetConnection;
+import org.ispiefp.app.util.TestFileParser;
 import org.ispiefp.app.util.VerifyPython;
 import org.junit.After;
 import org.junit.Assert;
@@ -54,6 +55,10 @@ import java.util.Optional;
 public class MainViewTests extends ApplicationTest {
     FXRobot robot;
     boolean hasInternetConnection;
+    String username; /* Server username */
+    String hostname; /* Hostname of server */
+    String sshKeyPath; /* Path to the ssh key */
+    String pythonPath; /* Path to python interpreter */
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -69,9 +74,12 @@ public class MainViewTests extends ApplicationTest {
         hasInternetConnection = CheckInternetConnection.checkInternetConnection();
         if (!hasInternetConnection) System.err.println("There is no internet connection. " +
                 "Only tests which don't require an internet connection will be ran.");
-
+        TestFileParser tfp = new TestFileParser();
+        username = tfp.getUsername();
+        hostname = tfp.getHostname();
+        sshKeyPath = tfp.getSshKeyPath();
+        pythonPath = tfp.getPythonPath();
     }
-
 
     @After
     public void tearDown() throws Exception {
@@ -88,8 +96,7 @@ public class MainViewTests extends ApplicationTest {
     public void testServerSetupAndAuthSSHKeyNoEncryptSuccess() {
         createDummyServer("dummy");
         /* Set up a server that works */
-        setUpServer("halstead.rcac.purdue.edu", "rderue", true,
-                "/Users/ryanderue/.ssh/priv", null);
+        setUpServer(true, null);
 
         /* Test that the server was authenticated properly */
         Stage s = getTopModalStage();
@@ -183,9 +190,15 @@ public class MainViewTests extends ApplicationTest {
         /* Save true Python Path */
         window("Settings");
         clickOn("#pythonPathField");
-        write("/usr/local/bin/python3");
+        write(pythonPath);
         clickOn("#pathsSave");
         Assert.assertTrue(VerifyPython.isValidPython());
+    }
+
+    @Test
+    public void testFileSettings() {
+        TestFileParser tfp = new TestFileParser();
+        Assert.assertTrue(tfp.fileExists());
     }
 
     /* Taken from here: https://stackoverflow.com/questions/48565782/testfx-how-to-test-validation-dialogs-with-no-ids
@@ -211,6 +224,26 @@ public class MainViewTests extends ApplicationTest {
             }
         }
         return null;
+    }
+
+    private void setUpServer(boolean isSSHKey, String password) {
+        clickOn("#hostname");
+        write(hostname);
+        clickOn("#username");
+        write(username);
+        clickOn("#signInMethodComboBox");
+        if (isSSHKey) {
+            type(KeyCode.UP);
+            type(KeyCode.ENTER);
+            clickOn("#signInFileLocationField");
+            write(sshKeyPath);
+        } else {
+            clickOn("#signInPasswordField");
+            write(password);
+            type(KeyCode.ENTER);
+        }
+        clickOn("#serverAuth");
+        sleep(4000);
     }
 
     private void setUpServer(String hostname, String username, boolean isSSHKey, String sshKeyPath,
