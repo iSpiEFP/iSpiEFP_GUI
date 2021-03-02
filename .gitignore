@@ -8,3 +8,4 @@ iSpiEFP/out/production/iSpiEFP_GUI
 /iSpiEFP/w6b2_energy.out
 /iSpiEFP/w6b2_md.out
 /iSpiEFP/w6b2_pairwise.out
+src/main/resources/testFileSettings.config
