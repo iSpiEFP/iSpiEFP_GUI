@@ -720,7 +720,6 @@ public class LibEFPOutputFile {
                     }
                     while (br.readLine().equals("")) ;
                     //Begin RESTART DATA
-                    br.readLine(); //Consume RESTART DATA
                     br.readLine(); //Consume empty line
                     while (!(currentLine = br.readLine()).equals("")) {
                         //BufferedReader should be focused on the first line of the fragment

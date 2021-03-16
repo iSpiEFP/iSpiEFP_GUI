@@ -34,16 +34,16 @@ import java.io.File;
 import java.io.IOException;
 
 public class MetaHandlerTest {
-
+    private final String testResourcePath = "src/test/resources/";
     @Test
     public void testElectrostatics()  {
         MetaHandler metaHandler = new MetaHandler();
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/acetone_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "acetone_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
         Assert.assertTrue(metaHandler.containsExchangeRepulsion());
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/acetone_mal_es_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "acetone_mal_es_l.json");
         Assert.assertFalse(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
@@ -53,12 +53,12 @@ public class MetaHandlerTest {
     @Test
     public void testPolarization() {
         MetaHandler metaHandler = new MetaHandler();
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/c2h5oh_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "c2h5oh_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
         Assert.assertTrue(metaHandler.containsExchangeRepulsion());
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/c2h5oh_mal_pol_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "c2h5oh_mal_pol_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertFalse(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
@@ -68,12 +68,12 @@ public class MetaHandlerTest {
     @Test
     public void testExchangeRepulsion() {
         MetaHandler metaHandler = new MetaHandler();
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/c6h6_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "c6h6_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
         Assert.assertTrue(metaHandler.containsExchangeRepulsion());
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/c6h6_mal_xr_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "c6h6_mal_xr_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
@@ -83,12 +83,12 @@ public class MetaHandlerTest {
     @Test
     public void testDispersion() {
         MetaHandler metaHandler = new MetaHandler();
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ccl4_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "ccl4_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertTrue(metaHandler.containsDispersion());
         Assert.assertTrue(metaHandler.containsExchangeRepulsion());
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ccl4_mal_dis_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "ccl4_mal_dis_l.json");
         Assert.assertTrue(metaHandler.containsElectrostatics());
         Assert.assertTrue(metaHandler.containsPolarization());
         Assert.assertFalse(metaHandler.containsDispersion());
@@ -98,7 +98,7 @@ public class MetaHandlerTest {
     @Test
     public void testFields1(){
         MetaHandler metaHandler = new MetaHandler();
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ch3oh_mal_bit1_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "ch3oh_mal_bit1_l.json");
         Assert.assertFalse(metaHandler.containsCoordinates());
         Assert.assertTrue(metaHandler.containsMonopoles());
         Assert.assertFalse(metaHandler.containsDipoles());
@@ -119,7 +119,7 @@ public class MetaHandlerTest {
     @Test
     public void testFields2(){
         MetaHandler metaHandler = new MetaHandler();
-        metaHandler.setCurrentMetaData("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
+        metaHandler.setCurrentMetaData(testResourcePath + "ch4_mal_bit2_l.json");
         Assert.assertFalse(metaHandler.containsCoordinates());
         Assert.assertFalse(metaHandler.containsMonopoles());
         Assert.assertFalse(metaHandler.containsDipoles());
@@ -139,7 +139,7 @@ public class MetaHandlerTest {
 
     @Test
     public void testSingleFile(){
-        MetaHandler metaHandler = new MetaHandler("iSpiEFP/Tests/TestResources/validMetaDataFile.json");
+        MetaHandler metaHandler = new MetaHandler(testResourcePath + "validMetaDataFile.json");
         metaHandler.examineMetaData(2);
         Assert.assertTrue(metaHandler.containsCoordinates());
         Assert.assertTrue(metaHandler.containsMonopoles());
@@ -173,12 +173,12 @@ public class MetaHandlerTest {
     }
 
     @Test
-    public void testLocalFragmentTree(){
+    public void testLocalFragmentTree() {
         Initializer initializer = new Initializer();
         initializer.init();
         LocalFragmentTree lft = new LocalFragmentTree();
-        MetaData metaData = new MetaData("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
-        lft.addFragment("iSpiEFP/Tests/TestResources/ch4_mal_bit2_l.json");
+        MetaData metaData = new MetaData(testResourcePath + "ch4_mal_bit2_l.json");
+        lft.addFragment(testResourcePath + "ch4_mal_bit2_l.json");
         Assert.assertTrue(metaData.equals(lft.getMetaData("ch4.efp")));
     }
 
