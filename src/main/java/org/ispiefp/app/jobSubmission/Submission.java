@@ -127,31 +127,6 @@ public abstract class Submission {
 
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
-    public boolean serverSideClosed(Session session) throws IOException {
-        int conditionSet = ChannelCondition.TIMEOUT & ChannelCondition.CLOSED
-                & ChannelCondition.EOF;
-        conditionSet = session.waitForCondition(conditionSet, 1);
-        boolean returnVal = (conditionSet & ChannelCondition.TIMEOUT) != ChannelCondition.TIMEOUT;
-        return returnVal;
-    }
-
-    private boolean errToBeRead(Session session) {
-        int condition = session.waitForCondition(ChannelCondition.STDERR_DATA, 3);
-        return (condition & ChannelCondition.TIMEOUT) == 0;
-    }
-
-    private boolean stdOutToBeRead(Session session) {
-        int condition = session.waitForCondition(ChannelCondition.STDOUT_DATA, 3);
-        return (condition & ChannelCondition.TIMEOUT) == 0;
-    }
-
-    private boolean dataToBeRead(Session session) {
-        int condition = session.waitForCondition(ChannelCondition.STDOUT_DATA | ChannelCondition.STDERR_DATA, 3);
-        if ((condition & ChannelCondition.TIMEOUT) != 0){
-            return false;
-        } else return true;
-    }
-
     public boolean createJobWorkspace(String inputJobName, Connection con) {
         String jobName = inputJobName.replace(" ", "_");
         String jobDirectory = getJobDirectory(jobName);
