@@ -232,10 +232,13 @@ public class MainViewController {
                 // infinite loop to update history view
                 while (true) {
                     // get latest status and jobs
+                    System.out.println("MainViewController 235: " + jobHistory.getHistory().size());
                     jobHistoryRecord = jobHistory.getHistory();
 
                     // iterate through each job
                     for (SubmissionRecord submissionRecord : jobHistoryRecord) {
+
+                        System.out.println("MainViewController 240: " + submissionRecord.getJob_id() + submissionRecord.getName());
 
                         // add new job if does not exists yet
                         if (!accountedForJobs.contains(submissionRecord.getJob_id())) {
@@ -273,7 +276,7 @@ public class MainViewController {
                         }
 
                     }
-                    Thread.sleep(500);
+                    Thread.sleep(2000);
                 }
 
 
@@ -354,19 +357,26 @@ public class MainViewController {
         deleteRecordOption.setOnAction(action -> {
             try {
                 String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
+                System.out.println("MainViewController 359: " + jobID);
                 /* 1. Kill the job on the server if it is running todo */
                 /* 2. Remove it from the list of jobs on the jobsMonitor */
-                //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
-                CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
-                for (int i = 0; i < runningJobs.size(); i++) {
-                    if (runningJobs.get(i).getJobID().equals(jobID)) runningJobs.remove(i);
-                }
+                /* UPDATE: Do not need to remove from JobsMoniotor, remove from JobHistory. */
+//                //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
+//                CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
+//                for (int i = 0; i < runningJobs.size(); i++) {
+//                    if (runningJobs.get(i).getJobID().equals(jobID)) runningJobs.remove(i);
+//                }
+//                new JobHistory().deleteJob(historyTreeView.getSelectionModel().getSelectedItem())
+
                 /* 3. Remove it's record from the jobsMonitor's submission record */
-                UserPreferences.getJobsMonitor().deleteRecord(
-                        UserPreferences.getJobsMonitor().getRecords().get(jobID));
+                /* UPDATE: NO NEED, JobHistory will handle it, and JobMonitor will read from it. */
+//                UserPreferences.getJobsMonitor().deleteRecord(
+//                        UserPreferences.getJobsMonitor().getRecords().get(jobID));
+
                 /* 4. Remove it from the history pane */
-                historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
-                System.out.println("Selected item is of class: " + ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue());
+                /* UPDATE: NO NEED, history will automatically update. */
+//                historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
+//                System.out.println("Selected item is of class: " + ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue());
             } catch (ClassCastException e) {
                 //This is a cheap solution to the issue of the user being able to right click the root node.
             }
@@ -377,74 +387,83 @@ public class MainViewController {
         viewJobInfoOption.setOnAction(action -> {
 //            viewJobInfoOption.setDisable(true);
             String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
-            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
-            if (records.get(jobID).getStatus().equals("RUNNING")) {
-                viewJobInfoOption.setDisable(true);
-            }
-            /* Pull up a view displaying all information about the job */
-            try {
-                Stage stage = new Stage();
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/JobView.fxml"));
-                JobViewController jobViewController = new JobViewController(records.get(jobID));
-                loader.setController(jobViewController);
-                Parent p = loader.load();
+            System.out.println("TODO: MainViewController 389: " + jobID);
+            // TODO: JobID changed
 
-                stage.initModality(Modality.APPLICATION_MODAL);
-                stage.setTitle("Job Information");
-                stage.setScene(new Scene(p));
+            ArrayList<SubmissionRecord> submissionRecord = new JobHistory().getHistory();
 
-                try {
-                    stage.showAndWait();
-                } catch (Exception e) {
-                    System.err.println("Unable to open new view");
-                }
-            } catch (IOException e) {
-                System.err.println("Was unable to locate the view");
-                e.printStackTrace();
-            }
+//            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
+//            if (records.get(jobID).getStatus().equals("RUNNING")) {
+//                viewJobInfoOption.setDisable(true);
+//            }
+//            /* Pull up a view displaying all information about the job */
+//            try {
+//                Stage stage = new Stage();
+//                FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/JobView.fxml"));
+//                JobViewController jobViewController = new JobViewController(records.get(jobID));
+//                loader.setController(jobViewController);
+//                Parent p = loader.load();
+//
+//                stage.initModality(Modality.APPLICATION_MODAL);
+//                stage.setTitle("Job Information");
+//                stage.setScene(new Scene(p));
+//
+//                try {
+//                    stage.showAndWait();
+//                } catch (Exception e) {
+//                    System.err.println("Unable to open new view");
+//                }
+//            } catch (IOException e) {
+//                System.err.println("Was unable to locate the view");
+//                e.printStackTrace();
+//            }
         });
         MenuItem exportCSVOption = new MenuItem("Export to CSV");
         exportCSVOption.setOnAction(action -> {
+
             String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
-            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
-            if (!records.get(jobID).getStatus().equals("COMPLETE")) {
-                Alert alert = new Alert(Alert.AlertType.WARNING, "Please wait until job finishes.", ButtonType.OK);
-                alert.showAndWait();
-            } else {
-                String localPathPrefix = records.get(jobID).getLocalOutputFilePath();
-                String output = records.get(jobID).getOutputFilePath();
-                String localPathTotal = localPathPrefix.substring(0, localPathPrefix.indexOf("/")) + File.separator + output;
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Save CSV File");
-                String path = records.get(jobID).getOutputFilePath();
-                String fileName = path.substring(path.lastIndexOf("/") + 1, path.indexOf("."));
-                fileChooser.setInitialDirectory(new File(new File(localPathPrefix).getParent()));
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
-                Stage currStage = (Stage) root.getScene().getWindow();
-                LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
-                String[] sheets = libEFPtoCSV.getCSVString(localPathTotal);
-                for (int j = 0; j < sheets.length; j++) {
-                    if (sheets[j] != null) {
-                        if (j == 0) {
-                            fileChooser.setInitialFileName(fileName + "_ene.csv");
-                        } else {
-                            fileChooser.setInitialFileName(fileName + "_pw.csv");
-                        }
-                        File file = fileChooser.showSaveDialog(currStage);
-                        if (file != null) {
-                            try {
-                                FileWriter fileWriter = new FileWriter(file);
-                                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                                bufferedWriter.write(sheets[j]);
-                                bufferedWriter.close();
-                                fileWriter.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
+            // TODO:
+            System.out.println("TODO MainViewController 423: " + jobID);
+
+//            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
+//            if (!records.get(jobID).getStatus().equals("COMPLETE")) {
+//                Alert alert = new Alert(Alert.AlertType.WARNING, "Please wait until job finishes.", ButtonType.OK);
+//                alert.showAndWait();
+//            } else {
+//                String localPathPrefix = records.get(jobID).getLocalOutputFilePath();
+//                String output = records.get(jobID).getOutputFilePath();
+//                String localPathTotal = localPathPrefix.substring(0, localPathPrefix.indexOf("/")) + File.separator + output;
+//                FileChooser fileChooser = new FileChooser();
+//                fileChooser.setTitle("Save CSV File");
+//                String path = records.get(jobID).getOutputFilePath();
+//                String fileName = path.substring(path.lastIndexOf("/") + 1, path.indexOf("."));
+//                fileChooser.setInitialDirectory(new File(new File(localPathPrefix).getParent()));
+//                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+//                Stage currStage = (Stage) root.getScene().getWindow();
+//                LibEFPtoCSV libEFPtoCSV = new LibEFPtoCSV();
+//                String[] sheets = libEFPtoCSV.getCSVString(localPathTotal);
+//                for (int j = 0; j < sheets.length; j++) {
+//                    if (sheets[j] != null) {
+//                        if (j == 0) {
+//                            fileChooser.setInitialFileName(fileName + "_ene.csv");
+//                        } else {
+//                            fileChooser.setInitialFileName(fileName + "_pw.csv");
+//                        }
+//                        File file = fileChooser.showSaveDialog(currStage);
+//                        if (file != null) {
+//                            try {
+//                                FileWriter fileWriter = new FileWriter(file);
+//                                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+//                                bufferedWriter.write(sheets[j]);
+//                                bufferedWriter.close();
+//                                fileWriter.close();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         });
         historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption, exportCSVOption));
     }

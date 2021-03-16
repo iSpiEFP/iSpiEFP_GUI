@@ -39,9 +39,7 @@ import org.controlsfx.control.CheckComboBox;
 import org.ispiefp.app.Main;
 import org.ispiefp.app.MetaData.MetaData;
 import org.ispiefp.app.installer.LocalBundleManager;
-import org.ispiefp.app.jobSubmission.SlurmSubmission;
-import org.ispiefp.app.jobSubmission.Submission;
-import org.ispiefp.app.jobSubmission.SubmissionHistoryController;
+import org.ispiefp.app.jobSubmission.*;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.server.ServerDetails;
 import org.ispiefp.app.server.ServerInfo;
@@ -674,13 +672,16 @@ public class LibEFPInputController implements Initializable {
 
         String time = currentTime; //equivalent but in different formats
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
+        String submissionJobId = submission.submit(subScriptCont.getUsersSubmissionScript(), keyPassword);
         currentTime = dateFormat.format(date).toString();
 //        userPrefs.put(clusterjobID, clusterjobID + "\n" + currentTime + "\n");
         JobManager jobManager = new JobManager(selectedServer, localWorkingDirectory.getText(),
                 submission.getOutputFilename(), title.getText(),
                 currentTime, "QUEUE", "LIBEFP", keyPassword);
-        UserPreferences.getJobsMonitor().addJob(jobManager);
+        jobManager.setJobID(submissionJobId);
+        new JobHistory().addJob(new SubmissionRecord(jobManager));
+        // DO NOT NEED FOLLOWING LINE, add to JobHistory
+//        UserPreferences.getJobsMonitor().addJob(jobManager);
         Stage currentStage = (Stage) root.getScene().getWindow();
         currentStage.close();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

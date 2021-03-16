@@ -29,6 +29,7 @@ import org.ispiefp.app.server.JobManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,38 +39,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static java.lang.Thread.sleep;
 
 public class JobsMonitor implements Runnable {
-    private CopyOnWriteArrayList<JobManager> jobs;
-    private ConcurrentHashMap<String, SubmissionRecord> records;
+//    private CopyOnWriteArrayList<JobManager> jobs;
+    private ArrayList<SubmissionRecord> records;
+    private JobHistory jobHistory;
     private int MAX_RECORDS = 15;
     private int numRecords = 0;
 
     public JobsMonitor(String jobsJson) {
         Gson gson = new Gson();
-        jobs = gson.fromJson(jobsJson, JobsMonitor.class).jobs;
-        records = gson.fromJson(jobsJson, JobsMonitor.class).records;
-        numRecords = records.entrySet().size();
+//        jobs = gson.fromJson(jobsJson, JobsMonitor.class).jobs;
+//        records = gson.fromJson(jobsJson, JobsMonitor.class).records;
+        jobHistory = new JobHistory();
+        records = jobHistory.getHistory();
+        numRecords = records.size();
     }
 
     public JobsMonitor() {
-        jobs = new CopyOnWriteArrayList<>();
-        records = new ConcurrentHashMap<>();
-    }
-
-    public void addJob(JobManager jm) {
-        jobs.add(jm);
-        System.out.println("Before creating the submission record");
-        SubmissionRecord record = new SubmissionRecord(jm);
-        System.out.println("After creating the submission record");
-        JobHistory jh = new JobHistory();
-        System.out.println("After creating the Job History");
-        jh.addJob(record);
-        System.out.println("After adding the job to jon history");
-        records.put(jm.getTitle(), record);
-//        record.setJobManager(jm);
-        if (numRecords == MAX_RECORDS) {
-            //todo Add some method of removing the oldest record.
-        } else numRecords++;
-        jm.watchJobStatus();
+//        jobs = new CopyOnWriteArrayList<>();
+        jobHistory = new JobHistory();
+        records = new JobHistory().getHistory();
     }
 
 
@@ -105,23 +93,27 @@ public class JobsMonitor implements Runnable {
         // loop to monitor job status
         while (true) {
             System.out.println("JobsMonitor 79: Checking jobs..");
-            ArrayList<SubmissionRecord> completedJobs = new ArrayList<>();
+//            ArrayList<SubmissionRecord> completedJobs = new ArrayList<>();
+
+            // get new jobs
+            records = jobHistory.getHistory();
 
             // obtain current jobs
-            for (SubmissionRecord sr : new JobHistory().getHistory()) {
+            for (SubmissionRecord sr : records) {
+
+                // skip if already completed or failed (error)
+                if (sr.getStatus().equals("COMPLETED") || sr.getStatus().equals("FAILED")) continue;
                 System.out.println("JobsMonitor 82: " + sr.getName());
+
                 try {
-                    // check status
+                    // check/update status
                     sr.checkStatus();
-                    if (sr.getStatus().equals("CD")) {
-                        completedJobs.add(sr);
-                        saveRecord(sr);
-                    }
+                    // update job if completed
+                    if (sr.getStatus().equals("COMPLETED")) jobHistory.updateJob(sr);
                 } catch (IOException e) {
                     System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
                 }
             }
-            jobs.removeAll(completedJobs);
             try {
                 sleep(3000);
             } catch (InterruptedException e) {
@@ -150,24 +142,26 @@ public class JobsMonitor implements Runnable {
 //            }
 //        }
 //        jobs.removeAll(completedJobs);
-        System.out.println("JobsMonitor 153: Checking jobs..");
-        ArrayList<SubmissionRecord> completedJobs = new ArrayList<>();
+
+        // get new jobs
+        records = jobHistory.getHistory();
 
         // obtain current jobs
-        for (SubmissionRecord sr : new JobHistory().getHistory()) {
+        for (SubmissionRecord sr : records) {
+
+            // skip if already completed or failed (error)
+            if (sr.getStatus().equals("COMPLETED") || sr.getStatus().equals("FAILED")) continue;
             System.out.println("JobsMonitor 82: " + sr.getName());
+
             try {
-                // check status
+                // check/update status
                 sr.checkStatus();
-                if (sr.getStatus().equals("CD")) {
-                    completedJobs.add(sr);
-                    saveRecord(sr);
-                }
+                // update job if completed
+                if (sr.getStatus().equals("COMPLETED")) jobHistory.updateJob(sr);
             } catch (IOException e) {
                 System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
             }
         }
-        jobs.removeAll(completedJobs);
     }
 
     public void start() {
@@ -230,24 +224,28 @@ public class JobsMonitor implements Runnable {
         return fileContents.isEmpty();
     }
 
+    @Deprecated
     public void saveRecord(SubmissionRecord sr) {
-        records.get(sr.getJob_id()).setOutputFilePath(sr.getOutputFilePath());
-        records.get(sr.getJob_id()).setStdoutputFilePath(sr.getStdoutputFilePath());
+//        System.out.println(sr.getJob_id());
+//        System.out.println(sr.getOutputFilePath());
+//        System.out.println(records.get(sr.getJob_id()));
+//        records.get(sr.getJob_id()).setOutputFilePath(sr.getOutputFilePath());
+//        records.get(sr.getJob_id()).setStdoutputFilePath(sr.getStdoutputFilePath());
     }
 
-    public ConcurrentHashMap<String, SubmissionRecord> getRecords() {
-        return records;
-    }
+//    public ConcurrentHashMap<String, SubmissionRecord> getRecords() {
+//        return records;
+//    }
 
-    public CopyOnWriteArrayList<JobManager> getJobs() {
-        return jobs;
-    }
+//    public CopyOnWriteArrayList<JobManager> getJobs() {
+//        return jobs;
+//    }
 
-    public void deleteRecord(SubmissionRecord record) {
-        records.remove(record.getJob_id());
-        JobHistory jh = new JobHistory();
-        jh.deleteJob(record);
-    }
+//    public void deleteRecord(SubmissionRecord record) {
+//        records.remove(record.getJob_id());
+//        JobHistory jh = new JobHistory();
+//        jh.deleteJob(record);
+//    }
 
 //    public void connectSubmissionToJobManager(SubmissionRecord record, JobManager jm){
 //        record2managerMap.put()

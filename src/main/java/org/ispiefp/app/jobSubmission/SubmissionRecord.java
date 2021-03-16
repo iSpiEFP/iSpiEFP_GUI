@@ -192,12 +192,13 @@ public class SubmissionRecord {
         conn.connect();
 
         Session s = conn.openSession();
-        s.execCommand(String.format("squeue --job=%s\n", job_id));
+        String cmd = String.format("squeue --job=%s --format=\"%%A %%T\"\n", job_id);
+        s.execCommand(cmd);
+        System.out.println("Submission Record 197: " + cmd);
 
         // reading result
         StringBuilder outputString = new StringBuilder();
         int i;
-        char c;
         try {
             InputStream output = s.getStdout();
             while ((i = output.read()) != -1) outputString.append((char) i);
@@ -205,21 +206,30 @@ public class SubmissionRecord {
             e.printStackTrace();
         }
 
+        StringBuilder errorString = new StringBuilder();
+        try {
+            InputStream output = s.getStderr();
+            while ((i = output.read()) != -1) errorString.append((char) i);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // extracting status from output
         String extractStatus = outputString.toString();
-        System.out.println("JobManager 171: " + extractStatus);
+        System.out.println("SubmissionRecord 219: " + extractStatus);
+        System.out.println("SubmissionRecord 220: " + errorString.toString());
         try {
             // extract status code based on https://slurm.schedmd.com/squeue.html
             // in JOB STATE CODES section
-            // TODO: Use -O
+            if (errorString.toString().contains("Invalid job id")) throw new ArrayIndexOutOfBoundsException();
             extractStatus = extractStatus.split("\n")[1].split(" +")[5];
             setStatus(extractStatus);
-            if (extractStatus.equals("CD")) throw new ArrayIndexOutOfBoundsException();
-            System.out.println("JobManager 191: " + extractStatus);
-            s.close();
-            conn.close();
+            if (extractStatus.equals("COMPLETED")) throw new ArrayIndexOutOfBoundsException();
+
         } catch (ArrayIndexOutOfBoundsException e) {
             // should be done, because squeue doesn't have record
+            setStatus("COMPLETED");
+        } finally {
             s.close();
             conn.close();
         }
