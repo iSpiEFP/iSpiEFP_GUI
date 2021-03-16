@@ -3,3 +3,5 @@
 .idea/
 iSpiEFP/
 /target/
+src/test/resources/testFileSettings.config
+iSpiEFP.iml
