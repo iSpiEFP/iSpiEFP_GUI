@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class MainViewTests extends ApplicationTest {
+public class MainViewTest extends ApplicationTest {
     FXRobot robot;
     boolean hasInternetConnection;
     String username; /* Server username */
