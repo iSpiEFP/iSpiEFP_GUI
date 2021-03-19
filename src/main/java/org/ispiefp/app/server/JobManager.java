@@ -131,27 +131,6 @@ public class JobManager implements Runnable {
         org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
-//        SCPClient scp = conn.createSCPClient();
-//        SCPInputStream scpos = null;
-//        try {
-//            if (this.type != null) {
-//                if (this.type.equals("LIBEFP")) {
-//                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
-//                    scpos.close();
-//                    jobIsDone = true;
-//                } else if (this.type.equals("GAMESS")) {
-//                    scpos = scp.get(remoteWorkingDirectory + "output/" + title.replace(" ", "_") + ".out");
-//                    scpos.close();
-//                    jobIsDone = true;
-//                }
-//            }
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-////            e.printStackTrace();
-//            System.out.printf("Job: %s is running!%n", jobID);
-//            System.out.println(e.getMessage());
-//        }
-
         Session s = conn.openSession();
         s.execCommand(String.format("squeue --job=%s\n", jobID));
 

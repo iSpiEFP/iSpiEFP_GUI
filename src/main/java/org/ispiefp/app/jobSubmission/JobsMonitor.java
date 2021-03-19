@@ -39,7 +39,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static java.lang.Thread.sleep;
 
 public class JobsMonitor implements Runnable {
-//    private CopyOnWriteArrayList<JobManager> jobs;
     private ArrayList<SubmissionRecord> records;
     private JobHistory jobHistory;
     private int MAX_RECORDS = 15;
@@ -47,8 +46,6 @@ public class JobsMonitor implements Runnable {
 
     public JobsMonitor(String jobsJson) {
         Gson gson = new Gson();
-//        jobs = gson.fromJson(jobsJson, JobsMonitor.class).jobs;
-//        records = gson.fromJson(jobsJson, JobsMonitor.class).records;
         jobHistory = new JobHistory();
         records = jobHistory.getHistory();
         numRecords = records.size();
@@ -88,7 +85,7 @@ public class JobsMonitor implements Runnable {
         while (true) {
             updateStatus();
             try {
-                sleep(3000);
+                sleep(30000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -158,31 +155,4 @@ public class JobsMonitor implements Runnable {
         System.out.println(fileContents);
         return fileContents.isEmpty();
     }
-
-    @Deprecated
-    public void saveRecord(SubmissionRecord sr) {
-//        System.out.println(sr.getJob_id());
-//        System.out.println(sr.getOutputFilePath());
-//        System.out.println(records.get(sr.getJob_id()));
-//        records.get(sr.getJob_id()).setOutputFilePath(sr.getOutputFilePath());
-//        records.get(sr.getJob_id()).setStdoutputFilePath(sr.getStdoutputFilePath());
-    }
-
-//    public ConcurrentHashMap<String, SubmissionRecord> getRecords() {
-//        return records;
-//    }
-
-//    public CopyOnWriteArrayList<JobManager> getJobs() {
-//        return jobs;
-//    }
-
-//    public void deleteRecord(SubmissionRecord record) {
-//        records.remove(record.getJob_id());
-//        JobHistory jh = new JobHistory();
-//        jh.deleteJob(record);
-//    }
-
-//    public void connectSubmissionToJobManager(SubmissionRecord record, JobManager jm){
-//        record2managerMap.put()
-//    }
 }

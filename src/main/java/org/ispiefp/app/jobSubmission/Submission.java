@@ -140,7 +140,6 @@ public abstract class Submission {
 
         boolean directoryExists = false;
         try {
-//            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
             boolean isAuthenticated = con.connect();
             if (!isAuthenticated) {
                 System.err.println("Was unable to authenticate user");
