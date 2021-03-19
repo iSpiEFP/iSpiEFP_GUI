@@ -55,65 +55,38 @@ public class JobsMonitor implements Runnable {
     }
 
     public JobsMonitor() {
-//        jobs = new CopyOnWriteArrayList<>();
         jobHistory = new JobHistory();
         records = new JobHistory().getHistory();
     }
 
+    private void updateStatus() {
+        // get new jobs
+        records = jobHistory.getHistory();
+
+        // obtain current jobs
+        for (SubmissionRecord sr : records) {
+
+            String currentStatus = sr.getStatus();
+
+            // skip if already completed or failed (error)
+            if (currentStatus.equals("COMPLETED") || currentStatus.equals("FAILED")) continue;
+
+            try {
+                // check/update status
+                sr.checkStatus();
+                // update job if completed
+                if (!currentStatus.equals(sr.getStatus())) jobHistory.updateJob(sr);
+            } catch (IOException e) {
+                System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
+            }
+        }
+    }
+
 
     public void run() {
-//        for (JobManager jm : jobs) jm.watchJobStatus();
-//        while (true) {
-//            System.out.println("JobsMonitor 79: Checking jobs..");
-//            ArrayList<JobManager> completedJobs = new ArrayList<>();
-//            for (JobManager jm : jobs) {
-//                System.out.println("JobsMonitor 82: " + jm.getTitle());
-//                try {
-//                    if (jm.checkStatus(jm.getJobID())) {
-//                        /* Check if the stdout file is empty (success) */
-//                        if (checkForError(jm)) {
-//                            records.get(jm.getJobID()).setStatus("COMPLETE");
-//                        } else records.get(jm.getJobID()).setStatus("ERROR");
-//                        retrieveJob(jm);
-//                        saveRecord(jm);
-//                        completedJobs.add(jm);
-//                    }
-//                } catch (IOException e) {
-//                    System.err.printf("Was unable to monitor job: %s", jm.getJobID());
-//                }
-//            }
-//            jobs.removeAll(completedJobs);
-//            try {
-//                sleep(3000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
         // loop to monitor job status
         while (true) {
-            System.out.println("JobsMonitor 79: Checking jobs..");
-//            ArrayList<SubmissionRecord> completedJobs = new ArrayList<>();
-
-            // get new jobs
-            records = jobHistory.getHistory();
-
-            // obtain current jobs
-            for (SubmissionRecord sr : records) {
-
-                // skip if already completed or failed (error)
-                if (sr.getStatus().equals("COMPLETED") || sr.getStatus().equals("FAILED")) continue;
-                System.out.println("JobsMonitor 82: " + sr.getName());
-
-                try {
-                    // check/update status
-                    sr.checkStatus();
-                    // update job if completed
-                    if (sr.getStatus().equals("COMPLETED")) jobHistory.updateJob(sr);
-                } catch (IOException e) {
-                    System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
-                }
-            }
+            updateStatus();
             try {
                 sleep(3000);
             } catch (InterruptedException e) {
@@ -123,45 +96,7 @@ public class JobsMonitor implements Runnable {
     }
 
     public void runOnce() {
-//        for (JobManager jm : jobs) jm.watchJobStatus();
-//        System.out.println("Rechecking jobs");
-//        ArrayList<JobManager> completedJobs = new ArrayList<>();
-//        for (JobManager jm : jobs) {
-//            try {
-//                if (jm.checkStatus(jm.getJobID())) {
-//                    /* Check if the stdout file is empty (success) */
-//                    if (checkForError(jm)) {
-//                        records.get(jm.getJobID()).setStatus("COMPLETE");
-//                    } else records.get(jm.getJobID()).setStatus("ERROR");
-//                    retrieveJob(jm);
-//                    saveRecord(jm);
-//                    completedJobs.add(jm);
-//                }
-//            } catch (IOException e) {
-//                System.err.printf("Was unable to monitor job: %s", jm.getJobID());
-//            }
-//        }
-//        jobs.removeAll(completedJobs);
-
-        // get new jobs
-        records = jobHistory.getHistory();
-
-        // obtain current jobs
-        for (SubmissionRecord sr : records) {
-
-            // skip if already completed or failed (error)
-            if (sr.getStatus().equals("COMPLETED") || sr.getStatus().equals("FAILED")) continue;
-            System.out.println("JobsMonitor 82: " + sr.getName());
-
-            try {
-                // check/update status
-                sr.checkStatus();
-                // update job if completed
-                if (sr.getStatus().equals("COMPLETED")) jobHistory.updateJob(sr);
-            } catch (IOException e) {
-                System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
-            }
-        }
+        updateStatus();
     }
 
     public void start() {

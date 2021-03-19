@@ -80,6 +80,8 @@ public class SubmissionRecord {
         this.server = jm.getServer();
         this.keyPassword = jm.getKeyPassword();
         this.localWorkingDirectory = jm.getLocalWorkingDirectory();
+        this.localOutputFilePath = jm.getLocalWorkingDirectory();
+        this.outputFilePath = jm.getOutputFilename();
     }
 
     public SubmissionRecord(String jsonString) {
@@ -222,11 +224,14 @@ public class SubmissionRecord {
             // extract status code based on https://slurm.schedmd.com/squeue.html
             // in JOB STATE CODES section
             if (errorString.toString().contains("Invalid job id")) throw new ArrayIndexOutOfBoundsException();
-            extractStatus = extractStatus.split("\n")[1].split(" +")[5];
+            extractStatus = extractStatus.split("\n")[1].split(" ")[1];
+            System.out.println("SubmissionRecord 226: " + extractStatus);
             setStatus(extractStatus);
-            if (extractStatus.equals("COMPLETED")) throw new ArrayIndexOutOfBoundsException();
-
         } catch (ArrayIndexOutOfBoundsException e) {
+            if (!errorString.toString().contains("Invalid job id")) {
+                System.err.println("PARSING Job Status failed...");
+            }
+            e.printStackTrace();
             // should be done, because squeue doesn't have record
             setStatus("COMPLETED");
         } finally {
