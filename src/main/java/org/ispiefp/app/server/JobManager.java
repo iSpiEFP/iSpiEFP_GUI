@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,7 +54,7 @@ public class JobManager implements Runnable {
     private String status;
     private String type;
     private String outputFilename;
-    private String stdoutputFilename;
+    private String errorOutputFileName;
     private String localWorkingDirectory;
     private String remoteWorkingDirectory;
     private ServerInfo server;
@@ -76,11 +75,11 @@ public class JobManager implements Runnable {
         if (type.equalsIgnoreCase("LIBEFP")){
             remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title.replace(" ", "_") + "/";
             outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
+            errorOutputFileName = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         } else if (type.equalsIgnoreCase("GAMESS")) {
             remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title.replace(" ", "_") + "/";
             outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
+            errorOutputFileName = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         }
     }
 
@@ -97,11 +96,11 @@ public class JobManager implements Runnable {
         if (type.equalsIgnoreCase("LIBEFP")){
             remoteWorkingDirectory = "~/iSpiClient/Libefp/jobs/" + this.title.replace(" ", "_") + "/";
             outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
+            errorOutputFileName = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         } else if (type.equalsIgnoreCase("GAMESS")) {
             remoteWorkingDirectory = "~/iSpiClient/Gamess/jobs/" + this.title.replace(" ", "_") + "/";
             outputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".out";
-            stdoutputFilename = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
+            errorOutputFileName = remoteWorkingDirectory + "output/" + this.title.replace(" ", "_") + ".err";
         }
         this.keyPassword = keyPassword;
     }
@@ -388,8 +387,8 @@ public class JobManager implements Runnable {
         return outputFilename;
     }
 
-    public String getStdoutputFilename() {
-        return stdoutputFilename;
+    public String getErrorOutputFileName() {
+        return errorOutputFileName;
     }
 
     public String getKeyPassword() {
@@ -440,8 +439,8 @@ public class JobManager implements Runnable {
         this.outputFilename = outputFilename;
     }
 
-    public void setStdoutputFilename(String stdoutputFilename) {
-        this.stdoutputFilename = stdoutputFilename;
+    public void setErrorOutputFileName(String errorOutputFileName) {
+        this.errorOutputFileName = errorOutputFileName;
     }
 
     public String toJsonString(){

@@ -86,7 +86,7 @@ public class SlurmSubmission extends Submission {
     public String getGAMESSSubmissionScriptText(){
         return String.format(
                 "#!/bin/csh\n" +
-                        "#SBATCH -D %s\n" +
+//                        "#SBATCH --chdir=../input/\n" +
                         "#SBATCH -o ../output/%s\n" +
                         "#SBATCH -A %s\n" +
                         "#SBATCH -N %d\n" +
@@ -94,7 +94,6 @@ public class SlurmSubmission extends Submission {
                         "#SBATCH -t %s\n" +
                         "#SBATCH --mem=%d\n" +
                         "%s %s > ../output/%s\n",
-                getJobInputDirectory(),
                 schedulerOutputName,
                 queueName, numNodes, numProcessors, walltime,
                 mem, gamessPath,
@@ -132,7 +131,9 @@ public class SlurmSubmission extends Submission {
             /* Reopen the session and call sbatch on the submission script */
             Session s = con.openSession();
             //todo: Eventually someone will need to remove the hard coded "\n" below and replace it with the line delimiter of the SERVER not the user's computer. Look at uname command.
-            String queueCommand = String.format("sbatch %s\n", getJobInputDirectory() + remoteFileName);
+            System.out.println("SlurmSubmission 133: " + getJobInputDirectory());
+            System.out.println("SlurmSubmission 134: " + remoteFileName);
+            String queueCommand = String.format("cd %s && sbatch %s\n", getJobInputDirectory(), remoteFileName);
             s.execCommand(queueCommand);
             StringBuilder outputJobId = new StringBuilder();
             int i;

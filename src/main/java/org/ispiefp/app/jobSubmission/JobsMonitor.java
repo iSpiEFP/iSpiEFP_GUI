@@ -23,18 +23,22 @@
 package org.ispiefp.app.jobSubmission;
 
 import com.google.gson.Gson;
+import javafx.geometry.Insets;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import org.apache.commons.io.FileUtils;
 import org.ispiefp.app.libEFP.LibEFPOutputFile;
 import org.ispiefp.app.server.JobManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.Thread.sleep;
 
@@ -72,7 +76,11 @@ public class JobsMonitor implements Runnable {
                 // check/update status
                 sr.checkStatus();
                 // update job if completed
-                if (!currentStatus.equals(sr.getStatus())) jobHistory.updateJob(sr);
+                if (!currentStatus.equals(sr.getStatus())) {
+                    jobHistory.updateJob(sr);
+                    if (sr.getStatus().equals("COMPLETED") || sr.getStatus().equals("FAILED"))
+                        retrieveJob(sr);
+                }
             } catch (IOException e) {
                 System.err.printf("Was unable to monitor job: %s", sr.getJob_id());
             }
@@ -126,6 +134,30 @@ public class JobsMonitor implements Runnable {
         }
         File outputFile = new File(sr.getLocalWorkingDirectory() + File.separator + outputFileName);
         try {
+            outputFile.createNewFile();
+        } catch (IOException e) {
+            System.err.println("Creating output file failed.");
+            e.printStackTrace();
+
+            // Dialog
+            Dialog<ButtonType> fileCreationFailed = new Dialog<>();
+            fileCreationFailed.setTitle("Error");
+
+            // Set the button types.
+            fileCreationFailed.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+            String warningMessage = "Local output File creation failed, please check the server for output file.";
+            Text warningText = new Text(warningMessage);
+
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+            grid.add(warningText, 0, 0);
+            fileCreationFailed.getDialogPane().setContent(grid);
+            Optional<ButtonType> choice = fileCreationFailed.showAndWait();
+            return;
+        }
+        try {
             LibEFPOutputFile out = new LibEFPOutputFile(sr.getLocalWorkingDirectory() + File.separator + outputFileName);
         } catch (IOException e) {
             e.printStackTrace();
@@ -147,7 +179,7 @@ public class JobsMonitor implements Runnable {
     public boolean checkForError(JobManager jm) {
         String fileContents = "";
         try {
-            fileContents = jm.getRemoteFile(jm.getStdoutputFilename());
+            fileContents = jm.getRemoteFile(jm.getErrorOutputFileName());
         } catch (IOException e) {
             System.err.println("Was unable to retrieve the file for the completed job");
         }

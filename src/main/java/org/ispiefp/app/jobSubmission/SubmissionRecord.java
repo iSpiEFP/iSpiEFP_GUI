@@ -82,6 +82,7 @@ public class SubmissionRecord {
         this.localWorkingDirectory = jm.getLocalWorkingDirectory();
         this.localOutputFilePath = jm.getLocalWorkingDirectory();
         this.outputFilePath = jm.getOutputFilename();
+        this.stdoutputFilePath = jm.getErrorOutputFileName();
     }
 
     public SubmissionRecord(String jsonString) {
@@ -189,7 +190,7 @@ public class SubmissionRecord {
     }
 
     public void checkStatus() throws IOException {
-        boolean jobIsDone = false;
+        if (status.equals("FAILED") || status.equals("COMPLETED")) return;
         org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
         conn.connect();
 
@@ -231,7 +232,6 @@ public class SubmissionRecord {
             if (!errorString.toString().contains("Invalid job id")) {
                 System.err.println("PARSING Job Status failed...");
             }
-            e.printStackTrace();
             // should be done, because squeue doesn't have record
             setStatus("COMPLETED");
         } finally {
