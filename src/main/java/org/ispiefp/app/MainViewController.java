@@ -222,7 +222,7 @@ public class MainViewController {
             It is key to remember in this function the indices of the informative children nodes for a jo. I list them here:
             0 - job status
              */
-            /* UPDATE: I don't think we need this, not sure ^^ */
+            /* UPDATE: I don't think we need this comment, not sure ^^ */
             @Override
             protected TreeView<String> call() throws Exception {
 
@@ -273,8 +273,8 @@ public class MainViewController {
                             jobStatusTreeItem.setValue(submissionRecord.getStatus());
                         }
                     }
-                    // update every 2 seconds
-                    Thread.sleep(2000);
+                    // update every 1 seconds
+                    Thread.sleep(1000);
                 }
             }
         }
