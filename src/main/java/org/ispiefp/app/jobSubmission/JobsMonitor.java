@@ -32,6 +32,7 @@ import javafx.scene.text.Text;
 import org.apache.commons.io.FileUtils;
 import org.ispiefp.app.libEFP.LibEFPOutputFile;
 import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.util.UserPreferences;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;
 
@@ -90,29 +94,12 @@ public class JobsMonitor implements Runnable {
 
     public void run() {
         // loop to monitor job status
-        while (true) {
-            updateStatus();
-            try {
-                sleep(30000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        // should be called by ScheduledExecutorService and use scheduleAtFixedRate
+        updateStatus();
     }
 
     public void runOnce() {
         updateStatus();
-    }
-
-    public void start() {
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                run();
-            }
-        };
-        timer.schedule(task, 0l, 30000l);
     }
 
     public String toJson() {

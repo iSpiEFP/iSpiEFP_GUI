@@ -361,8 +361,6 @@ public class MainViewController {
 
         MenuItem exportCSVOption = new MenuItem("Export to CSV");
         exportCSVOption.setOnAction(action -> {
-
-
             // get the item trying to view
             TreeItem<String> item = historyTreeView.getSelectionModel().getSelectedItem();
 

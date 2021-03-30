@@ -26,11 +26,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.ispiefp.app.MetaData.LocalFragmentTree;
 import org.ispiefp.app.installer.BundleManager;
 import org.ispiefp.app.installer.LocalBundleManager;
+import org.ispiefp.app.jobSubmission.JobsMonitor;
 import org.ispiefp.app.util.ExecutePython;
 import org.ispiefp.app.util.UserPreferences;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Initializer {
@@ -58,8 +62,9 @@ public class Initializer {
                 deleteDirectory(new File(LocalBundleManager.META_DATA_GENERATION));
             }
         });
-        Thread thread = new Thread(UserPreferences.getJobsMonitor());
-        thread.start();
+        JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(jobsMonitor, 0, 3, TimeUnit.SECONDS);
     }
 
     /**

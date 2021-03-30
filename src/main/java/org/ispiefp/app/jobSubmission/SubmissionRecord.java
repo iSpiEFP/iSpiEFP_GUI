@@ -197,7 +197,6 @@ public class SubmissionRecord {
         Session s = conn.openSession();
         String cmd = String.format("squeue --job=%s --format=\"%%A %%T\"\n", job_id);
         s.execCommand(cmd);
-        System.out.println("Submission Record 197: " + cmd);
 
         // reading result
         StringBuilder outputString = new StringBuilder();
@@ -219,14 +218,14 @@ public class SubmissionRecord {
 
         // extracting status from output
         String extractStatus = outputString.toString();
-        System.out.println("SubmissionRecord 219: " + extractStatus);
-        System.out.println("SubmissionRecord 220: " + errorString.toString());
+//        System.out.println("SubmissionRecord 219: " + extractStatus);
+//        System.out.println("SubmissionRecord 220: " + errorString.toString());
         try {
             // extract status code based on https://slurm.schedmd.com/squeue.html
             // in JOB STATE CODES section
             if (errorString.toString().contains("Invalid job id")) throw new ArrayIndexOutOfBoundsException();
             extractStatus = extractStatus.split("\n")[1].split(" ")[1];
-            System.out.println("SubmissionRecord 226: " + extractStatus);
+//            System.out.println("SubmissionRecord 226: " + extractStatus);
             setStatus(extractStatus);
         } catch (ArrayIndexOutOfBoundsException e) {
             if (!errorString.toString().contains("Invalid job id")) {
