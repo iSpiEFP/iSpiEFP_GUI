@@ -155,7 +155,7 @@ public class GamessInputController implements Initializable {
                 Integer numLines = Integer.parseInt(br.readLine());
                 br.readLine(); //Consume commentLine;
                 inputTextBuilder.append(String.format("C1\n", fragmentName));
-                for (int i = 1; i < numLines; i++) {
+                for (int i = 0; i < numLines; i++) {
                     String[] parsedLine = br.readLine().split("\\s+");
                     inputTextBuilder.append(String.format("%s  %s  %s  %s  %s\n",
                             parsedLine[0], atomicCharges.get(parsedLine[0].replaceAll("[^A-Za-z]", "")), parsedLine[1],
