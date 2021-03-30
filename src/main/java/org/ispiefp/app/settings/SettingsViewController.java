@@ -52,6 +52,7 @@ public class SettingsViewController {
     public CheckBox sshFileEncrypted;
     public Label sshFileEncryptedLabel;
     public Button fileChooser;
+    public TextField GAMESSScratchDirectoryPath;
     private PasswordField signInPasswordField;
     private TextField signInFileLocationField;
 

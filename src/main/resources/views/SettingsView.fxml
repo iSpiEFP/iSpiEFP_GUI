@@ -25,7 +25,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<AnchorPane fx:id="anchor" minHeight="400.0" prefWidth="900.0" maxWidth="1200" prefHeight="630"
+<AnchorPane fx:id="anchor" minHeight="500.0" minWidth="850" prefWidth="900.0" maxWidth="1200" prefHeight="700"
             xmlns="http://javafx.com/javafx/8.0.172-ea"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
     <TreeView fx:id="menuTree" prefWidth="248.0" maxWidth="248" showRoot="false" AnchorPane.leftAnchor="10.0"
@@ -130,7 +130,13 @@
                    minWidth="-Infinity" prefHeight="31.0" maxWidth="Infinity" GridPane.columnIndex="1"
                    GridPane.rowIndex="18"/>
         <Separator GridPane.columnIndex="0" GridPane.rowIndex="19" GridPane.columnSpan="2"/>
-        <HBox alignment="BOTTOM_RIGHT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="20"
+        <Label alignment="CENTER" prefHeight="21.0" maxWidth="Infinity" text="Path to GAMESS Scratch Directory"
+               GridPane.columnIndex="0" GridPane.rowIndex="20"/>
+        <TextField fx:id="GAMESSScratchDirectoryPath" maxHeight="31.0" minHeight="-Infinity"
+                   minWidth="-Infinity" prefHeight="31.0" maxWidth="Infinity" GridPane.columnIndex="1"
+                   GridPane.rowIndex="20"/>
+        <Separator GridPane.columnIndex="0" GridPane.rowIndex="21" GridPane.columnSpan="2"/>
+        <HBox alignment="BOTTOM_RIGHT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="22"
               GridPane.columnSpan="2">
             <Button fx:id="serverSave" onAction="#saveServer" text="Save"/>
             <Button fx:id="serverDelete" onAction="#deleteServer" text="Delete"/>

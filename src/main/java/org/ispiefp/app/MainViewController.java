@@ -675,9 +675,10 @@ public class MainViewController {
     public void openSettings() throws IOException{
         Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
-        stage.setMinWidth(800);
-        stage.setMinHeight(630);
-        stage.setHeight(630);
+        stage.setMinWidth(950);
+        stage.setMinHeight(680);
+        stage.setHeight(680);
+        stage.setWidth(950);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Settings");
         stage.setScene(new Scene(settingsView));
