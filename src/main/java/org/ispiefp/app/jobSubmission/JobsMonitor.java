@@ -109,6 +109,8 @@ public class JobsMonitor implements Runnable {
     public void retrieveJob(SubmissionRecord sr) {
         String outputFileContents = "";
         String errorFileContents = "";
+        String efpFileContents = "";
+        String datFileContents = "";
         String outputFilePath = sr.getOutputFilePath();
         String errorFilePath = sr.getStdoutputFilePath();
         String outputFileName = outputFilePath.substring(outputFilePath.lastIndexOf(File.separatorChar) + 1);
@@ -118,6 +120,13 @@ public class JobsMonitor implements Runnable {
         try {
             outputFileContents = sr.getRemoteFile(sr.getOutputFilePath());
             errorFileContents = sr.getRemoteFile(sr.getStdoutputFilePath());
+            if (sr.getType().equalsIgnoreCase("GAMESS")) {
+                String fileName = sr.getOutputFilePath();
+                fileName = fileName.substring(0, fileName.lastIndexOf('/'));
+                fileName += "/" + sr.getName();
+                efpFileContents = sr.getRemoteFile(fileName + ".efp");
+                datFileContents = sr.getRemoteFile(fileName + ".dat");
+            }
         } catch (IOException e) {
             System.err.println("Was unable to retrieve the files for the completed job");
         }
@@ -161,6 +170,21 @@ public class JobsMonitor implements Runnable {
             FileUtils.writeStringToFile(errorFile, errorFileContents, "UTF-8");
         } catch (IOException e) {
             System.err.println("Was unable to write the error file locally");
+        }
+        if (sr.getType().equalsIgnoreCase("GAMESS")) {
+            File efpFile = new File(sr.getLocalWorkingDirectory() + File.separator + sr.getName() + ".efp");
+            try {
+                FileUtils.writeStringToFile(efpFile, efpFileContents, "UTF-8");
+            } catch (IOException e) {
+                System.err.println("Was unable to write the efp file locally");
+            }
+
+            File datFile = new File(sr.getLocalWorkingDirectory() + File.separator + sr.getName() + ".dat");
+            try {
+                FileUtils.writeStringToFile(datFile, datFileContents, "UTF-8");
+            } catch (IOException e) {
+                System.err.println("Was unable to write the dat file locally");
+            }
         }
 
     }
