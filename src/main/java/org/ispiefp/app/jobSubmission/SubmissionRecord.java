@@ -263,8 +263,6 @@ public class SubmissionRecord {
                 String line = br.readLine();
                 if (line == null)
                     break;
-                //System.out.println("gobbler");
-                System.out.println(line);
                 sb.append(line + "\n");
             }
             return sb.toString();
