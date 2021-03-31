@@ -113,6 +113,8 @@ public class JobsMonitor implements Runnable {
         String errorFilePath = sr.getStdoutputFilePath();
         String outputFileName = outputFilePath.substring(outputFilePath.lastIndexOf(File.separatorChar) + 1);
         String errorFileName = errorFilePath.substring(errorFilePath.lastIndexOf(File.separatorChar) + 1);
+        if (sr.getType().equalsIgnoreCase("GAMESS"))
+            sr.moveGamessScratchFiles();
         try {
             outputFileContents = sr.getRemoteFile(sr.getOutputFilePath());
             errorFileContents = sr.getRemoteFile(sr.getStdoutputFilePath());

@@ -136,7 +136,9 @@ public class SubmissionRecord {
         return usedEfpFilepaths;
     }
 
-    public String getLocalOutputFilePath() { return localOutputFilePath; }
+    public String getLocalOutputFilePath() {
+        return localOutputFilePath;
+    }
 
     public String getLocalStdoutputFilePath() {
         return localStdoutputFilePath;
@@ -286,5 +288,28 @@ public class SubmissionRecord {
             }
         }
         return sb.toString();
+    }
+
+    public void moveGamessScratchFiles() {
+        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
+        conn.connect();
+        Session s = null;
+        try {
+            s = conn.openSession();
+            // get scratch directory
+            String scratchDir = server.getGamessScratchDirectory().trim();
+            if (scratchDir.charAt(scratchDir.length() - 1) != '/') scratchDir += '/';
+            String outputFileDir = outputFilePath.substring(0, outputFilePath.lastIndexOf('/'));
+            String cmd = String.format("mv %s.dat %s && mv %s.efp %s\n", scratchDir + name, outputFileDir, scratchDir + name, outputFileDir);
+
+            s.execCommand(cmd);
+            s.close();
+            conn.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (s != null) s.close();
+            conn.close();
+        }
     }
 }
