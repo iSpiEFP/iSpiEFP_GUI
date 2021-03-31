@@ -263,7 +263,7 @@ public class MainViewController {
                                 remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
                                 long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
 
-                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
+                                String runningTimeString = String.format("Status: Running (%02d:%02d:%02d)", hours, mins, secs);
                                 jobStatusTreeItem.setValue(runningTimeString);
                             } catch (ParseException e) {
                                 System.err.println("Was unable to parse the time of submission in its current format");
