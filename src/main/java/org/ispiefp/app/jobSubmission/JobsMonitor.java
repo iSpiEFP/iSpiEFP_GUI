@@ -115,6 +115,7 @@ public class JobsMonitor implements Runnable {
         String errorFilePath = sr.getStdoutputFilePath();
         String outputFileName = outputFilePath.substring(outputFilePath.lastIndexOf(File.separatorChar) + 1);
         String errorFileName = errorFilePath.substring(errorFilePath.lastIndexOf(File.separatorChar) + 1);
+        System.out.println("JobsMonitor 118: " + outputFileName);
         if (sr.getType().equalsIgnoreCase("GAMESS"))
             sr.moveGamessScratchFiles();
         try {
@@ -172,14 +173,14 @@ public class JobsMonitor implements Runnable {
             System.err.println("Was unable to write the error file locally");
         }
         if (sr.getType().equalsIgnoreCase("GAMESS")) {
-            File efpFile = new File(sr.getLocalWorkingDirectory() + File.separator + sr.getName() + ".efp");
+            File efpFile = new File(sr.getLocalWorkingDirectory() + File.separator + outputFileName.substring(0, outputFileName.lastIndexOf('.')) + ".efp");
             try {
                 FileUtils.writeStringToFile(efpFile, efpFileContents, "UTF-8");
             } catch (IOException e) {
                 System.err.println("Was unable to write the efp file locally");
             }
 
-            File datFile = new File(sr.getLocalWorkingDirectory() + File.separator + sr.getName() + ".dat");
+            File datFile = new File(sr.getLocalWorkingDirectory() + File.separator + outputFileName.substring(0, outputFileName.lastIndexOf('.')) + ".dat");
             try {
                 FileUtils.writeStringToFile(datFile, datFileContents, "UTF-8");
             } catch (IOException e) {
