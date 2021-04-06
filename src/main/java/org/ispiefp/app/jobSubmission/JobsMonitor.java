@@ -91,7 +91,6 @@ public class JobsMonitor implements Runnable {
         }
     }
 
-
     public void run() {
         // loop to monitor job status
         // should be called by ScheduledExecutorService and use scheduleAtFixedRate

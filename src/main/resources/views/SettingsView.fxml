@@ -30,7 +30,7 @@
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ispiefp.app.settings.SettingsViewController">
     <TreeView fx:id="menuTree" prefWidth="248.0" maxWidth="248" showRoot="false" AnchorPane.leftAnchor="10.0"
               AnchorPane.topAnchor="10.0" AnchorPane.bottomAnchor="10">
-        <TreeItem fx:id="topLeveLSettings" value="Settings">
+        <TreeItem fx:id="topLevelSettings" value="Settings">
             <children>
                 <TreeItem fx:id="defaultPaths" value="Default Paths"/>
                 <TreeItem fx:id="serverSettings" value="Servers">

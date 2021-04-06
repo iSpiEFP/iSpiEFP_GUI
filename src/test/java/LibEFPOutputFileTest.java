@@ -27,12 +27,13 @@ import org.junit.Test;
 import java.io.IOException;
 
 public class LibEFPOutputFileTest {
+    private final String testResourcePath = "src/test/resources/";
 
     @Test
     public void testOptimizationJob() {
         LibEFPOutputFile of;
         try {
-            of = new LibEFPOutputFile("iSpiEFP/Tests/TestResources/opt_1.out");
+            of = new LibEFPOutputFile(testResourcePath + "opt_1.out");
             Assert.assertEquals(of.getStates().size(), 49);
             LibEFPOutputFile.State state = of.getStates().get(20);
             Assert.assertEquals(state.getEnergyComponents().getTotalEnergy(), -0.0386047900, 0.00000001);
@@ -50,7 +51,7 @@ public class LibEFPOutputFileTest {
     public void testSinglePointEnergyJob() {
         LibEFPOutputFile of;
         try {
-            of = new LibEFPOutputFile("iSpiEFP/Tests/TestResources/w6b2_energy.out");
+            of = new LibEFPOutputFile(testResourcePath + "w6b2_energy.out");
         } catch (IOException e) {
             System.err.println("Issue while parsing");
             e.printStackTrace();
@@ -61,7 +62,7 @@ public class LibEFPOutputFileTest {
     public void testMolecularDynamicsJob() {
         LibEFPOutputFile of;
         try {
-            of = new LibEFPOutputFile("iSpiEFP/Tests/TestResources/w6b2_md.out");
+            of = new LibEFPOutputFile(testResourcePath + "w6b2_md.out");
         } catch (IOException e) {
             System.err.println("Issue while parsing");
             e.printStackTrace();
