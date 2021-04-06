@@ -124,7 +124,7 @@ public class JobsMonitor implements Runnable {
             if (sr.getType().equalsIgnoreCase("GAMESS")) {
                 String fileName = sr.getOutputFilePath();
                 fileName = fileName.substring(0, fileName.lastIndexOf('/'));
-                fileName += "/" + sr.getName();
+                fileName += "/" + sr.getName().replace(" ",  "_");
                 efpFileContents = sr.getRemoteFile(fileName + ".efp");
                 datFileContents = sr.getRemoteFile(fileName + ".dat");
             }

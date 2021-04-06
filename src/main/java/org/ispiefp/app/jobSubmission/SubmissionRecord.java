@@ -298,8 +298,9 @@ public class SubmissionRecord {
             String scratchDir = server.getGamessScratchDirectory().trim();
             if (scratchDir.charAt(scratchDir.length() - 1) != '/') scratchDir += '/';
             String outputFileDir = outputFilePath.substring(0, outputFilePath.lastIndexOf('/'));
-            String cmd = String.format("mv %s.dat %s && mv %s.efp %s\n", scratchDir + name, outputFileDir, scratchDir + name, outputFileDir);
-
+            System.out.println("SubmissionRecord 301: " + outputFileDir);
+            String cmd = String.format("mv %s.dat %s && mv %s.efp %s\n", scratchDir + name.replace(" ", "_"), outputFileDir, scratchDir + name.replace(" ", "_"), outputFileDir);
+            System.out.println("SubmissionRecord 303: " + cmd);
             s.execCommand(cmd);
             s.close();
             conn.close();
