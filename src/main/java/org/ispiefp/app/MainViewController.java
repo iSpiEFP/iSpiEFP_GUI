@@ -25,7 +25,9 @@ package org.ispiefp.app;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -64,6 +66,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.ispiefp.app.util.UserPreferences.appendToRecentFilesStr;
 import static org.ispiefp.app.util.UserPreferences.getRecentFileAggStr;
@@ -218,54 +222,39 @@ public class MainViewController {
             It is key to remember in this function the indices of the informative children nodes for a jo. I list them here:
             0 - job status
              */
+            /* UPDATE: I don't think we need this comment, not sure ^^ */
             @Override
             protected TreeView<String> call() throws Exception {
-                JobsMonitor jobsMonitor = UserPreferences.getJobsMonitor();
-                HashSet<String> accountedForJobs = new HashSet<>();
-                ConcurrentHashMap<String, SubmissionRecord> records = jobsMonitor.getRecords();
+
+                JobHistory jobHistory = new JobHistory();
+                ArrayList<SubmissionRecord> jobHistoryRecord;
                 historyRoot.setValue("Jobs");
                 SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                System.out.printf("Size of jobs is currently %d%n", jobsMonitor.getJobs().size());
-                System.out.printf("Size of tMap is currently %d%n", tMap.size());
-                System.out.printf("Size of records is currently %d%n", records.size());
+                HashSet<String> accountedForJobs = new HashSet<>();
+
+                // infinite loop to update history view
                 while (true) {
-                    if (tMap.size() < records.size()) {
-                        Enumeration<String> recordEnumeration = records.keys();
-                        while (recordEnumeration.hasMoreElements()) {
-                            String currentRecordName = recordEnumeration.nextElement();
-                            if (!accountedForJobs.contains(currentRecordName)) {
-                                accountedForJobs.add(currentRecordName);
-//                                Text idText = new Text(currentRecordName);
-                                TreeItem<String> jobIDTreeItem = new TreeItem<>(currentRecordName);
-                                historyRoot.getChildren().add(jobIDTreeItem);
-                                if (!tMap.containsKey(currentRecordName)) {
-                                    tMap.put(currentRecordName, jobIDTreeItem);
-                                    jobIDTreeItem.getChildren().add(0, new TreeItem<>());
-                                }
-                            }
+                    // get latest status and jobs
+                    jobHistoryRecord = jobHistory.getHistory();
+
+                    // iterate through each job
+                    for (SubmissionRecord submissionRecord : jobHistoryRecord) {
+                        // add new job if does not exists yet
+                        if (!accountedForJobs.contains(submissionRecord.getJob_id())) {
+                            TreeItem<String> jobTreeItem = new TreeItem<>(submissionRecord.getName() + " (" + submissionRecord.getJob_id() + ")");
+                            jobTreeItem.getChildren().add(0, new TreeItem<>());
+                            historyRoot.getChildren().add(jobTreeItem);
+                            accountedForJobs.add(submissionRecord.getJob_id());
+                            tMap.put(submissionRecord.getName() + " (" + submissionRecord.getJob_id() + ")", jobTreeItem);
                         }
-                    }
-                    Date currentTime = new Date();
-                    Enumeration<String> recordEnumeration = records.keys();
-                    while (recordEnumeration.hasMoreElements()) {
-                        String currentRecordName = recordEnumeration.nextElement();
-                        SubmissionRecord currentRecord = records.get(currentRecordName);
-                        TreeItem<String> jobIDTreeItem = tMap.get(currentRecordName);
-//                        TreeItem<Text> jobIDTreeItem = tMap.get(currentRecordName);
-                        TreeItem<String> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
-//                        TreeItem<Text> jobStatusTreeItem = jobIDTreeItem.getChildren().get(0);
-                        if (currentRecord.getStatus().equalsIgnoreCase("COMPLETE")) {
-//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-//                            statusText.setFill(Color.GREEN);
-                            jobStatusTreeItem.setValue(currentRecord.getStatus());
-//                            jobStatusTreeItem.setValue(statusText);
-                        } else if (currentRecord.getStatus().equalsIgnoreCase("ERROR")) {
-//                            Text statusText = new Text("Status: " + currentRecord.getStatus());
-//                            statusText.setFill(Color.RED);
-                            jobStatusTreeItem.setValue(currentRecord.getStatus());
-                        } else {
+
+                        // update timer and status
+                        Date currentTime = new Date();
+                        TreeItem<String> jobItem = tMap.get(submissionRecord.getName() + " (" + submissionRecord.getJob_id() + ")");
+                        TreeItem<String> jobStatusTreeItem = jobItem.getChildren().get(0);
+                        if (submissionRecord.getStatus().equalsIgnoreCase("running")) {
                             try {
-                                Date submissionTime = dateFormatter.parse(currentRecord.getSubmissionTime());
+                                Date submissionTime = dateFormatter.parse(submissionRecord.getSubmissionTime());
                                 long diffIn_ms = Math.abs(currentTime.getTime() - submissionTime.getTime());
                                 long remainingTime_ms = diffIn_ms; // TimeUnit.MINUTES.convert(diffIn_ms, TimeUnit.MILLISECONDS);
                                 long hours = TimeUnit.MILLISECONDS.toHours(remainingTime_ms);
@@ -274,20 +263,22 @@ public class MainViewController {
                                 remainingTime_ms -= TimeUnit.MINUTES.toMillis(mins);
                                 long secs = TimeUnit.MILLISECONDS.toSeconds(remainingTime_ms);
 
-                                String runningTimeString = String.format("Status: Running(%02d:%02d:%02d)", hours, mins, secs);
-//                                Text timeText = new Text(runningTimeString);
-//                                timeText.setFill(Color.GOLD);
-//                                jobStatusTreeItem.setValue(timeText);
+                                String runningTimeString = String.format("Status: Running (%02d:%02d:%02d)", hours, mins, secs);
                                 jobStatusTreeItem.setValue(runningTimeString);
                             } catch (ParseException e) {
                                 System.err.println("Was unable to parse the time of submission in its current format");
                             }
+                        } else {
+                            // if it is not running, just display the status
+                            jobStatusTreeItem.setValue(submissionRecord.getStatus());
                         }
                     }
-                    Thread.sleep(500);
+                    // update every 1 seconds
+                    Thread.sleep(1000);
                 }
             }
         }
+
         Task<TreeView<String>> historyTreeUpdater = new HistoryTreeUpdater(historyTreeView);
         new Thread(historyTreeUpdater).start();
 
@@ -295,20 +286,36 @@ public class MainViewController {
         MenuItem deleteRecordOption = new MenuItem("Delete Job");
         deleteRecordOption.setOnAction(action -> {
             try {
-                String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
-                /* 1. Kill the job on the server if it is running todo */
-                /* 2. Remove it from the list of jobs on the jobsMonitor */
-                //todo It now occurs to me that it would be more efficient to use a BST DS for the jobs instead of an arraylist
-                CopyOnWriteArrayList<JobManager> runningJobs = UserPreferences.getJobsMonitor().getJobs();
-                for (int i = 0; i < runningJobs.size(); i++) {
-                    if (runningJobs.get(i).getJobID().equals(jobID)) runningJobs.remove(i);
+
+                // get current jobs from JobHistory
+                JobHistory jobHistory = new JobHistory();
+
+                // get the item trying to delete
+                TreeItem<String> item = historyTreeView.getSelectionModel().getSelectedItem();
+
+                // get the string of the item
+                String treeItemValue = item.getValue();
+
+                SubmissionRecord record = findRecord(treeItemValue);
+
+                if (record != null) {
+                    // found the job, delete it from history
+                    jobHistory.deleteJob(record);
+
+                    // remove from tree view
+                    /* TODO: Kill the job on the server if it is running */
+                    if (!item.getParent().getChildren().remove(item))
+                        System.err.println("Failed to remove from tree. Should not happen");
+                } else {
+                    System.err.println("Was not able to find Job ID. SHOULD NOT HAPPEN.");
                 }
+
+                /* 2. Remove it from the list of jobs on the jobsMonitor */
+                /* UPDATE: Do not need to remove from JobsMoniotor, remove from JobHistory. */
+
                 /* 3. Remove it's record from the jobsMonitor's submission record */
-                UserPreferences.getJobsMonitor().deleteRecord(
-                        UserPreferences.getJobsMonitor().getRecords().get(jobID));
-                /* 4. Remove it from the history pane */
-                historyRoot.getChildren().remove(historyTreeView.getSelectionModel().getSelectedItem());
-                System.out.println("Selected item is of class: " + ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue());
+                /* UPDATE: NO NEED, JobHistory will handle it, and JobMonitor will read from it. */
+
             } catch (ClassCastException e) {
                 //This is a cheap solution to the issue of the user being able to right click the root node.
             }
@@ -318,16 +325,22 @@ public class MainViewController {
         MenuItem viewJobInfoOption = new MenuItem("View Job Info");
         viewJobInfoOption.setOnAction(action -> {
 //            viewJobInfoOption.setDisable(true);
-            String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
-            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
-            if (records.get(jobID).getStatus().equals("RUNNING")) {
-                viewJobInfoOption.setDisable(true);
-            }
+
+            // get the item trying to view
+            TreeItem<String> item = historyTreeView.getSelectionModel().getSelectedItem();
+
+            // get the string of the item
+            String treeItemValue = item.getValue();
+
+            SubmissionRecord submissionRecord = findRecord(treeItemValue);
+
+            if (submissionRecord.getStatus().equalsIgnoreCase("running")) viewJobInfoOption.setDisable(true);
+
             /* Pull up a view displaying all information about the job */
             try {
                 Stage stage = new Stage();
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/JobView.fxml"));
-                JobViewController jobViewController = new JobViewController(records.get(jobID));
+                JobViewController jobViewController = new JobViewController(submissionRecord);
                 loader.setController(jobViewController);
                 Parent p = loader.load();
 
@@ -345,20 +358,36 @@ public class MainViewController {
                 e.printStackTrace();
             }
         });
+
         MenuItem exportCSVOption = new MenuItem("Export to CSV");
         exportCSVOption.setOnAction(action -> {
-            String jobID = ((TreeItem<String>) historyTreeView.getSelectionModel().getSelectedItem()).getValue();
-            ConcurrentHashMap<String, SubmissionRecord> records = UserPreferences.getJobsMonitor().getRecords();
-            if (!records.get(jobID).getStatus().equals("COMPLETE")) {
+            // get the item trying to view
+            TreeItem<String> item = historyTreeView.getSelectionModel().getSelectedItem();
+
+            // get the string of the item
+            String treeItemValue = item.getValue();
+
+            SubmissionRecord submissionRecord = findRecord(treeItemValue);
+
+            if (submissionRecord.getStatus() == null) {
+                System.err.println("Status Null. Should not happen");
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Can not find job.", ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+
+            if (!submissionRecord.getStatus().equalsIgnoreCase("completed")) {
                 Alert alert = new Alert(Alert.AlertType.WARNING, "Please wait until job finishes.", ButtonType.OK);
                 alert.showAndWait();
             } else {
-                String localPathPrefix = records.get(jobID).getLocalOutputFilePath();
-                String output = records.get(jobID).getOutputFilePath();
+                String localPathPrefix = submissionRecord.getLocalOutputFilePath();
+                System.out.println("MainViewController 386: " + localPathPrefix);
+                String output = submissionRecord.getOutputFilePath();
                 String localPathTotal = localPathPrefix.substring(0, localPathPrefix.indexOf("/")) + File.separator + output;
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Save CSV File");
-                String path = records.get(jobID).getOutputFilePath();
+                String path = submissionRecord.getOutputFilePath();
+                System.out.println("MainViewController 392: " + path);
                 String fileName = path.substring(path.lastIndexOf("/") + 1, path.indexOf("."));
                 fileChooser.setInitialDirectory(new File(new File(localPathPrefix).getParent()));
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
@@ -389,6 +418,25 @@ public class MainViewController {
             }
         });
         historyTreeView.setContextMenu(new ContextMenu(deleteRecordOption, viewJobInfoOption, exportCSVOption));
+    }
+
+    private SubmissionRecord findRecord(String treeItemTitle) {
+        // init jobId for removal from JobHistory
+        String jobID;
+
+        Pattern pattern = Pattern.compile("[^(]*\\((.*)\\)");
+        Matcher matcher = pattern.matcher(treeItemTitle.trim());
+
+        if (matcher.find()) {
+            // find last group, in case user use parentheses in the name
+            jobID = matcher.group(matcher.groupCount());
+            ArrayList<SubmissionRecord> submissionRecords = new JobHistory().getHistory();
+            for (SubmissionRecord submissionRecord : submissionRecords) {
+                if (submissionRecord.getJob_id().equals(jobID))
+                    return submissionRecord;
+            }
+        }
+        return null;
     }
 
     /**
@@ -627,9 +675,10 @@ public class MainViewController {
     public void openSettings() throws IOException{
         Parent settingsView = FXMLLoader.load(getClass().getResource("/views/SettingsView.fxml"));
         Stage stage = new Stage();
-        stage.setMinWidth(800);
-        stage.setMinHeight(630);
-        stage.setHeight(630);
+        stage.setMinWidth(950);
+        stage.setMinHeight(680);
+        stage.setHeight(680);
+        stage.setWidth(950);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Settings");
         stage.setScene(new Scene(settingsView));

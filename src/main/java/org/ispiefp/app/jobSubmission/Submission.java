@@ -33,11 +33,13 @@ import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.Connection;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 public abstract class Submission {
 
@@ -125,38 +127,64 @@ public abstract class Submission {
 
     abstract void prepareJob(String efpmdPath, String inputFilePath, String outputFilename);
 
-    public boolean createJobWorkspace(String inputJobId, String pemKey) {
-        String jobID = inputJobId.replace(" ", "_");
-        String jobDirectory = getJobDirectory(jobID);
+    public boolean createJobWorkspace(String inputJobName, Connection con) {
+        String jobName = inputJobName.replace(" ", "_");
+        String jobDirectory = getJobDirectory(jobName);
         String command = submissionType.equalsIgnoreCase("LIBEFP") ?
                 String.format("mkdir %s; cd %s; mkdir input; mkdir output; mkdir fraglib;", jobDirectory, jobDirectory) :
                 String.format("mkdir %s; cd %s; mkdir input; mkdir output;", jobDirectory, jobDirectory);
-        setInputFilename(jobID);
-        setOutputFilename(jobID);
-        setSchedulerOutputName(jobID);
+
+        setInputFilename(jobName);
+        setOutputFilename(jobName);
+        setSchedulerOutputName(jobName);
+
+        boolean directoryExists = false;
         try {
-            org.ispiefp.app.util.Connection con = new org.ispiefp.app.util.Connection(server, pemKey);
             boolean isAuthenticated = con.connect();
             if (!isAuthenticated) {
                 System.err.println("Was unable to authenticate user");
                 con.close();
                 return false;
             }
+
             Session s = con.openSession();
+            s.startShell();
             /* Check to see if a job directory of this name already exists */
-            boolean directoryExists = false;
-            try {
-                SFTPv3Client sftp = new SFTPv3Client(con.getActiveConnection());
-                sftp.ls(jobDirectory);
-                System.err.println("This directory already exists");
+
+            String cmd = "ls " + jobDirectory + " && exit\n";
+            System.out.println("Submission 184: " + cmd);
+
+            PrintWriter writer = new PrintWriter(s.getStdin());
+            writer.println(cmd);
+            writer.close();
+
+            // reading stdout
+            String out = ReadStream(s.getStdout());
+
+            // reading stderr
+            String err = ReadStream(s.getStderr());
+
+            System.out.println("Submission 198, StdOut: " + out);
+            System.out.println("Submission 199, StdErr: " + err);
+
+            // Check if directory exists
+            if (err.length() > 0 && err.contains("cannot access")) {
+                System.out.println("No directory exists");
+                directoryExists = false;
+            }
+            if (out.length() > 0 && out.contains("input")) {
+                System.out.println("Directory Exists");
+                directoryExists = true;
+            }
+
+            if (directoryExists) {
+                // Dialog
                 Dialog<ButtonType> directoryAlreadyExistsDialog = new Dialog<>();
                 directoryAlreadyExistsDialog.setTitle("Warning: Directory Already Exists on Server");
-
 
                 // Set the button types.
                 ButtonType loginButtonType = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
                 directoryAlreadyExistsDialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
-
                 String warningMessage = "A job with this title already exists on the server. If you press continue, that\n" +
                         "job will be overwritten by the job you are now creating. Press cancel to go\nback and choose a " +
                         "different name or continue to overwrite that job.";
@@ -166,28 +194,45 @@ public abstract class Submission {
                 grid.setHgap(10);
                 grid.setVgap(10);
                 grid.setPadding(new Insets(20, 150, 10, 10));
-
                 grid.add(warningText, 0, 0);
-
                 directoryAlreadyExistsDialog.getDialogPane().setContent(grid);
-
                 Optional<ButtonType> choice = directoryAlreadyExistsDialog.showAndWait();
 
                 if (!choice.isPresent() || choice.get().getButtonData().isCancelButton()) {
                     System.err.println("User wants to rename the directory so as to not overwrite a job. Returning...");
                     return false;
                 }
-
-            } catch (IOException e) {
-                System.err.println("This directory does not exist");
             }
-            s.execCommand(command);
-            System.out.println("Executed command: " + command);
+
+
+            // execute create directory command, recreate session, because previous exited
+            s.close();
+            s = con.openSession();
+            s.startShell();
+            writer = new PrintWriter(s.getStdin());
+            writer.println(command);
+            writer.close();
+
             s.close();
             return true;
         } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
+    }
+
+    private String ReadStream(InputStream stream) throws IOException {
+        StringBuilder outputString = new StringBuilder();
+        InputStream inputStream = new StreamGobbler(stream);
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+        while (true) {
+            String line = br.readLine();
+            if (line == null) break;
+            outputString.append(line);
+            outputString.append('\n');
+        }
+        br.close();
+        return outputString.toString();
     }
 
     public boolean sendInputFile(File inputFile, String pemKey) throws IOException {

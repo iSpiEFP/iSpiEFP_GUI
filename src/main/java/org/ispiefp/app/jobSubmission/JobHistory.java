@@ -132,9 +132,9 @@ public class JobHistory {
                 while (!(currentLine = reader.readLine().trim()).equals(String.format("%s:", srTitle))) {
                     writer.write(currentLine + System.getProperty("line.separator"));
                 }
-                /* Writes the job entry title */
-                writer.write(currentLine + System.getProperty("line.separator"));
-                /* Skips old job entry */
+                /* DO NOT Write the job entry title, serialization already includes this */
+                /* Skips old job entry, including title and json */
+                reader.readLine();
                 reader.readLine();
                 /* Writes new entry */
                 writer.write(sr.getSerialization());
@@ -201,6 +201,8 @@ public class JobHistory {
             return successful;
         }
 
+
+
         ArrayList<String> getContainedJobs() {
             ArrayList<String> returnList = new ArrayList<>();
             BufferedReader br = null;
@@ -225,11 +227,10 @@ public class JobHistory {
                 String currentLine;
                 br = new BufferedReader(new FileReader(masterFile));
                 while (!(currentLine = br.readLine().trim()).equals(jobsDelimiter)) {
-                    System.out.println(currentLine);
+
                 }
                 while ((currentLine = br.readLine()) != null && !currentLine.isEmpty()) {
                     currentLine = br.readLine();
-                    System.out.println(currentLine);
                     returnList.add(gson.fromJson(currentLine, SubmissionRecord.class));
                 }
             } catch (IOException ioe) {

@@ -52,6 +52,7 @@ public class SettingsViewController {
     public CheckBox sshFileEncrypted;
     public Label sshFileEncryptedLabel;
     public Button fileChooser;
+    public TextField GAMESSScratchDirectoryPath;
     private PasswordField signInPasswordField;
     private TextField signInFileLocationField;
 
@@ -336,6 +337,7 @@ public class SettingsViewController {
             GAMESSInstallationPath.setText(si.getGamessPath());
         } else {
             hasGAMESSButton.setSelected(false);
+            GAMESSScratchDirectoryPath.setDisable(true);
             GAMESSInstallationPath.setDisable(true);
         }
         if (si.hasLibEFP()) {
@@ -380,6 +382,7 @@ public class SettingsViewController {
 
     @FXML
     private void enableGAMESSPath() {
+        GAMESSScratchDirectoryPath.setDisable(!hasGAMESSButton.isSelected());
         GAMESSInstallationPath.setDisable(!hasGAMESSButton.isSelected());
     }
 
@@ -434,6 +437,7 @@ public class SettingsViewController {
         if (hasGAMESSButton.isSelected()) {
             si.setHasGAMESS(true);
             si.setGamessPath(GAMESSInstallationPath.getText());
+            si.setGamessScratchDirectory(GAMESSScratchDirectoryPath.getText());
         } else {
             si.setHasGAMESS(false);
         }

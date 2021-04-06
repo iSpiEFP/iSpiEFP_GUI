@@ -39,6 +39,8 @@ public class ServerInfo implements Serializable {
     private String libEFPPath;
     private String gamessPath;
     private String scheduler;
+
+    private String gamessScratchDirectory;
     private ArrayList<String> queues;
 
     public ServerInfo(String entryname, boolean dummy){
@@ -62,8 +64,9 @@ public class ServerInfo implements Serializable {
             libEFPPath = parsedTerms[8];
             gamessPath = parsedTerms[9];
             scheduler = parsedTerms[10];
-            if (parsedTerms.length > 11) {
-                String queueString = parsedTerms[11];
+            gamessScratchDirectory = parsedTerms[11];
+            if (parsedTerms.length > 12) {
+                String queueString = parsedTerms[12];
                 String[] parsedQueues = queueString.split("#@#");
                 for (int i = 0; i < parsedQueues.length; i++) {
                     queues.add(parsedQueues[i]);
@@ -201,6 +204,14 @@ public class ServerInfo implements Serializable {
         this.sshKeyMethod = sshKeyMethod;
     }
 
+    public String getGamessScratchDirectory() {
+        return gamessScratchDirectory;
+    }
+
+    public void setGamessScratchDirectory(String gamessScratchDirectory) {
+        this.gamessScratchDirectory = gamessScratchDirectory;
+    }
+
     public String getServerInfoDefinedString(){
         StringBuilder sb = new StringBuilder();
         sb.append(entryname);
@@ -229,6 +240,8 @@ public class ServerInfo implements Serializable {
         sb.append(gamessPath);
         sb.append(";%;");
         sb.append(scheduler);
+        sb.append(";%;");
+        sb.append(gamessScratchDirectory);
         sb.append(";%;");
 //        for(String queue : queues){
 //            sb.append(queue);

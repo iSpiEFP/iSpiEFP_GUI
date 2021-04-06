@@ -33,8 +33,10 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.ispiefp.app.jobSubmission.JobHistory;
 import org.ispiefp.app.jobSubmission.SlurmSubmission;
 import org.ispiefp.app.jobSubmission.Submission;
+import org.ispiefp.app.jobSubmission.SubmissionRecord;
 import org.ispiefp.app.libEFP.SubmissionScriptTemplateViewController;
 import org.ispiefp.app.server.JobManager;
 import org.ispiefp.app.server.ServerInfo;
@@ -153,7 +155,7 @@ public class GamessInputController implements Initializable {
                 Integer numLines = Integer.parseInt(br.readLine());
                 br.readLine(); //Consume commentLine;
                 inputTextBuilder.append(String.format("C1\n", fragmentName));
-                for (int i = 1; i < numLines; i++) {
+                for (int i = 0; i < numLines; i++) {
                     String[] parsedLine = br.readLine().split("\\s+");
                     inputTextBuilder.append(String.format("%s  %s  %s  %s  %s\n",
                             parsedLine[0], atomicCharges.get(parsedLine[0].replaceAll("[^A-Za-z]", "")), parsedLine[1],
@@ -268,7 +270,7 @@ public class GamessInputController implements Initializable {
 
         /* Create the job workspace */
         try {
-            if (!submission.createJobWorkspace(title.getText(), keyPassword)) return;
+            if (!submission.createJobWorkspace(title.getText(), new Connection(selectedServer, null))) return;
         } catch (NullPointerException e) {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("GAMESS Submission");
@@ -307,7 +309,7 @@ public class GamessInputController implements Initializable {
                 submission.getOutputFilename(), title.getText(),
                 currentTime, "QUEUE", "GAMESS", keyPassword);
         jobManager.setJobID(submissionJobId);
-        UserPreferences.getJobsMonitor().addJob(jobManager);
+        new JobHistory().addJob(new SubmissionRecord(jobManager));
 
         /* Show alert that job submitted */
         Stage currentStage = (Stage) root.getScene().getWindow();

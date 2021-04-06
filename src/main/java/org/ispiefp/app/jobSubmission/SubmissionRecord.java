@@ -22,9 +22,18 @@
 
 package org.ispiefp.app.jobSubmission;
 
+import ch.ethz.ssh2.SCPClient;
+import ch.ethz.ssh2.SCPInputStream;
+import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.StreamGobbler;
 import com.google.gson.Gson;
 import org.ispiefp.app.server.JobManager;
+import org.ispiefp.app.server.ServerInfo;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class SubmissionRecord {
@@ -42,6 +51,10 @@ public class SubmissionRecord {
     private String stdoutputFilePath;
     private String localStdoutputFilePath;
     private ArrayList<String> usedEfpFilepaths;
+
+    private ServerInfo server;
+    private transient String keyPassword;
+    private String localWorkingDirectory;
 
 
     public SubmissionRecord(String name, String status, String submissionTime) {
@@ -64,6 +77,12 @@ public class SubmissionRecord {
         this.job_id = jm.getJobID();
         this.hostname = jm.getHostname();
         this.type = jm.getType();
+        this.server = jm.getServer();
+        this.keyPassword = jm.getKeyPassword();
+        this.localWorkingDirectory = jm.getLocalWorkingDirectory();
+        this.localOutputFilePath = jm.getLocalWorkingDirectory();
+        this.outputFilePath = jm.getOutputFilename();
+        this.stdoutputFilePath = jm.getErrorOutputFileName();
     }
 
     public SubmissionRecord(String jsonString) {
@@ -82,7 +101,7 @@ public class SubmissionRecord {
     }
 
     public String getName() {
-        return job_id;
+        return name;
     }
 
     public String getStatus() {
@@ -117,10 +136,16 @@ public class SubmissionRecord {
         return usedEfpFilepaths;
     }
 
-    public String getLocalOutputFilePath() { return localOutputFilePath; }
+    public String getLocalOutputFilePath() {
+        return localOutputFilePath;
+    }
 
     public String getLocalStdoutputFilePath() {
         return localStdoutputFilePath;
+    }
+
+    public String getLocalWorkingDirectory() {
+        return localWorkingDirectory;
     }
 
     public void setJob_id(String job_id) {
@@ -164,5 +189,126 @@ public class SubmissionRecord {
 
     public void setUsedEfpFilepaths(ArrayList<String> usedEfpFilepaths) {
         this.usedEfpFilepaths = usedEfpFilepaths;
+    }
+
+    public void checkStatus() throws IOException {
+        if (status.equals("FAILED") || status.equals("COMPLETED")) return;
+        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
+        conn.connect();
+
+        Session s = conn.openSession();
+        String cmd = String.format("squeue --job=%s --format=\"%%A %%T\"\n", job_id);
+        s.execCommand(cmd);
+
+        // reading result
+        StringBuilder outputString = new StringBuilder();
+        int i;
+        try {
+            InputStream output = s.getStdout();
+            while ((i = output.read()) != -1) outputString.append((char) i);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        StringBuilder errorString = new StringBuilder();
+        try {
+            InputStream output = s.getStderr();
+            while ((i = output.read()) != -1) errorString.append((char) i);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // extracting status from output
+        String extractStatus = outputString.toString();
+//        System.out.println("SubmissionRecord 219: " + extractStatus);
+//        System.out.println("SubmissionRecord 220: " + errorString.toString());
+        try {
+            // extract status code based on https://slurm.schedmd.com/squeue.html
+            // in JOB STATE CODES section
+            if (errorString.toString().contains("Invalid job id")) throw new ArrayIndexOutOfBoundsException();
+            extractStatus = extractStatus.split("\n")[1].split(" ")[1];
+//            System.out.println("SubmissionRecord 226: " + extractStatus);
+            setStatus(extractStatus);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            if (!errorString.toString().contains("Invalid job id")) {
+                System.err.println("PARSING Job Status failed...");
+            }
+            // should be done, because squeue doesn't have record
+            setStatus("COMPLETED");
+        } finally {
+            s.close();
+            conn.close();
+        }
+    }
+
+    /*
+     * get output file from a lib efp job
+     */
+    public String getRemoteFile(String filename) throws IOException {
+        SCPInputStream scpos = null;
+        InputStream stdout = null;
+        BufferedReader br = null;
+        org.ispiefp.app.util.Connection conn = null;
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            conn = new org.ispiefp.app.util.Connection(server, keyPassword);
+            conn.connect();
+
+            SCPClient scp = conn.createSCPClient();
+            scpos = scp.get(filename);
+            stdout = new StreamGobbler(scpos);
+            br = new BufferedReader(new InputStreamReader(stdout));
+            while (true) {
+                String line = br.readLine();
+                if (line == null)
+                    break;
+                sb.append(line + "\n");
+            }
+            return sb.toString();
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+//            e.printStackTrace();
+            conn.close();
+        } finally {
+            if (scpos != null) {
+                //scpos.close();
+            }
+            if (stdout != null) {
+                stdout.close();
+            }
+            if (br != null) {
+                br.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return sb.toString();
+    }
+
+    public void moveGamessScratchFiles() {
+        org.ispiefp.app.util.Connection conn = new org.ispiefp.app.util.Connection(server, keyPassword);
+        conn.connect();
+        Session s = null;
+        try {
+            s = conn.openSession();
+            // get scratch directory
+            String scratchDir = server.getGamessScratchDirectory().trim();
+            if (scratchDir.charAt(scratchDir.length() - 1) != '/') scratchDir += '/';
+            String outputFileDir = outputFilePath.substring(0, outputFilePath.lastIndexOf('/'));
+            System.out.println("SubmissionRecord 301: " + outputFileDir);
+            String cmd = String.format("mv %s.dat %s && mv %s.efp %s\n", scratchDir + name.replace(" ", "_"), outputFileDir, scratchDir + name.replace(" ", "_"), outputFileDir);
+            System.out.println("SubmissionRecord 303: " + cmd);
+            s.execCommand(cmd);
+            s.close();
+            conn.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (s != null) s.close();
+            conn.close();
+        }
     }
 }

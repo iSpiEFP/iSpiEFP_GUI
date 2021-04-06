@@ -99,7 +99,7 @@ public class Main extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-        UserPreferences.setJobsMonitorBeforeExit(UserPreferences.getJobsMonitor().toJson());
+        UserPreferences.getJobsMonitor().runOnce();
         System.exit(0);
     }
 
