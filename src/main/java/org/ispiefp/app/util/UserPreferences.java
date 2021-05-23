@@ -22,6 +22,7 @@
 
 package org.ispiefp.app.util;
 
+import org.ispiefp.app.gamess.GamessMakeEFPPreset;
 import org.ispiefp.app.installer.LocalBundleManager;
 import org.ispiefp.app.jobSubmission.JobsMonitor;
 import org.ispiefp.app.libEFP.CalculationPreset;
@@ -51,6 +52,7 @@ public class UserPreferences {
     private static final String LIBEFP_OUTPUT_KEY = "libefpOutputPath";
     private static final String ENCRYPT_KEY = "encryptionKey";
     private static final String LIBEFP_PRESETS_KEY = "libefpPresets";
+    private static final String GAMESS_MAKEEFP_PRESETS_KEY = "gamessMakeEFPPresets";
     private static final String LIBEFP_RJOBS_KEY = "libefprunningjobs";
     private static final String SERVERS_KEY = "servers";
 
@@ -71,6 +73,7 @@ public class UserPreferences {
     private static String libefpOutputPath = null;
     private static String libefpRunningJobs = null;
     private static HashMap<String, CalculationPreset> libefpPresets;
+    private static HashMap<String, GamessMakeEFPPreset> gamessMakeEFPPresets;
     private static HashMap<String, ServerInfo> servers;
     private static JobsMonitor jobsMonitor;
 
@@ -150,19 +153,30 @@ public class UserPreferences {
         /* libEFP preset Initialization */
         libefpPresets = new HashMap<>();
         String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
-        if (!encodedString.equals("check")){
-            String [] predefinedStringArray = encodedString.split("%@%");
-            for (int i = 0; i < predefinedStringArray.length; i++){
+        if (!encodedString.equals("check")) {
+            String[] predefinedStringArray = encodedString.split("%@%");
+            for (int i = 0; i < predefinedStringArray.length; i++) {
                 CalculationPreset newCP = new CalculationPreset(predefinedStringArray[i]);
                 libefpPresets.put(newCP.getTitle(), newCP);
+            }
+        }
+
+        /* Gamess MakeEFP Preset Initialization */
+        gamessMakeEFPPresets = new HashMap<>();
+        encodedString = userPrefs.get(GAMESS_MAKEEFP_PRESETS_KEY, "check");
+        if (!encodedString.equals("check")) {
+            String[] predefinedStringArray = encodedString.split("%@%");
+            for (int i = 0; i < predefinedStringArray.length; i++) {
+                GamessMakeEFPPreset newPreset = new GamessMakeEFPPreset(predefinedStringArray[i]);
+                gamessMakeEFPPresets.put(newPreset.getTitle(), newPreset);
             }
         }
 
         /* Server Settings Initialization */
         servers = new HashMap<>();
         encodedString = userPrefs.get(SERVERS_KEY, "check");
-        if (!encodedString.equals("check")){
-            String [] serverStringArray = encodedString.split("%@%");
+        if (!encodedString.equals("check")) {
+            String[] serverStringArray = encodedString.split("%@%");
             for (int i = 0; i < serverStringArray.length; i++) {
                 if (!serverStringArray[i].equals("")) {
                     ServerInfo newServer = new ServerInfo(serverStringArray[i]);
@@ -197,7 +211,7 @@ public class UserPreferences {
         String encodedString = userPrefs.get(LIBEFP_PRESETS_KEY, "check");
         String [] simpleString = encodedString.split("%@%");
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < simpleString.length; i++){
+        for (int i = 0; i < simpleString.length; i++) {
             if (simpleString[i].equals(name)) continue;
             sb.append(simpleString[i]);
             if (i != simpleString.length - 1) sb.append("%@%");
@@ -205,12 +219,40 @@ public class UserPreferences {
         userPrefs.put(LIBEFP_PRESETS_KEY, sb.toString());
     }
 
-    public static HashMap<String, CalculationPreset> getLibEFPPresets(){
+    public static HashMap<String, CalculationPreset> getLibEFPPresets() {
         return libefpPresets;
-
     }
 
-    public static void addServer(ServerInfo si){
+    public static void addGamessMakeEFPPreset(GamessMakeEFPPreset preset) {
+        String encodedString = userPrefs.get(GAMESS_MAKEEFP_PRESETS_KEY, "check");
+        if (encodedString.equals("check")) {
+            userPrefs.put(GAMESS_MAKEEFP_PRESETS_KEY, preset.getMakeEFPPresetDefinedString());
+        } else {
+            if (!gamessMakeEFPPresets.containsKey(preset.getTitle())) {
+                userPrefs.put(GAMESS_MAKEEFP_PRESETS_KEY, encodedString + "%@%" + preset.getMakeEFPPresetDefinedString());
+            }
+            gamessMakeEFPPresets.put(preset.getTitle(), preset);
+        }
+    }
+
+    public static void removeGamessMakeEFPPreset(String name) {
+        gamessMakeEFPPresets.remove(name);
+        String encodedString = userPrefs.get(GAMESS_MAKEEFP_PRESETS_KEY, "check");
+        String[] simpleString = encodedString.split("%@%");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < simpleString.length; i++) {
+            if (simpleString[i].equals(name)) continue;
+            sb.append(simpleString[i]);
+            if (i != simpleString.length - 1) sb.append("%@%");
+        }
+        userPrefs.put(GAMESS_MAKEEFP_PRESETS_KEY, sb.toString());
+    }
+
+    public static HashMap<String, GamessMakeEFPPreset> getGamessMakeEFPPresets() {
+        return gamessMakeEFPPresets;
+    }
+
+    public static void addServer(ServerInfo si) {
         String encodedString = userPrefs.get(SERVERS_KEY, "check");
         if (encodedString.equals("check")) {
             userPrefs.put(SERVERS_KEY, si.getServerInfoDefinedString());
@@ -424,9 +466,12 @@ public class UserPreferences {
         }
     }
 
-    public static Set<String> getLibEFPPresetNames(){
+    public static Set<String> getLibEFPPresetNames() {
         return libefpPresets.keySet();
+    }
 
+    public static Set<String> getGamessMakeEFPPresetNames() {
+        return gamessMakeEFPPresets.keySet();
     }
 
     public static void setUserParameterPath(String value) {

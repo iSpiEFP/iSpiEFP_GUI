@@ -22,6 +22,8 @@
 
 package org.ispiefp.app.gamess;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -29,6 +31,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -47,9 +50,7 @@ import java.io.*;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Handle all Gamess input and job submission for Gamess
@@ -60,25 +61,7 @@ public class GamessInputController implements Initializable {
     private Parent root;
 
     @FXML
-    private TextField title;
-
-    @FXML
-    private TextField gBasis;
-
-    @FXML
-    private CheckBox customBasis;
-
-    @FXML
-    private TextField customBasisPath;
-
-    @FXML
     private Button findCustomBasis;
-
-    @FXML
-    private ComboBox<String> server;
-
-    @FXML
-    private TextField localWorkingDirectory;
 
     @FXML
     private Button findButton;
@@ -86,14 +69,82 @@ public class GamessInputController implements Initializable {
     @FXML
     private TextArea gamessInputTextArea;
 
+    /* Text Fields */
     @FXML
-    private ComboBox<String> serversList;
+    private TextField localWorkingDirectory;
+    @FXML
+    private TextField title;
+    @FXML
+    private TextField chargeTextField;
+    @FXML
+    private TextField multiplicityTextField;
+    @FXML
+    private TextField customBasisPath; //Currently unused
+    @FXML
+    private TextField gBasis; //Currently unused
 
+    /* Check Boxes */
+    @FXML
+    private CheckBox elecBox;
+    @FXML
+    private CheckBox polBox;
+    @FXML
+    private CheckBox dispBox;
+    @FXML
+    private CheckBox exrepBox;
+    @FXML
+    private CheckBox disp7Box;
+    @FXML
+    private CheckBox chtrBox;
+    @FXML
+    private CheckBox elecScreenBox;
+    @FXML
+    private CheckBox chargesBox;
+    @FXML
+    private CheckBox multipolesBox;
+    @FXML
+    private CheckBox qmFragBox;
+
+
+    @FXML
+    private CheckBox customBasis; //Currently unused
+
+    /* Combo Boxes */
+    @FXML
+    private ComboBox<String> server;
+    @FXML
+    private ComboBox<String> referenceComboBox;
+    @FXML
+    private ComboBox<String> basisComboBox;
+    @FXML
+    private ComboBox<String> orbitalLocalizationComboBox;
+    @FXML
+    private ComboBox<String> presetComboBox;
+
+
+    @FXML
+    private HBox screeningOptionsBox;
     private File xyzFile;
 
     private String chosenBasisFilepath;
 
     private HashMap<String, String> atomicCharges;
+
+    private static ArrayList<String> supportedBasisSets = new ArrayList<String>(Arrays.asList(
+            "S(6-31G*)",
+            "M(6-31+G*)",
+            "B(6-311++G(3df,2p))",
+            "Mixed S/B (Not supported)",
+            "Mixed M/B (Not supported)",
+            "Custom input"));
+
+    private static ArrayList<String> supportedReferenceTypes = new ArrayList<>(Arrays.asList("RHF", "ROHF", "UHF"));
+
+    private static ArrayList<String> supportedOrbitalLocalizations = new ArrayList<>(Arrays.asList(
+            "Boys",
+            "Pipek-Mezey",
+            "Ruedenberg"
+    ));
 
     public GamessInputController() {
         atomicCharges = new HashMap<>();
@@ -114,37 +165,75 @@ public class GamessInputController implements Initializable {
         } else {
             server.getItems().setAll(UserPreferences.getServers().keySet());
         }
+        //Initialize selected server
+        if (server.getItems().size() > 0) {
+            server.getSelectionModel().select(0);
+        }
 
-        gBasis.setText("n31 ngauss=6 ndfunc=1 diffsp=.t.");
-        toggleBasis();
+        //todo Initialize preset values
 
-        gBasis.textProperty().addListener((observable, oldValue, newValue) -> {
-            setgBasis();
-        });
+        //Initialize reference checkbox
+        referenceComboBox.getItems().setAll(supportedReferenceTypes);
+        referenceComboBox.getSelectionModel().select("RHF");
+        //Initialize basis checkbox
+        basisComboBox.getItems().setAll(supportedBasisSets);
+        basisComboBox.getSelectionModel().select("S(6-31G*)");
+        //Initialize orbital screening checkbox
+        orbitalLocalizationComboBox.getItems().setAll(supportedOrbitalLocalizations);
+        orbitalLocalizationComboBox.getSelectionModel().select("Boys");
 
         localWorkingDirectory.textProperty().addListener((observable, oldValue, newValue) -> {
             setLocalWorkingDirectory();
         });
 
-        customBasisPath.textProperty().addListener((observable, oldValue, newValue) -> {
-            setCustomBasisPath();
+        chargeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateGamessInputText();
         });
+
+        multiplicityTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateGamessInputText();
+        });
+
+        ObservableList<String> available_presets = FXCollections.observableArrayList();
+        available_presets.addAll(UserPreferences.getGamessMakeEFPPresetNames());
+        presetComboBox.getItems().addAll(available_presets);
+        presetComboBox.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                loadPreset(UserPreferences.getGamessMakeEFPPresets().get(newValue));
+            }
+        }));
+
+//        customBasisPath.textProperty().addListener((observable, oldValue, newValue) -> {
+//            setCustomBasisPath();
+//        });
     }
 
     @FXML
     private void updateGamessInputText() {
         StringBuilder inputTextBuilder = new StringBuilder();
-        String controlLine = " $contrl units=angs local=boys runtyp=makefp coord=cart icut=11 $end\n";
+        String controlLine = String.format(" $contrl runtyp=makefp icharg=%s mult=%s scftyp=%s local=%s" +
+                        " coord=cart icut=11 units=angs $end\n",
+                chargeTextField.getText(),
+                multiplicityTextField.getText(),
+                referenceComboBox.getSelectionModel().getSelectedItem(),
+                orbitalLocalizationComboBox.getSelectionModel().getSelectedItem());
         String systemLine = " $system timlim=99999 mwords=200 $end\n";
-        String selfConsistentFieldLine = " $scf dirscf=.t. soscf=.f. diis=.t. conv=1.0d-06 $end\n";
-        String dampingLine = " $damp ifttyp(1)=2,0 iftfix(1)=1,1 thrsh=500.0 $end\n";
-        String basisLine = customBasis.isSelected() ? String.format(" $basis extfil=%s\n", customBasisPath.getText()) :
-                String.format(" $basis gbasis=%s $end\n", gBasis.getText());
-        String makeEFPLine = " $makefp chtr=.f. disp7=.f. $end\n";
+        String screeningOptionString = "2,0";
+        String dampingLine = String.format(" $damp ifttyp(1)=%s iftfix(1)=1,1 thrsh=500.0 $end\n",
+                screeningOptionString);
+        String basisLine = String.format(" $basis %s $end\n",
+                getBasisOptionString(basisComboBox.getSelectionModel().getSelectedItem()));
+        String makeEFPLine = String.format(" $makefp elec=%s pol=%s exrep=%s disp=%s chtr=%s disp7=%s screen=%s $end\n",
+                getCheckBoxOptionString(elecBox),
+                getCheckBoxOptionString(polBox),
+                getCheckBoxOptionString(exrepBox),
+                getCheckBoxOptionString(dispBox),
+                getCheckBoxOptionString(chtrBox),
+                getCheckBoxOptionString(disp7Box),
+                getCheckBoxOptionString(elecScreenBox));
         inputTextBuilder.append(controlLine);
         inputTextBuilder.append(systemLine);
-        inputTextBuilder.append(selfConsistentFieldLine);
-        inputTextBuilder.append(dampingLine);
+        if (elecScreenBox.isSelected()) inputTextBuilder.append(dampingLine);
         inputTextBuilder.append(basisLine);
         inputTextBuilder.append(makeEFPLine);
         inputTextBuilder.append("\n $data\n\n");
@@ -166,7 +255,63 @@ public class GamessInputController implements Initializable {
             }
         }
         inputTextBuilder.append(" $end\n");
-        gamessInputTextArea.setText(inputTextBuilder.toString());
+        gamessInputTextArea.setText(formatInputText(inputTextBuilder.toString()));
+    }
+
+    public String formatInputText(String rawInputText) {
+        int charLimit = 72;
+        String[] rawLines = rawInputText.split("\n");
+        System.out.println(rawLines.toString());
+        for (String rawLine : rawLines) System.out.println(rawLine);
+        for (int i = 0; i < rawLines.length; i++) {
+            String line = rawLines[i];
+            if (line.length() > charLimit) {
+                StringBuilder correctedLine = new StringBuilder();
+                int startIndex = 0;
+                while (startIndex < line.length()) {
+                    int endIndex = Math.min(startIndex + charLimit, line.length());
+                    if (endIndex != line.length()) {
+                        String section = line.substring(startIndex, endIndex);
+                        int idxLastSpace = section.lastIndexOf(' ');
+                        System.out.println(idxLastSpace);
+                        correctedLine.append(section.substring(0, idxLastSpace) + '\n' + section.substring(idxLastSpace + 1));
+                    } else {
+                        correctedLine.append(line.substring(startIndex));
+                    }
+                    startIndex = endIndex;
+                }
+                rawLines[i] = correctedLine.toString();
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String line : rawLines) {
+            sb.append(line);
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+    /* Function last updated to support the following
+    "S(6-31G*)",
+    "M(6-31+G*)",
+    "B(6-311++G(3df,2p))",
+    "Mixed S/B (Not supported)",
+    "Mixed M/B (Not supported)",
+    "Custom input";
+     */
+    public String getBasisOptionString(String selectedBasis) {
+        HashMap<String, String> optionMap = new HashMap<>();
+        optionMap.put("S(6-31G*)", "gbasis=n31 ngauss=6 ndfunc=1");
+        optionMap.put("M(6-31+G*)", "gbasis=n31 ngauss=6 ndfunc=1 diffsp=.t.");
+        optionMap.put("B(6-311++G(3df,2p))", "gbasis=n311 ngauss=6 npfunc=2 ndfunc=3 nffunc=1 diffsp=.t. diffs=.t.");
+        optionMap.put("Custom input", "<REPLACE THIS TEXT WITH CUSTOM BASIS SETTINGS");
+        if (selectedBasis.contains("Not supported")) return "NOT SUPPORTED";
+        else return optionMap.get(selectedBasis);
+    }
+
+    public String getCheckBoxOptionString(CheckBox cb) {
+        if (cb.isSelected()) return ".t.";
+        else return ".f.";
     }
 
     public void findDirectory() {
@@ -216,6 +361,13 @@ public class GamessInputController implements Initializable {
             // Handle the exception appropriately!
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void toggleScreening() {
+        qmFragBox.setSelected(elecScreenBox.isSelected());
+        chargesBox.setSelected(elecScreenBox.isSelected());
+        updateGamessInputText();
     }
 
     @FXML
@@ -336,6 +488,50 @@ public class GamessInputController implements Initializable {
             return null;
         }
         return file;
+    }
+
+    public void savePreset() {
+        Boolean[] terms = {elecBox.isSelected(),
+                polBox.isSelected(), dispBox.isSelected(), exrepBox.isSelected(),
+                disp7Box.isSelected(), chtrBox.isSelected(), elecScreenBox.isSelected()};
+
+        GamessMakeEFPPreset newPreset = new GamessMakeEFPPreset(
+                title.getText(),
+                "makefp",
+                chargeTextField.getText(),
+                multiplicityTextField.getText(),
+                referenceComboBox.getSelectionModel().getSelectedItem(),
+                basisComboBox.getSelectionModel().getSelectedItem(),
+                terms,
+                orbitalLocalizationComboBox.getSelectionModel().getSelectedItem()
+        );
+        UserPreferences.addGamessMakeEFPPreset(newPreset);
+        presetComboBox.getItems().add(newPreset.getTitle());
+        presetComboBox.getSelectionModel().select(newPreset.getTitle());
+    }
+
+    private void loadPreset(GamessMakeEFPPreset preset) {
+        chargeTextField.setText(preset.getCharge());
+        multiplicityTextField.setText(preset.getMultiplicity());
+        referenceComboBox.getSelectionModel().select(preset.getScftype());
+        basisComboBox.getSelectionModel().select(preset.getBasis());
+        Boolean[] terms = preset.getTerms();
+        elecBox.setSelected(terms[0]);
+        polBox.setSelected(terms[1]);
+        dispBox.setSelected(terms[2]);
+        exrepBox.setSelected(terms[3]);
+        disp7Box.setSelected(terms[4]);
+        chtrBox.setSelected(terms[5]);
+        elecScreenBox.setSelected(terms[6]);
+        orbitalLocalizationComboBox.getSelectionModel().select(preset.getOrbitalLocalization());
+        updateGamessInputText();
+    }
+
+    @FXML
+    public void deletePreset() {
+        if (presetComboBox.getSelectionModel().isEmpty()) return;
+        UserPreferences.removeGamessMakeEFPPreset(presetComboBox.getSelectionModel().getSelectedItem());
+        presetComboBox.getItems().remove(presetComboBox.getSelectionModel().getSelectedItem());
     }
 
     public void setXyzFile(File xyzFile) {

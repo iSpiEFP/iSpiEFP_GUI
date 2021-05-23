@@ -34,12 +34,8 @@ import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.Connection;
 
 import java.io.*;
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Optional;
-import java.util.TimeZone;
 
 public abstract class Submission {
 
@@ -152,7 +148,6 @@ public abstract class Submission {
             /* Check to see if a job directory of this name already exists */
 
             String cmd = "ls " + jobDirectory + " && exit\n";
-            System.out.println("Submission 184: " + cmd);
 
             PrintWriter writer = new PrintWriter(s.getStdin());
             writer.println(cmd);
@@ -163,9 +158,6 @@ public abstract class Submission {
 
             // reading stderr
             String err = ReadStream(s.getStderr());
-
-            System.out.println("Submission 198, StdOut: " + out);
-            System.out.println("Submission 199, StdErr: " + err);
 
             // Check if directory exists
             if (err.length() > 0 && err.contains("cannot access")) {

@@ -26,6 +26,7 @@ import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.SCPOutputStream;
 import ch.ethz.ssh2.Session;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.ispiefp.app.server.ServerInfo;
 import org.ispiefp.app.util.Connection;
@@ -83,7 +84,9 @@ public class SlurmSubmission extends Submission {
         );
     }
 
-    public String getGAMESSSubmissionScriptText(){
+    public String getGAMESSSubmissionScriptText() {
+        String efpFilename = FilenameUtils.removeExtension(outputFilename) + ".efp";
+        String datFilename = FilenameUtils.removeExtension(outputFilename) + ".dat";
         return String.format(
                 "#!/bin/csh\n" +
 //                        "#SBATCH --chdir=../input/\n" +
@@ -93,12 +96,16 @@ public class SlurmSubmission extends Submission {
                         "#SBATCH -n %d\n" +
                         "#SBATCH -t %s\n" +
                         "#SBATCH --mem=%d\n" +
-                        "%s %s > ../output/%s\n",
+                        "%s %s > ../output/%s\n" +
+                        "cp %s ../output/%s\n" +
+                        "cp %s ../output/%s\n",
                 schedulerOutputName,
                 queueName, numNodes, numProcessors, walltime,
                 mem, gamessPath,
                 inputFilePath,
-                outputFilename
+                outputFilename,
+                "$HOME/scr/" + efpFilename, efpFilename,
+                "$HOME/scr/" + datFilename, datFilename
         );
     }
 
@@ -131,8 +138,6 @@ public class SlurmSubmission extends Submission {
             /* Reopen the session and call sbatch on the submission script */
             Session s = con.openSession();
             //todo: Eventually someone will need to remove the hard coded "\n" below and replace it with the line delimiter of the SERVER not the user's computer. Look at uname command.
-            System.out.println("SlurmSubmission 133: " + getJobInputDirectory());
-            System.out.println("SlurmSubmission 134: " + remoteFileName);
             String queueCommand = String.format("cd %s && sbatch %s\n", getJobInputDirectory(), remoteFileName);
             s.execCommand(queueCommand);
             StringBuilder outputJobId = new StringBuilder();
